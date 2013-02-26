@@ -1,0 +1,10 @@
+name: vdrones
+description: A sample web application
+dependencies:
+  asset_pack: any
+  unittest: any
+  box2d: any
+  browser: any
+  three:
+    path: /home/dwayne/dart/three.dart
+  logging: 0.3.7+6
