@@ -2,3 +2,5 @@ pubspec.lock
 *.js
 *.js.*
 *.coffee
+package
+packages
