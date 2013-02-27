@@ -78,7 +78,7 @@ main() {
     var fs = new List<Future>();
 
     for(var i = 0; i < 100; i++) {
-      fs.add(new Future.immediate(i).then((x) => x * 2).then((x){sut.add(x); return x;}));
+      fs.add(new Future.immediate(i).then((x) => x * 2).then((x) => new Future.of((){ sut.add(x); return x;})));
     }
     Future.wait(fs).then((x){ print('DONE : ${sut.length}'); running = false; return true;}).catchError((e){print(e);});
   });
