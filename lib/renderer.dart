@@ -1,6 +1,6 @@
 library vdrones_renderer;
 
-import 'package:three/three.dart' as three;
+//import 'package:three/three.dart' as three;
 import 'dart:html';
 import 'dart:async';
 import 'dart:math' as math;
@@ -8,6 +8,8 @@ import 'events.dart';
 import 'entities.dart';
 import 'animations.dart';
 import 'package:logging/logging.dart';
+
+import 'package:js/js.dart' as js;
 
 class CameraMove {
   num offsetX = -1;
@@ -24,31 +26,35 @@ class CameraMove {
 }
 
 void setupRenderer(Evt evt, Element container, Animator animator) {
+    final THREE = js.context.THREE;
+    js.retain(THREE);
 //  if (!webglDetector.webgl) {
 //    // #TODO display message if Webgl required
-//    //#_renderer = new three.CanvasRenderer()
+//    //#_renderer = new js.Proxy(THREE.CanvasRenderer, )
 //    throw new UnsupportedError('WebGL unsupported');
 //  }
 
   var _anims = new Map<String, Map<String, Animate>>();
   var _logger = new Logger("renderer");
-  var _scene = new three.Scene();
+  var _scene = new js.Proxy(THREE.Scene);
+  js.retain(_scene);
   var _devMode = false;
   var _areaBox = null;
   var _cameraTargetObjId = null;
-  three.Object3D _cameraTargetObj = null;
+  var _cameraTargetObj = null;
 
-  //#_camera = new three.PerspectiveCamera(75, 1, 1, 500)
-  var _camera = new three.OrthographicCamera(10,10,10,10, 1, 1000);
-  //#_camera =  new three.CombinedCamera(-20, -20, 45, 1, 500, 1, 1000)
+  //#_camera = new js.Proxy(THREE.PerspectiveCamera, 75, 1, 1, 500)
+  var _camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, 1000]);
+  //#_camera =  new js.Proxy(THREE.CombinedCamera, -20, -20, 45, 1, 500, 1, 1000)
   //#_camera.toOrthographic()
   //_camera.gameDriven = true;
   //#HACK to clean
   //#see http://help.dottoro.com/ljorlllt.php
+  js.retain(_camera);
 
 
   var cmove = new CameraMove(container);
-  void nLookAt(three.Camera camera, three.Vector3 v3) {
+  void nLookAt(camera, v3) {
     var dx = ( (cmove.x + cmove.deltaX) / container.clientWidth - 0.5 ) * 100;
     var dy =- ( (cmove.y + cmove.deltaY) / container.clientHeight - 0.5 ) * 100;
     camera.position.z = v3.z + 30;
@@ -78,13 +84,13 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   });
   nLookAt(_camera, _scene.position);
   _scene.add(_camera);
-  //#_cameraControls = new three.DragPanControls(_camera)
+  //#_cameraControls = new js.Proxy(THREE.DragPanControls, _camera)
 
-  var _renderer = new three.WebGLRenderer(
-    clearAlpha: 1,
-    antialias: true
+  var _renderer = new js.Proxy(THREE.WebGLRenderer, js.map({
+    "clearAlpha": 1,
+    "antialias": true
     //#preserveDrawingBuffer: true # to allow screenshot
-  );
+  }));
   //_renderer.shadowMapEnabled = true;
   //_renderer.shadowMapSoft = true;
   _renderer.shadowMapEnabled = true;
@@ -93,6 +99,7 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   _renderer.setClearColorHex(0xEEEEEE, 1.0);
   _renderer.autoClear = true;
   _renderer.clear();
+  js.retain(_renderer);
 
   void updateViewportSize(evt){
     var w = container.clientWidth; //window.innerWidth
@@ -113,9 +120,12 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   Window.resizeEvent.forTarget(window).listen(updateViewportSize);
 
 
-  var v3zero = new three.Vector3(0,0,0);
+  var v3zero = new js.Proxy(THREE.Vector3, 0,0,0);
+  js.retain(v3zero);
 
   void render() {
+  js.scoped((){
+
     // you need to update lookAt every frame
     if (_cameraTargetObj != null) {
       if (_cameraTargetObj.position.z != Z_HIDDEN) {
@@ -125,15 +135,17 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
       nLookAt(_camera, v3zero);
     }
     _renderer.render(_scene, _camera);
+});
+
   }
 
-  void addLights(three.Scene scene, three.Camera camera) {
-    var ambient= new three.AmbientLight( 0x444444 );
+  void addLights(scene, camera) {
+    var ambient= new js.Proxy(THREE.AmbientLight,  0x444444 );
     scene.add(ambient);
 
-    var light = new three.SpotLight( 0xffffff, 1, 0, math.PI, 1 );
-    light.position.setValues( 0, 10, 100 );
-    light.target.position.setValues( 0, 0, 0 );
+    var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1, 0, math.PI, 1] );
+    light.position.set( 0, 10, 100 );
+    light.target.position.set( 0, 0, 0 );
 
     light.castShadow = true;
 
@@ -151,7 +163,7 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
 
     scene.add(light);
 
-//    var mainlight = new three.DirectionalLight( 0xffffff );
+//    var mainlight = new js.Proxy(THREE.DirectionalLight,  0xffffff );
 //    //shadow stuff
 //    mainlight.shadowCameraNear = 10;
 //    mainlight.shadowCameraFar = 500;
@@ -166,7 +178,7 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
 //    mainlight.rotation.set(0,-0.5,1); //setting elevation and azimuth via mainlight's parent
 //
 //    //group
-//    lights = new three.Object3D();
+//    lights = new js.Proxy(THREE.Object3D, );
 //    lights.name = "lights";
 //
 //    lights.add( mainlight ); //adding mainlight as child to lightTarget (easy rotation controls via parent)
@@ -174,6 +186,7 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   }
 
   void start(){
+    js.scoped((){
     addLights(_scene, _camera);
 //    if (_devMode)
 //      evt.SetupDatGui.dispatch((gui) ->
@@ -190,9 +203,11 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
 //      )
 //    else
 //      null
+    });
   }
 
   void spawnObj(String id, Position pos, EntityProvider gpof, [options]) {
+    js.scoped((){
     print("spawnObj ${id}");
     var ids = id.split('>');
     var parent = _scene;
@@ -232,9 +247,12 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
     if (_cameraTargetObjId == name) {
       _cameraTargetObj = obj;
     }
+    js.retain(obj);
+    });
   }
 
   void despawnObj(String id, [options]) {
+    js.scoped((){
     var p = new Future.of((){
       var obj = _scene.getChildByName(id, false);
       if (obj == null) throw new StateError("obj not found : ${id}");
@@ -255,6 +273,8 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
       if (options["deferred"] != null) {
         options["deferred"].complete(obj);
       }
+      //js.release(obj);
+    });
     });
   }
 
@@ -311,8 +331,10 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   evt.GameStart.add(start);
   evt.Render.add(render);
   evt.SetLocalDroneId.add((objId){
+  js.scoped((){
     _cameraTargetObjId = objId;
     _cameraTargetObj = _scene.getChildByName(_cameraTargetObjId, false);
+  });
   });
   evt.AreaSpawn.add(spawnObj);
   evt.ObjSpawn.add(spawnObj);

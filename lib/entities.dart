@@ -1,8 +1,8 @@
 library vdrones_entities;
 
-import 'package:three/three.dart' as three;
-import 'package:three/extras/geometry_utils.dart' as GeometryUtils;
-//import 'package:js/js.dart' as js;
+//import 'package:three/three.dart' as three;
+//import 'package:three/extras/geometry_utils.dart' as GeometryUtils;
+
 
 import 'package:box2d/box2d_browser.dart';
 import 'animations.dart' as animations;
@@ -13,6 +13,8 @@ import 'dart:math' as math;
 import 'dart:json' as JSON;
 import 'dart:html';
 import 'dart:svg' as svg;
+
+import 'package:js/js.dart' as js;
 
 class EntityTypes {
   static const WALL =   0x0001;
@@ -29,7 +31,7 @@ class Object2D {
 
 class EntityProvider {
   Object2D obj2dF() => null;
-  three.Object3D obj3dF() => null;
+  js.Proxy obj3dF() => null;
   final anims = new Map<String, animations.Animate>();
 
   EntityProvider();
@@ -37,10 +39,10 @@ class EntityProvider {
 
 class EntityProvider4Static extends EntityProvider {
   Object2D _obj2d;
-  three.Object3D _obj3d;
+  js.Proxy _obj3d;
 
   Object2D obj2dF() => _obj2d;
-  three.Object3D obj3dF() => _obj3d;
+  js.Proxy obj3dF() => _obj3d;
   final anims = new Map<String, animations.Animate>();
   List<num> cells;
   num cellr;
@@ -49,9 +51,14 @@ class EntityProvider4Static extends EntityProvider {
 }
 
 class EntityProvider4Axis extends EntityProvider {
-  three.Object3D obj3dF() {
-    var o = new three.AxisHelper();
+  js.Proxy obj3dF() {
+    var o;
+    js.scoped((){
+    final THREE = js.context.THREE;
+    o = new js.Proxy(THREE.AxisHelper);
     o.scale.setValues(0.1, 0.1, 0.1); //# default length of axis is 100
+    js.retain(o);
+    });
     return o;
   }
 }
@@ -70,30 +77,41 @@ class EntityProvider4Targetg102 extends EntityProvider {
     return r;
   }
 
-  three.Object3D obj3dF(){
+  js.Proxy obj3dF(){
+    var o;
+    js.scoped((){
+    final THREE = js.context.THREE;
     var s = 1;
-    var geometry = new three.CubeGeometry(s, s, s);
-    var material = new three.MeshNormalMaterial();
-    var o = new three.Mesh(geometry, material);
+    var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
+    var material = new js.Proxy(THREE.MeshNormalMaterial);
+    o = new js.Proxy(THREE.Mesh, geometry, material);
     o.position.z = 1;
+    js.retain(o);
+    });
     return o;
   }
 
   EntityProvider4Targetg102() {
-    anims["spawn"] = (animations.Animator animator, three.Object3D obj3d) => animations.scaleIn(animator, obj3d).then((obj3d) => animations.rotateXYEndless(animator, obj3d));
+    anims["spawn"] = (animations.Animator animator, js.Proxy obj3d) => animations.scaleIn(animator, obj3d).then((obj3d) => animations.rotateXYEndless(animator, obj3d));
     anims["despawnPre"] = animations.scaleOut;
   }
 }
 
 class EntityProvider4Cube extends EntityProvider {
-  three.Object3D obj3dF(){
-    num s = 20;
-    var geometry = new three.CubeGeometry(s, s, s);
-    var material = new three.MeshBasicMaterial(
-      color: 0xff0000,
-      wireframe: true
-    );
-    return new three.Mesh(geometry, material);
+  js.Proxy obj3dF(){
+    var o;
+    js.scoped((){
+    final THREE = js.context.THREE;
+      num s = 20;
+      var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
+      var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+        "color": 0xff0000,
+        "wireframe": true
+      }));
+      o = new js.Proxy(THREE.Mesh, geometry, material);
+      js.retain(o);
+    });
+    return o;
   }
   EntityProvider4Cube() {
     anims["spawn"] = animations.rotateXYEndless;
@@ -102,7 +120,7 @@ class EntityProvider4Cube extends EntityProvider {
 }
 
 //  # Blenders euler order is 'XYZ', but the equivalent euler rotation order in Three.js is 'ZYX'
-three.Object3D fixOrientation(three.Object3D obj3d){
+js.Proxy fixOrientation(js.Proxy obj3d){
   var y2 = obj3d.rotation.z;
   var z2 = -obj3d.rotation.y;
 //    #m.rotation.x = ob.rot[0];
@@ -131,33 +149,39 @@ Map<String, EntityProvider> makeArea(jsonStr) {
   var area = JSON.parse(jsonStr);
   var cellr = area["cellr"];
 
-  three.Object3D cells2boxes3d(List<num> cells, num width, num height){
-    var geometry = new three.Geometry();
-    //  #material = new three.MeshNormalMaterial()
-    var materialW = new three.MeshLambertMaterial (color : 0x8a8265, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-    //var materialW = new three.MeshBasicMaterial(color : 0x8a8265, wireframe : false);
-    for(var i = 0; i < cells.length; i+=4) {
-      var dx = math.max(1, cells[i+2] * cellr);
-      var dy = math.max(1, cells[i+3] * cellr);
-      var dz = math.max(2, cellr / 2);
-      var mesh = new three.Mesh(new three.CubeGeometry(dx, dy, dz), materialW);
-      mesh.position.x = cells[i+0] * cellr + dx / 2;
-      mesh.position.y = cells[i+1] * cellr + dy / 2;
-      GeometryUtils.mergeMesh(geometry, mesh);
-    }
-    var walls = new three.Mesh(geometry, materialW);
+  js.Proxy cells2boxes3d(List<num> cells, num width, num height){
+    var o;
+    js.scoped((){
+    final THREE = js.context.THREE;
+      var geometry = new js.Proxy(THREE.Geometry);
+      //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
+      var materialW = new js.Proxy(THREE.MeshLambertMaterial, js.map({"color" : 0x8a8265, "transparent": false, "opacity": 1, "vertexColors" : THREE.VertexColors}));
+      //var materialW = new js.Proxy(THREE.MeshBasicMaterial, color : 0x8a8265, wireframe : false);
+      for(var i = 0; i < cells.length; i+=4) {
+        var dx = math.max(1, cells[i+2] * cellr);
+        var dy = math.max(1, cells[i+3] * cellr);
+        var dz = math.max(2, cellr / 2);
+        var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), materialW);
+        mesh.position.x = cells[i+0] * cellr + dx / 2;
+        mesh.position.y = cells[i+1] * cellr + dy / 2;
+        THREE.GeometryUtils.merge(geometry, mesh);
+      }
+      var walls = new js.Proxy(THREE.Mesh, geometry, materialW);
 
-    //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-    var materialF = new three.MeshPhongMaterial(color : 0xe1d5a5);
-    //var materialF = new three.MeshBasicMaterial(color : 0xe1d5a5, wireframe : false);
-    var floor = new three.Mesh(new three.PlaneGeometry(width * cellr, height * cellr), materialF);
-    floor.position.x = width * cellr /2;
-    floor.position.y = height * cellr /2;
+      //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
+      var materialF = new js.Proxy(THREE.MeshPhongMaterial, js.map({"color" : 0xe1d5a5}));
+      //var materialF = new js.Proxy(THREE.MeshBasicMaterial, color : 0xe1d5a5, wireframe : false);
+      var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width * cellr, height * cellr), materialF);
+      floor.position.x = width * cellr /2;
+      floor.position.y = height * cellr /2;
 
-    var obj3d = new three.Object3D();
-    obj3d.add(walls);
-    obj3d.add(floor);
-    return obj3d;
+      var obj3d = new js.Proxy(THREE.Object3D);
+      obj3d.add(walls);
+      obj3d.add(floor);
+      o = obj3d;
+      js.retain(o);
+    });
+    return o;
   }
 
   Object2D cells2boxes2d(List<num> cells) {
@@ -188,21 +212,27 @@ Map<String, EntityProvider> makeArea(jsonStr) {
     cells..add(-1)..add( h)..add(w+2)..add(  1);
   }
 
-  three.Object3D cells2surface3d(cells, offz) {
-    var geometry = new three.Geometry();
-    //#material = new three.MeshNormalMaterial()
-    var material = new three.MeshBasicMaterial(color : 0x000065, wireframe : false);
+  js.Proxy cells2surface3d(cells, offz) {
+    var o;
+    js.scoped((){
+    final THREE = js.context.THREE;
+    var geometry = new js.Proxy(THREE.Geometry );
+    //#material = new js.Proxy(THREE.MeshNormalMaterial, )
+    var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
     for(var i = 0; i < cells.length; i+=4) {
       var dx = cells[i+2] * cellr - 2;
       var dy = cells[i+3] * cellr - 2;
-      var mesh = new three.Mesh(new three.PlaneGeometry(dx, dy), material);
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
       mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
       mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
-      GeometryUtils.mergeMesh(geometry, mesh);
+      THREE.GeometryUtils.mergeMesh(geometry, mesh);
     }
-    var obj3d = new three.Mesh(geometry, material);
+    var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
     obj3d.position.z = offz;
-    return obj3d;
+    o = obj3d;
+    js.retain(o);
+    });
+    return o;
   }
 
   addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
@@ -226,11 +256,12 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       cellr
     )
   };
+  print("AREA : ${r}");
   return r;
 }
 
 class EntityProvider4Drone extends EntityProvider {
-  three.Object3D _obj3dPattern;
+  js.Proxy _obj3dPattern;
 
   Object2D obj2dF() {
     var r = new Object2D();
@@ -249,7 +280,7 @@ class EntityProvider4Drone extends EntityProvider {
     return r;
   }
 
-  three.Object3D obj3dF() {
+  js.Proxy obj3dF() {
     _obj3dPattern.position.z = 1;
     return _obj3dPattern;//.clone();
   }
@@ -266,7 +297,7 @@ class EntityProvider4Drone extends EntityProvider {
 //  makeScene = (d) ->
 //    deferred = Q.defer()
 //    try
-//      new three.SceneLoader().parse(JSON.parse(d.result), (result) ->
+//      new js.Proxy(THREE.SceneLoader, ).parse(JSON.parse(d.result), (result) ->
 //        _.each(result.objects, fixOrientation)
 //        deferred.resolve(result)
 //      , d.src)
@@ -274,28 +305,32 @@ class EntityProvider4Drone extends EntityProvider {
 //      deferred.reject(exc)
 //    deferred.promise
 //
-Future<three.Object3D> makeModel(jsonStr, texturePath) {
+Future<js.Proxy> makeModel(jsonStr, texturePath) {
   var deferred = new Completer();
   try {
-    var loader = new three.JSONLoader();
+    js.scoped((){
+    final THREE = js.context.THREE;
+    var loader = new js.Proxy(THREE.JSONLoader);
     //texturePath = loader.extractUrlBase( d.src )
     loader.createModel(
-      JSON.parse(jsonStr),
-      (geometry) {
-        //var material0 = new three.MeshNormalMaterial();
-        //var material = new three.MeshNormalMaterial( { shading: three.SmoothShading } );
+      js.map(JSON.parse(jsonStr)),
+      new js.Callback.once((geometry, materials) {
+        print("geometry ${geometry} .... ${materials}");
+        var material0 = new js.Proxy(THREE.MeshNormalMaterial);
+        //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
         //geometry.materials[ 0 ].shading = three.FlatShading;
-        //var material = new three.MeshFaceMaterial();
-        var material0 = geometry.materials[0];
+        //var material = new js.Proxy(THREE.MeshFaceMaterial, );
+        //var material0 = geometry.materials[0];
         //material.transparent = true
-        //material = new three.MeshFaceMaterial(materials)
+        //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
         //TODO should create a new object or at least change the timestamp
         //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-        var obj3d = fixOrientation(new three.Mesh(geometry, material0));
-        deferred.complete(obj3d);
-      },
+        var obj3d = fixOrientation(new js.Proxy(THREE.Mesh, geometry, material0));
+        deferred.complete(js.retain(obj3d));
+      }),
       texturePath
     );
+    });
   } catch(exc) {
     deferred.completeError(exc);
   }
@@ -305,11 +340,11 @@ Future<three.Object3D> makeModel(jsonStr, texturePath) {
 //  makeSprite = (d) ->
 //    deferred = Q.defer()
 //    try
-//      texture = new three.Texture( d.result )
+//      texture = new js.Proxy(THREE.Texture,  d.result )
 //      texture.needsUpdate = true
 //      texture.sourceFile = d.src
-//      material = new three.SpriteMaterial( { map: texture, alignment: three.SpriteAlignment.topLeft, opacity: 1, transparent : true} )
-//      obj3d = new three.Sprite(material)
+//      material = new js.Proxy(THREE.SpriteMaterial,  { map: texture, alignment: three.SpriteAlignment.topLeft, opacity: 1, transparent : true} )
+//      obj3d = new js.Proxy(THREE.Sprite, material)
 //      obj3d.scale.set( t.image.width, t.image.height, 1 )
 //      obj3d.computeBoundingBox()
 //      obj2d = { box : [obj3d.boundingBox.max.x, obj3d.boundingBox.max.y] }
@@ -319,19 +354,19 @@ Future<three.Object3D> makeModel(jsonStr, texturePath) {
 //      deferred.reject(exc)
 //
 //  makeBox = (rx, ry, rz, color) ->
-//    geometry = new three.CubeGeometry(rx, ry, rz || 1)
-//    material = new three.MeshBasicMaterial({
+//    geometry = new js.Proxy(THREE.CubeGeometry, rx, ry, rz || 1)
+//    material = new js.Proxy(THREE.MeshBasicMaterial, {
 //      color: color || 0xff0000
 //      wireframe: false
 //    })
 //    {
-//      obj3d : new three.Mesh(geometry, material)
+//      obj3d : new js.Proxy(THREE.Mesh, geometry, material)
 //      obj2d : { box : [rx, ry] }
 //    }
 //
 
 Future<String> _loadTxt(src) {
-  var completer = new Completer<dynamic>();
+  var completer = new Completer<String>();
   var httpRequest = new HttpRequest();
   //httpRequest.responseType = 'text';
   httpRequest.onLoadEnd.listen(
@@ -354,7 +389,7 @@ Future<String> _loadTxt(src) {
 }
 
 Future<Document> _loadXml(src) {
-  var completer = new Completer<dynamic>();
+  var completer = new Completer<Document>();
   var httpRequest = new HttpRequest();
   httpRequest.onLoadEnd.listen(
     (data) {
@@ -377,7 +412,7 @@ Future<Document> _loadXml(src) {
 
 
 Future<ImageElement> _loadImage(src) {
-  var completer = new Completer<dynamic>();
+  var completer = new Completer<ImageElement>();
   ImageElement image = new ImageElement();
   image.onLoad.listen(
     (event) {

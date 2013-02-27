@@ -2,6 +2,7 @@ library vdrones_layer2d;
 
 import 'dart:html';
 import 'events.dart';
+import 'package:js/js.dart' as js;
 
 void showScreen(id){
   document.queryAll('.screen_info').forEach((screen) {
@@ -30,8 +31,9 @@ void setupLayer2D(Evt evt, Element container){
   });
   evt.GameStates.energy.add((v){
     var bar = container.query("#energyBar");
-    if (bar != null) {
-      int r = (v * 449) ~/ evt.GameStates.energyMax.v;
+    var max = evt.GameStates.energyMax.v;
+    if (bar != null && max > 0) {
+      int r = (v * 449) ~/ max;
       bar.attributes["width"] = r.toString();
     }
   });

@@ -10,6 +10,8 @@ import '../lib/keyboard.dart';
 import '../lib/periodic.dart';
 import 'package:logging/logging.dart';
 
+import 'package:js/js.dart' as js;
+
 var evt = new Evt();
 
 void main() {
@@ -58,9 +60,11 @@ void _setupLog() {
   _logger.severe("severe");
 }
 
+
 void _setup() {
 
 
+  js.scoped(() {
   var devMode = true; //document.location.href.indexOf('dev=true') > -1;
 
   var container = document.query('#layers');
@@ -117,12 +121,15 @@ void _setup() {
       }
       tickArgs[0] = t;
       tickArgs[1] = delta500;
+      js.scoped(() {
       evt.Tick.dispatch(tickArgs);
       evt.Render.dispatch(null);
+      });
       if (_running) {
         window.requestAnimationFrame(loop);
       }
     };
     window.requestAnimationFrame(loop);
+  });
   });
 }

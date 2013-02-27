@@ -5,6 +5,8 @@ dependencies:
   unittest: any
   box2d: any
   browser: any
-  three:
-    path: /home/dwayne/dart/three.dart
+#  three:
+#    path: /home/dwayne/dart/three.dart
+  js:
+    hosted: js
   logging: 0.3.7+6

@@ -1,22 +1,23 @@
 library vdrones_animations;
 
-import 'package:three/three.dart' as three;
+//import 'package:three/three.dart' as three;
 import 'dart:async';
 import 'dart:math' as math;
 import "events.dart";
 import 'dart:html';
 import 'utils.dart';
+import 'package:js/js.dart' as js;
 
 const Z_HIDDEN = -1000;
 
-typedef Future<three.Object3D> Animate(Animator animator, three.Object3D obj3d);
+typedef Future Animate(Animator animator, obj3d);
 typedef num Interpolate(num dtime, num duration, num change, num baseValue);
 typedef bool OnUpdate(num t, num t0);
 typedef bool OnComplete(num t, num t0);
 
 bool onNoop(num t, num t0){ return false;}
 
-
+final THREE = js.context.THREE;
 
 class Animator {
   //final _anims = new SimpleLinkedList<AnimEntry>();
@@ -55,9 +56,9 @@ class AnimEntry {
   AnimEntry _next = null;
 }
 
-Future<three.Object3D> noop(Animator animator, three.Object3D obj3d) => new Future.immediate(obj3d);
+Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
 
-Future<three.Object3D> rotateXYEndless(Animator animator, three.Object3D obj3d) {
+Future rotateXYEndless(Animator animator,  obj3d) {
   var r = new Completer();
   var u = (num t, num t0){
     obj3d.rotation.x += 0.01;
@@ -69,11 +70,11 @@ Future<three.Object3D> rotateXYEndless(Animator animator, three.Object3D obj3d) 
 }
 
 //TODO
-Future<three.Object3D> scaleOut(Animator animator, three.Object3D obj3d) {
+Future scaleOut(Animator animator,  obj3d) {
   var r= new Completer();
   var u = (num t, num t0){
     var dt = math.min(300, t - t0);
-    obj3d.scale.setValues(
+    obj3d.scale.set(
       Easing.easeInQuad(dt, 300, -1, 1),
       Easing.easeInQuad(dt, 300, -1, 1),
       Easing.easeInQuad(dt, 300, -1, 1)
@@ -84,11 +85,11 @@ Future<three.Object3D> scaleOut(Animator animator, three.Object3D obj3d) {
   animator.start(u, onComplete : c);
   return r.future;
 }
-Future<three.Object3D> scaleIn(Animator animator, three.Object3D obj3d) {
+Future scaleIn(Animator animator,  obj3d) {
   var r= new Completer();
   var u = (num t, num t0){
     var dt = math.min(300, t - t0);
-    obj3d.scale.setValues(
+    obj3d.scale.set(
       Easing.easeInQuad(dt, 300, 1, 0),
       Easing.easeInQuad(dt, 300, 1, 0),
       Easing.easeInQuad(dt, 300, 1, 0)
@@ -164,66 +165,69 @@ class Explode {
     return point;
   }
 
-  var uniforms = {
-    "time": new three.Uniform( type:"f", value:0),
-    "center": new three.Uniform( type : "v3", value : new three.Vector3(0, 0, 0))
-  };
+  var uniforms;
 
   static dynamic a(String s, int l) {
-    var d = new ShaderAttribute();
-    d.type = s;
-    d.value = new List(l);
-    return d;
+    return js.map({
+      'type' : s,
+      'value' : new List(l)
+    });
   }
 
-  var attributes = {};
   num nParticles;
 
   Explode(this.nParticles) {
-    attributes = {
+    js.scoped((){
+    uniforms = js.retain(js.map({
+      "time": { "type" :"f", "value" : 0},
+      "center": { "type" : "v3", "value" : new js.Proxy(THREE.Vector3, 0, 0, 0)}
+    }));
+
+    var attributes = js.map({
       "aPosition": a("v3", nParticles),
       "aVelocity": a("v3", nParticles),
       "aDirection": a("v3", nParticles),
       "aAcceleration": a("f", nParticles),
       "aLifeTime": a("f", nParticles)
-    };
-    var material = new three.ShaderMaterial(
-      uniforms: uniforms,
-      attributes: attributes,
-      vertexShader: glsl_vs1,
-      fragmentShader: glsl_fs1,
+    });
+    var material = new js.Proxy(THREE.ShaderMaterial, js.map({
+      "uniforms": uniforms,
+      "attributes": attributes,
+      "vertexShader": glsl_vs1,
+      "fragmentShader": glsl_fs1,
       //blending: three.AdditiveBlending,
       //transparent: true,
-      depthTest: false
-    );
+      "depthTest": false
+    }));
 
-    var geometry = new three.Geometry();
+    var geometry = new js.Proxy(THREE.Geometry);
     for (var i=0; i<nParticles; i++) {
-      geometry.vertices.add(new three.Vector3(0,0,0));
+      geometry.vertices.push(new js.Proxy(THREE.Vector3, 0,0,0));
     }
-    reset();
-    particles = new three.ParticleSystem(geometry, material);
+    reset(attributes);
+    particles = js.retain(new js.Proxy(THREE.ParticleSystem, geometry, material));
+    });
   }
 
-  void reset() {
+  void reset(attributes) {
     for (var i=0; i<nParticles; i++) {
       // position
       var point = randomPointOnSphere();
-      attributes["aPosition"].value[i] = new three.Vector3(
+      attributes["aPosition"].value[i] = new js.Proxy(THREE.Vector3,
                                                         point[0],
                                                         point[1],
                                                         point[2]);
 
       // velocity
       point = randomPointOnSphere();
-      attributes["aVelocity"].value[i] = new three.Vector3(
+      attributes["aVelocity"].value[i] = new js.Proxy(THREE.Vector3,
                                                         point[0],
                                                         point[1],
                                                         point[2]);
 
       // direction
       point = randomPointOnSphere();
-      attributes["aDirection"].value[i] = new three.Vector3(
+      attributes["aDirection"].value[i] = new js.Proxy(THREE.Vector3,
                                                          point[0],
                                                          point[1],
                                                          point[2]);
@@ -237,8 +241,9 @@ class Explode {
 
 var explode = new Explode(1000);
 
-Future<three.Object3D> explodeOut(Animator animator, three.Object3D obj3d) {
+Future explodeOut(Animator animator,  obj3d) {
   var r= new Completer();
+  js.scoped((){
   var u = (num t, num t0){
     var runningTime = (t - t0)/1000;
     runningTime = runningTime - (runningTime/6.0).floor() *6.0;
@@ -247,12 +252,13 @@ Future<three.Object3D> explodeOut(Animator animator, three.Object3D obj3d) {
   };
   var c = (num t, num t0){
     r.complete(obj3d);
-    explode.particles.parent.remove(explode.particles);
+    //explode.particles.parent.remove(explode.particles);
   };
-  explode.uniforms["center"].value = obj3d.position.clone();
-  obj3d.parent.add(explode.particles);
-  obj3d.position.z = Z_HIDDEN;
+  //explode.uniforms["center"].value = obj3d.position.clone();
+  //obj3d.parent.add(explode.particles);
+  //obj3d.position.z = Z_HIDDEN;
   animator.start(u, onComplete : c);
+  });
   return r.future;
 }
 
@@ -505,16 +511,16 @@ class Easing {
     return change / 2 * (math.sqrt(1 - time * time) + 1) + baseValue;
   }
 }
-
-class ShaderAttribute {
-  String type;
-  var value;
-  bool needsUpdate = false;
-  String boundTo;
-  dynamic operator [](index) => false;
-  void operator []=(index, value){}
-  bool createUniqueBuffers = false;
-  int size = 0;
-  Float32Array array = null;
-  three.Buffer buffer;
-}
+//
+//class ShaderAttribute {
+//  String type;
+//  var value;
+//  bool needsUpdate = false;
+//  String boundTo;
+//  dynamic operator [](index) => false;
+//  void operator []=(index, value){}
+//  bool createUniqueBuffers = false;
+//  int size = 0;
+//  Float32Array array = null;
+//  three.Buffer buffer;
+//}
