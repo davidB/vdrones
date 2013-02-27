@@ -17,7 +17,7 @@ void setupGameplay(Evt evt){
   void updateEnergy(delta) {
     var unit = 0;
     if (evt.GameStates.boosting.v) {
-      unit -= 5;
+      unit -= 2;
     }
 //    if (evt.GameStates.shooting.v) {
 //      unit -= 7;

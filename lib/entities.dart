@@ -94,6 +94,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
   EntityProvider4Targetg102() {
     anims["spawn"] = (animations.Animator animator, js.Proxy obj3d) => animations.scaleIn(animator, obj3d).then((obj3d) => animations.rotateXYEndless(animator, obj3d));
     anims["despawnPre"] = animations.scaleOut;
+    anims["none"] = animations.noop;
   }
 }
 
