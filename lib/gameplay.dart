@@ -10,44 +10,31 @@ import 'zone_cubes.dart';
 void setupGameplay(Evt evt){
   var _droneId = "!";
   var _areaId = "!";
-  var _states = {}; //evt.newStates();
   var _uid = (new DateTime.now()).millisecondsSinceEpoch;
   var _entities = new Entities();
 
 
-  void onUpdateState(k, v) {
-    if (_states["${_droneId}/boosting"] == true) {
-      if (k == "${_droneId}/energy" && v == 0) {
-        //TODO onReqEvent(evt.BoostShipStop, [_droneId]);
-      }
-    }
-  }
-
-  void incState(k, v) {
-    // _states.inc(k, v, onUpdateState);
-  }
-
-  void updateState(k, v) {
-    // _states.update(k, v, onUpdateState);
-  }
-
   void updateEnergy(delta) {
-    var k = "${_droneId}/energy";
-    var v = _states[k];
     var unit = 0;
-    if (_states["${_droneId}/boosting"] == true) {
+    if (evt.GameStates.boosting.v) {
       unit -= 5;
     }
-
-    //if (_states[_droneId + '/shooting']) unit -= 7;
-    if (_states["${_droneId}/shielding"] == true) {
-      unit -= 10;
-    }
+//    if (evt.GameStates.shooting.v) {
+//      unit -= 7;
+//    }
+//    if (evt.GameStates.shielding.v) {
+//      unit -= 10;
+//    }
     if (unit == 0) {
       unit += 3;
     }
-    v = math.min(_states["${k}Max"], math.max(0, v + unit));
-    updateState(k, v);
+    var v = math.max(0, math.min(evt.GameStates.energy.v + unit, evt.GameStates.energyMax.v));
+    evt.GameStates.energy.v = v;
+    if (v == 0) {
+      if (evt.GameStates.boosting.v) {
+        evt.BoostShipStop.dispatch([_droneId]);
+      }
+    }
   }
 
   void spawnDrone(id) {
@@ -55,6 +42,10 @@ void setupGameplay(Evt evt){
       _entities.find('drone01'),
       _entities.find(_areaId)
     ]).then((l) {
+      evt.GameStates.energyMax.v = 1000;
+      evt.GameStates.energy.v = 500;
+      evt.GameStates.boosting.v = false;
+
       var drone = l[0], area = l[1];
       var zone = area["gate_in"];
       var z = zone.cells;
@@ -80,16 +71,11 @@ void setupGameplay(Evt evt){
       evt.ObjSpawn.dispatch(["gate_in/${_uid}", Position.zero, x["gate_in"]]);
       spawnZones4Cubes(x["targetg1_spawn"]);
     });
+
     spawnDrone(_droneId);
-//      updateState("running", false);
-//      updateState(_droneId + "/score", 0)
-//      updateState(_droneId + "/energy", 500)
-//      updateState(_droneId + "/energyMax", 1000)
-//      updateState(_droneId + "/boosting", false)
-//      updateState(_droneId + "/shooting", false)
-//      updateState(_droneId + "/shielding", false)
-//      updateState("running", true)
-    //evt.CountdownStart.dispatch(["countdown", 45, evt.GameStop, []]);
+
+    evt.GameStates.score.v = 0;
+    evt.CountdownStart.dispatch(["countdown", 45, evt.GameStop, [], evt.GameStates.countdown]);
     evt.Render.dispatch(null);
   }
 
@@ -142,17 +128,17 @@ void setupGameplay(Evt evt){
   evt.GameStart.add(start);
   evt.EvtReq.add(onReqEvent);
   evt.Tick.add((t, delta500) {
-    if (_states["running"] == true && delta500 >= 1) {
-      updateEnergy(delta500);
-    }
+    updateEnergy(delta500);
   });
-
+  evt.BoostShipStart.add((droneId){
+    evt.GameStates.boosting.v = true;
+  });
+  evt.BoostShipStop.add((droneId){
+    evt.GameStates.boosting.v = false;
+  });
   evt.ContactBeginDroneWall.add((String droneId, String wallId){
     var deferred = new Completer();
     evt.ObjDespawn.dispatch([droneId, {"preAnimName" : "crash", "deferred" : deferred }]);
     deferred.future.then((obj){ spawnDrone(droneId); });
-  });
-  evt.GameStop.add((){
-    updateState("running", false);
   });
 }

@@ -35,12 +35,17 @@ class State<E> {
 }
 
 class States {
-  final score = new State<num>(0);
   final progressMax = new State<num>(0);
   final progressCurrent = new State<num>(0);
+
+  // about local drone
+  final score = new State<num>(0);
   final energy = new State<num>(50);
   final energyMax = new State<num>(0);
+  final boosting = new State<bool>(false);
+
   //var energyRatio = ko.computed((()-> @energy() / @energyMax()), this)
+
   var countdown = new State<num>(60);
   //var shieldActive = false;
   //var fireActive = false;

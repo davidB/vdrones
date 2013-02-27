@@ -157,7 +157,6 @@
     <div id="layers">
       <div id="hud" style="z-index:10">
       </div>
-      <!--
         <div id="screenInit" class="screen_info">
           <div class="screen_inner">
             <h3>Welcome VDroner,</h3>
@@ -187,12 +186,11 @@
               </table>
             </div>
             <div class="actions">
-              <div data-bind="style: { opacity: initialized() ? '0' : '1' }" style="opacity: 1">Please wait, connecting to VSpace ...</div>
-              <button class="btn" data-bind="enable: initialized, click: start" disabled>START</button>
+              <div id="msgConnecting" style="opacity: 1">Please wait, connecting to VSpace ...</div>
+              <button id="btnStart" class="btn" disabled>START</button>
             </div>
           </div>
         </div>
-        -->
         <!--div id="screenLast" class="screen_info">
           <div class="screen_inner">... Waiting ...</div>
         </div-->

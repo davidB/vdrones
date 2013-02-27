@@ -70,7 +70,7 @@
     <svg:g id="g4478">
       <svg:rect ry="3.0178714" y="153.9696" x="652.60968" height="14" width="452" id="rect2993-8" style="opacity:1;fill:#505a63;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter4472)" />
       <svg:rect style="opacity:1;fill:#505a63;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;" id="rect4476" width="452" height="14" x="652.60968" y="153.9696" ry="3.0178714" />
-      <svg:rect data-bind="attr: { width: energyRatio() * 449 }" ry="2.3711846" y="154.82234" x="653.28607" height="11" width="449" id="rect2993" style="opacity:1;fill:#d6d6d6;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+      <svg:rect id="energyBar" ry="2.3711846" y="154.82234" x="653.28607" height="11" width="449" style="opacity:1;fill:#d6d6d6;fill-opacity:1;fill-rule:nonzero;stroke:none" />
     </svg:g>
   </svg:g>
 </svg:svg>
