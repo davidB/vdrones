@@ -139,6 +139,6 @@ void setupGameplay(Evt evt){
   evt.ContactBeginDroneWall.add((String droneId, String wallId){
     var deferred = new Completer();
     evt.ObjDespawn.dispatch([droneId, {"preAnimName" : "crash", "deferred" : deferred }]);
-    deferred.future.then((obj){ spawnDrone(droneId); });
+    deferred.future.then((x){ spawnDrone(droneId); });
   });
 }

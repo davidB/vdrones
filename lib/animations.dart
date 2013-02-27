@@ -10,7 +10,7 @@ import 'package:js/js.dart' as js;
 
 const Z_HIDDEN = -1000;
 
-typedef Future Animate(Animator animator, obj3d);
+typedef Future<js.Proxy> Animate(Animator animator, js.Proxy obj3d);
 typedef num Interpolate(num dtime, num duration, num change, num baseValue);
 typedef bool OnUpdate(num t, num t0);
 typedef bool OnComplete(num t, num t0);
@@ -58,42 +58,49 @@ class AnimEntry {
 
 Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
 
-Future rotateXYEndless(Animator animator,  obj3d) {
+Future<js.Proxy> rotateXYEndless(Animator animator, js.Proxy obj3d) {
   var r = new Completer();
   var u = (num t, num t0){
+    js.scoped((){
     obj3d.rotation.x += 0.01;
     obj3d.rotation.y += 0.02;
-    return obj3d.parent != null;
+    //return obj3d.parent != null;
+    });
+    return true;
   };
   animator.start(u);
   return r.future;
 }
 
 //TODO
-Future scaleOut(Animator animator,  obj3d) {
+Future<js.Proxy> scaleOut(Animator animator,  js.Proxy obj3d) {
   var r= new Completer();
   var u = (num t, num t0){
     var dt = math.min(300, t - t0);
+    js.scoped((){
     obj3d.scale.set(
       Easing.easeInQuad(dt, 300, -1, 1),
       Easing.easeInQuad(dt, 300, -1, 1),
       Easing.easeInQuad(dt, 300, -1, 1)
     );
+    });
     return dt < 300;
   };
   var c = (num t, num t0){ r.complete(obj3d); };
   animator.start(u, onComplete : c);
   return r.future;
 }
-Future scaleIn(Animator animator,  obj3d) {
+Future<js.Proxy> scaleIn(Animator animator, js.Proxy obj3d) {
   var r= new Completer();
   var u = (num t, num t0){
     var dt = math.min(300, t - t0);
+    js.scoped((){
     obj3d.scale.set(
       Easing.easeInQuad(dt, 300, 1, 0),
       Easing.easeInQuad(dt, 300, 1, 0),
       Easing.easeInQuad(dt, 300, 1, 0)
     );
+    });
     return dt < 300;
   };
   var c = (num t, num t0){ r.complete(obj3d); };
@@ -108,7 +115,7 @@ class Explode {
   final random = new math.Random();
 
   var glsl_vs1 = """
-    uniform vec3 center;
+    //uniform vec3 center;
     uniform float time;
     attribute vec3 aPosition;
     attribute vec3 aVelocity;
@@ -126,7 +133,8 @@ class Explode {
       //vec3 velocity = 30.0*(aLifeTime/4.1*length(aVelocity))*normalize(aVelocity);
       //vec3 velocity = 30.0*(abs(3.0*sin(t/20.0))*aLifeTime/4.1*length(aVelocity))*normalize(aVelocity);
       float acceleration = 20.0*aAcceleration;
-      vec3 p = center + aPosition + velocity*t + direction*(acceleration*t*t*0.5);
+      //vec3 p = center + aPosition + velocity*t + direction*(acceleration*t*t*0.5);
+      vec3 p = aPosition + velocity*t + direction*(acceleration*t*t*0.5);
       gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
       float lifeLeft = 1.0-smoothstep(0.0, aLifeTime, t);
       float ta = t/aAcceleration;
@@ -179,8 +187,8 @@ class Explode {
   Explode(this.nParticles) {
     js.scoped((){
     uniforms = js.retain(js.map({
-      "time": { "type" :"f", "value" : 0},
-      "center": { "type" : "v3", "value" : new js.Proxy(THREE.Vector3, 0, 0, 0)}
+      "time": { "type" :"f", "value" : 0}
+//      "center": { "type" : "v3", "value" : new js.Proxy(THREE.Vector3, 0, 0, 1.0)}
     }));
 
     var attributes = js.map({
@@ -195,15 +203,17 @@ class Explode {
       "attributes": attributes,
       "vertexShader": glsl_vs1,
       "fragmentShader": glsl_fs1,
-      //blending: three.AdditiveBlending,
-      //transparent: true,
-      "depthTest": false
+      "blending": THREE.AdditiveBlending,
+      "transparent": false
+      //"depthTest": false
     }));
 
     var geometry = new js.Proxy(THREE.Geometry);
+    var verts = new List(nParticles);
     for (var i=0; i<nParticles; i++) {
-      geometry.vertices.push(new js.Proxy(THREE.Vector3, 0,0,0));
+      verts[i] = new js.Proxy(THREE.Vector3, 0,0,0);
     }
+    geometry.vertices = js.array(verts);
     reset(attributes);
     particles = js.retain(new js.Proxy(THREE.ParticleSystem, geometry, material));
     });
@@ -239,24 +249,32 @@ class Explode {
   }
 }
 
-var explode = new Explode(1000);
 
-Future explodeOut(Animator animator,  obj3d) {
+var explode = null;
+
+Future<js.Proxy> explodeOut(Animator animator, js.Proxy obj3d) {
   var r= new Completer();
-  js.scoped((){
   var u = (num t, num t0){
+    js.scoped((){
     var runningTime = (t - t0)/1000;
     runningTime = runningTime - (runningTime/6.0).floor() *6.0;
     explode.uniforms["time"].value = runningTime;
+    });
     return (t - t0) < 2000;
   };
   var c = (num t, num t0){
+    js.scoped((){
     r.complete(obj3d);
-    //explode.particles.parent.remove(explode.particles);
+    var p = explode.particles.parent;
+    if (p != null) p.remove(explode.particles);
+    });
   };
+  js.scoped((){
   //explode.uniforms["center"].value = obj3d.position.clone();
-  //obj3d.parent.add(explode.particles);
-  //obj3d.position.z = Z_HIDDEN;
+    explode.particles.position = obj3d.position.clone();
+    explode.particles.position.z = 10;
+  obj3d.parent.add(explode.particles);
+  obj3d.position.z = Z_HIDDEN;
   animator.start(u, onComplete : c);
   });
   return r.future;
@@ -264,6 +282,7 @@ Future explodeOut(Animator animator,  obj3d) {
 
 Animator setupAnimations(Evt evt) {
   var animator = new Animator();
+  explode = new Explode(250);
 
   evt.Tick.add((t, delta500){
     animator.update(t);

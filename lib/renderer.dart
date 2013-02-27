@@ -26,6 +26,7 @@ class CameraMove {
 }
 
 void setupRenderer(Evt evt, Element container, Animator animator) {
+js.scoped((){
     final THREE = js.context.THREE;
     js.retain(THREE);
 //  if (!webglDetector.webgl) {
@@ -252,29 +253,35 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   }
 
   void despawnObj(String id, [options]) {
-    js.scoped((){
     var p = new Future.of((){
-      var obj = _scene.getChildByName(id, false);
+      var obj;
+      js.scoped((){
+      obj = js.retain(_scene.getChildByName(id, false));
       if (obj == null) throw new StateError("obj not found : ${id}");
+      });
       return obj;
     }).then((obj){
-      var anims = _anims[id];
-      var preAnim = anims[options["preAnimName"]];
-      preAnim = preAnim != null ? preAnim : anims['despawnPre'];
-      if (preAnim != null) {
-        return preAnim(animator, obj);
-      }
-      return obj;
+      var b = obj;
+      js.scoped((){
+        var anims = _anims[id];
+        var preAnim = anims[options["preAnimName"]];
+        preAnim = preAnim != null ? preAnim : anims['despawnPre'];
+        if (preAnim != null) {
+          b = preAnim(animator, obj);
+        }
+      });
+      return b;
     }).then((obj){
+      js.scoped((){
       if (_cameraTargetObjId == obj.name) {
         _cameraTargetObj = null;
       }
       _scene.remove(obj);
       if (options["deferred"] != null) {
-        options["deferred"].complete(obj);
+        options["deferred"].complete(id);
       }
-      //js.release(obj);
-    });
+      });
+      js.release(obj);
     });
   }
 
@@ -317,12 +324,14 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
 //    _areaBox
 
   void moveObjTo(String objId, Position pos) {
+    js.scoped((){
     var obj = _scene.getChildByName(objId, false);
     if (obj != null) {
       obj.position.x = pos.x;
       obj.position.y = pos.y;
       obj.rotation.z = pos.a;
     }
+    });
   }
 
   evt.DevMode.add((){
@@ -340,5 +349,6 @@ void setupRenderer(Evt evt, Element container, Animator animator) {
   evt.ObjSpawn.add(spawnObj);
   evt.ObjMoveTo.add(moveObjTo);
   evt.ObjDespawn.add(despawnObj);
+});
 }
 

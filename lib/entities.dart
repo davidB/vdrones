@@ -50,18 +50,18 @@ class EntityProvider4Static extends EntityProvider {
   EntityProvider4Static(this._obj2d, this._obj3d, this.cells, this.cellr);
 }
 
-class EntityProvider4Axis extends EntityProvider {
-  js.Proxy obj3dF() {
-    var o;
-    js.scoped((){
-    final THREE = js.context.THREE;
-    o = new js.Proxy(THREE.AxisHelper);
-    o.scale.setValues(0.1, 0.1, 0.1); //# default length of axis is 100
-    js.retain(o);
-    });
-    return o;
-  }
-}
+//class EntityProvider4Axis extends EntityProvider {
+//  js.Proxy obj3dF() {
+//    var o;
+//    js.scoped((){
+//    final THREE = js.context.THREE;
+//    o = new js.Proxy(THREE.AxisHelper);
+//    o.scale.setValues(0.1, 0.1, 0.1); //# default length of axis is 100
+//    o  = js.retain(o);
+//    });
+//    return o;
+//  }
+//}
 
 class EntityProvider4Targetg102 extends EntityProvider {
   Object2D obj2dF() {
@@ -86,7 +86,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
     var material = new js.Proxy(THREE.MeshNormalMaterial);
     o = new js.Proxy(THREE.Mesh, geometry, material);
     o.position.z = 1;
-    js.retain(o);
+    o = js.retain(o);
     });
     return o;
   }
@@ -178,8 +178,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       var obj3d = new js.Proxy(THREE.Object3D);
       obj3d.add(walls);
       obj3d.add(floor);
-      o = obj3d;
-      js.retain(o);
+      o = js.retain(obj3d);
     });
     return o;
   }
@@ -229,8 +228,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
     }
     var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
     obj3d.position.z = offz;
-    o = obj3d;
-    js.retain(o);
+    o = js.retain(obj3d);
     });
     return o;
   }
@@ -316,11 +314,12 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
       js.map(JSON.parse(jsonStr)),
       new js.Callback.once((geometry, materials) {
         print("geometry ${geometry} .... ${materials}");
-        var material0 = new js.Proxy(THREE.MeshNormalMaterial);
+        //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
         //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
         //geometry.materials[ 0 ].shading = three.FlatShading;
         //var material = new js.Proxy(THREE.MeshFaceMaterial, );
         //var material0 = geometry.materials[0];
+        var material0 = materials[0];
         //material.transparent = true
         //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
         //TODO should create a new object or at least change the timestamp
