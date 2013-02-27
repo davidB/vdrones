@@ -1,12 +1,4 @@
-library vdrones_physics;
-
-import "events.dart";
-import 'package:box2d/box2d_browser.dart' hide Position;
-import "entities.dart";
-//import "package:three/three.dart" as three; //for Vector3
-import "dart:math" as math;
-
-import "dart:html"; //for debug
+part of vdrones;
 
 class UserData {
   String id;

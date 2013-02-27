@@ -1,15 +1,4 @@
-library vdrones_renderer;
-
-//import 'package:three/three.dart' as three;
-import 'dart:html';
-import 'dart:async';
-import 'dart:math' as math;
-import 'events.dart';
-import 'entities.dart';
-import 'animations.dart';
-import 'package:logging/logging.dart';
-
-import 'package:js/js.dart' as js;
+part of vdrones;
 
 class CameraMove {
   num offsetX = -1;

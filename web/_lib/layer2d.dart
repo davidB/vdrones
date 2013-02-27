@@ -1,8 +1,4 @@
-library vdrones_layer2d;
-
-import 'dart:html';
-import 'events.dart';
-import 'package:js/js.dart' as js;
+part of vdrones;
 
 void showScreen(id){
   document.queryAll('.screen_info').forEach((screen) {

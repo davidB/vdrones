@@ -1,8 +1,4 @@
-library vdrones_cubes;
-
-import 'dart:math' as math;
-import 'events.dart';
-import 'entities.dart';
+part of vdrones;
 
 class Zone4Cubes {
   static final _random = new math.Random();

@@ -1,4 +1,4 @@
-library vdrones_evt;
+part of vdrones;
 
 class Signal {
   final _fcts = new List<Function>();

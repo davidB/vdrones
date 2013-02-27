@@ -1,45 +1,41 @@
-library vdrones_keyboard;
+part of vdrones;
 
-import 'dart:html';
-import 'events.dart';
+typedef void CtrlAction(Evt evt);
 
-typedef void Action(Evt evt);
-
-class KeyCtrl {
+class CtrlKey {
   var codes = [];
   var label = "";
   var active = false;
-  Action start;
-  Action stop;
+  CtrlAction start;
+  CtrlAction stop;
 
-  KeyCtrl({this.codes, this.label, this.start, this.stop});
+  CtrlKey({this.codes, this.label, this.start, this.stop});
 }
-
 
 void setupKeyboard(Evt evt) {
   var _droneId = null;
 
 
   var _keys = [
-    new KeyCtrl(
+    new CtrlKey(
       codes: [ KeyCode.UP, KeyCode.W, KeyCode.Z ],
       label: 'Forward',
       start: (evt){ evt.EvtReq.dispatch([evt.BoostShipStart, [_droneId]]); },
       stop: (evt){ evt.EvtReq.dispatch([evt.BoostShipStop, [_droneId]]); }
     ),
-    new KeyCtrl(
+    new CtrlKey(
       codes: [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ],
       label: 'Rotate Left',
       start: (evt){evt.EvtReq.dispatch( [evt.RotateShipStart, [_droneId, 0.5]]);},
       stop: (evt){evt.EvtReq.dispatch( [evt.RotateShipStop, [_droneId]]);}
     ),
-    new KeyCtrl(
+    new CtrlKey(
       codes: [KeyCode.RIGHT, KeyCode.D],
       label: 'Rotate Right',
       start: (evt){ evt.EvtReq.dispatch([ evt.RotateShipStart, [_droneId, -0.5]]); },
       stop: (evt){ evt.EvtReq.dispatch( [ evt.RotateShipStop, [_droneId]]); }
     ),
-    new KeyCtrl(
+    new CtrlKey(
       codes: [KeyCode.SPACE],
       label: 'Shoot',
       start: (evt){ evt.EvtReq.dispatch( [ evt.ShootingStart, [_droneId]]); },

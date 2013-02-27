@@ -1,11 +1,4 @@
-library vdrones_gameplay;
-
-import 'events.dart';
-import 'entities.dart';
-import 'dart:math' as math;
-import 'dart:async';
-import 'dart:core';
-import 'zone_cubes.dart';
+part of vdrones;
 
 void setupGameplay(Evt evt){
   var _droneId = "!";

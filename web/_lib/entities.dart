@@ -1,20 +1,4 @@
-library vdrones_entities;
-
-//import 'package:three/three.dart' as three;
-//import 'package:three/extras/geometry_utils.dart' as GeometryUtils;
-
-
-import 'package:box2d/box2d_browser.dart';
-import 'animations.dart' as animations;
-import 'events.dart';
-
-import 'dart:async';
-import 'dart:math' as math;
-import 'dart:json' as JSON;
-import 'dart:html';
-import 'dart:svg' as svg;
-
-import 'package:js/js.dart' as js;
+part of vdrones;
 
 class EntityTypes {
   static const WALL =   0x0001;
@@ -32,7 +16,7 @@ class Object2D {
 class EntityProvider {
   Object2D obj2dF() => null;
   js.Proxy obj3dF() => null;
-  final anims = new Map<String, animations.Animate>();
+  final anims = new Map<String, Animate>();
 
   EntityProvider();
 }
@@ -43,7 +27,7 @@ class EntityProvider4Static extends EntityProvider {
 
   Object2D obj2dF() => _obj2d;
   js.Proxy obj3dF() => _obj3d;
-  final anims = new Map<String, animations.Animate>();
+  final anims = new Map<String, Animate>();
   List<num> cells;
   num cellr;
 
@@ -92,9 +76,9 @@ class EntityProvider4Targetg102 extends EntityProvider {
   }
 
   EntityProvider4Targetg102() {
-    anims["spawn"] = (animations.Animator animator, js.Proxy obj3d) => animations.scaleIn(animator, obj3d).then((obj3d) => animations.rotateXYEndless(animator, obj3d));
-    anims["despawnPre"] = animations.scaleOut;
-    anims["none"] = animations.noop;
+    anims["spawn"] = (Animator animator, js.Proxy obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
+    anims["despawnPre"] = Animations.scaleOut;
+    anims["none"] = Animations.noop;
   }
 }
 
@@ -115,8 +99,8 @@ class EntityProvider4Cube extends EntityProvider {
     return o;
   }
   EntityProvider4Cube() {
-    anims["spawn"] = animations.rotateXYEndless;
-    anims["waiting"] = animations.rotateXYEndless;
+    anims["spawn"] = Animations.rotateXYEndless;
+    anims["waiting"] = Animations.rotateXYEndless;
   }
 }
 
@@ -285,10 +269,10 @@ class EntityProvider4Drone extends EntityProvider {
   }
 
   EntityProvider4Drone(this._obj3dPattern) {
-    anims["spawn"] = animations.scaleIn;
-    anims["despawnPre"] = animations.scaleOut;
-    anims["crash"] = animations.explodeOut;
-    anims["none"] = animations.noop;
+    anims["spawn"] = Animations.scaleIn;
+    anims["despawnPre"] = Animations.scaleOut;
+    anims["crash"] = Animations.explodeOut;
+    anims["none"] = Animations.noop;
   }
 
 }

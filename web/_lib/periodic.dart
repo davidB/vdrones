@@ -1,8 +1,4 @@
-library vdrones_periodic;
-
-import "events.dart";
-import "dart:math" as math;
-import 'utils.dart';
+part of vdrones;
 
 class PeriodicTask {
   String id;

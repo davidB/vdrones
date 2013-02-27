@@ -1,14 +1,7 @@
 import 'dart:html';
-import '../lib/progress.dart';
-import '../lib/animations.dart';
-import '../lib/events.dart';
-import '../lib/renderer.dart';
-import '../lib/physics.dart';
-import '../lib/gameplay.dart';
-import '../lib/layer2d.dart';
-import '../lib/keyboard.dart';
-import '../lib/periodic.dart';
 import 'package:logging/logging.dart';
+import '_lib/vdrones.dart';
+
 
 var evt = new Evt();
 

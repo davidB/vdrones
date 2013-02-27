@@ -1,7 +1,7 @@
 library utils_test;
 
 import 'package:unittest/unittest.dart';
-import '../lib/utils.dart';
+import '../web/_lib/utils.dart';
 import 'dart:html';
 import 'dart:async';
 

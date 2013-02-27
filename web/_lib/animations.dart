@@ -1,12 +1,4 @@
-library vdrones_animations;
-
-//import 'package:three/three.dart' as three;
-import 'dart:async';
-import 'dart:math' as math;
-import "events.dart";
-import 'dart:html';
-import 'utils.dart';
-import 'package:js/js.dart' as js;
+part of vdrones;
 
 const Z_HIDDEN = -1000;
 
@@ -56,56 +48,89 @@ class AnimEntry {
   AnimEntry _next = null;
 }
 
-Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
+class Animations {
+  static Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
 
-Future<js.Proxy> rotateXYEndless(Animator animator, js.Proxy obj3d) {
-  var r = new Completer();
-  var u = (num t, num t0){
-    js.scoped((){
-    obj3d.rotation.x += 0.01;
-    obj3d.rotation.y += 0.02;
-    //return obj3d.parent != null;
-    });
-    return true;
-  };
-  animator.start(u);
-  return r.future;
-}
+  static Future<js.Proxy> rotateXYEndless(Animator animator, js.Proxy obj3d) {
+    var r = new Completer();
+    var u = (num t, num t0){
+      js.scoped((){
+      obj3d.rotation.x += 0.01;
+      obj3d.rotation.y += 0.02;
+      //return obj3d.parent != null;
+      });
+      return true;
+    };
+    animator.start(u);
+    return r.future;
+  }
 
-//TODO
-Future<js.Proxy> scaleOut(Animator animator,  js.Proxy obj3d) {
-  var r= new Completer();
-  var u = (num t, num t0){
-    var dt = math.min(300, t - t0);
+
+  static Future<js.Proxy> scaleOut(Animator animator,  js.Proxy obj3d) {
+    var r= new Completer();
+    var u = (num t, num t0){
+      var dt = math.min(300, t - t0);
+      js.scoped((){
+      obj3d.scale.set(
+        Easing.easeInQuad(dt, 300, -1, 1),
+        Easing.easeInQuad(dt, 300, -1, 1),
+        Easing.easeInQuad(dt, 300, -1, 1)
+      );
+      });
+      return dt < 300;
+    };
+    var c = (num t, num t0){ r.complete(obj3d); };
+    animator.start(u, onComplete : c);
+    return r.future;
+  }
+
+  static Future<js.Proxy> scaleIn(Animator animator, js.Proxy obj3d) {
+    var r= new Completer();
+    var u = (num t, num t0){
+      var dt = math.min(300, t - t0);
+      js.scoped((){
+      obj3d.scale.set(
+        Easing.easeInQuad(dt, 300, 1, 0),
+        Easing.easeInQuad(dt, 300, 1, 0),
+        Easing.easeInQuad(dt, 300, 1, 0)
+      );
+      });
+      return dt < 300;
+    };
+    var c = (num t, num t0){ r.complete(obj3d); };
+    animator.start(u, onComplete : c);
+    return r.future;
+  }
+
+  static var explode = null;
+
+  static Future<js.Proxy> explodeOut(Animator animator, js.Proxy obj3d) {
+    var r= new Completer();
+    var u = (num t, num t0){
+      js.scoped((){
+        var runningTime = (t - t0)/1000;
+        runningTime = runningTime - (runningTime/6.0).floor() *6.0;
+        explode.uniforms["time"].value = runningTime;
+      });
+      return (t - t0) < 2000;
+    };
+    var c = (num t, num t0){
+      js.scoped((){
+        r.complete(obj3d);
+        var p = explode.particles.parent;
+        if (p != null) p.remove(explode.particles);
+      });
+    };
     js.scoped((){
-    obj3d.scale.set(
-      Easing.easeInQuad(dt, 300, -1, 1),
-      Easing.easeInQuad(dt, 300, -1, 1),
-      Easing.easeInQuad(dt, 300, -1, 1)
-    );
+      //explode.uniforms["center"].value = obj3d.position.clone();
+      explode.particles.position = obj3d.position.clone();
+      explode.particles.position.z = 10;
+      obj3d.parent.add(explode.particles);
+      obj3d.position.z = Z_HIDDEN;
+      animator.start(u, onComplete : c);
     });
-    return dt < 300;
-  };
-  var c = (num t, num t0){ r.complete(obj3d); };
-  animator.start(u, onComplete : c);
-  return r.future;
-}
-Future<js.Proxy> scaleIn(Animator animator, js.Proxy obj3d) {
-  var r= new Completer();
-  var u = (num t, num t0){
-    var dt = math.min(300, t - t0);
-    js.scoped((){
-    obj3d.scale.set(
-      Easing.easeInQuad(dt, 300, 1, 0),
-      Easing.easeInQuad(dt, 300, 1, 0),
-      Easing.easeInQuad(dt, 300, 1, 0)
-    );
-    });
-    return dt < 300;
-  };
-  var c = (num t, num t0){ r.complete(obj3d); };
-  animator.start(u, onComplete : c);
-  return r.future;
+    return r.future;
+  }
 }
 
 // based on http://webglplayground.net/?gallery=BeIrChLZoJ
@@ -250,39 +275,11 @@ class Explode {
 }
 
 
-var explode = null;
-
-Future<js.Proxy> explodeOut(Animator animator, js.Proxy obj3d) {
-  var r= new Completer();
-  var u = (num t, num t0){
-    js.scoped((){
-    var runningTime = (t - t0)/1000;
-    runningTime = runningTime - (runningTime/6.0).floor() *6.0;
-    explode.uniforms["time"].value = runningTime;
-    });
-    return (t - t0) < 2000;
-  };
-  var c = (num t, num t0){
-    js.scoped((){
-    r.complete(obj3d);
-    var p = explode.particles.parent;
-    if (p != null) p.remove(explode.particles);
-    });
-  };
-  js.scoped((){
-  //explode.uniforms["center"].value = obj3d.position.clone();
-    explode.particles.position = obj3d.position.clone();
-    explode.particles.position.z = 10;
-  obj3d.parent.add(explode.particles);
-  obj3d.position.z = Z_HIDDEN;
-  animator.start(u, onComplete : c);
-  });
-  return r.future;
-}
 
 Animator setupAnimations(Evt evt) {
   var animator = new Animator();
-  explode = new Explode(250);
+  //TODO refactor the setup of explode (should be created on init, but not at first demand)
+  Animations.explode = new Explode(250);
 
   evt.Tick.add((t, delta500){
     animator.update(t);
