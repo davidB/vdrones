@@ -1,0 +1,1 @@
+appcfg.sh update web
