@@ -7,4 +7,5 @@ packages
 off
 target
 filter
+.idea
 appengine-web.xml
