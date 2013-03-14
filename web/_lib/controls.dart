@@ -12,7 +12,7 @@ class CtrlKey {
   CtrlKey({this.codes, this.label, this.start, this.stop});
 }
 
-void setupKeyboard(Evt evt) {
+void setupControls(Evt evt) {
   var _droneId = null;
 
 
