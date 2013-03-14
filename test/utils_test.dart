@@ -6,7 +6,7 @@ import 'dart:html';
 import 'dart:async';
 
 main() {
-  test("SimpleLinkedList", () {
+  test("LinkedBag", () {
     var d = new LinkedBag();
     d.add(1);
     d.add(2);
@@ -80,7 +80,8 @@ main() {
     for(var i = 0; i < 100; i++) {
       fs.add(new Future.immediate(i).then((x) => x * 2).then((x) => new Future.of((){ sut.add(x); return x;})));
     }
-    Future.wait(fs).then((x){ print('DONE : ${sut.length}'); running = false; return true;}).catchError((e){print(e);});
+    var f = Future.wait(fs).then((x){ running = false; return x;}).catchError((e){running = false; print(e);});
+    expect(f, completes);
   });
 }
 
