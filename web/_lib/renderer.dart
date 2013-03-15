@@ -92,17 +92,19 @@ js.scoped((){
   js.retain(_renderer);
 
   void updateViewportSize(evt){
-    var w = container.clientWidth; //window.innerWidth
-    var h = container.clientHeight; //window.innerHeight
-    var unitperpixel = 0.1;
-    _renderer.setSize(w, h);
-    //_camera.aspect = w /  h;
-    _camera.left = w / -2 * unitperpixel;
-    _camera.right = w / 2 * unitperpixel;
-    _camera.top = h /2 * unitperpixel;
-    _camera.bottom = h / -2 * unitperpixel;
-    _camera.updateProjectionMatrix();
-    //_controls.handleResize();
+    js.scoped((){
+      var w = container.clientWidth; //window.innerWidth
+      var h = container.clientHeight; //window.innerHeight
+      var unitperpixel = 0.1;
+      _renderer.setSize(w, h);
+      //_camera.aspect = w /  h;
+      _camera.left = w / -2 * unitperpixel;
+      _camera.right = w / 2 * unitperpixel;
+      _camera.top = h /2 * unitperpixel;
+      _camera.bottom = h / -2 * unitperpixel;
+      _camera.updateProjectionMatrix();
+      //_controls.handleResize();
+    });
   }
 
   updateViewportSize(null);
