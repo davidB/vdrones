@@ -46,6 +46,8 @@ class Zone4Cubes {
   void onHit(String droneId, String objId){
      if (! objId.startsWith(_zonePrefix)) return;
      evt.CountdownStop.dispatch(["${objId}/countdown"]);
+     var emax = evt.GameStates.energyMax.v;
+     evt.GameStates.energy.v = math.max(evt.GameStates.energy.v + emax /2, emax);
      evt.GameStates.score.v = evt.GameStates.score.v + 1;
      evt.ObjDespawn.dispatch([objId, {"preAnimName" : "none"}]);
      spawnNewCube(1);
