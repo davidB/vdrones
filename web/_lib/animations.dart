@@ -49,6 +49,9 @@ class AnimEntry {
 }
 
 class Animations {
+  //TODO sfx for grab cube : 0,,0.01,,0.4453,0.3501,,0.4513,,,,,,0.4261,,0.6284,,,1,,,,,0.5
+  //TODO sfx for explosion : 3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72
+
   static Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
 
   static Future<js.Proxy> rotateXYEndless(Animator animator, js.Proxy obj3d) {
