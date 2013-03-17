@@ -3,155 +3,19 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"        xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"               xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"                      xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <!--<![endif]-->
-	<head>
-		<title>vdrones - r7</title>
-		<meta name="description" content="">
-		<meta charset="utf-8"/>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+  <head>
+    <title>vdrones - r7</title>
+    <meta name="description" content="">
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="shortcut icon" href="../favicon.ico" >
     <script src="_vendors/modernizr-2.6.2.min.js"></script>
     <link rel="stylesheet" href="_vendors/normalize-2.0.1/normalize.css">
     <link rel="stylesheet" href="_vendors/bootstrap-20121128/css/slate-bootstrap.min.css">
     <link rel="stylesheet" href="_vendors/font-awesome-2.0.0/css/font-awesome.css">
-    <style>
-      @font-face{
-        font-family: 'SciFly';
-        src: url('_vendors/scifly/scifly-sans-webfont.eot');
-        src: url('_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
-        url('_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
-        url('_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
-        url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
-      }
-      @media screen and (-webkit-min-device-pixel-ratio:0) {
-        @font-face {
-          font-family: 'SciFly';
-          src: url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
-        }
-     }
-    body {
-      font-family: 'SciFly', Arial, sans-serif;
-    }
-    #score{
-      text-align:right;
-      right:0.5em;
-      float:right
-    }
-    .sh{
-      box-shadow:0px 0px 20px #111;
-      -moz-box-shadow:0px 0px 20px #111;
-      -webkit-box-shadow:0px 0px 20px #111;
-      -khtml-box-shadow:0px 0px 20px #111;
-    }
-    .container, .navbar-static-top .container, .navbar-fixed-top .container, .navbar-fixed-bottom .container {
-      width: 1120px;
-    }
-    #game_area {
-      position: relative;
-      width: 1120px;
-      height: 630px;
-      margin: auto;
-    }
-    #game_area #layers, #game_area #layers canvas, #game_area #layers >div{
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    /* see http://www.useragentman.com/blog/2012/01/03/cross-browser-html5-progress-bars-in-depth/ */
-    #gameload {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      margin-bottom: -2px;
-      /* Turns off styling - not usually needed, but good to know. */
-      appearance: none;
-      -moz-appearance: none;
-      -webkit-appearance: none;
-      border: none;
-      background: rgb(53, 60, 68) !important;
-      color: rgb(202, 46, 46);
-    }
-    /* putting them all together in one selector breaks every browser */
-    #gameload::-moz-progress-bar {
-       background: rgb(202, 46, 46);
-    }
-    #gameload::-webkit-progress-bar {
-      background: rgb(53, 60, 68);
-    }
-    #gameload::-webkit-progress-value {
-      background: rgb(202, 46, 46);
-    }
-
-    /* Polyfill */
-    #gameload[role][aria-valuenow] {
-      background: rgb(53, 60, 68) !important;
-    }
-    #gameload[aria-valuenow]:before  {
-      background: rgb(202, 46, 46);
-    }
-    #info {
-			position: absolute;
-			top: 0px; width: 90%;
-			padding: 5px;
-    }
-    .screen_info  {
-      z-index: 12;
-      opacity: 1;
-      //background-color: #00aa00;
-      -webkit-transition: opacity 1s;
-      -moz-transition: opacity 1s;
-      -o-transition: opacity 1s;
-      -ms-transition: opacity 1s;
-      transition: opacity 1s;
-      background-color:#272b30;
-    }
-    .screen_inner {
-      border: 2px solid rgb(100,100,120);
-      margin: 8px;
-      padding: 5px;
-      height: 80%;
-    }
-    .screen_inner h3, .screen_inner #rules_help {
-      text-align: center;
-    }
-    .screen_inner div, .screen_inner table {
-      margin: auto;
-    }
-    .screen_inner .actions {
-      text-align: center;
-    }
-    .btn {
-      -webkit-transition: all 1s;
-      -moz-transition: all 1s;
-      -o-transition: all 1s;
-      -ms-transition: all 1s;
-      transition: all 1s;
-    }
-    footer {
-      padding: 0;
-      margin: auto;
-      text-align: center;
-    }
-    .vbadge{
-      color: rgb(250,50,50);
-      background-color: transparent;
-      font-size: 34px;
-      transform: rotate(-45deg);
-      -webkit-transform: rotate(-45deg);
-      -moz-transform: rotate(-45deg);
-      -o-transform: rotate(-45deg);
-      -ms-transform: rotate(-45deg);
-      position: absolute;
-      top: -25px;
-      left: -26px;
-      width: 200px;
-    }
-  </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
         <!--[if lt IE 7]>
@@ -172,57 +36,57 @@
     <div id="layers">
       <div id="hud" style="z-index:10">
       </div>
-        <div id="screenEnd" class="screen_info">
-          <div class="screen_inner">
-            <div style="padding:3em 0 3em 0;text-align: center;">
-              <p id="screenEndComments"></p>
-              <p>score : <span id="score"></span></p>
-            <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
-            </div>
-            <div class="actions">
-              <button  id="btnReplay" class="btn"><i class="icon-repeat"></i> REPLAY</button>
-            </div>
+      <div id="screenEnd" class="screen_info hidden dialog_info">
+        <div class="screen_inner">
+          <div style="padding:3em 0 3em 0;text-align: center;">
+            <div id="screenEndComments"></div>
+            <p>score : <span id="screenEndScore"></span></p>
+          <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
+          </div>
+          <div class="actions">
+            <button  id="btnReplay" class="btn"><i class="icon-repeat"></i> REPLAY</button>
           </div>
         </div>
-        <div id="screenInit" class="screen_info">
-          <div class="screen_inner">
-            <h3>Welcome VDroner,</h3>
-            <div id="rules_help" style="padding-bottom:3em">
-               Grab the cubes of energy<br>
-               Don't touch the walls<br>
-               Exit the area ("Action" on exit gate) before timeout<br>
-            </div>
-            <div id="controls_help" style="padding-bottom:3em">
-              <table>
-                <tr>
-                  <td>Forward</td>
-                  <td>[up] [W]</td>
-                </tr>
-                <tr>
-                  <td>Rotate Right</td>
-                  <td>[right] [A]</td>
-                </tr>
-                <tr>
-                  <td>Rotate Left</td>
-                  <td>[left] [D]</td>
-                </tr>
-                <tr>
-                  <td>Action</td>
-                  <td>[enter] [E]</td>
-                </tr>
-              </table>
-            </div>
-            <div class="actions">
-              <div id="msgConnecting" style="opacity: 1">Please wait, connecting to VSpace ...</div>
-              <button id="btnStart" class="btn" disabled>START</button>
-            </div>
+      </div>
+      <div id="screenInit" class="screen_info show">
+        <div class="screen_inner">
+          <h3>Welcome VDroner,</h3>
+          <div id="rules_help" style="padding-bottom:3em">
+             Grab the cubes of energy<br>
+             Don't touch the walls<br>
+             Exit the area ("Action" on exit gate) before timeout<br>
+          </div>
+          <div id="controls_help" style="padding-bottom:3em">
+            <table>
+              <tr>
+                <td>Forward</td>
+                <td>[up] [W]</td>
+              </tr>
+              <tr>
+                <td>Rotate Right</td>
+                <td>[right] [A]</td>
+              </tr>
+              <tr>
+                <td>Rotate Left</td>
+                <td>[left] [D]</td>
+              </tr>
+              <tr>
+                <td>Action</td>
+                <td>[enter] [E]</td>
+              </tr>
+            </table>
+          </div>
+          <div class="actions">
+            <div id="msgConnecting" style="opacity: 1">Please wait, connecting to VSpace ...</div>
+            <button id="btnStart" class="btn" disabled>START</button>
           </div>
         </div>
-        <!--div id="screenLast" class="screen_info">
-          <div class="screen_inner">... Waiting ...</div>
-        </div-->
-        <div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
-        </div>
+      </div>
+      <!--div id="screenLast" class="screen_info">
+        <div class="screen_inner">... Waiting ...</div>
+      </div-->
+      <div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
+      </div>
     </div>
     <progress id="gameload" max="100" value="0">
       <!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
@@ -230,7 +94,7 @@
     </section>
     <footer>version: 0.2.3-d</footer>
   </div>
-  <script src="_vendors/three-r54/three.min.js"></script>
+  <script src="_vendors/three-r57/three.min.js"></script>
   <script type="application/dart" src="index.dart"></script>
   <script src="packages/browser/dart.js"></script>
 </body>
