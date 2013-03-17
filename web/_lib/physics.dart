@@ -56,7 +56,7 @@ class MyContactListener extends ContactListener {
   }
 }
 
-void setupPhysics(Evt evt) {
+void setupPhysics(Evt evt, [drawDebug = false]) {
 
   const DEG_TO_RADIAN = 0.0174532925199432957;
   const int VELOCITY_ITERATIONS = 10;
@@ -97,22 +97,24 @@ void setupPhysics(Evt evt) {
     space.contactListener = _contactListener;
 
 // Setup the canvas.
-    var canvas = new Element.tag('canvas');
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
-    window.document.query("#layers").children.add(canvas);
-    _ctx = canvas.getContext("2d");
+    if (drawDebug) {
+      var canvas = new Element.tag('canvas');
+      canvas.width = CANVAS_WIDTH;
+      canvas.height = CANVAS_HEIGHT;
+      window.document.query("#layers").children.add(canvas);
+      _ctx = canvas.getContext("2d");
 
-    // Create the viewport transform with the center at extents.
-    final extents = new Vector(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    var viewport = new CanvasViewportTransform(extents, extents);
-    viewport.scale = _VIEWPORT_SCALE;
+      // Create the viewport transform with the center at extents.
+      final extents = new Vector(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+      var viewport = new CanvasViewportTransform(extents, extents);
+      viewport.scale = _VIEWPORT_SCALE;
 
-    // Create our canvas drawing tool to give to the world.
-    var debugDraw = new CanvasDraw(viewport, _ctx);
+      // Create our canvas drawing tool to give to the world.
+      var debugDraw = new CanvasDraw(viewport, _ctx);
 
-    // Have the world draw itself for debugging purposes.
-    space.debugDraw = debugDraw;
+      // Have the world draw itself for debugging purposes.
+      space.debugDraw = debugDraw;
+    }
 
 
     return space;
@@ -155,8 +157,10 @@ void setupPhysics(Evt evt) {
 
     _space.step(stepRate, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
     _lastTimestamp = t;
-    //_ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    //_space.drawDebugData();
+    if (drawDebug) {
+      _ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      _space.drawDebugData();
+    }
   }
 
   num pushStates(){
@@ -294,10 +298,8 @@ void setupPhysics(Evt evt) {
     return "${base}${new DateTime.now().millisecondsSinceEpoch}";
   }
 
-  evt.GameInit.add((areaId){
-    _space = initSpace();
-  });
   evt.GameStart.add((){
+    _space = initSpace();
     _running = true;
   });
   evt.GameStop.add((_) {

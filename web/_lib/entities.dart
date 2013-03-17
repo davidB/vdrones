@@ -168,7 +168,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
     return o;
   }
 
-  Object2D cells2boxes2d(List<num> cells) {
+  Object2D cells2boxes2d(List<num> cells, groupIndex) {
     var r = new Object2D();
     r.bdef = new BodyDef();
     //r.body.nodeIdleTime = double.INFINITY;
@@ -183,8 +183,30 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       shape.setAsBoxWithCenterAndAngle(hx, hy, new Vector(x, y), 0);
       var f = new FixtureDef();
       f.shape = shape;
-      f.filter.groupIndex = EntityTypes.WALL;
+      f.filter.groupIndex = groupIndex;
       r.fdefs.add(f);
+    }
+    return r;
+  }
+
+  Object2D cells2circles2d(List<num> cells, double radius, int groupIndex) {
+    var r = new Object2D();
+    r.bdef = new BodyDef();
+    r.fdefs = [];
+    for(var i = 0; i < cells.length; i+=4) {
+      for (var x = cells[i+0]; x < (cells[i+0] + cells[i+2]); x++) {
+        for (var y = cells[i+1]; y < (cells[i+1] + cells[i+3]); y++) {
+          var s = new CircleShape();
+          s.radius = radius * cellr/2;
+          s.position.x = (x + 0.5 ) * cellr;
+          s.position.y = (y + 0.5 ) * cellr;
+          var f = new FixtureDef();
+          f.shape = s;
+          f.isSensor = true;
+          f.filter.groupIndex = groupIndex;
+          r.fdefs.add(f);
+        }
+      }
     }
     return r;
   }
@@ -231,7 +253,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
   addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
   var r = {
     "walls" : new EntityProvider4Static(
-      cells2boxes2d(area["walls"]["cells"]),
+      cells2boxes2d(area["walls"]["cells"], EntityTypes.WALL),
       cells2boxes3d(area["walls"]["cells"], area["width"], area["height"]),
       area["walls"]["cells"],
       cellr
@@ -244,7 +266,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       cellr
     ),
     "gate_out" : new EntityProvider4Static(
-      null,
+      cells2circles2d(area["zones"]["gate_out"]["cells"], 0.3, EntityTypes.ITEM),
       cells2surface3d(area["zones"]["gate_out"]["cells"], 0.5, "_images/gate_out.png"),
       area["zones"]["gate_out"]["cells"],
       cellr

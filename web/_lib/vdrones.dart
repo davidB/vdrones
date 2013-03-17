@@ -22,6 +22,7 @@ part 'periodic.dart';
 part 'physics.dart';
 part 'renderer.dart';
 part 'zone_cubes.dart';
+part 'zone_gate_out.dart';
 
 Evt setup() {
 

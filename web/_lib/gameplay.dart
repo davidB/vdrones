@@ -49,11 +49,6 @@ void setupGameplay(Evt evt){
     });
   }
 
-  void spawnZones4Cubes(EntityProvider4Static zones) {
-    evt.ObjSpawn.dispatch(["targetg1_spawn/${_uid}", Position.zero, zones]);
-    new Zone4Cubes(zones.cells, zones.cellr, evt, _entities);
-  }
-
   void start(){
     print("START");
     evt.GameStates.energy.v = 0;
@@ -67,8 +62,8 @@ void setupGameplay(Evt evt){
     _entities.find(_areaId).then((x){
       evt.AreaSpawn.dispatch(["area/${_uid}", Position.zero, x["walls"]]);
       evt.ObjSpawn.dispatch(["gate_in/${_uid}", Position.zero, x["gate_in"]]);
-      evt.ObjSpawn.dispatch(["gate_out/${_uid}", Position.zero, x["gate_out"]]);
-      spawnZones4Cubes(x["targetg1_spawn"]);
+      new Zone4GateOut("gate_out/${_uid}", evt, x["gate_out"]);
+      new Zone4Cubes(x["targetg1_spawn"], evt, _entities);
     });
 
     spawnDrone(_droneId);

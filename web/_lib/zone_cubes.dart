@@ -15,7 +15,8 @@ class Zone4Cubes {
   int _subZoneOffset = 0;
 
 
-  Zone4Cubes(this._cells, this._cellr, this.evt, this._entities) : _zonePrefix = "cube/z${_n0++}_" {
+  Zone4Cubes(EntityProvider4Static zones, this.evt, this._entities) : _zonePrefix = "cube/z${_n0++}_",  _cells = zones.cells,  _cellr = zones.cellr {
+    evt.ObjSpawn.dispatch(["targetg1_spawn/${_zonePrefix}", Position.zero, zones]);
     evt.ContactBeginDroneItem.add(onHit);
     TimeOut.add(onTimeout);
     spawnNewCube(1);

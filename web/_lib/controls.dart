@@ -71,8 +71,14 @@ void setupControls(Evt evt) {
         keyCtrl.stop(evt);
       }
     });
-    if (_subUp != null) _subUp.cancel();
-    if (_subDown != null) _subDown.cancel();
+    if (_subUp != null) {
+      _subUp.cancel();
+      _subUp = null;
+    }
+    if (_subDown != null){
+      _subDown.cancel();
+      _subDown = null;
+    }
   }
 
   evt.GameInit.add((areaId) => diseableControl(false));
