@@ -3,7 +3,13 @@ part of vdrones;
 void showScreen(id){
   document.queryAll('.screen_info').forEach((screen) {
     //screen.style.opacity = (screen.id === id)?1 : 0;
-    screen.style.display = (screen.id == id) ?'block' : 'none';
+    if (screen.id == id) {
+      screen.classes.remove('hidden');
+      screen.classes.add('show');
+    } else {
+      screen.classes.remove('show');
+      screen.classes.add('hidden');
+    }
   });
 }
 
@@ -26,7 +32,11 @@ void setupLayer2D(Evt evt, Element container){
     container.query("#btnStart")
     ..attributes.remove("disabled")
     ..onClick.listen((e){
-      print("Click");
+      showScreen('none');
+      evt.GameStart.dispatch(null);
+    });
+    container.query("#btnReplay")
+    ..onClick.listen((e){
       showScreen('none');
       evt.GameStart.dispatch(null);
     });
@@ -54,6 +64,16 @@ void setupLayer2D(Evt evt, Element container){
         }
       });
     }
+  });
+  evt.GameStop.add((exiting) {
+    if (exiting) {
+      container.query("#screenEndScore").text = evt.GameStates.score.v.toString();
+      container.query("#screenEndComments").innerHtml = "";
+    } else {
+      container.query("#screenEndScore").text = evt.GameStates.score.v.toString(); //"0";
+      container.query("#screenEndComments").innerHtml = "<h3>TIME OUT !</h3>";
+    }
+    showScreen('screenEnd');
   });
   evt.Error.add((msg, exc){
     window.console.error(msg);

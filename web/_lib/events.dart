@@ -40,7 +40,7 @@ class States {
 
   // about local drone
   final score = new State<num>(0);
-  final energy = new State<num>(50);
+  final energy = new State<num>(0);
   final energyMax = new State<num>(0);
   final boosting = new State<bool>(false);
 

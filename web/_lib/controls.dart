@@ -64,7 +64,7 @@ void setupControls(Evt evt) {
     });
   };
 
-  void diseableControl() {
+  void diseableControl(_) {
     _keys.forEach((keyCtrl) {
       if(keyCtrl.active) {
         keyCtrl.active = false;
@@ -75,7 +75,7 @@ void setupControls(Evt evt) {
     if (_subDown != null) _subDown.cancel();
   }
 
-  evt.GameInit.add((areaId) => diseableControl());
+  evt.GameInit.add((areaId) => diseableControl(false));
   evt.GameStop.add(diseableControl);
   evt.SetLocalDroneId.add(bindShipControl);
 }

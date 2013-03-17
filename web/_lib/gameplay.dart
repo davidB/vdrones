@@ -72,7 +72,7 @@ void setupGameplay(Evt evt){
     });
 
     spawnDrone(_droneId);
-    evt.CountdownStart.dispatch(["countdown", 10, evt.GameStop, [false], evt.GameStates.countdown]);
+    evt.CountdownStart.dispatch(["countdown", 59, evt.GameStop, [false], evt.GameStates.countdown]);
   }
 
   void onReqEvent(Signal signal, List args) {

@@ -26,12 +26,10 @@ js.scoped((){
 
   var _anims = new Map<String, Map<String, Animate>>();
   var _logger = new Logger("renderer");
-  var _scene = new js.Proxy(THREE.Scene);
-  js.retain(_scene);
   var _devMode = false;
-  var _areaBox = null;
-  var _cameraTargetObjId = null;
-  var _cameraTargetObj = null;
+  js.Proxy _scene = null;
+  String _cameraTargetObjId = null;
+  js.Proxy _cameraTargetObj = null;
 
   //#_camera = new js.Proxy(THREE.PerspectiveCamera, 75, 1, 1, 500)
   var _camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, 1000]);
@@ -42,6 +40,22 @@ js.scoped((){
   //#see http://help.dottoro.com/ljorlllt.php
   js.retain(_camera);
 
+  js.Proxy clearScene(scene) {
+    // create a new Scene for each call or set children.length to 0 generate (stranges) error at runtime
+    // so the working solution in to reuse scene instance, and to remove every object3D
+    if (scene == null) {
+      scene = js.retain(new js.Proxy(THREE.Scene));
+    }
+    void clearChildren( obj ) {
+      for ( var i = obj.children.length - 1; i > -1; i--) {
+        //clearChildren(obj.children[ i ]);
+        //scene.__removeObject(obj.children[ i ]);
+        obj.remove(obj.children[ i ]);
+      }
+    }
+    clearChildren(scene);
+    return scene;
+  }
 
   var cmove = new CameraMove(container);
   void nLookAt(camera, v3) {
@@ -53,28 +67,36 @@ js.scoped((){
     camera.lookAt(v3);
   }
 
-
-  Element.mouseMoveEvent.forTarget(container, useCapture: false).listen((evt){
-    if (cmove.offsetX > -1)
-      cmove.deltaX = evt.clientX - cmove.offsetX;
-    if (cmove.offsetY > -1)
-      cmove.deltaY = evt.clientY - cmove.offsetY;
-  });
-  Element.mouseDownEvent.forTarget(container).listen((evt){
-    cmove.offsetX = evt.clientX;
-    cmove.offsetY = evt.clientY;
-  });
-  Element.mouseUpEvent.forTarget(container).listen((evt){
-    cmove.offsetX = -1;
-    cmove.offsetY = -1;
-    cmove.x = cmove.x + cmove.deltaX;
-    cmove.y = cmove.y + cmove.deltaY;
-    cmove.deltaX = 0;
-    cmove.deltaY = 0;
-  });
-  nLookAt(_camera, _scene.position);
-  _scene.add(_camera);
-  //#_cameraControls = new js.Proxy(THREE.DragPanControls, _camera)
+  List<StreamSubscription> sssMouseMotionToControlCamera = null;
+  void registerMouseMotionToControlCamera() {
+    if (sssMouseMotionToControlCamera != null) return;
+    //#_cameraControls = new js.Proxy(THREE.DragPanControls, _camera)
+    sssMouseMotionToControlCamera = [
+      Element.mouseMoveEvent.forTarget(container, useCapture: false).listen((evt){
+        if (cmove.offsetX > -1)
+          cmove.deltaX = evt.clientX - cmove.offsetX;
+        if (cmove.offsetY > -1)
+          cmove.deltaY = evt.clientY - cmove.offsetY;
+      }),
+      Element.mouseDownEvent.forTarget(container).listen((evt){
+        cmove.offsetX = evt.clientX;
+        cmove.offsetY = evt.clientY;
+      }),
+      Element.mouseUpEvent.forTarget(container).listen((evt){
+        cmove.offsetX = -1;
+        cmove.offsetY = -1;
+        cmove.x = cmove.x + cmove.deltaX;
+        cmove.y = cmove.y + cmove.deltaY;
+        cmove.deltaX = 0;
+        cmove.deltaY = 0;
+      })
+    ];
+  }
+  void unregisterMouseMotionToControlCamera() {
+    if (sssMouseMotionToControlCamera != null) return;
+    sssMouseMotionToControlCamera.forEach((x) => x.cancel());
+    sssMouseMotionToControlCamera = null;
+  }
 
   var _renderer = new js.Proxy(THREE.WebGLRenderer, js.map({
     "clearAlpha": 1,
@@ -88,7 +110,6 @@ js.scoped((){
   //_renderer.shadowMapType = three.PCFShadowMap;
   _renderer.setClearColorHex(0xEEEEEE, 1.0);
   _renderer.autoClear = true;
-  _renderer.clear();
   js.retain(_renderer);
 
   void updateViewportSize(evt){
@@ -107,7 +128,6 @@ js.scoped((){
     });
   }
 
-  updateViewportSize(null);
   container.children.add(_renderer.domElement);
   Window.resizeEvent.forTarget(window).listen(updateViewportSize);
 
@@ -127,7 +147,7 @@ js.scoped((){
       nLookAt(_camera, v3zero);
     }
     _renderer.render(_scene, _camera);
-});
+  });
 
   }
 
@@ -179,7 +199,13 @@ js.scoped((){
 
   void start(){
     js.scoped((){
-    addLights(_scene, _camera);
+      _cameraTargetObjId = null;
+      _cameraTargetObj = null;
+      _scene = clearScene(_scene);
+      addLights(_scene, _camera);
+      _renderer.clear();
+      nLookAt(_camera, _scene.position);
+      updateViewportSize(null);
 //    if (_devMode)
 //      evt.SetupDatGui.dispatch((gui) ->
 //        f2 = gui.addFolder("Camera")
@@ -244,11 +270,13 @@ js.scoped((){
   }
 
   void despawnObj(String id, [options]) {
+    print("despawnObj ${id}");
     var p = new Future.of((){
       var obj;
       js.scoped((){
-      obj = js.retain(_scene.getChildByName(id, false));
-      if (obj == null) throw new StateError("obj not found : ${id}");
+        var obj0 = _scene.getChildByName(id, false);
+        if (obj0 == null) throw new StateError("obj not found : ${id}");
+        obj = js.retain(obj0);
       });
       return obj;
     }).then((obj){
@@ -264,16 +292,17 @@ js.scoped((){
       return b;
     }).then((obj){
       js.scoped((){
-      if (_cameraTargetObjId == obj.name) {
-        _cameraTargetObj = null;
-      }
-      _scene.remove(obj);
-      if (options["deferred"] != null) {
-        options["deferred"].complete(id);
-      }
+        if (_cameraTargetObjId == obj.name || _cameraTargetObj == obj) {
+          _cameraTargetObj = null;
+        }
+        _scene.remove(obj);
+        if (options["deferred"] != null) {
+          options["deferred"].complete(id);
+        }
+        js.release(obj);
       });
-      js.release(obj);
     });
+    p.catchError((onError) => print(onError));
   }
 
 //  void spawnScene(String id, Position pos, List<three.Object3D> scene3d){
@@ -334,6 +363,9 @@ js.scoped((){
   js.scoped((){
     _cameraTargetObjId = objId;
     _cameraTargetObj = _scene.getChildByName(_cameraTargetObjId, false);
+    if (_cameraTargetObj != null) {
+      js.retain(_cameraTargetObj);
+    }
   });
   });
   evt.AreaSpawn.add(spawnObj);

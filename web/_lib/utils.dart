@@ -12,6 +12,12 @@ class LinkedBag<E> {
     return i;
   }
 
+  void clear() {
+    for(var a = _head; a != null; a = a._next) {
+      a._obj = null;
+    }
+  }
+
   void add(E obj) {
     var a = _head;
     while(a != null) {

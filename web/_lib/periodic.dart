@@ -41,6 +41,7 @@ void setupPeriodic(Evt evt){
   evt.PeriodicEvtAdd.add(registerPeriodic);
   evt.PeriodicEvtDel.add(unregisterPeriodic);
   evt.Tick.add(ping);
+  evt.GameStop.add((_){ _ptasks.clear();});
 
   final _ctasks = new LinkedBag<CountdownTask>();
 
@@ -73,5 +74,7 @@ void setupPeriodic(Evt evt){
     _ctasks.iterateAndRemove((v) => v.id != id );
   });
   evt.Tick.add(decCountdown);
+  evt.GameStop.add((_){ _ctasks.clear();});
+
 }
 

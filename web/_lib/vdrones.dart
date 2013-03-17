@@ -39,12 +39,12 @@ Evt setup() {
 //  Stage4UserInput(evt)
 //  Stage4Animation(evt)
   setupPeriodic(evt);
-  setupGameplay(evt);
   setupPhysics(evt);
   var animator  = setupAnimations(evt);
   setupRenderer(evt, container, animator);
   setupLayer2D(evt, document.query('#game_area'));
   setupControls(evt);
+  setupGameplay(evt);
   //  if (devMode) {
 //    Stage4DevMode(evt);
 //    Stage4LogEvent(evt, ['Init', 'SpawnObj', 'DespawnObj', 'BeginContact', 'Start', 'Stop', 'Initialized']);
@@ -53,7 +53,7 @@ Evt setup() {
 
   //ring.push(evt.Start); //TODO push Start when ready and user hit star button
   var _running = false;
-  evt.GameStop.add((){
+  evt.GameStop.add((_){
     _running = false;
   });
   evt.GameStart.add(() {

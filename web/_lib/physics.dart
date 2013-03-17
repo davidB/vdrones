@@ -300,7 +300,7 @@ void setupPhysics(Evt evt) {
   evt.GameStart.add((){
     _running = true;
   });
-  evt.GameStop.add(() {
+  evt.GameStop.add((_) {
     _running = false;
   });
   evt.AreaSpawn.add(spawnArea);
