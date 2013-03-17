@@ -1,6 +1,5 @@
 pubspec.lock
-*.js
-*.js.*
+*.dart.js*
 *.coffee
 package
 packages
