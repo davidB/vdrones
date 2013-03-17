@@ -56,20 +56,23 @@ void setupGameplay(Evt evt){
 
   void start(){
     print("START");
+    evt.GameStates.energy.v = 0;
+    evt.GameStates.energyMax.v = 0;
+    evt.GameStates.boosting.v = false;
+    evt.GameStates.score.v = 0;
+
     _droneId = "drone/${_uid + 1}";
     evt.SetLocalDroneId.dispatch([_droneId]);
     _entities.find('gui').then((x){ evt.HudSpawn.dispatch(['hud', x]); });
     _entities.find(_areaId).then((x){
       evt.AreaSpawn.dispatch(["area/${_uid}", Position.zero, x["walls"]]);
       evt.ObjSpawn.dispatch(["gate_in/${_uid}", Position.zero, x["gate_in"]]);
+      evt.ObjSpawn.dispatch(["gate_out/${_uid}", Position.zero, x["gate_out"]]);
       spawnZones4Cubes(x["targetg1_spawn"]);
     });
 
     spawnDrone(_droneId);
-
-    evt.GameStates.score.v = 0;
-    evt.CountdownStart.dispatch(["countdown", 45, evt.GameStop, [], evt.GameStates.countdown]);
-    evt.Render.dispatch(null);
+    evt.CountdownStart.dispatch(["countdown", 10, evt.GameStop, [false], evt.GameStates.countdown]);
   }
 
   void onReqEvent(Signal signal, List args) {

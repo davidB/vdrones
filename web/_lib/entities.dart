@@ -104,18 +104,18 @@ class EntityProvider4Cube extends EntityProvider {
   }
 }
 
-//  # Blenders euler order is 'XYZ', but the equivalent euler rotation order in Three.js is 'ZYX'
-js.Proxy fixOrientation(js.Proxy obj3d){
-  var y2 = obj3d.rotation.z;
-  var z2 = -obj3d.rotation.y;
-//    #m.rotation.x = ob.rot[0];
-//    #obj3d.rotation.y = y2;
-//    #obj3d.rotation.z = z2;
-  obj3d.eulerOrder = "ZYX";
-  obj3d.castShadow = true;
-  obj3d.receiveShadow  = false;
-  return obj3d;
-}
+////  # Blenders euler order is 'XYZ', but the equivalent euler rotation order in Three.js is 'ZYX'
+//js.Proxy fixOrientation(js.Proxy obj3d){
+//  var y2 = obj3d.rotation.z;
+//  var z2 = -obj3d.rotation.y;
+////    #m.rotation.x = ob.rot[0];
+////    #obj3d.rotation.y = y2;
+////    #obj3d.rotation.z = z2;
+//  obj3d.eulerOrder = "ZYX";
+//  obj3d.castShadow = true;
+//  obj3d.receiveShadow  = false;
+//  return obj3d;
+//}
 
 Node makeHud(Document d){
   // I tried a lot to read SVG as text and then create svfelement but without success
@@ -196,20 +196,30 @@ Map<String, EntityProvider> makeArea(jsonStr) {
     cells..add(-1)..add( h)..add(w+2)..add(  1);
   }
 
-  js.Proxy cells2surface3d(cells, offz) {
+  js.Proxy cells2surface3d(cells, offz, [String imgUrl]) {
     var o;
     js.scoped((){
     final THREE = js.context.THREE;
     var geometry = new js.Proxy(THREE.Geometry );
     //#material = new js.Proxy(THREE.MeshNormalMaterial, )
-    var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
+    var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
+    var material = material0;
+    if (?imgUrl) {
+      var texture = THREE.ImageUtils.loadTexture(imgUrl);
+      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+        "map" : texture,
+        "transparent": true
+      }));
+      //material.map.needsUpdate = true;
+    }
     for(var i = 0; i < cells.length; i+=4) {
       var dx = cells[i+2] * cellr - 2;
       var dy = cells[i+3] * cellr - 2;
+
       var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
       mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
       mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
-      THREE.GeometryUtils.mergeMesh(geometry, mesh);
+      THREE.GeometryUtils.merge(geometry, mesh);
     }
     var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
     obj3d.position.z = offz;
@@ -226,10 +236,17 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       area["walls"]["cells"],
       cellr
     ),
+    //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
     "gate_in" : new EntityProvider4Static(
       null,
-      null, //cells2surface3d(area["zones"]["gate_in"]["cells"], 0.5),
+      cells2surface3d(area["zones"]["gate_in"]["cells"], 0.5, "_images/gate_in.png"),
       area["zones"]["gate_in"]["cells"],
+      cellr
+    ),
+    "gate_out" : new EntityProvider4Static(
+      null,
+      cells2surface3d(area["zones"]["gate_out"]["cells"], 0.5, "_images/gate_out.png"),
+      area["zones"]["gate_out"]["cells"],
       cellr
     ),
     "targetg1_spawn" : new EntityProvider4Static(
@@ -292,28 +309,24 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
   var deferred = new Completer();
   try {
     js.scoped((){
-    final THREE = js.context.THREE;
-    var loader = new js.Proxy(THREE.JSONLoader);
-    //texturePath = loader.extractUrlBase( d.src )
-    loader.createModel(
-      js.map(JSON.parse(jsonStr)),
-      new js.Callback.once((geometry, materials) {
-        print("geometry ${geometry} .... ${materials}");
-        //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
-        //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
-        //geometry.materials[ 0 ].shading = three.FlatShading;
-        //var material = new js.Proxy(THREE.MeshFaceMaterial, );
-        //var material0 = geometry.materials[0];
-        var material0 = materials[0];
-        //material.transparent = true
-        //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
-        //TODO should create a new object or at least change the timestamp
-        //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-        var obj3d = fixOrientation(new js.Proxy(THREE.Mesh, geometry, material0));
-        deferred.complete(js.retain(obj3d));
-      }),
-      texturePath
-    );
+      final THREE = js.context.THREE;
+      var loader = new js.Proxy(THREE.JSONLoader);
+      //texturePath = loader.extractUrlBase( d.src )
+      var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
+      print("geometry ${r.geometry} .... ${r.materials}");
+      //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
+      //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
+      //geometry.materials[ 0 ].shading = three.FlatShading;
+      //var material = new js.Proxy(THREE.MeshFaceMaterial, );
+      //var material0 = geometry.materials[0];
+      var material0 = r.materials[0];
+      //material.transparent = true
+      //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
+      //TODO should create a new object or at least change the timestamp
+      //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
+      var obj3d = new js.Proxy(THREE.Mesh, r.geometry, material0);
+      //obj3d = fixOrientation(obj3d);
+      deferred.complete(js.retain(obj3d));
     });
   } catch(exc) {
     deferred.completeError(exc);
@@ -350,48 +363,11 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
 //
 
 Future<String> _loadTxt(src) {
-  var completer = new Completer<String>();
-  var httpRequest = new HttpRequest();
-  //httpRequest.responseType = 'text';
-  httpRequest.onLoadEnd.listen(
-    (data) {
-      if (httpRequest.status == 200) {
-        completer.complete(httpRequest.responseText);
-      } else {
-        completer.complete(null);
-      }
-    },
-    onError : (err) {
-      print("FAILURE $err");
-      completer.completeError(err.error, err.stackTrace);
-    }
-  );
-  //httpRequest.open('GET', src);
-  httpRequest.open('GET', src, true);
-  httpRequest.send();
-  return completer.future;
+  return HttpRequest.request(src, responseType : 'text').then((httpRequest) => httpRequest.responseText);
 }
 
 Future<Document> _loadXml(src) {
-  var completer = new Completer<Document>();
-  var httpRequest = new HttpRequest();
-  httpRequest.onLoadEnd.listen(
-    (data) {
-      if (httpRequest.status == 200) {
-        completer.complete(httpRequest.responseXml);
-      } else {
-        completer.complete(null);
-      }
-    },
-    onError : (err) {
-      print("FAILURE $err");
-      completer.completeError(err.error, err.stackTrace);
-    }
-  );
-  //httpRequest.open('GET', src);
-  httpRequest.open('GET', src, true);
-  httpRequest.send();
-  return completer.future;
+  return HttpRequest.request(src, responseType : 'document').then((httpRequest) => httpRequest.responseXml);
 }
 
 
@@ -461,6 +437,7 @@ class Entities {
       },
       onError : (err) {
         print("preload $kind $id FAILURE $err");
+        throw err;
       }
     );
     print("store id ${id}");
