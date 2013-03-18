@@ -8,6 +8,7 @@ cat >filter <<EOF
 - packages
 - index.dart*
 - _lib
+- *.xcf
 EOF
 #rsync -av --copy-links  '--include=packages/browser/dart.js' '--exclude=packages' web target
 rsync -av --copy-links  --filter="merge filter" web target
