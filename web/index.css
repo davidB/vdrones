@@ -119,6 +119,7 @@ body {
 }
 .screen_inner h3, .screen_inner #rules_help {
   text-align: center;
+  font-size: 140%;
 }
 .screen_inner div, .screen_inner table {
   margin: auto;

@@ -40,7 +40,7 @@
         <div class="screen_inner">
           <div style="padding:3em 0 3em 0;text-align: center;">
             <div id="screenEndComments"></div>
-            <p>score : <span id="screenEndScore"></span></p>
+            <p><img src="_images/cube.png" alt="cubes of energy"/> : <span id="screenEndCubes"></span></p>
           <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
           </div>
           <div class="actions">
@@ -52,9 +52,9 @@
         <div class="screen_inner">
           <h3>Welcome VDroner,</h3>
           <div id="rules_help" style="padding-bottom:3em">
-             Grab the cubes of energy<br>
+             Grab the <img src="_images/cube.png" alt="cubes of energy"/><br>
              Don't touch the walls<br>
-             Exit the area before timeout<br>
+             Go to exit point before timeout to validate grabbed cubes.<br>
           </div>
           <div id="controls_help" style="padding-bottom:3em">
             <table>
@@ -63,11 +63,11 @@
                 <td>[up] [W]</td>
               </tr>
               <tr>
-                <td>Rotate Right</td>
+                <td>Turn Right</td>
                 <td>[right] [A]</td>
               </tr>
               <tr>
-                <td>Rotate Left</td>
+                <td>Turn Left</td>
                 <td>[left] [D]</td>
               </tr>
               <tr>
@@ -92,7 +92,7 @@
       <!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
     </progress>
     </section>
-    <footer>version: 0.3.0</footer>
+    <footer>version: 0.3.1 (updates every Tuesday)</footer>
   </div>
   <script src="_vendors/three-r57/three.min.js"></script>
   <script src="packages/browser/dart.js"></script>

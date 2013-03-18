@@ -67,11 +67,11 @@ void setupLayer2D(Evt evt, Element container){
   });
   evt.GameStop.add((exiting) {
     if (exiting) {
-      container.query("#screenEndScore").text = evt.GameStates.score.v.toString();
+      container.query("#screenEndCubes").text = evt.GameStates.score.v.toString();
       container.query("#screenEndComments").innerHtml = "";
     } else {
-      container.query("#screenEndScore").text = "0";
-      container.query("#screenEndComments").innerHtml = "<h3>TIME OUT !</h3>";
+      container.query("#screenEndCubes").text = "0 (TIME OUT !)";
+      container.query("#screenEndComments").innerHtml = "";
     }
     showScreen('screenEnd');
   });
