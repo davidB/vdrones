@@ -18,7 +18,7 @@ void setupControls(Evt evt) {
 
   var _keys = [
     new CtrlKey(
-      codes: [ KeyCode.UP, KeyCode.W, KeyCode.Z ],
+      codes: [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ],
       label: 'Forward',
       start: (evt){ evt.EvtReq.dispatch([evt.BoostShipStart, [_droneId]]); },
       stop: (evt){ evt.EvtReq.dispatch([evt.BoostShipStop, [_droneId]]); }
