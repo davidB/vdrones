@@ -153,3 +153,25 @@ footer {
   left: -26px;
   width: 200px;
 }
+
+@-webkit-keyframes opacityBlink{
+  0%  {   opacity: 0.9;  }
+  70% {   opacity: 0.2;  }
+  100%{   opacity: 0.9;  }
+}
+@-moz-keyframes opacityBlink{
+  0%  {   opacity: 0.9;  }
+  70% {   opacity: 0.2;  }
+  100%{   opacity: 0.9;  }
+}
+@keyframes opacityBlink{
+  0%  {   opacity: 0.9;  }
+  70% {   opacity: 0.2;  }
+  100%{   opacity: 0.9;  }
+}
+
+.blinking5s {
+  -webkit-animation: opacityBlink 0.7s ease-in-out infinite;
+  -moz-animation: opacityBlink 0.7s ease-in-out infinite;
+  animation: opacityBlink 0.7s ease-in-out infinite;
+ }

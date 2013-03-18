@@ -45,6 +45,7 @@ void setupLayer2D(Evt evt, Element container){
     if (domElem != null) {
       document.query("#hud").nodes.add(domElem);
       container.query("#score").text = evt.GameStates.score.v.toString();
+      container.query("#countdown").classes.remove("blinking5s");
       evt.GameStates.score.add((v){
         container.query("#score").text = v.toString();
       });
@@ -53,7 +54,11 @@ void setupLayer2D(Evt evt, Element container){
         int minutes = totalSec ~/ 60;
         int seconds = totalSec % 60;
         var txt = "${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}";
-        container.query("#countdown").text = txt;
+        var el = container.query("#countdown");
+        el.text = txt;
+        if (totalSec == 5) {
+          el.classes.add("blinking5s");
+        }
       });
       evt.GameStates.energy.add((v){
         var bar = container.query("#energyBar");
