@@ -64,7 +64,7 @@ class Zone4Cubes {
     var objId = newCubeId();
     _entities.find('targetg101').then((x){
       evt.CountdownStart.dispatch(["${objId}/spawn", toffset, evt.ObjSpawn, [objId, nextPos, x]]);
-      evt.CountdownStart.dispatch(["${objId}/countdown", 10 + toffset, TimeOut, [objId]]);
+      evt.CountdownStart.dispatch(["${objId}/countdown", 7 + toffset, TimeOut, [objId]]);
     });
   }
 }
