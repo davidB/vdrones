@@ -6,8 +6,8 @@ import '_lib/vdrones.dart' as vdrones;
 void main() {
   _setupLog();
   var evt = vdrones.setup();
-//  _setupRoutes();
-  gotoArea(evt, "grab0");
+  _setupRoutes(evt);
+  //gotoArea(evt, "grab0");
 }
 
 void gotoArea(vdrones.Evt evt, String name) {
