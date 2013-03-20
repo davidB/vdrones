@@ -24,6 +24,7 @@ part 'src/physics.dart';
 part 'src/renderer.dart';
 part 'src/zone_cubes.dart';
 part 'src/zone_gate_out.dart';
+part 'src/stats.dart';
 
 Evt setup() {
 
@@ -40,6 +41,7 @@ Evt setup() {
 //  Stage4Physics(evt)
 //  Stage4UserInput(evt)
 //  Stage4Animation(evt)
+  new Stats(evt, "vdrones");
   setupPeriodic(evt);
   setupPhysics(evt);
   var animator  = setupAnimations(evt);

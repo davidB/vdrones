@@ -1,4 +1,4 @@
-library vdrones_test;
+library events_test;
 
 import 'package:unittest/unittest.dart';
 import '../lib/vdrones.dart';
