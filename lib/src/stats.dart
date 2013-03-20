@@ -4,9 +4,9 @@ class Stats{
   static const MONEY_CURRENT_V = r'money/current/v';
   static const MONEY_CUMUL_V = r'money/cumul/v';
   static const MONEY_LAST_V = r'money/last/v';
-  static const AREA_CUBES_MAX_V = r'${areaId}/cubes/max/v';
-  static const AREA_CUBES_TOTAL_V = r'${areaId}/cubes/total/v';
-  static const AREA_CUBES_LAST_V = r'${areaId}/cubes/last/v';
+  static const AREA_CUBES_MAX_V = r'/cubes/max/v';
+  static const AREA_CUBES_TOTAL_V = r'/cubes/total/v';
+  static const AREA_CUBES_LAST_V = r'/cubes/last/v';
 
   final Evt evt;
   final String dbName;
@@ -30,20 +30,18 @@ class Stats{
       _statistics[k] = f((x == null) ? 0 : x);
     }
 
-    var cubesMax = this[AREA_CUBES_MAX_V];
-    print("cubesMax : ${cubesMax}");
+    var cubesMax = this[areaId + AREA_CUBES_MAX_V];
     var gain = math.max(0, math.min(v, cubesMax)) * 0.25 + math.max(0, v - cubesMax) * 1;
     update(MONEY_CURRENT_V, (x) => x + gain);
     update(MONEY_CUMUL_V, (x) => x + gain);
     update(MONEY_LAST_V, (x) => gain);
-    update(AREA_CUBES_MAX_V, (x) => (x < v) ? v : x);
-    update(AREA_CUBES_TOTAL_V, (x) => x + v);
-    update(AREA_CUBES_LAST_V, (x) => v);
+    update(areaId + AREA_CUBES_MAX_V, (x) => (x < v) ? v : x);
+    update(areaId + AREA_CUBES_TOTAL_V, (x) => x + v);
+    update(areaId + AREA_CUBES_LAST_V, (x) => v);
   }
 
   void _stop(bool exit) {
     if (!exit) return;
-    print("SAVE STATS");
     updateCubesLast(_areaId, evt.GameStates.score.v);
     _saveStatistics();
   }
@@ -70,7 +68,6 @@ class Stats{
     }
     Future loadEntry(key) {
       return dbf.then((_) => db.getByKey(key).then((x) {
-        print("LOAD ${key} ${x}");
         _statistics[key] = (x == null) ? 0 : x;
         return x;
       }));
@@ -79,14 +76,11 @@ class Stats{
       MONEY_CURRENT_V,
       MONEY_CUMUL_V,
       MONEY_LAST_V,
-      AREA_CUBES_MAX_V,
-      AREA_CUBES_TOTAL_V,
-      AREA_CUBES_LAST_V
+      areaId + AREA_CUBES_MAX_V,
+      areaId + AREA_CUBES_TOTAL_V,
+      areaId + AREA_CUBES_LAST_V
       ].map(loadEntry)
-    ).then((x){
-      print("LOADED ${x.length}");
-      return db;
-    });
+    ).then((x) => db);
   }
 
 }
