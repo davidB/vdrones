@@ -180,7 +180,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       var x = cells[i+0] * cellr + hx;
       var y = cells[i+1] * cellr + hy;
       var shape = new PolygonShape();
-      shape.setAsBoxWithCenterAndAngle(hx, hy, new Vector(x, y), 0);
+      shape.setAsBoxWithCenterAndAngle(hx, hy, new vec2(x, y), 0);
       var f = new FixtureDef();
       f.shape = shape;
       f.filter.groupIndex = groupIndex;
@@ -291,9 +291,9 @@ class EntityProvider4Drone extends EntityProvider {
     r.bdef.linearDamping = 5;
     var s = new PolygonShape();
     PolygonShape shape = new PolygonShape();
-    shape.setAsEdge(new Vector(3, 0), new Vector(-1, -2));
-    shape.setAsEdge(new Vector(-1, -2), new Vector(-1, 2));
-    shape.setAsEdge(new Vector(-1, 1), new Vector(3, 0));
+    shape.setAsEdge(new vec2(3, 0), new vec2(-1, -2));
+    shape.setAsEdge(new vec2(-1, -2), new vec2(-1, 2));
+    shape.setAsEdge(new vec2(-1, 1), new vec2(3, 0));
     var f = new FixtureDef();
     f.shape = shape;
     //s.sensor = false;

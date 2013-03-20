@@ -35,6 +35,7 @@ class State<E> {
 }
 
 class States {
+  final userId = new State<String>("");
   final progressMax = new State<num>(0);
   final progressCurrent = new State<num>(0);
 

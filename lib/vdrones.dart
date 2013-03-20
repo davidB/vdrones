@@ -9,20 +9,21 @@ import 'dart:json' as JSON;
 import 'dart:html';
 import 'dart:svg' as svg;
 import 'package:js/js.dart' as js;
+import 'package:lawndart/lawndart.dart';
 
 import 'utils.dart';
 
-part 'animations.dart';
-part 'controls.dart';
-part 'entities.dart';
-part 'events.dart';
-part 'gameplay.dart';
-part 'layer2d.dart';
-part 'periodic.dart';
-part 'physics.dart';
-part 'renderer.dart';
-part 'zone_cubes.dart';
-part 'zone_gate_out.dart';
+part 'src/animations.dart';
+part 'src/controls.dart';
+part 'src/entities.dart';
+part 'src/events.dart';
+part 'src/gameplay.dart';
+part 'src/layer2d.dart';
+part 'src/periodic.dart';
+part 'src/physics.dart';
+part 'src/renderer.dart';
+part 'src/zone_cubes.dart';
+part 'src/zone_gate_out.dart';
 
 Evt setup() {
 

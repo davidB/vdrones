@@ -3,7 +3,6 @@ part of vdrones;
 void setupGameplay(Evt evt){
   var _droneId = "!";
   var _areaId = "!";
-  var _uid = (new DateTime.now()).millisecondsSinceEpoch;
   var _entities = new Entities();
 
 
@@ -56,13 +55,13 @@ void setupGameplay(Evt evt){
     evt.GameStates.boosting.v = false;
     evt.GameStates.score.v = 0;
 
-    _droneId = "drone/${_uid + 1}";
+    _droneId = "drone/${evt.GameStates.userId.v}";
     evt.SetLocalDroneId.dispatch([_droneId]);
     _entities.find('gui').then((x){ evt.HudSpawn.dispatch(['hud', x]); });
     _entities.find(_areaId).then((x){
-      evt.AreaSpawn.dispatch(["area/${_uid}", Position.zero, x["walls"]]);
-      evt.ObjSpawn.dispatch(["gate_in/${_uid}", Position.zero, x["gate_in"]]);
-      new Zone4GateOut("gate_out/${_uid}", evt, x["gate_out"]);
+      evt.AreaSpawn.dispatch(["area/${_areaId}", Position.zero, x["walls"]]);
+      evt.ObjSpawn.dispatch(["gate_in/${_areaId}", Position.zero, x["gate_in"]]);
+      new Zone4GateOut("gate_out/${_areaId}", evt, x["gate_out"]);
       new Zone4Cubes(x["targetg1_spawn"], evt, _entities);
     });
 

@@ -1,7 +1,7 @@
 library vdrones_test;
 
 import 'package:unittest/unittest.dart';
-import '../web/_lib/vdrones.dart';
+import '../lib/vdrones.dart';
 
 main() {
   test("Signal forward request", () {

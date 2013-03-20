@@ -1,12 +1,20 @@
 name: vdrones
+version: 0.3.2
+author: david bernard
 description: A sample web application
+homepage: https://vdrones.appspot.com/
+documentation: https://github.com/davidB/vdrones
 dependencies:
   asset_pack: any
-  unittest: any
+  lawndart: any
   box2d: any
+  js: any
   browser: any
+  logging: any
+dev_dependencies:
+  unittest: any
+
 #  three:
 #    path: /home/dwayne/dart/three.dart
-  js:
-    hosted: js
-  logging: 0.3.7+6
+#  logging: 0.3.7+6
+#  lawndart: 0.4.1

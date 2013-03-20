@@ -1,6 +1,6 @@
 import 'dart:html';
 import 'package:logging/logging.dart';
-import '_lib/vdrones.dart' as vdrones;
+import 'package:vdrones/vdrones.dart' as vdrones;
 
 
 void main() {

@@ -71,7 +71,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   const _intervalRate = 60;
 
   var _id2body = new Map<String, Body>();
-  final vzero = new Vector(0, 0);
+  final vzero = new vec2.zero();
 
   World _space = null;
   var _ctx;
@@ -105,7 +105,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
       _ctx = canvas.getContext("2d");
 
       // Create the viewport transform with the center at extents.
-      final extents = new Vector(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+      final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
       var viewport = new CanvasViewportTransform(extents, extents);
       viewport.scale = _VIEWPORT_SCALE;
 
@@ -149,7 +149,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
         var dt = (1 / stepRate);
         if (ud.boost != 0) {
           var force = ud.boost * dt;
-          var acc = new Vector(math.cos(b.angle) * force, math.sin(b.angle)* force);
+          var acc = new vec2(math.cos(b.angle) * force, math.sin(b.angle)* force);
           b.applyForce(acc, vzero);
         }
       }
@@ -255,7 +255,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
     obj2d.bdef.userData = new UserData(id); //{ var id = id; var boost = false; };
     var body = _space.createBody(obj2d.bdef);
     _id2body[id] = body;
-    body.setTransform(new Vector(pos.x, pos.y), pos.a);
+    body.setTransform(new vec2(pos.x, pos.y), pos.a);
     obj2d.fdefs.forEach((fd) {
       body.createFixture(fd);
     });
@@ -272,7 +272,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
     obj2d.bdef.userData = new UserData(id); //{ var id = id; var boost = false; };
     var body = _space.createBody(obj2d.bdef);
     _id2body[id] = body;
-    body.setTransform(new Vector(pos.x, pos.y), pos.a);
+    body.setTransform(new vec2(pos.x, pos.y), pos.a);
     obj2d.fdefs.forEach((fd) {
       body.createFixture(fd);
     });
