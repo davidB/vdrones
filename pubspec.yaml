@@ -7,10 +7,13 @@ documentation: https://github.com/davidB/vdrones
 dependencies:
   asset_pack: any
   lawndart: any
-  box2d: any
+  box2d:
+    path: /home/dwayne/dart/dartbox2d
   js: any
   browser: any
   logging: any
+  web_ui: any
+  widget: any
 dev_dependencies:
   unittest: any
 
