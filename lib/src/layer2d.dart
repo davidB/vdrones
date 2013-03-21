@@ -73,14 +73,14 @@ void setupLayer2D(Evt evt, Element container, Stats stats){
     }
   });
   evt.GameStop.add((exiting) {
-    container.query("#screenEndArea").text = areaId;
-    container.query("#screenEndCubesLast").text = stats[areaId + Stats.AREA_CUBES_LAST_V].toString();
-    container.query("#screenEndCubesMax").text = stats[areaId + Stats.AREA_CUBES_MAX_V].toString();
-    container.query("#screenEndCubesTotal").text = stats[areaId + Stats.AREA_CUBES_TOTAL_V].toString();
-
-    if (!exiting) {
-      container.query("#screenEndCubesLast").text = "TIME OUT";
-    }
+//    container.query("#screenEndArea").text = areaId;
+//    container.query("#screenEndCubesLast").text = stats[areaId + Stats.AREA_CUBES_LAST_V].toString();
+//    container.query("#screenEndCubesMax").text = stats[areaId + Stats.AREA_CUBES_MAX_V].toString();
+//    container.query("#screenEndCubesTotal").text = stats[areaId + Stats.AREA_CUBES_TOTAL_V].toString();
+//
+//    if (!exiting) {
+//      container.query("#screenEndCubesLast").text = "TIME OUT";
+//    }
     showScreen('screenEnd');
   });
   evt.Error.add((msg, exc){

@@ -1,7 +1,10 @@
 import 'dart:html';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
+import 'package:web_ui/web_ui.dart';
 
+var areaId = "none";
+var stats = {};
 
 void main() {
   _setupLog();
