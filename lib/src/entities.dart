@@ -291,9 +291,7 @@ class EntityProvider4Drone extends EntityProvider {
     r.bdef.linearDamping = 5;
     var s = new PolygonShape();
     PolygonShape shape = new PolygonShape();
-    shape.setAsEdge(new vec2(3, 0), new vec2(-1, -2));
-    shape.setAsEdge(new vec2(-1, -2), new vec2(-1, 2));
-    shape.setAsEdge(new vec2(-1, 1), new vec2(3, 0));
+    shape.setFrom([new vec2(3, 0), new vec2(-1, 2), new vec2(-1, -2)], 3);
     var f = new FixtureDef();
     f.shape = shape;
     //s.sensor = false;
