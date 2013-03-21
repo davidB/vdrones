@@ -78,6 +78,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   num _lastTimestamp = 0;
   var _running = false;
   var _contactListener = new MyContactListener();
+  var debugDraw = null;
 
 
   World initSpace() {
@@ -98,19 +99,21 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
 
 // Setup the canvas.
     if (drawDebug) {
-      var canvas = new Element.tag('canvas');
-      canvas.width = CANVAS_WIDTH;
-      canvas.height = CANVAS_HEIGHT;
-      window.document.query("#layers").children.add(canvas);
-      _ctx = canvas.getContext("2d");
-
-      // Create the viewport transform with the center at extents.
-      final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-      var viewport = new CanvasViewportTransform(extents, extents);
-      viewport.scale = _VIEWPORT_SCALE;
-
       // Create our canvas drawing tool to give to the world.
-      var debugDraw = new CanvasDraw(viewport, _ctx);
+      if (debugDraw == null) {
+        var canvas = new Element.tag('canvas');
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        window.document.query("#layers").children.add(canvas);
+        _ctx = canvas.getContext("2d");
+
+        // Create the viewport transform with the center at extents.
+        final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+        var viewport = new CanvasViewportTransform(extents, extents);
+        viewport.scale = _VIEWPORT_SCALE;
+
+        debugDraw = new CanvasDraw(viewport, _ctx);
+      }
 
       // Have the world draw itself for debugging purposes.
       space.debugDraw = debugDraw;
@@ -123,6 +126,11 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   dynamic forBody(String id, dynamic f(Body x1, UserData x2)){
     var back = null;
     var b = _id2body[id];
+    if (b == null) {
+      for(var b0 = _space.bodyList; b0 != null && b == null; b0 = b0.next) {
+        if (b0.userData.id == id) b = b0;
+      }
+    }
     if (b != null) {
       var ud = b.userData;
       back = f(b, ud);
