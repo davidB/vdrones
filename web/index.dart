@@ -6,8 +6,8 @@ import 'package:vdrones/vdrones.dart' as vdrones;
 void main() {
   _setupLog();
   var evt = vdrones.setup();
-  _setupRoutes(evt);
-  //gotoArea(evt, "grab0");
+  //_setupRoutes(evt);
+  gotoArea(evt, "alpha0");
 }
 
 void gotoArea(vdrones.Evt evt, String name) {
@@ -21,7 +21,7 @@ void _setupRoutes(vdrones.Evt evt) {
     gotoArea(evt, path);
   });
   if (window.location.hash.isEmpty) {
-    window.location.hash = "/grab0";
+    window.location.hash = "/alpha0";
   } else {
     String path = window.location.hash.substring(2);
     gotoArea(evt, path);
