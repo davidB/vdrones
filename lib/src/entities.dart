@@ -70,6 +70,8 @@ class EntityProvider4Targetg102 extends EntityProvider {
     var material = new js.Proxy(THREE.MeshNormalMaterial);
     o = new js.Proxy(THREE.Mesh, geometry, material);
     o.position.z = 1;
+    o.castShadow = true;
+    o.receiveShadow = true;
     o = js.retain(o);
     });
     return o;
@@ -94,6 +96,8 @@ class EntityProvider4Cube extends EntityProvider {
         "wireframe": true
       }));
       o = new js.Proxy(THREE.Mesh, geometry, material);
+      o.castShadow = true;
+      o.receiveShadow = true;
       js.retain(o);
     });
     return o;
@@ -149,9 +153,13 @@ Map<String, EntityProvider> makeArea(jsonStr) {
         var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), materialW);
         mesh.position.x = cells[i+0] * cellr + dx / 2;
         mesh.position.y = cells[i+1] * cellr + dy / 2;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         THREE.GeometryUtils.merge(geometry, mesh);
       }
       var walls = new js.Proxy(THREE.Mesh, geometry, materialW);
+      walls.castShadow = true;
+      walls.receiveShadow = true;
 
       //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
       var materialF = new js.Proxy(THREE.MeshPhongMaterial, js.map({"color" : 0xe1d5a5}));
@@ -159,6 +167,8 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width * cellr, height * cellr), materialF);
       floor.position.x = width * cellr /2;
       floor.position.y = height * cellr /2;
+      floor.castShadow = false;
+      floor.receiveShadow = true;
 
       var obj3d = new js.Proxy(THREE.Object3D);
       obj3d.add(walls);
@@ -241,10 +251,15 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
       mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
       mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
+      mesh.castShadow = false;
+      mesh.receiveShadow = true;
       THREE.GeometryUtils.merge(geometry, mesh);
     }
     var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
     obj3d.position.z = offz;
+    obj3d.castShadow = false;
+    obj3d.receiveShadow = true;
+
     o = js.retain(obj3d);
     });
     return o;
@@ -301,7 +316,9 @@ class EntityProvider4Drone extends EntityProvider {
   }
 
   js.Proxy obj3dF() {
-    _obj3dPattern.position.z = 1;
+    _obj3dPattern.position.z = 0.3;
+    _obj3dPattern.castShadow = true;
+    _obj3dPattern.receiveShadow = true;
     return _obj3dPattern;//.clone();
   }
 

@@ -9,12 +9,13 @@ class CameraMove {
   num y = 0;
 
   CameraMove(Element container) {
-    x = container.clientWidth / 2;
-    y = container.clientHeight / 2;
+    x = container.client.width / 2;
+    y = container.client.height / 2;
   }
 }
 
 void setupRenderer(Evt evt, Element container, Animator animator) {
+  const FAR = 1000;
 js.scoped((){
     final THREE = js.context.THREE;
     js.retain(THREE);
@@ -27,12 +28,12 @@ js.scoped((){
   var _anims = new Map<String, Map<String, Animate>>();
   var _logger = new Logger("renderer");
   var _devMode = false;
-  js.Proxy _scene = null;
+  var _scene = null;
   String _cameraTargetObjId = null;
-  js.Proxy _cameraTargetObj = null;
+  var _cameraTargetObj = null;
 
   //#_camera = new js.Proxy(THREE.PerspectiveCamera, 75, 1, 1, 500)
-  var _camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, 1000]);
+  var _camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
   //#_camera =  new js.Proxy(THREE.CombinedCamera, -20, -20, 45, 1, 500, 1, 1000)
   //#_camera.toOrthographic()
   //_camera.gameDriven = true;
@@ -40,11 +41,12 @@ js.scoped((){
   //#see http://help.dottoro.com/ljorlllt.php
   js.retain(_camera);
 
-  js.Proxy clearScene(scene) {
+  dynamic clearScene(scene) {
     // create a new Scene for each call or set children.length to 0 generate (stranges) error at runtime
     // so the working solution in to reuse scene instance, and to remove every object3D
     if (scene == null) {
       scene = js.retain(new js.Proxy(THREE.Scene));
+      //scene.fog = new js.Proxy(THREE.Fog, 0x59472b, 1000, FAR );
     }
     void clearChildren( obj ) {
       for ( var i = obj.children.length - 1; i > -1; i--) {
@@ -59,8 +61,8 @@ js.scoped((){
 
   var cmove = new CameraMove(container);
   void nLookAt(camera, v3) {
-    var dx = ( (cmove.x + cmove.deltaX) / container.clientWidth - 0.5 ) * 100;
-    var dy =- ( (cmove.y + cmove.deltaY) / container.clientHeight - 0.5 ) * 100;
+    var dx = ( (cmove.x + cmove.deltaX) / container.client.width - 0.5 ) * 100;
+    var dy =- ( (cmove.y + cmove.deltaY) / container.client.height - 0.5 ) * 100;
     camera.position.z = v3.z + 30;
     camera.position.y = v3.y + dy;
     camera.position.x = v3.x + dx;
@@ -74,13 +76,13 @@ js.scoped((){
     sssMouseMotionToControlCamera = [
       Element.mouseMoveEvent.forTarget(container, useCapture: false).listen((evt){
         if (cmove.offsetX > -1)
-          cmove.deltaX = evt.clientX - cmove.offsetX;
+          cmove.deltaX = evt.client.x - cmove.offsetX;
         if (cmove.offsetY > -1)
-          cmove.deltaY = evt.clientY - cmove.offsetY;
+          cmove.deltaY = evt.client.y - cmove.offsetY;
       }),
       Element.mouseDownEvent.forTarget(container).listen((evt){
-        cmove.offsetX = evt.clientX;
-        cmove.offsetY = evt.clientY;
+        cmove.offsetX = evt.client.x;
+        cmove.offsetY = evt.client.y;
       }),
       Element.mouseUpEvent.forTarget(container).listen((evt){
         cmove.offsetX = -1;
@@ -103,19 +105,17 @@ js.scoped((){
     "antialias": true
     //#preserveDrawingBuffer: true # to allow screenshot
   }));
-  //_renderer.shadowMapEnabled = true;
-  //_renderer.shadowMapSoft = true;
   _renderer.shadowMapEnabled = true;
   //_renderer.shadowMapSoft = true # to antialias the shadow;
-  //_renderer.shadowMapType = three.PCFShadowMap;
+  _renderer.shadowMapType = THREE.PCFShadowMap;
   _renderer.setClearColorHex(0xEEEEEE, 1.0);
-  _renderer.autoClear = true;
+  _renderer.autoClear = false;
   js.retain(_renderer);
 
   void updateViewportSize(evt){
     js.scoped((){
-      var w = container.clientWidth; //window.innerWidth
-      var h = container.clientHeight; //window.innerHeight
+      var w = container.client.width; //window.innerWidth
+      var h = container.client.height; //window.innerHeight
       var unitperpixel = 0.1;
       _renderer.setSize(w, h);
       //_camera.aspect = w /  h;
@@ -146,6 +146,7 @@ js.scoped((){
     } else {
       nLookAt(_camera, v3zero);
     }
+    _renderer.clear();
     _renderer.render(_scene, _camera);
   });
 
@@ -156,22 +157,22 @@ js.scoped((){
     scene.add(ambient);
 
     var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1, 0, math.PI, 1] );
-    light.position.set( 0, 10, 100 );
+    light.position.set( 40, 40, 100 );
     light.target.position.set( 0, 0, 0 );
 
     light.castShadow = true;
 
-    light.shadowCameraNear = 700;
-    light.shadowCameraFar = camera.far;
-    light.shadowCameraFov = 50;
+    light.shadowCameraNear = 5;
+    light.shadowCameraFar = 200;
+    light.shadowCameraFov = 500;
 
     light.shadowCameraVisible = _devMode;
 
-    light.shadowBias = 0.0001;
+    light.shadowBias = 0.00001;
     light.shadowDarkness = 0.5;
 
-    light.shadowMapWidth = 128;
-    light.shadowMapHeight = 128;
+    light.shadowMapWidth = 2056;
+    light.shadowMapHeight = 2056;
 
     scene.add(light);
 
@@ -206,6 +207,7 @@ js.scoped((){
       _renderer.clear();
       nLookAt(_camera, _scene.position);
       updateViewportSize(null);
+      registerMouseMotionToControlCamera();
 //    if (_devMode)
 //      evt.SetupDatGui.dispatch((gui) ->
 //        f2 = gui.addFolder("Camera")
@@ -256,6 +258,8 @@ js.scoped((){
     obj.position.y = pos.y;
     //obj.position.z = 0.0;
     obj.rotation.z = pos.a;
+    //obj.castShadow = true;
+    //obj.receiveShadow = true;
     parent.add(obj);
     _anims[id] = gpof.anims; //clone ?
     if (gpof.anims["spawn"] != null) {
