@@ -136,8 +136,7 @@ body {
 }
 footer {
   padding: 0;
-  margin: auto;
-  text-align: center;
+  width: 100%;
 }
 .vbadge{
   color: rgb(250,50,50);
