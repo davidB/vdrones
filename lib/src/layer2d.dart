@@ -13,7 +13,8 @@ void showScreen(id){
   });
 }
 
-void setupLayer2D(Evt evt, Element container){
+void setupLayer2D(Evt evt, Element container, Stats stats){
+  var areaId = "";
 
   evt.GameStates.progressMax.add((v){
     container.query("#gameload").attributes["max"] = v.toString();
@@ -25,6 +26,7 @@ void setupLayer2D(Evt evt, Element container){
 
 
   evt.GameInit.add((areaPath){
+    areaId = areaPath;
     showScreen('screenInit');
   });
   evt.GameInitialized.add(() {
@@ -71,12 +73,13 @@ void setupLayer2D(Evt evt, Element container){
     }
   });
   evt.GameStop.add((exiting) {
-    if (exiting) {
-      container.query("#screenEndCubes").text = evt.GameStates.score.v.toString();
-      container.query("#screenEndComments").innerHtml = "";
-    } else {
-      container.query("#screenEndCubes").text = "0 (TIME OUT !)";
-      container.query("#screenEndComments").innerHtml = "";
+    container.query("#screenEndArea").text = areaId;
+    container.query("#screenEndCubesLast").text = stats[areaId + Stats.AREA_CUBES_LAST_V].toString();
+    container.query("#screenEndCubesMax").text = stats[areaId + Stats.AREA_CUBES_MAX_V].toString();
+    container.query("#screenEndCubesTotal").text = stats[areaId + Stats.AREA_CUBES_TOTAL_V].toString();
+
+    if (!exiting) {
+      container.query("#screenEndCubesLast").text = "TIME OUT";
     }
     showScreen('screenEnd');
   });

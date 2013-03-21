@@ -40,8 +40,27 @@
       <div id="screenEnd" class="screen_info hidden dialog_info">
         <div class="screen_inner">
           <div style="padding:3em 0 3em 0;text-align: center;">
-            <div id="screenEndComments"></div>
-            <p><img src="_images/cube.png" alt="cubes of energy"/> : <span id="screenEndCubes"></span></p>
+            <table class="stats">
+              <tbody>
+                <tr>
+                  <th>area</th>
+                  <td><span id="screenEndArea"></td>
+                </tr>
+                <tr>
+                  <th>cubes</th>
+                  <td><span id="screenEndCubesLast"></td>
+                </tr>
+                <tr>
+                  <th>record</th>
+                  <td><span id="screenEndCubesMax"></td>
+                </tr>
+                <tr>
+                  <th>total</th>
+                  <td><span id="screenEndCubesTotal"></td>
+                </tr>
+
+              </tbody>
+            </table>
           <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
           </div>
           <div class="actions">
@@ -98,9 +117,6 @@
       <div style="float:right"><a href="humans.txt"><img  src="humanstxt-transparent-1ink.png" border="0"/></a></div>
     </footer>
   </div>
-  <script src="_vendors/three-r57/three.min.js"></script>
-  <script src="packages/browser/dart.js"></script>
-  <script type="application/dart" src="index.dart"></script>
   <script src="_vendors/three-r57/three.min.js"></script>
   <script src="packages/browser/dart.js"></script>
   <script src="index.dart.js"></script>

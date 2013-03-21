@@ -41,8 +41,8 @@ class Stats{
   }
 
   void _stop(bool exit) {
-    if (!exit) return;
-    updateCubesLast(_areaId, evt.GameStates.score.v);
+    var v = (exit) ? evt.GameStates.score.v : 0;
+    updateCubesLast(_areaId, v);
     _saveStatistics();
   }
 

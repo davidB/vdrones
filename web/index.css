@@ -173,4 +173,11 @@ footer {
   -webkit-animation: opacityBlink 0.7s ease-in-out infinite;
   -moz-animation: opacityBlink 0.7s ease-in-out infinite;
   animation: opacityBlink 0.7s ease-in-out infinite;
- }
+}
+
+table.stats th {
+  text-align: left;
+}
+table.stats td {
+  text-align: right;
+}

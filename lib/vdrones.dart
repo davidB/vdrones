@@ -41,12 +41,12 @@ Evt setup() {
 //  Stage4Physics(evt)
 //  Stage4UserInput(evt)
 //  Stage4Animation(evt)
-  new Stats(evt, "vdrones");
+  var stats = new Stats(evt, "vdrones");
   setupPeriodic(evt);
   setupPhysics(evt);
   var animator  = setupAnimations(evt);
   setupRenderer(evt, container, animator);
-  setupLayer2D(evt, document.query('#game_area'));
+  setupLayer2D(evt, document.query('#game_area'), stats);
   setupControls(evt);
   setupGameplay(evt);
   //  if (devMode) {
