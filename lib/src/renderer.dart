@@ -13,7 +13,7 @@ class CameraMove {
     y = container.client.height / 2;
   }
 }
-
+// for addition of SSAO (ambient occlusion, take a look at http://mrdoob.com/projects/htmleditor/#B/tRfbbptI9Nn9iln3oaQh4KQbbdeXrBLn0oemieJU1arqwwCDmQYYdmaI41T+9565gMEmVaNtLdlmzn3OnfEfp1fT23+vz1Ais/Toxdj89cYJwRH898YZkRiFCeaCyEm/lPHe275GCLlMiXrqBSxaom/qqRfg8G7OWZlHeyFLGR+ilwP9GWl0hvmc5kNkj+ye8DhliyFKaBSRXENXSrhfSR/71pKx0mIUh5wWEgkeTvqJlMXQ9zMeMRZ4cyqTMvBClvky4YR4X4UflDSN7DGjOYD6RyBey1Dini+RPOCsSInw4VkkOCJc+FNWLGf6eUvBL5A+mx1fPSH9/ykomJAFZyERguZz/yyOSSinLAP4r73JhqIbksNlrrEQv1HJJRZ3v1mFCUqnkrWeoxcqrX0fLRi/w7o4UMw4FBVnGUFBOYf8N1aELCLenLF5SrQNha+JaJn5VIgSbIigHGn6D40mbw7/fjt4Ge4fKOk0Rg5a0DxiC4/mOeGfaCQTNJlM0ADtoG9dOFRgTnLZgI1aZO8InSdyg84AR2ilC7in79m7x3AbnBGOXSRCkhMXcR1hwkcVXnWFoj5FpJDJJZaEU5y65ngLzYFIF4U2/0babzSn0tnRjDinGbCokzrGZR5KynJkSKADaZsqzWB4Thbo9t3N2Zn3iQQX728sxoqrKT1obTP6SDo86HZ5xLJHLCwz5RjVmTxcFCBumkC3cerbexHLzlKiqCou/WOc1bLwGgq9gOqj92SqsQ7669DtiJvfYZKL9gfqOxhUaowGDxxJlY+8R1B2qNqwxuogtdTPFKTybE8Hq4W/Cr6CcW9OK99pCR6O4LKGuHk9HW8CyS35siVlWgbkwiIca7P6VtyKMbNZ0WK8JCI5wYKGVc44kNN2wgwe4liNGLRClf2qvBykpFEQMxjB31i5Rz3s7qqCWBtrlIL8LYVOfQl3bZW1tKc41u59AGYwLfE4hthkkI2v0Z9g0h46qGbfBsfy2RyPP8vBmcTdVnVSbVnSSbWlvUklQgwdS6lrHJftY5f5EPldtG8l6TwyKaXDUWnQv6t1wKCT6n7RzjcNMv0YFNmk1sf3NPiM+hp/c3Fy3EdfRm2ujzmFhMlEzVcBPkqaCi9MGZRGU4FXVhxVwrX6WbuwNEczbWOO56ojGMywJbiNcxEsSJI8dFE2MS6qDBpu3GhVN6umgV6QQoOCAVbf+AM7sSB7IXBye9Y1mpftz61rtleHdQes+1G1VEB81bx0GrzrbcCpxodtkDttB5sJ8VRjN9ifbOIuBALWwXOaSuVZ6wUCk05IA1Q1P/8hXrkYywqpcutcQ9Zer/OMaPd0JIa5tYXUa17Fb9jqdPuMXslT5YhX6It3j9NS9fCGZ55iEjDcahY17Z456bYlmvgofzRNsUMnB/CPGc87+eINNpNDt2wWwiaWA53kJXkqnayHG45ftbeEentYLwr/wUYljzUcKM45mOFUdFshlDTTOV/AO4sKcx4SL2cLp0lnWlir/xq212jgwYg6GHWRLTfJ9hsizaBVb0qcRqTRYloVvbHQmIeNamqtWXVhPSk/L9N0w9lWbMVaO7mx9459854G723qTfI7)
 void setupRenderer(Evt evt, Element container, Animator animator) {
   const FAR = 1000;
 js.scoped((){
@@ -28,7 +28,7 @@ js.scoped((){
   var _anims = new Map<String, Map<String, Animate>>();
   var _logger = new Logger("renderer");
   var _devMode = false;
-  var _scene = null;
+
   String _cameraTargetObjId = null;
   var _cameraTargetObj = null;
 
@@ -58,6 +58,7 @@ js.scoped((){
     clearChildren(scene);
     return scene;
   }
+  var _scene = clearScene(null);
 
   var cmove = new CameraMove(container);
   void nLookAt(camera, v3) {
@@ -156,23 +157,24 @@ js.scoped((){
     var ambient= new js.Proxy(THREE.AmbientLight,  0x444444 );
     scene.add(ambient);
 
-    var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1, 0, math.PI, 1] );
+    //var light = new js.Proxy.withArgList(THREE.DirectionalLight,  [0xffffff, 1, 0] );
+    var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1.0, 0.0, math.PI, 1] );
     light.position.set( 40, 40, 100 );
-    light.target.position.set( 0, 0, 0 );
+    light.target.position.set( 90, 90, 0 );
 
     light.castShadow = true;
 
     light.shadowCameraNear = 5;
     light.shadowCameraFar = 200;
-    light.shadowCameraFov = 500;
+    light.shadowCameraFov = 110;
 
     light.shadowCameraVisible = _devMode;
 
     light.shadowBias = 0.00001;
     light.shadowDarkness = 0.5;
 
-    light.shadowMapWidth = 2056;
-    light.shadowMapHeight = 2056;
+    light.shadowMapWidth = 2048;
+    light.shadowMapHeight = 2048;
 
     scene.add(light);
 
