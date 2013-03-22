@@ -6,8 +6,9 @@ homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
   asset_pack: any
-  lawndart: any
-  box2d: any
+  lawndart:
+    path: /home/dwayne/dart/lawndart
+  box2d: 0.0.7
   js: any
   browser: any
   logging: any

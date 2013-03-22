@@ -1,5 +1,9 @@
 part of vdrones;
 
+class vec2 extends Vector{
+  vec2(x, y) : super(x,y);
+  vec2.zero() : super(0,0);
+}
 class EntityTypes {
   static const WALL =   0x0001;
   static const DRONE =  0x0002;

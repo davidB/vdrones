@@ -126,11 +126,6 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   dynamic forBody(String id, dynamic f(Body x1, UserData x2)){
     var back = null;
     var b = _id2body[id];
-    if (b == null) {
-      for(var b0 = _space.bodyList; b0 != null && b == null; b0 = b0.next) {
-        if (b0.userData.id == id) b = b0;
-      }
-    }
     if (b != null) {
       var ud = b.userData;
       back = f(b, ud);
