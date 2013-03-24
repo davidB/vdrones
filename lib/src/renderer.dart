@@ -65,7 +65,7 @@ js.scoped((){
     var dx = ( (cmove.x + cmove.deltaX) / container.client.width - 0.5 ) * 100;
     var dy =- ( (cmove.y + cmove.deltaY) / container.client.height - 0.5 ) * 100;
     camera.position.z = v3.z + 30;
-    camera.position.y = v3.y + dy;
+    camera.position.y = v3.y + dy -25;
     camera.position.x = v3.x + dx;
     camera.lookAt(v3);
   }
