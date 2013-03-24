@@ -73,11 +73,12 @@ class Animations {
     var r= new Completer();
     var u = (num t, num t0){
       var dt = math.min(300, t - t0);
+      var ratio = dt/300;
       js.scoped((){
       obj3d.scale.set(
-        Easing.easeInQuad(dt, 300, -1, 1),
-        Easing.easeInQuad(dt, 300, -1, 1),
-        Easing.easeInQuad(dt, 300, -1, 1)
+        Easing.easeInQuad(ratio, -1, 1),
+        Easing.easeInQuad(ratio, -1, 1),
+        Easing.easeInQuad(ratio, -1, 1)
       );
       });
       return dt < 300;
@@ -105,11 +106,12 @@ class Animations {
     var r= new Completer();
     var u = (num t, num t0){
       var dt = math.min(300, t - t0);
+      var ratio = dt/300;
       js.scoped((){
       obj3d.scale.set(
-        Easing.easeInQuad(dt, 300, 1, 0),
-        Easing.easeInQuad(dt, 300, 1, 0),
-        Easing.easeInQuad(dt, 300, 1, 0)
+        Easing.easeInQuad(ratio, 1, 0),
+        Easing.easeInQuad(ratio, 1, 0),
+        Easing.easeInQuad(ratio, 1, 0)
       );
       });
       return dt < 300;
@@ -309,8 +311,8 @@ class Easing {
   /**
    * Performs a linear.
    */
-  static num linear(num time, num duration, num change, num baseValue) {
-    return change * time / duration + baseValue;
+  static num linear(double ratio, num change, num baseValue) {
+    return change * ratio + baseValue;
   }
 
   // QUADRATIC
@@ -318,26 +320,22 @@ class Easing {
   /**
    * Performs a quadratic easy-in.
    */
-  static num easeInQuad(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return change * time * time + baseValue;
+  static num easeInQuad(double ratio, num change, num baseValue) {
+    return change * ratio * ratio + baseValue;
   }
 
   /**
    * Performs a quadratic easy-out.
    */
-  static num easeOutQuad(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return -change * time * (time - 2) + baseValue;
+  static num easeOutQuad(double ratio, num change, num baseValue) {
+    return -change * ratio * (ratio - 2) + baseValue;
   }
 
   /**
    * Performs a quadratic easy-in-out.
    */
-  static num easeInOutQuad(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutQuad(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return change / 2 * time * time + baseValue;
@@ -352,28 +350,23 @@ class Easing {
   /**
    * Performs a cubic easy-in.
    */
-  static num easeInCubic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return change * time * time * time + baseValue;
+  static num easeInCubic(double ratio, num change, num baseValue) {
+      return change * ratio * ratio * ratio + baseValue;
   }
 
   /**
    * Performs a cubic easy-out.
    */
-  static num easeOutCubic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    time--;
-
-    return change * (time * time * time + 1) + baseValue;
+  static num easeOutCubic(double ratio, num change, num baseValue) {
+    ratio--;
+    return change * (ratio * ratio * ratio + 1) + baseValue;
   }
 
   /**
    * Performs a cubic easy-in-out.
    */
-  static num easeInOutCubic(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutCubic(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return change / 2 * time * time * time + baseValue;
@@ -388,28 +381,23 @@ class Easing {
   /**
    * Performs a quartic easy-in.
    */
-  static num easeInQuartic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return change * time * time * time * time + baseValue;
+  static num easeInQuartic(double ratio, num change, num baseValue) {
+    return change * ratio * ratio * ratio * ratio + baseValue;
   }
 
   /**
    * Performs a quartic easy-out.
    */
-  static num easeOutQuartic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    time--;
-
-    return -change * (time * time * time * time - 1) + baseValue;
+  static num easeOutQuartic(double ratio, num change, num baseValue) {
+    ratio--;
+    return -change * (ratio * ratio * ratio * ratio - 1) + baseValue;
   }
 
   /**
    * Performs a quartic easy-in-out.
    */
-  static num easeInOutQuartic(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutQuartic(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return change / 2 * time * time * time * time + baseValue;
@@ -424,28 +412,23 @@ class Easing {
   /**
    * Performs a quintic easy-in.
    */
-  static num easeInQuintic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return change * time * time * time * time * time + baseValue;
+  static num easeInQuintic(double ratio, num change, num baseValue) {
+    return change * ratio * ratio * ratio * ratio * ratio + baseValue;
   }
 
   /**
    * Performs a quintic easy-out.
    */
-  static num easeOutQuintic(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    time--;
-
-    return change * (time * time * time * time * time + 1) + baseValue;
+  static num easeOutQuintic(double ratio, num change, num baseValue) {
+    ratio--;
+    return change * (ratio * ratio * ratio * ratio * ratio + 1) + baseValue;
   }
 
   /**
    * Performs a quintic easy-in-out.
    */
-  static num easeInOutQuintic(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutQuintic(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return change / 2 * time * time * time * time * time + baseValue;
@@ -460,22 +443,22 @@ class Easing {
   /**
    * Performs a sine easy-in.
    */
-  static num easeInSine(num time, num duration, num change, num baseValue) {
-    return -change * math.cos(time / duration * (math.PI / 2)) + change + baseValue;
+  static num easeInSine(double ratio, num change, num baseValue) {
+    return -change * math.cos(ratio * (math.PI / 2)) + change + baseValue;
   }
 
   /**
    * Performs a sine easy-out.
    */
-  static num easeOutSine(num time, num duration, num change, num baseValue) {
-    return change * math.sin(time / duration * (math.PI / 2)) + baseValue;
+  static num easeOutSine(double ratio, num change, num baseValue) {
+    return change * math.sin(ratio * (math.PI / 2)) + baseValue;
   }
 
   /**
    * Performs a sine easy-in-out.
    */
-  static num easeInOutSine(num time, num duration, num change, num baseValue) {
-    return -change / 2 * (math.cos(time / duration * math.PI) - 1) + baseValue;
+  static num easeInOutSine(double ratio, num change, num baseValue) {
+    return -change / 2 * (math.cos(ratio * math.PI) - 1) + baseValue;
   }
 
   // EXPONENTIAL
@@ -483,22 +466,22 @@ class Easing {
   /**
    * Performs an exponential easy-in.
    */
-  static num easeInExponential(num time, num duration, num change, num baseValue) {
-    return change * math.pow(2, 10 * (time / duration - 1)) + baseValue;
+  static num easeInExponential(double ratio, num change, num baseValue) {
+    return change * math.pow(2, 10 * (ratio - 1)) + baseValue;
   }
 
   /**
    * Performs an exponential easy-out.
    */
-  static num easeOutExponential(num time, num duration, num change, num baseValue) {
-    return change * (-math.pow(2, -10 * time / duration) + 1) + baseValue;
+  static num easeOutExponential(double ratio, num change, num baseValue) {
+    return change * (-math.pow(2, -10 * ratio) + 1) + baseValue;
   }
 
   /**
    * Performs an exponential easy-in-out.
    */
-  static num easeInOutExponential(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutExponential(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return change / 2 * math.pow(2, 10 * (time - 1)) + baseValue;
@@ -513,28 +496,24 @@ class Easing {
   /**
    * Performs a circular easy-in.
    */
-  static num easeInCircular(num time, num duration, num change, num baseValue) {
-    time = time / duration;
-
-    return -change * (math.sqrt(1 - time * time) - 1) + baseValue;
+  static num easeInCircular(double ratio, num change, num baseValue) {
+    return -change * (math.sqrt(1 - ratio * ratio) - 1) + baseValue;
   }
 
   /**
    * Performs a circular easy-out.
    */
-  static num easeOutCircular(num time, num duration, num change, num baseValue) {
-    time = time / duration;
+  static num easeOutCircular(double ratio, num change, num baseValue) {
+    ratio--;
 
-    time--;
-
-    return change * math.sqrt(1 - time * time) + baseValue;
+    return change * math.sqrt(1 - ratio * ratio) + baseValue;
   }
 
   /**
    * Performs a circular easy-in-out.
    */
-  static num easeInOutCircular(num time, num duration, num change, num baseValue) {
-    time = time / (duration / 2);
+  static num easeInOutCircular(double ratio, num change, num baseValue) {
+    var time = 2 * ratio;
 
     if (time < 1)
       return -change / 2 * math.sqrt(1 - time * time) + baseValue;
