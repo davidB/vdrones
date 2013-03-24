@@ -3,9 +3,9 @@ part of vdrones;
 const Z_HIDDEN = -1000;
 
 typedef Future<js.Proxy> Animate(Animator animator, js.Proxy obj3d);
-typedef num Interpolate(num dtime, num duration, num change, num baseValue);
-typedef bool OnUpdate(num t, num t0);
-typedef bool OnComplete(num t, num t0);
+typedef num Interpolate(double ratio, num change, num baseValue);
+typedef bool OnUpdate(double t, double t0);
+typedef bool OnComplete(double t, double t0);
 
 bool onNoop(num t, num t0){ return false;}
 
@@ -13,26 +13,26 @@ final THREE = js.context.THREE;
 
 class Animator {
   //final _anims = new SimpleLinkedList<AnimEntry>();
-  final _anims = new LinkedBag<AnimEntry>();
+  final _anims = new LinkedBag<_AnimEntry>();
 
-  num _lastTime = 0;
+  double _lastTime = 0.0;
   var ll = -1;
 
-  void start(OnUpdate onUpdate, {OnComplete onComplete}) {
-    var anim = new AnimEntry();
+  void start(OnUpdate onUpdate, {OnComplete onComplete : null, double delay : 0.0}) {
+    var anim = new _AnimEntry();
     anim._onUpdate = onUpdate;
     if (onComplete != null) {
       anim._onComplete = onComplete;
     }
-    anim.t0 = _lastTime;
+    anim.t0 = _lastTime + delay;
     _anims.add(anim);
   }
 
-  num update(num time) {
+  void update(double time) {
     _lastTime = time;
     var d = 0;
     _anims.iterateAndRemove((anim){
-      var cont = anim._onUpdate(time, anim.t0);
+      var cont = (anim.t0 <= _lastTime)? anim._onUpdate(time, anim.t0) : true;
       if (!cont) {
         anim._onComplete(time, anim.t0);
       }
@@ -41,11 +41,10 @@ class Animator {
   }
 }
 
-class AnimEntry {
-  var t0 = -1;
+class _AnimEntry {
+  double t0 = -1.0;
   OnUpdate _onUpdate = onNoop;
   OnComplete _onComplete = onNoop;
-  AnimEntry _next = null;
 }
 
 class Animations {
