@@ -105,6 +105,7 @@ void setupGameplay(Evt evt){
       _entities.preload(evt, 'area', areaPath),
       _entities.preload(evt, 'model', 'drone01'),
       _entities.preload(evt, 'model', 'targetg101'),
+//      _entities.preload(evt, 'model', 'message'),
       _entities.preload(evt, 'hud', 'gui')
     ]).then(
       (x){
@@ -126,7 +127,7 @@ void setupGameplay(Evt evt){
   evt.BoostShipStop.add((droneId){
     evt.GameStates.boosting.v = false;
   });
-  evt.ContactBeginDroneWall.add((String droneId, String wallId){
+  evt.ContactBeginDroneWall.add((String droneId, String wallId, Position dronePos){
     var deferred = new Completer();
     evt.ObjDespawn.dispatch([droneId, {"preAnimName" : "crash", "deferred" : deferred }]);
     deferred.future.then((x){ spawnDrone(droneId); });

@@ -107,10 +107,12 @@ js.scoped((){
     //#preserveDrawingBuffer: true # to allow screenshot
   }));
   _renderer.shadowMapEnabled = true;
-  //_renderer.shadowMapSoft = true # to antialias the shadow;
+  _renderer.shadowMapSoft = true; // to antialias the shadow;
   _renderer.shadowMapType = THREE.PCFShadowMap;
   _renderer.setClearColorHex(0xEEEEEE, 1.0);
   _renderer.autoClear = false;
+  //_renderer.sortObjects = false;
+  //_renderer.setSize(container.client.width, container.client.height);
   js.retain(_renderer);
 
   void updateViewportSize(evt){
@@ -228,87 +230,73 @@ js.scoped((){
     });
   }
 
-  void spawnObj(String id, Position pos, EntityProvider gpof, [options]) {
-    js.scoped((){
-    print("spawnObj ${id}");
-    var ids = id.split('>');
-    var parent = _scene;
-    for(var i = 0; i< (ids.length - 1); i++) {
-      if (parent != null) {
-        parent = parent.getChildByName(ids[i], false);
-      } else {
-        _logger.warning("parent not found ${id}  ${ids[i]}");
+  Future spawnObj(String id, Position pos, EntityProvider gpof, [options]) {
+    return js.scoped((){
+      try {
+        print("spawnObj ${id}");
+        var parent = _scene;
+        var obj = parent.getChildByName(id, false);
+        if (obj != null) {
+          throw new Exception("ignore spawnObj with exiting id ${id} ${obj}");
+        }
+        obj = gpof.obj3dF();
+        if (obj == null) {
+          print("can't create obj ${id}");
+          return new Future.immediate(null);
+          //throw new Exception("can't create obj ${id}");
+        }
+
+        obj.name = id;
+        obj.position.x = pos.x;
+        obj.position.y = pos.y;
+        //obj.position.z = 0.0;
+        if (!(obj.rotation is num)) obj.rotation.z = pos.a;
+        //obj.castShadow = true;
+        //obj.receiveShadow = true;
+        parent.add(obj);
+        if (_cameraTargetObjId == id) {
+          _cameraTargetObj = obj;
+        }
+        _anims[id] = gpof.anims; //clone ?
+        obj = js.retain(obj);
+
+        var anim = _anims[id]["spawn"];
+        return ( anim != null) ? anim(animator, obj) : new Future.immediate(obj);
+      } catch (err) {
+        return new Future.immediateError(err);
       }
-    }
-    if (parent == null) return;
-    var name = ids[ids.length - 1];
-    var obj = parent.getChildByName(name, false);
-    if (obj != null) {
-      _logger.warning("ignore spawnObj with exiting id ${id} ${obj}");
-      //#console.trace();
-      return;
-    }
-
-    obj = gpof.obj3dF();
-    if (obj == null) {
-      print("can't create ${id}");
-      return;
-    }
-
-    obj.name = name;
-    obj.position.x = pos.x;
-    obj.position.y = pos.y;
-    //obj.position.z = 0.0;
-    obj.rotation.z = pos.a;
-    //obj.castShadow = true;
-    //obj.receiveShadow = true;
-    parent.add(obj);
-    _anims[id] = gpof.anims; //clone ?
-    if (gpof.anims["spawn"] != null) {
-      gpof.anims["spawn"](animator, obj);
-    }
-
-    if (_cameraTargetObjId == name) {
-      _cameraTargetObj = obj;
-    }
-    js.retain(obj);
     });
   }
 
-  void despawnObj(String id, [options]) {
+  Future _despawnObj0(dynamic obj, [options]) {
+    return js.scoped((){
+      var anims = _anims[obj.name];
+      var preAnim = (options == null) ? null : anims[options["preAnimName"]];
+      preAnim = (preAnim != null) ? preAnim : anims['despawnPre'];
+      return (preAnim != null) ? preAnim(animator, obj) : new Future.immediate(obj);
+    }).then((obj) => js.scoped((){
+      if (_cameraTargetObjId == obj.name || _cameraTargetObj == obj) {
+        _cameraTargetObj = null;
+      }
+      _scene.remove(obj);
+      if (options != null && options["deferred"] != null) {
+        options["deferred"].complete(obj.name);
+      }
+      js.release(obj);
+    })).catchError((err){print(err); throw err;});
+  }
+
+  Future despawnObj(String id, [options]) {
     print("despawnObj ${id}");
-    var p = new Future.of((){
-      var obj;
-      js.scoped((){
-        var obj0 = _scene.getChildByName(id, false);
-        if (obj0 == null) throw new StateError("obj not found : ${id}");
-        obj = js.retain(obj0);
-      });
-      return obj;
-    }).then((obj){
-      var b = obj;
-      js.scoped((){
-        var anims = _anims[id];
-        var preAnim = anims[options["preAnimName"]];
-        preAnim = preAnim != null ? preAnim : anims['despawnPre'];
-        if (preAnim != null) {
-          b = preAnim(animator, obj);
-        }
-      });
-      return b;
-    }).then((obj){
-      js.scoped((){
-        if (_cameraTargetObjId == obj.name || _cameraTargetObj == obj) {
-          _cameraTargetObj = null;
-        }
-        _scene.remove(obj);
-        if (options["deferred"] != null) {
-          options["deferred"].complete(id);
-        }
-        js.release(obj);
-      });
-    });
-    p.catchError((onError) => print(onError));
+    return new Future.of(() => js.scoped((){
+      var obj0 = _scene.getChildByName(id, false);
+      if (obj0 == null) throw new StateError("obj not found : ${id}");
+      return js.retain(obj0);
+    })).then((obj) => _despawnObj0(obj, options));
+  }
+
+  Future popObj(String id, Position pos, EntityProvider gpof, [options]) {
+    return spawnObj(id, pos, gpof, options).then((obj) => _despawnObj0(obj, options));
   }
 
 //  void spawnScene(String id, Position pos, List<three.Object3D> scene3d){
@@ -378,6 +366,7 @@ js.scoped((){
   evt.ObjSpawn.add(spawnObj);
   evt.ObjMoveTo.add(moveObjTo);
   evt.ObjDespawn.add(despawnObj);
+  evt.ObjPop.add(popObj);
 });
 }
 

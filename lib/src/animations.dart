@@ -87,6 +87,20 @@ class Animations {
     return r.future;
   }
 
+  static Future<js.Proxy> up(Animator animator,  js.Proxy obj3d) {
+    var r= new Completer();
+    var u = (num t, num t0){
+      var dt = math.min(1500, t - t0);
+      js.scoped((){
+        //obj3d.position.add(obj3d.up);
+      });
+      return dt < 1500;
+    };
+    var c = (num t, num t0){ r.complete(obj3d); };
+    animator.start(u, onComplete : c);
+    return r.future;
+  }
+
   static Future<js.Proxy> scaleIn(Animator animator, js.Proxy obj3d) {
     var r= new Completer();
     var u = (num t, num t0){

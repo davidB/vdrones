@@ -15,11 +15,13 @@ class MyContactListener extends ContactListener {
     print("beginContact ${contact.fixtureA.filter.groupIndex} // ${contact.fixtureB.filter.groupIndex}");
     if (contact.fixtureA.filter.groupIndex == contact.fixtureB.filter.groupIndex) return;
     var d = null;
+    var dp = null;
     var i = null;
     var w = null;
     switch(contact.fixtureA.filter.groupIndex) {
       case EntityTypes.DRONE :
         d = contact.fixtureA.body.userData.id;
+        dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
       case EntityTypes.ITEM :
         i = contact.fixtureA.body.userData.id;
@@ -31,6 +33,7 @@ class MyContactListener extends ContactListener {
     switch(contact.fixtureB.filter.groupIndex) {
       case EntityTypes.DRONE :
         d = contact.fixtureB.body.userData.id;
+        dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
       case EntityTypes.ITEM :
         i = contact.fixtureB.body.userData.id;
@@ -42,9 +45,11 @@ class MyContactListener extends ContactListener {
     if (d != null && i != null) {
       droneItem.add(d);
       droneItem.add(i);
+      droneItem.add(dp);
     } else if (d != null && w != null) {
       droneWall.add(d);
       droneWall.add(w);
+      droneWall.add(dp);
     }
 
   }
@@ -167,12 +172,12 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   }
 
   num pushStates(){
-    for(var i = _contactListener.droneItem.length - 1; i > 0; i -= 2) {
-      evt.ContactBeginDroneItem.dispatch([_contactListener.droneItem[i - 1], _contactListener.droneItem[i]]);
+    for(var i = _contactListener.droneItem.length - 1; i > 0; i -= 3) {
+      evt.ContactBeginDroneItem.dispatch([_contactListener.droneItem[i - 2], _contactListener.droneItem[i - 1], _contactListener.droneItem[i]]);
     }
     _contactListener.droneItem.clear();
-    for(var i = _contactListener.droneWall.length - 1; i > 0; i -= 2) {
-      evt.ContactBeginDroneWall.dispatch([_contactListener.droneWall[i - 1], _contactListener.droneWall[i]]);
+    for(var i = _contactListener.droneWall.length - 1; i > 0; i -= 3) {
+      evt.ContactBeginDroneWall.dispatch([_contactListener.droneWall[i - 2], _contactListener.droneWall[i - 1], _contactListener.droneWall[i]]);
     }
     _contactListener.droneWall.clear();
 

@@ -10,7 +10,7 @@ class Zone4GateOut {
   }
 
 
-  void onHit(String droneId, String objId){
+  void onHit(String droneId, String objId, Position dronePos){
     if (objId !=  _id) return;
     evt.GameStop.dispatch([true]);
   }

@@ -66,19 +66,18 @@ class EntityProvider4Targetg102 extends EntityProvider {
   }
 
   js.Proxy obj3dF(){
-    var o;
-    js.scoped((){
-    final THREE = js.context.THREE;
-    var s = 1;
-    var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
-    var material = new js.Proxy(THREE.MeshNormalMaterial);
-    o = new js.Proxy(THREE.Mesh, geometry, material);
-    o.position.z = 1;
-    o.castShadow = true;
-    o.receiveShadow = true;
-    o = js.retain(o);
+    return js.scoped((){
+      final THREE = js.context.THREE;
+      var s = 1;
+      var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
+      var material = new js.Proxy(THREE.MeshNormalMaterial);
+      var o = new js.Proxy(THREE.Mesh, geometry, material);
+      o.position.z = 1;
+      o.castShadow = true;
+      o.receiveShadow = true;
+      print("o ${o}");
+      return js.retain(o);
     });
-    return o;
   }
 
   EntityProvider4Targetg102() {
@@ -88,27 +87,38 @@ class EntityProvider4Targetg102 extends EntityProvider {
   }
 }
 
-class EntityProvider4Cube extends EntityProvider {
+class EntityProvider4Message extends EntityProvider {
   js.Proxy obj3dF(){
-    var o;
-    js.scoped((){
-    final THREE = js.context.THREE;
-      num s = 20;
-      var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
-      var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
-        "color": 0xff0000,
-        "wireframe": true
+    //return js.scoped((){
+      final THREE = js.context.THREE;
+//      var x = js.context.document.createElement("canvas");
+//      x.width = 300;
+//      x.height = 15;
+//      //var x = new CanvasElement(width: 300, height: 15);
+//      var xc = x.getContext("2d");
+//      xc.fillStyle = "#ffaa00";
+//      xc.font = "bold 15px sans-serif";
+//      xc.textBaseline = "top";
+//      //xc.textAlign = "middle";
+//      xc.fillText("+1 azertyui", 0, 0);
+      var tx = THREE.ImageUtils.loadTexture("_images/one.png");
+      var sm = new js.Proxy(THREE.SpriteMaterial, js.map({
+        'map': tx, //new js.Proxy(THREE.Texture, x),
+        'useScreenCoordinates': false
+        //transparent: true
       }));
-      o = new js.Proxy(THREE.Mesh, geometry, material);
-      o.castShadow = true;
-      o.receiveShadow = true;
-      js.retain(o);
-    });
-    return o;
+      sm.map.needsUpdate = true;
+      var o = new js.Proxy(THREE.Sprite, sm);
+      //o.position.set(50, 10, 50);
+      o.scale.set( 23, 18, 1 );
+      o.castShadow = false;
+      o.receiveShadow = false;
+      return js.retain(o);
+    //});
   }
-  EntityProvider4Cube() {
-    anims["spawn"] = Animations.rotateXYEndless;
-    anims["waiting"] = Animations.rotateXYEndless;
+  EntityProvider4Message() {
+    //anims["spawn"] = Animations.rotateXYEndless;
+    anims["despawn"] = Animations.up;
   }
 }
 
@@ -244,6 +254,8 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       var texture = THREE.ImageUtils.loadTexture(imgUrl);
       material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
         "map" : texture,
+        //"blending" : THREE.AdditiveBlending,
+        //"color": 0xffffff,
         "transparent": true
       }));
       //material.map.needsUpdate = true;
@@ -448,8 +460,8 @@ class Entities {
   //      load0(type : PreloadJS.JSON, src: src || '_models/' + id + '.scene.js');
   //      break;
       case 'model' :
-        if (id == "cube0") {
-          r = new Future.immediate(new EntityProvider4Cube());
+        if (id == "message") {
+          r = new Future.immediate(new EntityProvider4Message());
         } else if (id == "targetg101") {
           r = new Future.immediate(new EntityProvider4Targetg102());
         } else {
