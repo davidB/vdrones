@@ -75,7 +75,6 @@ class EntityProvider4Targetg102 extends EntityProvider {
       o.position.z = 1;
       o.castShadow = true;
       o.receiveShadow = true;
-      print("o ${o}");
       return js.retain(o);
     });
   }
@@ -309,7 +308,6 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       cellr
     )
   };
-  print("AREA : ${r}");
   return r;
 }
 
@@ -366,7 +364,6 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
       var loader = new js.Proxy(THREE.JSONLoader);
       //texturePath = loader.extractUrlBase( d.src )
       var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
-      print("geometry ${r.geometry} .... ${r.materials}");
       //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
       //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
       //geometry.materials[ 0 ].shading = three.FlatShading;
@@ -451,7 +448,6 @@ class Entities {
       progressMax.v = progressMax.v + 1;
     }
 
-    print("preload $kind $id");
     Future<EntityProvider> r = null;
 
     switch(kind) {
@@ -485,7 +481,6 @@ class Entities {
     r = r.then(
       (x) {
         evt.GameStates.progressCurrent.v = evt.GameStates.progressCurrent.v + 1;
-        print("preload $kind $id DONE");
         return x;
       },
       onError : (err) {
@@ -493,7 +488,6 @@ class Entities {
         throw err;
       }
     );
-    print("store id ${id}");
     _cache[id] = r;
     return r;
   }

@@ -12,7 +12,7 @@ class MyContactListener extends ContactListener {
   final droneWall = new List();
 
   void beginContact(Contact contact) {
-    print("beginContact ${contact.fixtureA.filter.groupIndex} // ${contact.fixtureB.filter.groupIndex}");
+    //print("beginContact ${contact.fixtureA.filter.groupIndex} // ${contact.fixtureB.filter.groupIndex}");
     if (contact.fixtureA.filter.groupIndex == contact.fixtureB.filter.groupIndex) return;
     var d = null;
     var dp = null;

@@ -77,7 +77,6 @@ Evt setup() {
       if (lastDelta500 == -1) {
         lastDelta500 = t;
         delta500 = 0;
-        print("init ${t}");
       }
       var d = (t - lastDelta500) / 500;
       if (d >=  1) {

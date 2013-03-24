@@ -49,7 +49,6 @@ void setupGameplay(Evt evt){
   }
 
   void start(){
-    print("START");
     evt.GameStates.energy.v = 0;
     evt.GameStates.energyMax.v = 0;
     evt.GameStates.boosting.v = false;
@@ -100,7 +99,6 @@ void setupGameplay(Evt evt){
 
   evt.GameInit.add((areaPath){
     _areaId = areaPath;
-    print("GameInit received");
     Future.wait([
       _entities.preload(evt, 'area', areaPath),
       _entities.preload(evt, 'model', 'drone01'),
@@ -110,12 +108,10 @@ void setupGameplay(Evt evt){
     ]).then(
       (x){
         evt.GameInitialized.dispatch(null);
-        print("GameInitialized send");
       },
       onError : (err){ evt.Error.dispatch(["failed to load assets", err]); }
     );
   });
-  print("Register START");
   evt.GameStart.add(start);
   evt.EvtReq.add(onReqEvent);
   evt.Tick.add((t, delta500) {

@@ -72,7 +72,6 @@ class SimpleLinkedList<E> {
 
   void add(E obj) {
     if (iterating) {
-      print("try to add when iterating");
       dump = true;
       throw new StateError("iterating");
     }

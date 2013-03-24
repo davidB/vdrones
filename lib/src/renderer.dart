@@ -233,7 +233,6 @@ js.scoped((){
   Future spawnObj(String id, Position pos, EntityProvider gpof, [options]) {
     return js.scoped((){
       try {
-        print("spawnObj ${id}");
         var parent = _scene;
         var obj = parent.getChildByName(id, false);
         if (obj != null) {
@@ -287,7 +286,6 @@ js.scoped((){
   }
 
   Future despawnObj(String id, [options]) {
-    print("despawnObj ${id}");
     return new Future.of(() => js.scoped((){
       var obj0 = _scene.getChildByName(id, false);
       if (obj0 == null) throw new StateError("obj not found : ${id}");
