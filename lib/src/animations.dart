@@ -9,7 +9,7 @@ typedef bool OnComplete(double t, double t0);
 
 bool onNoop(num t, num t0){ return false;}
 
-final THREE = js.context.THREE;
+//final THREE = js.context.THREE;
 
 class Animator {
   //final _anims = new SimpleLinkedList<AnimEntry>();
@@ -229,6 +229,7 @@ class Explode {
 
   Explode(this.nParticles) {
     js.scoped((){
+    var THREE = js.context.THREE;
     uniforms = js.retain(js.map({
       "time": { "type" :"f", "value" : 0}
 //      "center": { "type" : "v3", "value" : new js.Proxy(THREE.Vector3, 0, 0, 1.0)}
@@ -257,12 +258,13 @@ class Explode {
       verts[i] = new js.Proxy(THREE.Vector3, 0,0,0);
     }
     geometry.vertices = js.array(verts);
-    reset(attributes);
+    _reset(attributes);
     particles = js.retain(new js.Proxy(THREE.ParticleSystem, geometry, material));
     });
   }
 
-  void reset(attributes) {
+  void _reset(attributes) {
+    final THREE = js.context.THREE;
     for (var i=0; i<nParticles; i++) {
       // position
       var point = randomPointOnSphere();
