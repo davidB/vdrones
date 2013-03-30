@@ -15,7 +15,6 @@ void main() {
 
 void gotoArea(vdrones.Evt evt, String name) {
   evt.GameInit.dispatch([name]);
-  print('catch-all handler xx : ${name}');
 }
 
 void _setupRoutes(vdrones.Evt evt) {
@@ -34,8 +33,7 @@ void _setupRoutes(vdrones.Evt evt) {
 
 void _setupLog() {
   Logger.root.level = Level.FINE;
-  Logger.root.on.record.add((r){
-    print(r);
+  Logger.root.onRecord.listen((r){
     if (r.level == Level.SEVERE) {
       window.console.error(r);
     } else if (r.level == Level.WARNING) {

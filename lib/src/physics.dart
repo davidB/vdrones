@@ -7,44 +7,55 @@ class UserData {
   UserData(this.id);
 }
 
+const EntityTypes_WALL =   0x0001;
+const EntityTypes_DRONE =  0x0002;
+const EntityTypes_BULLET = 0x0004;
+const EntityTypes_SHIELD = 0x0008;
+const EntityTypes_ITEM =   0x0010;
+
 class MyContactListener extends ContactListener {
   final droneItem = new List();
   final droneWall = new List();
 
   void beginContact(Contact contact) {
-    print("beginContact ${contact.fixtureA.filter.groupIndex} // ${contact.fixtureB.filter.groupIndex}");
+    //print("beginContact ${contact.fixtureA.filter.groupIndex} // ${contact.fixtureB.filter.groupIndex}");
     if (contact.fixtureA.filter.groupIndex == contact.fixtureB.filter.groupIndex) return;
     var d = null;
+    var dp = null;
     var i = null;
     var w = null;
     switch(contact.fixtureA.filter.groupIndex) {
-      case EntityTypes.DRONE :
+      case EntityTypes_DRONE :
         d = contact.fixtureA.body.userData.id;
+        dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
-      case EntityTypes.ITEM :
+      case EntityTypes_ITEM :
         i = contact.fixtureA.body.userData.id;
         break;
-      case EntityTypes.WALL :
+      case EntityTypes_WALL :
         w = contact.fixtureA.body.userData.id;
         break;
     }
     switch(contact.fixtureB.filter.groupIndex) {
-      case EntityTypes.DRONE :
+      case EntityTypes_DRONE :
         d = contact.fixtureB.body.userData.id;
+        dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
-      case EntityTypes.ITEM :
+      case EntityTypes_ITEM :
         i = contact.fixtureB.body.userData.id;
         break;
-      case EntityTypes.WALL :
+      case EntityTypes_WALL :
         w = contact.fixtureB.body.userData.id;
         break;
     }
     if (d != null && i != null) {
       droneItem.add(d);
       droneItem.add(i);
+      droneItem.add(dp);
     } else if (d != null && w != null) {
       droneWall.add(d);
       droneWall.add(w);
+      droneWall.add(dp);
     }
 
   }
@@ -78,6 +89,7 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   num _lastTimestamp = 0;
   var _running = false;
   var _contactListener = new MyContactListener();
+  var debugDraw = null;
 
 
   World initSpace() {
@@ -92,25 +104,27 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
 //      };
 //    }
 
-    //space.addCollisionHandler(EntityTypes.DRONE, EntityTypes.ITEM, begin(_contactDroneItem), null, null, null);
-    //space.addCollisionHandler(EntityTypes.DRONE, EntityTypes.WALL, begin(_contactDroneWall), null, null, null);
+    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_ITEM, begin(_contactDroneItem), null, null, null);
+    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_WALL, begin(_contactDroneWall), null, null, null);
     space.contactListener = _contactListener;
 
 // Setup the canvas.
     if (drawDebug) {
-      var canvas = new Element.tag('canvas');
-      canvas.width = CANVAS_WIDTH;
-      canvas.height = CANVAS_HEIGHT;
-      window.document.query("#layers").children.add(canvas);
-      _ctx = canvas.getContext("2d");
-
-      // Create the viewport transform with the center at extents.
-      final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-      var viewport = new CanvasViewportTransform(extents, extents);
-      viewport.scale = _VIEWPORT_SCALE;
-
       // Create our canvas drawing tool to give to the world.
-      var debugDraw = new CanvasDraw(viewport, _ctx);
+      if (debugDraw == null) {
+        var canvas = new Element.tag('canvas');
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        window.document.query("#layers").children.add(canvas);
+        _ctx = canvas.getContext("2d");
+
+        // Create the viewport transform with the center at extents.
+        final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+        var viewport = new CanvasViewportTransform(extents, extents);
+        viewport.scale = _VIEWPORT_SCALE;
+
+        debugDraw = new CanvasDraw(viewport, _ctx);
+      }
 
       // Have the world draw itself for debugging purposes.
       space.debugDraw = debugDraw;
@@ -164,12 +178,12 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   }
 
   num pushStates(){
-    for(var i = _contactListener.droneItem.length - 1; i > 0; i -= 2) {
-      evt.ContactBeginDroneItem.dispatch([_contactListener.droneItem[i - 1], _contactListener.droneItem[i]]);
+    for(var i = _contactListener.droneItem.length - 1; i > 0; i -= 3) {
+      evt.ContactBeginDroneItem.dispatch([_contactListener.droneItem[i - 2], _contactListener.droneItem[i - 1], _contactListener.droneItem[i]]);
     }
     _contactListener.droneItem.clear();
-    for(var i = _contactListener.droneWall.length - 1; i > 0; i -= 2) {
-      evt.ContactBeginDroneWall.dispatch([_contactListener.droneWall[i - 1], _contactListener.droneWall[i]]);
+    for(var i = _contactListener.droneWall.length - 1; i > 0; i -= 3) {
+      evt.ContactBeginDroneWall.dispatch([_contactListener.droneWall[i - 2], _contactListener.droneWall[i - 1], _contactListener.droneWall[i]]);
     }
     _contactListener.droneWall.clear();
 

@@ -48,13 +48,11 @@ class Stats{
 
   Future _saveStatistics() {
     return store.then((db){
-      print("START SAVE");
       db.batch(_statistics);
     });
   }
 
   Future<Store> _loadStatistics(String areaId, bool clean) {
-    print("START LOAD");
     var dbStore = evt.GameStates.userId.v;
 
     var db = new IndexedDbStore(dbName, dbStore);

@@ -1,14 +1,15 @@
 name: vdrones
-version: 0.3.2
+version: 0.4.0
 author: david bernard
 description: A sample web application
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
   asset_pack: any
-  lawndart: any
-  box2d:
-    path: /home/dwayne/dart/dartbox2d
+  lawndart:
+    path: /home/dwayne/dart/lawndart
+  box2d: 0.0.7
+#  box2d: any
   js: any
   browser: any
   logging: any

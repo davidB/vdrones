@@ -44,12 +44,15 @@ class Zone4Cubes {
     return new Position(x, y, 0);
   }
 
-  void onHit(String droneId, String objId){
+  void onHit(String droneId, String objId, Position dronePos){
      if (! objId.startsWith(_zonePrefix)) return;
      evt.CountdownStop.dispatch(["${objId}/countdown"]);
      var emax = evt.GameStates.energyMax.v;
      evt.GameStates.energy.v = math.max(evt.GameStates.energy.v + emax /2, emax);
      evt.GameStates.score.v = evt.GameStates.score.v + 1;
+//     _entities.find('message').then((x){
+//       evt.ObjPop.dispatch(["msg/"+objId, dronePos, x]);
+//     });
      evt.ObjDespawn.dispatch([objId, {"preAnimName" : "none"}]);
      spawnNewCube(1);
   }

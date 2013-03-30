@@ -71,13 +71,14 @@ Evt setup() {
       //RequestAnimationFrame.request(loop);
       // note: three.js includes requestAnimationFrame shim
       //setTimeout(function() { requestAnimationFrame(loop); }, 1000/30);
-
+      if (_running) {
+        window.requestAnimationFrame(loop);
+      }
       var t = highResTime; //new Date().getTime();
       var delta500 = 0;
       if (lastDelta500 == -1) {
         lastDelta500 = t;
         delta500 = 0;
-        print("init ${t}");
       }
       var d = (t - lastDelta500) / 500;
       if (d >=  1) {
@@ -88,9 +89,6 @@ Evt setup() {
       tickArgs[1] = delta500;
       evt.Tick.dispatch(tickArgs);
       evt.Render.dispatch(null);
-      if (_running) {
-        window.requestAnimationFrame(loop);
-      }
     };
     window.requestAnimationFrame(loop);
   });

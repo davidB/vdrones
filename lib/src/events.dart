@@ -81,6 +81,7 @@ class Evt {
   final ObjSpawn= new Signal(); //#(objId, pos, gpof, options) -> {
   final ObjDespawn= new Signal(); //#(objId, options) -> {
   final ObjMoveTo= new Signal(); //#(objId, pos, acc) -> {
+  final ObjPop = new Signal(); //#(objId, pos, gpof, options) +/- spawn + despawn
   final SetupDatGui= new Signal(); //#(setup) -> {
   final BoostShipStop= new Signal(); //#(objId) -> {
   final BoostShipStart= new Signal(); //#(objId) -> {
