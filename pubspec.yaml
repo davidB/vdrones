@@ -9,6 +9,7 @@ dependencies:
   lawndart:
     path: /home/dwayne/dart/lawndart
   box2d: 0.0.7
+#  box2d: any
   js: any
   browser: any
   logging: any
