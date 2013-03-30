@@ -4,14 +4,6 @@ class vec2 extends Vector{
   vec2(x, y) : super(x,y);
   vec2.zero() : super(0,0);
 }
-class EntityTypes {
-  static const WALL =   0x0001;
-  static const DRONE =  0x0002;
-  static const BULLET = 0x0004;
-  static const SHIELD = 0x0008;
-  static const ITEM =   0x0010;
-}
-
 class Object2D {
   BodyDef bdef;
   List<FixtureDef> fdefs;
@@ -60,7 +52,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
     var f = new FixtureDef();
     f.shape = s;
     f.isSensor = true;
-    f.filter.groupIndex = EntityTypes.ITEM;
+    f.filter.groupIndex = EntityTypes_ITEM;
     r.fdefs = [f];
     return r;
   }
@@ -283,7 +275,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
   addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
   var r = {
     "walls" : new EntityProvider4Static(
-      cells2boxes2d(area["walls"]["cells"], EntityTypes.WALL),
+      cells2boxes2d(area["walls"]["cells"], EntityTypes_WALL),
       cells2boxes3d(area["walls"]["cells"], area["width"], area["height"]),
       area["walls"]["cells"],
       cellr
@@ -296,7 +288,7 @@ Map<String, EntityProvider> makeArea(jsonStr) {
       cellr
     ),
     "gate_out" : new EntityProvider4Static(
-      cells2circles2d(area["zones"]["gate_out"]["cells"], 0.3, EntityTypes.ITEM),
+      cells2circles2d(area["zones"]["gate_out"]["cells"], 0.3, EntityTypes_ITEM),
       cells2surface3d(area["zones"]["gate_out"]["cells"], 0.5, "_images/gate_out.png"),
       area["zones"]["gate_out"]["cells"],
       cellr
@@ -324,7 +316,7 @@ class EntityProvider4Drone extends EntityProvider {
     var f = new FixtureDef();
     f.shape = shape;
     //s.sensor = false;
-    f.filter.groupIndex = EntityTypes.DRONE;
+    f.filter.groupIndex = EntityTypes_DRONE;
     r.fdefs = [f];
     return r;
   }

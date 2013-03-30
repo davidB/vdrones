@@ -7,6 +7,12 @@ class UserData {
   UserData(this.id);
 }
 
+const EntityTypes_WALL =   0x0001;
+const EntityTypes_DRONE =  0x0002;
+const EntityTypes_BULLET = 0x0004;
+const EntityTypes_SHIELD = 0x0008;
+const EntityTypes_ITEM =   0x0010;
+
 class MyContactListener extends ContactListener {
   final droneItem = new List();
   final droneWall = new List();
@@ -19,26 +25,26 @@ class MyContactListener extends ContactListener {
     var i = null;
     var w = null;
     switch(contact.fixtureA.filter.groupIndex) {
-      case EntityTypes.DRONE :
+      case EntityTypes_DRONE :
         d = contact.fixtureA.body.userData.id;
         dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
-      case EntityTypes.ITEM :
+      case EntityTypes_ITEM :
         i = contact.fixtureA.body.userData.id;
         break;
-      case EntityTypes.WALL :
+      case EntityTypes_WALL :
         w = contact.fixtureA.body.userData.id;
         break;
     }
     switch(contact.fixtureB.filter.groupIndex) {
-      case EntityTypes.DRONE :
+      case EntityTypes_DRONE :
         d = contact.fixtureB.body.userData.id;
         dp = new Position(contact.fixtureA.body.position.x, contact.fixtureA.body.position.y, contact.fixtureA.body.angle);
         break;
-      case EntityTypes.ITEM :
+      case EntityTypes_ITEM :
         i = contact.fixtureB.body.userData.id;
         break;
-      case EntityTypes.WALL :
+      case EntityTypes_WALL :
         w = contact.fixtureB.body.userData.id;
         break;
     }
@@ -98,8 +104,8 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
 //      };
 //    }
 
-    //space.addCollisionHandler(EntityTypes.DRONE, EntityTypes.ITEM, begin(_contactDroneItem), null, null, null);
-    //space.addCollisionHandler(EntityTypes.DRONE, EntityTypes.WALL, begin(_contactDroneWall), null, null, null);
+    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_ITEM, begin(_contactDroneItem), null, null, null);
+    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_WALL, begin(_contactDroneWall), null, null, null);
     space.contactListener = _contactListener;
 
 // Setup the canvas.
