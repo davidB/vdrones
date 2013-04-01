@@ -175,6 +175,9 @@ footer {
   animation: opacityBlink 0.7s ease-in-out infinite;
 }
 
+table.stats {
+  width: 100%;
+}
 table.stats th {
   text-align: left;
 }
