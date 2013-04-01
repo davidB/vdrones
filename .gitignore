@@ -12,3 +12,4 @@ filter
 .idea
 appengine-web.xml
 *.orig
+/.project
