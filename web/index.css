@@ -83,7 +83,7 @@ body {
 }
 .screen_info  {
   z-index: 12;
-  //background-color: #00aa00;
+  /*background-color: #00aa00;*/
   background-color:#272b30;
 }
 #layers >div.dialog_info {
