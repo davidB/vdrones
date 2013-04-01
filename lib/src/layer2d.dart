@@ -31,12 +31,12 @@ void setupLayer2D(Evt evt, Element container, Stats stats){
   });
   evt.GameInitialized.add(() {
     container.query("#msgConnecting").style.opacity = "0";
-    container.query("#btnStart")
-    ..attributes.remove("disabled")
-    ..onClick.listen((e){
-      showScreen('none');
+//    container.query("#btnStart")
+//    ..attributes.remove("disabled")
+//    ..onClick.listen((e){
+//      showScreen('none');
 //      evt.GameStart.dispatch(null);
-    });
+//    });
 //    container.query("#btnReplay")
 //    ..onClick.listen((e){
 //      showScreen('none');

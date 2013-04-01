@@ -45,7 +45,7 @@
           <x-runresult id="runresult"></x-runresult>
         </div>
         <div class="modal-footer">
-          <button on-click="play()" class="btn btn-primary" data-dismiss="modal"><i class="icon-repeat"></i> Replay</button>
+          <button on-click="game.play()" class="btn btn-primary" data-dismiss="modal"><i class="icon-repeat"></i> Replay</button>
         </div>
       </x-modal>
       <div id="screenInit" class="screen_info show">
@@ -77,8 +77,8 @@
             </table>
           </div>
           <div class="actions">
-            <div id="msgConnecting" style="opacity: 1"><i class="icon-spinner icon-spin"></i> Please wait, connecting to VSpace ...</div>
-            <button on-click="play()" class="btn btn-primary" id="btnStart" disabled>START</button>
+            <div id="msgConnecting" style="opacity: {{game.status != vdrones.Status.INITIALIZED ? 1 : 0}}"><i class="icon-spinner icon-spin"></i> Please wait, connecting to VSpace ...</div>
+            <button on-click="game.play()" class="btn btn-primary" disabled="{{game.status != vdrones.Status.INITIALIZED}}">START</button>
           </div>
         </div>
       </div>

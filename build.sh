@@ -1,5 +1,9 @@
 mkdir -p target
-ln -s ../packages target/packages
+ln -sf ../packages target/packages
+
+dart_analyzer --work target/dart-work --package-root=packages/ --metrics --fatal-type-errors --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+
+
 cat >filter <<EOF
 + web/packages
 + web/packages/browser
@@ -23,6 +27,9 @@ cd target/web
 dart --package-root=packages/ packages/web_ui/dwc.dart index0.html
 rm index0.html
 mv _index0.html.html index0.html
+
+#HACK for web_ui that remove disabled attribute
+vim -c '%s#<button class="btn btn-primary" id="_#<button class="btn btn-primary" disabled id="_#ge|x' index0.html
 
 if [ "x$1" = "x--deploy" ] ; then
 

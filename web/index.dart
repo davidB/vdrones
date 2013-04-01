@@ -3,35 +3,28 @@ import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
 import 'package:web_ui/web_ui.dart';
 
-vdrones.Evt evt;
+var game = new vdrones.VDrones();
 
 void main() {
   _setupLog();
-  evt = vdrones.setup();
+  game.setup();
   //_setupRoutes(evt);
-  gotoArea("alpha0");
-}
-
-void gotoArea(String name) {
-  evt.GameInit.dispatch([name]);
+  game.gotoArea("alpha0");
 }
 
 void _setupRoutes(vdrones.Evt evt) {
   Window.hashChangeEvent.forTarget(window).listen((e) {
     String path = window.location.hash.substring(2);
-    gotoArea(evt, path);
+    game.gotoArea(path);
   });
   if (window.location.hash.isEmpty) {
     window.location.hash = "/alpha0";
   } else {
     String path = window.location.hash.substring(2);
-    gotoArea(evt, path);
+    game.gotoArea(path);
   }
 }
 
-void play() {
-  evt.GameStart.dispatch(null);
-}
 void _setupLog() {
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((r){
