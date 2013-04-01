@@ -35,13 +35,13 @@ void setupLayer2D(Evt evt, Element container, Stats stats){
     ..attributes.remove("disabled")
     ..onClick.listen((e){
       showScreen('none');
-      evt.GameStart.dispatch(null);
+//      evt.GameStart.dispatch(null);
     });
-    container.query("#btnReplay")
-    ..onClick.listen((e){
-      showScreen('none');
-      evt.GameStart.dispatch(null);
-    });
+//    container.query("#btnReplay")
+//    ..onClick.listen((e){
+//      showScreen('none');
+//      evt.GameStart.dispatch(null);
+//    });
   });
   evt.HudSpawn.add((objId, domElem) {
     if (domElem != null) {
@@ -81,7 +81,13 @@ void setupLayer2D(Evt evt, Element container, Stats stats){
 //    if (!exiting) {
 //      container.query("#screenEndCubesLast").text = "TIME OUT";
 //    }
-    showScreen('screenEnd');
+    var runresult = query('#runresult').xtag;
+    runresult.areaId = areaId;
+    runresult.cubesLast = stats[areaId + Stats.AREA_CUBES_LAST_V];
+    runresult.cubesMax = stats[areaId + Stats.AREA_CUBES_MAX_V];
+    runresult.cubesTotal = stats[areaId + Stats.AREA_CUBES_TOTAL_V];
+    //runresult.show();
+    query('#runresult_dialog').xtag.show();
   });
   evt.Error.add((msg, exc){
     window.console.error(msg);

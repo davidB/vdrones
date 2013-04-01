@@ -3,17 +3,16 @@ import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
 import 'package:web_ui/web_ui.dart';
 
-var areaId = "none";
-var stats = {};
+vdrones.Evt evt;
 
 void main() {
   _setupLog();
-  var evt = vdrones.setup();
+  evt = vdrones.setup();
   //_setupRoutes(evt);
-  gotoArea(evt, "alpha0");
+  gotoArea("alpha0");
 }
 
-void gotoArea(vdrones.Evt evt, String name) {
+void gotoArea(String name) {
   evt.GameInit.dispatch([name]);
 }
 
@@ -30,7 +29,9 @@ void _setupRoutes(vdrones.Evt evt) {
   }
 }
 
-
+void play() {
+  evt.GameStart.dispatch(null);
+}
 void _setupLog() {
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((r){

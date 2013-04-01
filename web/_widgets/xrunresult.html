@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+  <body>
+    <element name="x-runresult" extends="div">
+      <template>
+          <div style="padding:3em auto 3em auto;text-align: center;">
+            <table class="stats">
+              <tbody>
+                <tr>
+                  <th>area</th>
+                  <td>{{areaId}}</td>
+                </tr>
+                <tr>
+                  <th>cubes</th>
+                  <td>{{cubesLast}}</td>
+                </tr>
+                <tr>
+                  <th>record</th>
+                  <td>{{cubesMax}}</td>
+                </tr>
+                <tr>
+                  <th>total</th>
+                  <td>{{cubesTotal}}</td>
+                </tr>
+              </tbody>
+            </table>
+          <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
+          </div>
+      </template>
+      <script type="application/dart" src="xrunresult.dart"></script>
+    </element>
+  </body>
+</html>
