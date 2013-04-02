@@ -1,7 +1,7 @@
 #see https://developers.google.com/appengine/docs/java/configyaml/appconfig_yaml
 #
 application: vdrones
-version: 0-4-1
+version: 0-5-0
 runtime: java
 #api_version: 1
 
