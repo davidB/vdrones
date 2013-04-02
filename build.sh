@@ -1,7 +1,8 @@
 mkdir -p target
 ln -sf ../packages target/packages
 
-dart_analyzer --work target/dart-work --package-root=packages/ --metrics --fatal-type-errors --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+#dart_analyzer --work target/dart-work --package-root=packages/ --metrics --fatal-type-errors --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+dart_analyzer --work target/dart-work --package-root=packages/ --metrics --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
 
 
 cat >filter <<EOF
