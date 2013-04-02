@@ -142,7 +142,7 @@ class Animations {
     js.scoped((){
       //explode.uniforms["center"].value = obj3d.position.clone();
       explode.particles.position = obj3d.position.clone();
-      explode.particles.position.z = 10;
+      //explode.particles.position.z = 1;
       obj3d.parent.add(explode.particles);
       obj3d.position.z = Z_HIDDEN;
       animator.start(u, onComplete : c);
