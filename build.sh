@@ -4,7 +4,7 @@ mkdir -p target
 ln -sf ../packages target/packages
 
 #dart_analyzer --work target/dart-work --package-root=packages/ --metrics --fatal-type-errors --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
-dart_analyzer --work target/dart-work --package-root=packages/ --metrics --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+#dart_analyzer --work target/dart-work --package-root=packages/ --metrics --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
 
 
 cat >filter <<EOF
@@ -34,15 +34,17 @@ mv _index0.html.html index0.html
 #HACK for web_ui that remove disabled attribute
 vim -c '%s#<button class="btn btn-primary" id="_#<button class="btn btn-primary" disabled id="_#ge|x' index0.html
 
-if [ "x$1" = "x--deploy" ] ; then
+if [ "x$1" = "x--deploy" -o "x$1" = "x--js" ] ; then
 
   dart2js --package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js
 
-  rm -Rf packages **/packages
-  rm **/*.dart **/*.dart.map *.dart *.dart.map
+  if [ "x$1" = "x--deploy" ] ; then
+    rm -Rf packages **/packages
+    rm **/*.dart **/*.dart.map *.dart *.dart.map
   
-  mkdir packages
-  cp -R ../../packages/browser packages
+    mkdir packages
+    cp -R ../../packages/browser packages
+  fi
 
   #TODO copy index0.html into index.html and remove dart reference (**/*.dart + into index.xml)
   cp index0.html index.html
@@ -53,7 +55,7 @@ if [ "x$1" = "x--deploy" ] ; then
 :x
 EOF
 #TODO insert before last </body>
-cat >index.html <<EOF
+cat >>index.html <<EOF
   <script type="text/javascript">
 
   var _gaq = _gaq || [];
