@@ -109,7 +109,7 @@ js.scoped((){
   _renderer.shadowMapEnabled = true;
   _renderer.shadowMapSoft = true; // to antialias the shadow;
   _renderer.shadowMapType = THREE.PCFShadowMap;
-  _renderer.setClearColorHex(0xEEEEEE, 1.0);
+  _renderer.setClearColorHex(0x010109, 1.0);
   _renderer.autoClear = false;
   //_renderer.sortObjects = false;
   //_renderer.setSize(container.client.width, container.client.height);
