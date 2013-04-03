@@ -8,11 +8,11 @@ var game = new vdrones.VDrones();
 void main() {
   _setupLog();
   game.setup();
-  //_setupRoutes(evt);
-  game.gotoArea("alpha0");
+  _setupRoutes();
+  //game.gotoArea("alpha0");
 }
 
-void _setupRoutes(vdrones.Evt evt) {
+void _setupRoutes() {
   Window.hashChangeEvent.forTarget(window).listen((e) {
     String path = window.location.hash.substring(2);
     game.gotoArea(path);
