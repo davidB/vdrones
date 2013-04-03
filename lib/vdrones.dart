@@ -112,9 +112,6 @@ class VDrones {
         //RequestAnimationFrame.request(loop);
         // note: three.js includes requestAnimationFrame shim
         //setTimeout(function() { requestAnimationFrame(loop); }, 1000/30);
-        if (_status == Status.RUNNING) {
-          window.requestAnimationFrame(loop);
-        }
         var t = highResTime; //new Date().getTime();
         var delta500 = 0;
         if (lastDelta500 == -1) {
@@ -130,8 +127,11 @@ class VDrones {
         tickArgs[1] = delta500;
         _evt.Tick.dispatch(tickArgs);
         _evt.Render.dispatch(null);
+        if (_status == Status.RUNNING) {
+          window.animationFrame.then(loop);
+        }
       };
-      window.requestAnimationFrame(loop);
+      window.animationFrame.then(loop);
     });
   }
 }
