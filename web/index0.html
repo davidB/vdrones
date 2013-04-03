@@ -40,14 +40,6 @@
     <div id="layers">
       <div id="hud" style="z-index:10">
       </div>
-      <x-modal id="runresult_dialog">
-        <div class="modal-body">
-          <x-runresult id="runresult"></x-runresult>
-        </div>
-        <div class="modal-footer">
-          <button on-click="game.play()" class="btn btn-primary" data-dismiss="modal"><i class="icon-repeat"></i> Replay</button>
-        </div>
-      </x-modal>
       <div id="screenInit" class="screen_info show">
         <div class="screen_inner">
           <h3>Welcome VDroner,</h3>
@@ -97,6 +89,14 @@
       <div style="float:right"><a href="humans.txt"><img  src="humanstxt-transparent-1ink.png" border="0"/></a></div>
     </footer>
   </div>
+  <x-modal id="runresult_dialog">
+    <div class="modal-body">
+      <x-runresult id="runresult"></x-runresult>
+    </div>
+    <div class="modal-footer">
+      <button on-click="game.play()" class="btn btn-primary" data-dismiss="modal" tabindex="0"><i class="icon-repeat"></i> Replay</button>
+    </div>
+  </x-modal>
   <script src="_vendors/three-r57/three.min.js"></script>
   <script src="packages/browser/dart.js"></script>
   <script type="application/dart" src="index.dart"></script>
