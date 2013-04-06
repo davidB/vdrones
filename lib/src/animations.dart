@@ -2,7 +2,7 @@ part of vdrones;
 
 const Z_HIDDEN = -1000;
 
-typedef Future<js.Proxy> Animate(Animator animator, js.Proxy obj3d);
+typedef Future<dynamic> Animate(Animator animator, dynamic obj3d);
 typedef num Interpolate(double ratio, num change, num baseValue);
 typedef bool OnUpdate(double t, double t0);
 typedef bool OnComplete(double t, double t0);
@@ -53,7 +53,7 @@ class Animations {
 
   static Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
 
-  static Future<js.Proxy> rotateXYEndless(Animator animator, js.Proxy obj3d) {
+  static Future<dynamic> rotateXYEndless(Animator animator, dynamic obj3d) {
     var r = new Completer();
     var u = (num t, num t0){
       js.scoped((){
@@ -68,7 +68,7 @@ class Animations {
   }
 
 
-  static Future<js.Proxy> scaleOut(Animator animator,  js.Proxy obj3d) {
+  static Future<dynamic> scaleOut(Animator animator,  dynamic obj3d) {
     var r= new Completer();
     var u = (num t, num t0){
       var dt = math.min(300, t - t0);
@@ -87,7 +87,7 @@ class Animations {
     return r.future;
   }
 
-  static Future<js.Proxy> up(Animator animator,  js.Proxy obj3d) {
+  static Future<dynamic> up(Animator animator,  dynamic obj3d) {
     var r= new Completer();
     var u = (num t, num t0){
       var dt = math.min(1500, t - t0);
@@ -101,7 +101,7 @@ class Animations {
     return r.future;
   }
 
-  static Future<js.Proxy> scaleIn(Animator animator, js.Proxy obj3d) {
+  static Future<dynamic> scaleIn(Animator animator, dynamic obj3d) {
     var r= new Completer();
     var u = (num t, num t0){
       var dt = math.min(300, t - t0);
@@ -122,7 +122,7 @@ class Animations {
 
   static var explode = null;
 
-  static Future<js.Proxy> explodeOut(Animator animator, js.Proxy obj3d) {
+  static Future<dynamic> explodeOut(Animator animator, dynamic obj3d) {
     var r= new Completer();
     var u = (num t, num t0){
       js.scoped((){

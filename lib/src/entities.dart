@@ -12,7 +12,7 @@ class Object2D {
 
 class EntityProvider {
   Object2D obj2dF() => null;
-  js.Proxy obj3dF() => null;
+  dynamic obj3dF() => null;
   final anims = new Map<String, Animate>();
 
   EntityProvider();
@@ -20,10 +20,10 @@ class EntityProvider {
 
 class EntityProvider4Static extends EntityProvider {
   Object2D _obj2d;
-  js.Proxy _obj3d;
+  dynamic _obj3d;
 
   Object2D obj2dF() => _obj2d;
-  js.Proxy obj3dF() => _obj3d;
+  dynamic obj3dF() => _obj3d;
   final anims = new Map<String, Animate>();
   List<num> cells;
   num cellr;
@@ -32,7 +32,7 @@ class EntityProvider4Static extends EntityProvider {
 }
 
 //class EntityProvider4Axis extends EntityProvider {
-//  js.Proxy obj3dF() {
+//  dynamic obj3dF() {
 //    var o;
 //    js.scoped((){
 //    final THREE = js.context.THREE;
@@ -58,7 +58,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
     return r;
   }
 
-  js.Proxy obj3dF(){
+  dynamic obj3dF(){
     return js.scoped((){
       final THREE = js.context.THREE;
       var s = 1;
@@ -73,14 +73,14 @@ class EntityProvider4Targetg102 extends EntityProvider {
   }
 
   EntityProvider4Targetg102() {
-    anims["spawn"] = (Animator animator, js.Proxy obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
+    anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
     anims["despawnPre"] = Animations.scaleOut;
     anims["none"] = Animations.noop;
   }
 }
 
 class EntityProvider4Message extends EntityProvider {
-  js.Proxy obj3dF(){
+  dynamic obj3dF(){
     //return js.scoped((){
       final THREE = js.context.THREE;
 //      var x = js.context.document.createElement("canvas");
@@ -114,6 +114,52 @@ class EntityProvider4Message extends EntityProvider {
   }
 }
 
+class EntityProvider4MobileWall extends EntityProvider {
+  final double x0;
+  final double y0;
+  final double dx;
+  final double dy;
+  final double dz;
+  final double speedx;
+  final double speedy;
+  final double duration;
+  final bool inout;
+  EntityProvider4MobileWall(this.x0, this.y0, this.dx, this.dy, this.dz, this.speedx, this.speedy, this.duration, this.inout);
+
+  Object2D obj2dF(){
+    var r = new Object2D();
+    r.bdef = new BodyDef();
+    r.bdef.type= b2_kinematicBody;
+    //TODO optim replace boxes (polyshape) by segment + thick (=> change the display) if w or h is 0
+    var shape = new PolygonShape();
+    shape.setAsBox(this.dx/2, this.dy/2);
+    var f = new FixtureDef();
+    f.shape = shape;
+    f.filter.groupIndex = EntityTypes_WALL;
+    r.fdefs.add(f);
+    return r;
+  }
+  dynamic obj3dF(){
+    return js.scoped((){
+      var texture = THREE.ImageUtils.loadTexture('_images/mobilewalls.png');
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set( 2, 2 );
+      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+        "map" : texture,
+        //"blending" : THREE.AdditiveBlending,
+        //"color": 0xffffff,
+        "transparent": true
+      }));
+      //var mesh = (new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), material);
+      //mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
+      //mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
+      mesh.castShadow = false;
+      mesh.receiveShadow = false;
+      return mesh;
+    });
+  }
+}
 ////  # Blenders euler order is 'XYZ', but the equivalent euler rotation order in Three.js is 'ZYX'
 //js.Proxy fixOrientation(js.Proxy obj3d){
 //  var y2 = obj3d.rotation.z;
@@ -140,7 +186,15 @@ Node makeHud(Document d){
   return d.documentElement.clone(true);
 }
 
-Map<String, EntityProvider> makeArea(jsonStr) {
+class AreaDef {
+  EntityProvider walls;
+  EntityProvider gateIn;
+  EntityProvider gateOut;
+  EntityProvider targetg1Spawn;
+  List<EntityProvider> mobileWalls;
+}
+
+AreaDef makeArea(jsonStr) {
   var area = JSON.parse(jsonStr);
   var cellr = area["cellr"];
 
@@ -274,33 +328,46 @@ Map<String, EntityProvider> makeArea(jsonStr) {
   }
 
   addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
-  var r = {
-    "walls" : new EntityProvider4Static(
+  var r = new AreaDef();
+  r.walls = new EntityProvider4Static(
       cells2boxes2d(area["walls"]["cells"], EntityTypes_WALL),
       cells2boxes3d(area["walls"]["cells"], area["width"], area["height"]),
       area["walls"]["cells"],
       cellr
-    ),
+  );
     //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-    "gate_in" : new EntityProvider4Static(
+  r.gateIn = new EntityProvider4Static(
       null,
       cells2surface3d(area["zones"]["gate_in"]["cells"], 0.5, "_images/gate_in.png"),
       area["zones"]["gate_in"]["cells"],
       cellr
-    ),
-    "gate_out" : new EntityProvider4Static(
+  );
+  r.gateOut = new EntityProvider4Static(
       cells2circles2d(area["zones"]["gate_out"]["cells"], 0.3, EntityTypes_ITEM),
       cells2surface3d(area["zones"]["gate_out"]["cells"], 0.5, "_images/gate_out.png"),
       area["zones"]["gate_out"]["cells"],
       cellr
-    ),
-    "targetg1_spawn" : new EntityProvider4Static(
+  );
+  r.targetg1Spawn = new EntityProvider4Static(
       null,
       null,//cells2surface3d(area["zones"]["targetg1_spawn"]["cells"], 0.5),
       area["zones"]["targetg1_spawn"]["cells"],
       cellr
-    )
-  };
+  );
+  r.mobileWalls = ((area["zones"]["mobile_walls"] != null) ?
+    area["zones"]["mobile_walls"].map((t) => new EntityProvider4MobileWalls(
+          t[0] * cellr,
+          t[1] * cellr,
+          math.max(1, t[2] * cellr),
+          math.max(1, t[3] * cellr),
+          math.max(2, cellr /2),
+          t[4] * cellr,
+          t[5] * cellr,
+          t[6],
+          t[7] == 1
+    )).toList(false)
+    : new List()
+  );
   return r;
 }
 

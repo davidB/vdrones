@@ -58,10 +58,11 @@ void setupGameplay(Evt evt){
     evt.SetLocalDroneId.dispatch([_droneId]);
     _entities.find('gui').then((x){ evt.HudSpawn.dispatch(['hud', x]); });
     _entities.find(_areaId).then((x){
-      evt.AreaSpawn.dispatch(["area/${_areaId}", Position.zero, x["walls"]]);
-      evt.ObjSpawn.dispatch(["gate_in/${_areaId}", Position.zero, x["gate_in"]]);
-      new Zone4GateOut("gate_out/${_areaId}", evt, x["gate_out"]);
-      new Zone4Cubes(x["targetg1_spawn"], evt, _entities);
+      evt.AreaSpawn.dispatch(["area/${_areaId}", Position.zero, x.walls]);
+      evt.ObjSpawn.dispatch(["gate_in/${_areaId}", Position.zero, x.gateIn]);
+      new Zone4GateOut("gate_out/${_areaId}", evt, x.gateOut);
+      new Zone4Cubes(x.targetg1Spawn, evt, _entities);
+      //new Zone4MobileWalls(x.mobileWalls, evt);
     });
 
     spawnDrone(_droneId);
