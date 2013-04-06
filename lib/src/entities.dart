@@ -5,80 +5,285 @@ class vec2 extends Vector{
   vec2.zero() : super(0,0);
 }
 */
-class Object2D {
-  BodyDef bdef;
-  List<FixtureDef> fdefs;
+
+class _EntitiesFactory {
+
+  World _world;
+
+  _EntitiesFactory(this._world);
+
+  Entity _newEntity(List<Component> cs) {
+    var e = _world.createEntity();
+    cs.forEach((c) => e.addComponent(c));
+    return e;
+  }
+
+//  Entity newCube() {
+//      anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
+//      anims["despawnPre"] = Animations.scaleOut;
+//      anims["none"] = Animations.noop;
+  Entity newCube() => _newEntity([
+    new Position(0, 0, 0),
+    _PhysicBodyFactory.newCube(),
+    _Renderable3DFactory.newCube()
+  ]);
+
+  Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
+    new Position(0, 0, 0),
+    new CubeGenerator(cellr, cells)
+  ]);
+
+  Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
+    new Position(0, 0, 0),
+    _PhysicBodyFactory.cells2boxes2d(cellr, cells, EntityTypes_WALL),
+    _Renderable3DFactory.cells2boxes3d(cellr, cells, width, height)
+  ]);
+
+  Entity newGateIn(num cellr, List<num> cells) => _newEntity([
+    new Position(0, 0, 0),
+    //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
+    _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
+  ]);
+
+  Entity newGateOut(num cellr, List<num> cells) => _newEntity([
+    new Position(0, 0, 0),
+    _PhysicBodyFactory.cells2circles2d(cellr, cells, 0.3, EntityTypes_ITEM),
+    _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_out.png")
+  ]);
+
+  Entity newMobileWall(double x0,double y0, double dx, double dy, double dz, double speedx, double speedy, double duration,  bool inout) => _newEntity([
+    new Position(x0, y0, 0),
+    _PhysicBodyFactory.newMobileWall(dx, dy),
+    _Renderable3DFactory.newMobileWall(dx, dy, dz)
+  ]);
+
+
+  Entity newArea(String name) => _newEntity([
+    new Area(name)
+  ]);
+
+  List<Entity> newFullArea(String name, String jsonStr) {
+    var area = JSON.parse(jsonStr);
+    var cellr = area["cellr"];
+
+    void addBorderAsCells(num w, num h, List<num>cells) {
+      cells..add(-1)..add(-1)..add(w+2)..add(  1);
+      cells..add(-1)..add(-1)..add(  1)..add(h+2);
+      cells..add( w)..add(-1)..add(  1)..add(h+2);
+      cells..add(-1)..add( h)..add(w+2)..add(  1);
+    }
+
+    addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
+    var es = new List<Entity>();
+    es.add(newArea(name));
+    es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
+    es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"]));
+    es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
+    es.add(newCubeGenerator(cellr, area["zones"]["targetg1_spawn"]["cells"]));
+    if (area["zones"]["mobile_walls"] != null) {
+      area["zones"]["mobile_walls"].forEach((t) {
+        es.add(newMobileWall(
+          t[0] * cellr,
+          t[1] * cellr,
+          math.max(1, t[2] * cellr),
+          math.max(1, t[3] * cellr),
+          math.max(2, cellr /2),
+          t[4] * cellr,
+          t[5] * cellr,
+          t[6],
+          t[7] == 1
+        ));
+      });
+    }
+    return es;
+  }
 }
 
-class EntityProvider {
-  Object2D obj2dF() => null;
-  dynamic obj3dF() => null;
-  final anims = new Map<String, Animate>();
-
-  EntityProvider();
-}
-
-class EntityProvider4Static extends EntityProvider {
-  Object2D _obj2d;
-  dynamic _obj3d;
-
-  Object2D obj2dF() => _obj2d;
-  dynamic obj3dF() => _obj3d;
-  final anims = new Map<String, Animate>();
-  List<num> cells;
-  num cellr;
-
-  EntityProvider4Static(this._obj2d, this._obj3d, this.cells, this.cellr);
-}
-
-//class EntityProvider4Axis extends EntityProvider {
-//  dynamic obj3dF() {
-//    var o;
-//    js.scoped((){
-//    final THREE = js.context.THREE;
-//    o = new js.Proxy(THREE.AxisHelper);
-//    o.scale.setValues(0.1, 0.1, 0.1); //# default length of axis is 100
-//    o  = js.retain(o);
-//    });
-//    return o;
-//  }
-//}
-
-class EntityProvider4Targetg102 extends EntityProvider {
-  Object2D obj2dF() {
-    var r = new Object2D();
-    r.bdef = new BodyDef();
-    var s = new CircleShape();
+class _PhysicBodyFactory {  
+ 
+  static PhysicBody newCube() {
+    var b  = new b2.BodyDef();
+    var s = new b2.CircleShape();
     s.radius = 1;
-    var f = new FixtureDef();
+    var f = new b2.FixtureDef();
     f.shape = s;
     f.isSensor = true;
     f.filter.groupIndex = EntityTypes_ITEM;
-    r.fdefs = [f];
-    return r;
+    return new PhysicBody(b, [f]);
   }
 
-  dynamic obj3dF(){
-    return js.scoped((){
-      final THREE = js.context.THREE;
-      var s = 1;
-      var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
-      var material = new js.Proxy(THREE.MeshNormalMaterial);
-      var o = new js.Proxy(THREE.Mesh, geometry, material);
-      o.position.z = 1;
-      o.castShadow = true;
-      o.receiveShadow = true;
-      return js.retain(o);
-    });
+ static PhysicBody newMobileWall(double dx, double dy) {
+    var b = new b2.BodyDef();
+    b.type= b2.BodyType.KINEMATIC;
+    //TODO optim replace boxes (polyshape) by segment + thick (=> change the display) if w or h is 0
+    var shape = new b2.PolygonShape();
+    shape.setAsBox(dx/2, dy/2);
+    var f = new b2.FixtureDef();
+    f.shape = shape;
+    f.filter.groupIndex = EntityTypes_WALL;
+    return new PhysicBody(b, [f]);
   }
 
-  EntityProvider4Targetg102() {
-    anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
-    anims["despawnPre"] = Animations.scaleOut;
-    anims["none"] = Animations.noop;
+  static PhysicBody cells2boxes2d(num cellr, List<num> cells, groupIndex) {
+    var b = new b2.BodyDef();
+    b.type = b2.BodyType.STATIC;
+    //r.body.nodeIdleTime = double.INFINITY;
+    var fdefs = [];
+    for(var i = 0; i < cells.length; i+=4) {
+      //TODO optim replace boxes (polyshape) by segment + thick (=> change the display)
+      var hx = math.max(1, cells[i+2] * cellr) / 2;
+      var hy = math.max(1, cells[i+3] * cellr) /2;
+      var x = cells[i+0] * cellr + hx;
+      var y = cells[i+1] * cellr + hy;
+      var shape = new b2.PolygonShape();
+      shape.setAsBoxWithCenterAndAngle(hx, hy, new vec2(x, y), 0);
+      var f = new b2.FixtureDef();
+      f.shape = shape;
+      f.filter.groupIndex = groupIndex;
+      fdefs.add(f);
+    }
+    return new PhysicBody(b, fdefs);
   }
+
+  static PhysicBody cells2circles2d(num cellr, List<num> cells, double radius, int groupIndex) {
+    var b = new b2.BodyDef();
+    b.type = b2.BodyType.STATIC;
+    var fdefs = [];
+    for(var i = 0; i < cells.length; i+=4) {
+      for (var x = cells[i+0]; x < (cells[i+0] + cells[i+2]); x++) {
+        for (var y = cells[i+1]; y < (cells[i+1] + cells[i+3]); y++) {
+          var s = new b2.CircleShape();
+          s.radius = radius * cellr/2;
+          s.position.x = (x + 0.5 ) * cellr;
+          s.position.y = (y + 0.5 ) * cellr;
+          var f = new b2.FixtureDef();
+          f.shape = s;
+          f.isSensor = true;
+          f.filter.groupIndex = groupIndex;
+          fdefs.add(f);
+        }
+      }
+    }
+    return new PhysicBody(b, fdefs);
+  }
+
 }
 
+class _Renderable3DFactory {
+  static Renderable3D _newRenderable3D(f) => new Renderable3D(js.scoped(f));
+
+  static Renderable3D newCube() => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var s = 1;
+    var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
+    var material = new js.Proxy(THREE.MeshNormalMaterial);
+    var o = new js.Proxy(THREE.Mesh, geometry, material);
+    o.position.z = 1;
+    o.castShadow = true;
+    o.receiveShadow = true;
+    return js.retain(o);
+  });
+
+  static Renderable3D newMobileWall(num dx, num dy, num dz) => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var texture = THREE.ImageUtils.loadTexture('_images/mobilewalls.png');
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 2, 2 );
+    var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+      "map" : texture,
+      //"blending" : THREE.AdditiveBlending,
+      //"color": 0xffffff,
+      "transparent": true
+    }));
+    //var mesh = (new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
+    var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), material);
+    //mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
+    //mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    return js.retain(mesh);
+  });
+
+  /// default length of axis is 100
+  static Renderable3D newAxis(num scale) => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var o = new js.Proxy(THREE.AxisHelper);
+    o.scale.setValues(scale, scale, scale); 
+    return js.retain(o);
+  });
+
+  static Renderable3D cells2surface3d(num cellr, List<num> cells, num offz, [String imgUrl]) => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var geometry = new js.Proxy(THREE.Geometry );
+    //#material = new js.Proxy(THREE.MeshNormalMaterial, )
+    var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
+    var material = material0;
+    if (?imgUrl) {
+      var texture = THREE.ImageUtils.loadTexture(imgUrl);
+      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+        "map" : texture,
+        //"blending" : THREE.AdditiveBlending,
+        //"color": 0xffffff,
+        "transparent": true
+      }));
+      //material.map.needsUpdate = true;
+    }
+    for(var i = 0; i < cells.length; i+=4) {
+      var dx = cells[i+2] * cellr - 2;
+      var dy = cells[i+3] * cellr - 2;
+
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
+      mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
+      mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
+      mesh.castShadow = false;
+      mesh.receiveShadow = true;
+      THREE.GeometryUtils.merge(geometry, mesh);
+    }
+    var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
+    obj3d.position.z = offz;
+    obj3d.castShadow = false;
+    obj3d.receiveShadow = true;
+
+    return js.retain(obj3d);
+  });
+
+  static Renderable3D cells2boxes3d(num cellr, List<num> cells, num width, num height) => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var geometry = new js.Proxy(THREE.Geometry);
+    //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
+    var materialW = new js.Proxy(THREE.MeshLambertMaterial, js.map({"color" : 0x8a8265, "transparent": false, "opacity": 1, "vertexColors" : THREE.VertexColors}));
+    //var materialW = new js.Proxy(THREE.MeshBasicMaterial, color : 0x8a8265, wireframe : false);
+    for(var i = 0; i < cells.length; i+=4) {
+      var dx = math.max(1, cells[i+2] * cellr);
+      var dy = math.max(1, cells[i+3] * cellr);
+      var dz = math.max(2, cellr / 2);
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), materialW);
+      mesh.position.x = cells[i+0] * cellr + dx / 2;
+      mesh.position.y = cells[i+1] * cellr + dy / 2;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      THREE.GeometryUtils.merge(geometry, mesh);
+    }
+    var walls = new js.Proxy(THREE.Mesh, geometry, materialW);
+    walls.castShadow = true;
+    walls.receiveShadow = true;
+
+    //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
+    var materialF = new js.Proxy(THREE.MeshPhongMaterial, js.map({"color" : 0xe1d5a5}));
+    //var materialF = new js.Proxy(THREE.MeshBasicMaterial, color : 0xe1d5a5, wireframe : false);
+    var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width * cellr, height * cellr), materialF);
+    floor.position.x = width * cellr /2;
+    floor.position.y = height * cellr /2;
+    floor.castShadow = false;
+    floor.receiveShadow = true;
+
+    var obj3d = new js.Proxy(THREE.Object3D);
+    obj3d.add(walls);
+    obj3d.add(floor);
+    return js.retain(obj3d);
+  });
+}
+/*
 class EntityProvider4Message extends EntityProvider {
   dynamic obj3dF(){
     //return js.scoped((){
@@ -113,53 +318,10 @@ class EntityProvider4Message extends EntityProvider {
     anims["despawn"] = Animations.up;
   }
 }
+*/
 
-class EntityProvider4MobileWall extends EntityProvider {
-  final double x0;
-  final double y0;
-  final double dx;
-  final double dy;
-  final double dz;
-  final double speedx;
-  final double speedy;
-  final double duration;
-  final bool inout;
-  EntityProvider4MobileWall(this.x0, this.y0, this.dx, this.dy, this.dz, this.speedx, this.speedy, this.duration, this.inout);
-
-  Object2D obj2dF(){
-    var r = new Object2D();
-    r.bdef = new BodyDef();
-    r.bdef.type= b2_kinematicBody;
-    //TODO optim replace boxes (polyshape) by segment + thick (=> change the display) if w or h is 0
-    var shape = new PolygonShape();
-    shape.setAsBox(this.dx/2, this.dy/2);
-    var f = new FixtureDef();
-    f.shape = shape;
-    f.filter.groupIndex = EntityTypes_WALL;
-    r.fdefs.add(f);
-    return r;
-  }
-  dynamic obj3dF(){
-    return js.scoped((){
-      var texture = THREE.ImageUtils.loadTexture('_images/mobilewalls.png');
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set( 2, 2 );
-      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
-        "map" : texture,
-        //"blending" : THREE.AdditiveBlending,
-        //"color": 0xffffff,
-        "transparent": true
-      }));
-      //var mesh = (new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
-      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), material);
-      //mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
-      //mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
-      mesh.castShadow = false;
-      mesh.receiveShadow = false;
-      return mesh;
-    });
-  }
-}
+/*
+*/
 ////  # Blenders euler order is 'XYZ', but the equivalent euler rotation order in Three.js is 'ZYX'
 //js.Proxy fixOrientation(js.Proxy obj3d){
 //  var y2 = obj3d.rotation.z;
@@ -185,192 +347,7 @@ Node makeHud(Document d){
 //  return b;
   return d.documentElement.clone(true);
 }
-
-class AreaDef {
-  EntityProvider walls;
-  EntityProvider gateIn;
-  EntityProvider gateOut;
-  EntityProvider targetg1Spawn;
-  List<EntityProvider> mobileWalls;
-}
-
-AreaDef makeArea(jsonStr) {
-  var area = JSON.parse(jsonStr);
-  var cellr = area["cellr"];
-
-  js.Proxy cells2boxes3d(List<num> cells, num width, num height){
-    var o;
-    js.scoped((){
-    final THREE = js.context.THREE;
-      var geometry = new js.Proxy(THREE.Geometry);
-      //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
-      var materialW = new js.Proxy(THREE.MeshLambertMaterial, js.map({"color" : 0x8a8265, "transparent": false, "opacity": 1, "vertexColors" : THREE.VertexColors}));
-      //var materialW = new js.Proxy(THREE.MeshBasicMaterial, color : 0x8a8265, wireframe : false);
-      for(var i = 0; i < cells.length; i+=4) {
-        var dx = math.max(1, cells[i+2] * cellr);
-        var dy = math.max(1, cells[i+3] * cellr);
-        var dz = math.max(2, cellr / 2);
-        var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), materialW);
-        mesh.position.x = cells[i+0] * cellr + dx / 2;
-        mesh.position.y = cells[i+1] * cellr + dy / 2;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        THREE.GeometryUtils.merge(geometry, mesh);
-      }
-      var walls = new js.Proxy(THREE.Mesh, geometry, materialW);
-      walls.castShadow = true;
-      walls.receiveShadow = true;
-
-      //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-      var materialF = new js.Proxy(THREE.MeshPhongMaterial, js.map({"color" : 0xe1d5a5}));
-      //var materialF = new js.Proxy(THREE.MeshBasicMaterial, color : 0xe1d5a5, wireframe : false);
-      var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width * cellr, height * cellr), materialF);
-      floor.position.x = width * cellr /2;
-      floor.position.y = height * cellr /2;
-      floor.castShadow = false;
-      floor.receiveShadow = true;
-
-      var obj3d = new js.Proxy(THREE.Object3D);
-      obj3d.add(walls);
-      obj3d.add(floor);
-      o = js.retain(obj3d);
-    });
-    return o;
-  }
-
-  Object2D cells2boxes2d(List<num> cells, groupIndex) {
-    var r = new Object2D();
-    r.bdef = new BodyDef();
-    //r.body.nodeIdleTime = double.INFINITY;
-    r.fdefs = [];
-    for(var i = 0; i < cells.length; i+=4) {
-      //TODO optim replace boxes (polyshape) by segment + thick (=> change the display)
-      var hx = math.max(1, cells[i+2] * cellr) / 2;
-      var hy = math.max(1, cells[i+3] * cellr) /2;
-      var x = cells[i+0] * cellr + hx;
-      var y = cells[i+1] * cellr + hy;
-      var shape = new PolygonShape();
-      shape.setAsBoxWithCenterAndAngle(hx, hy, new vec2(x, y), 0);
-      var f = new FixtureDef();
-      f.shape = shape;
-      f.filter.groupIndex = groupIndex;
-      r.fdefs.add(f);
-    }
-    return r;
-  }
-
-  Object2D cells2circles2d(List<num> cells, double radius, int groupIndex) {
-    var r = new Object2D();
-    r.bdef = new BodyDef();
-    r.fdefs = [];
-    for(var i = 0; i < cells.length; i+=4) {
-      for (var x = cells[i+0]; x < (cells[i+0] + cells[i+2]); x++) {
-        for (var y = cells[i+1]; y < (cells[i+1] + cells[i+3]); y++) {
-          var s = new CircleShape();
-          s.radius = radius * cellr/2;
-          s.position.x = (x + 0.5 ) * cellr;
-          s.position.y = (y + 0.5 ) * cellr;
-          var f = new FixtureDef();
-          f.shape = s;
-          f.isSensor = true;
-          f.filter.groupIndex = groupIndex;
-          r.fdefs.add(f);
-        }
-      }
-    }
-    return r;
-  }
-
-  void addBorderAsCells(num w, num h, List<num>cells) {
-    cells..add(-1)..add(-1)..add(w+2)..add(  1);
-    cells..add(-1)..add(-1)..add(  1)..add(h+2);
-    cells..add( w)..add(-1)..add(  1)..add(h+2);
-    cells..add(-1)..add( h)..add(w+2)..add(  1);
-  }
-
-  js.Proxy cells2surface3d(cells, offz, [String imgUrl]) {
-    var o;
-    js.scoped((){
-    final THREE = js.context.THREE;
-    var geometry = new js.Proxy(THREE.Geometry );
-    //#material = new js.Proxy(THREE.MeshNormalMaterial, )
-    var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
-    var material = material0;
-    if (?imgUrl) {
-      var texture = THREE.ImageUtils.loadTexture(imgUrl);
-      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
-        "map" : texture,
-        //"blending" : THREE.AdditiveBlending,
-        //"color": 0xffffff,
-        "transparent": true
-      }));
-      //material.map.needsUpdate = true;
-    }
-    for(var i = 0; i < cells.length; i+=4) {
-      var dx = cells[i+2] * cellr - 2;
-      var dy = cells[i+3] * cellr - 2;
-
-      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material);
-      mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
-      mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
-      mesh.castShadow = false;
-      mesh.receiveShadow = true;
-      THREE.GeometryUtils.merge(geometry, mesh);
-    }
-    var obj3d = new js.Proxy(THREE.Mesh, geometry, material);
-    obj3d.position.z = offz;
-    obj3d.castShadow = false;
-    obj3d.receiveShadow = true;
-
-    o = js.retain(obj3d);
-    });
-    return o;
-  }
-
-  addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
-  var r = new AreaDef();
-  r.walls = new EntityProvider4Static(
-      cells2boxes2d(area["walls"]["cells"], EntityTypes_WALL),
-      cells2boxes3d(area["walls"]["cells"], area["width"], area["height"]),
-      area["walls"]["cells"],
-      cellr
-  );
-    //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-  r.gateIn = new EntityProvider4Static(
-      null,
-      cells2surface3d(area["zones"]["gate_in"]["cells"], 0.5, "_images/gate_in.png"),
-      area["zones"]["gate_in"]["cells"],
-      cellr
-  );
-  r.gateOut = new EntityProvider4Static(
-      cells2circles2d(area["zones"]["gate_out"]["cells"], 0.3, EntityTypes_ITEM),
-      cells2surface3d(area["zones"]["gate_out"]["cells"], 0.5, "_images/gate_out.png"),
-      area["zones"]["gate_out"]["cells"],
-      cellr
-  );
-  r.targetg1Spawn = new EntityProvider4Static(
-      null,
-      null,//cells2surface3d(area["zones"]["targetg1_spawn"]["cells"], 0.5),
-      area["zones"]["targetg1_spawn"]["cells"],
-      cellr
-  );
-  r.mobileWalls = ((area["zones"]["mobile_walls"] != null) ?
-    area["zones"]["mobile_walls"].map((t) => new EntityProvider4MobileWalls(
-          t[0] * cellr,
-          t[1] * cellr,
-          math.max(1, t[2] * cellr),
-          math.max(1, t[3] * cellr),
-          math.max(2, cellr /2),
-          t[4] * cellr,
-          t[5] * cellr,
-          t[6],
-          t[7] == 1
-    )).toList(false)
-    : new List()
-  );
-  return r;
-}
-
+/*
 class EntityProvider4Drone extends EntityProvider {
   js.Proxy _obj3dPattern;
 
@@ -404,6 +381,7 @@ class EntityProvider4Drone extends EntityProvider {
   }
 
 }
+*/
 //
 //  makeScene = (d) ->
 //    deferred = Q.defer()
@@ -416,6 +394,7 @@ class EntityProvider4Drone extends EntityProvider {
 //      deferred.reject(exc)
 //    deferred.promise
 //
+/*
 Future<js.Proxy> makeModel(jsonStr, texturePath) {
   var deferred = new Completer();
   try {
@@ -443,6 +422,7 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
   }
   return deferred.future;
 }
+*/
 //
 //  makeSprite = (d) ->
 //    deferred = Q.defer()
@@ -495,7 +475,7 @@ Future<ImageElement> _loadImage(src) {
   image.src = src;
   return completer.future;
 }
-
+/*
 class Entities {
   var _cache = new Map<String, Future>();
 
@@ -559,19 +539,5 @@ class Entities {
     //return r == null ? new Future.immediateError(new Exception("id not found : ${id}")) : r;
   }
 }
+*/
 
-
-//  Q.onerror = (err) -> evt.Error.dispatch("failure ", err)
-//  {
-//    types : _types
-//    find : (id) ->
-//      r = _cache[id] || Q.reject("id not found " + id )
-//      r.done()
-//      r
-//    clear: () ->
-//      _cache = {}
-//      _preload.close()
-//    preload : preload
-//  }
-//)
-//
