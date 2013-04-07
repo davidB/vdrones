@@ -6,6 +6,139 @@ const EntityTypes_DRONE =  0x0002;
 const EntityTypes_BULLET = 0x0004;
 const EntityTypes_SHIELD = 0x0008;
 const EntityTypes_ITEM =   0x0010;
+
+class System_Physics extends IntervalEntitySystem {
+  const int VELOCITY_ITERATIONS = 10;
+  const int POSITION_ITERATIONS = 10;
+
+  ComponentMapper<Transform> _transformMapper;
+  ComponentMapper<PhysicBody> _bodyMapper;
+  ComponentMapper<PhysicMotion> _motionMapper;
+
+  b2.World _space;
+  static final vzero = new vec2.zero();
+
+  System_Physics() : super(1000/30, Aspect.getAspectForAllOf([Transform, PhysicBody]));
+
+  void initialize() {
+    _transformMapper = new ComponentMapper<Transform>(Transform, world);
+    _bodyMapper = new ComponentMapper<PhysicBody>(PhysicBody, world);
+    _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
+    _space = _initSpace();
+  }
+
+  b2.World _initSpace() {
+    var space = new b2.World(vzero, true, new b2.DefaultWorldPool());
+    //space.damping = 0.3;
+
+//    begin(List arr){
+//      return (arb, space) {
+//        var shapes = arb.getShapes();
+//        arr.add(shapes);
+//        return false;
+//      };
+//    }
+
+//    space.contactListener = _contactListener;
+
+//// Setup the canvas.
+//    if (drawDebug) {
+//      // Create our canvas drawing tool to give to the world.
+//      if (debugDraw == null) {
+//        var canvas = new Element.tag('canvas');
+//        canvas.width = CANVAS_WIDTH;
+//        canvas.height = CANVAS_HEIGHT;
+//        window.document.query("#layers").children.add(canvas);
+//        _ctx = canvas.getContext("2d");
+//
+//        // Create the viewport transform with the center at extents.
+//        final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+//        var viewport = new CanvasViewportTransform(extents, extents);
+//        viewport.scale = _VIEWPORT_SCALE;
+//
+//        debugDraw = new CanvasDraw(viewport, _ctx);
+//      }
+//
+//      // Have the world draw itself for debugging purposes.
+//      space.debugDraw = debugDraw;
+//    }
+
+
+    return space;
+  }
+
+
+  void processEntities(ImmutableBag<Entity> entities) {
+    updateSpace(entities);
+    updateEntities(entities);
+  }
+
+  bool checkProcessing() => true;
+
+  void updateSpace(ImmutableBag<Entity> entities){
+    var stepRate = interval; //_adaptative?  _acc / 1000 : (1 / _intervalRate);
+    var dt = (1 / stepRate);
+
+    _space.clearForces();
+    entities.forEach((entity) {
+      var b = _bodyMapper.get(entity).body;
+      var m = _motionMapper.getSafe(entity);
+      if (m != null) {
+        var force = m.acc * dt;
+        var acc = new vec2(math.cos(b.angle) * force, math.sin(b.angle)* force);
+        b.applyForce(acc, vzero);
+      } else {
+        // transform is managed by an other system but physic 'space should be updated
+        var p = _transformMapper.get(entity);
+        b.setTransform(p.position, p.angle);
+      }
+    });
+
+    _space.step(stepRate, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
+//    if (drawDebug) {
+//      _ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+//      _space.drawDebugData();
+//    }
+  }
+
+  void updateEntities(entities){
+//    for(var i = _contactListener.droneItem.length - 1; i > 0; i -= 3) {
+//      evt.ContactBeginDroneItem.dispatch([_contactListener.droneItem[i - 2], _contactListener.droneItem[i - 1], _contactListener.droneItem[i]]);
+//    }
+//    _contactListener.droneItem.clear();
+//    for(var i = _contactListener.droneWall.length - 1; i > 0; i -= 3) {
+//      evt.ContactBeginDroneWall.dispatch([_contactListener.droneWall[i - 2], _contactListener.droneWall[i - 1], _contactListener.droneWall[i]]);
+//    }
+//    _contactListener.droneWall.clear();
+
+    entities.forEach((entity) {
+      var b = _bodyMapper.get(entity).body;
+      var p = _transformMapper.get(entity);
+      p.position.set(b.position); //TODO usefull ?
+      p.angle = b.angle;
+    });
+  }
+
+  void inserted(Entity entity) {
+    var bd = _bodyMapper.get(entity);
+    var p = _transformMapper.get(entity);
+    bd.bdef.userData = entity; //{ var id = id; var boost = false; };
+    var body = _space.createBody(bd.bdef);
+    body.setTransform(p.position, p.angle);
+    bd.fdefs.forEach((fd) {
+      body.createFixture(fd);
+    });
+    bd.body = body;
+  }
+
+  void removed(Entity entity) {
+    var bd = _bodyMapper.get(entity);
+    if (bd.body != null) {
+      _space.destroyBody(bd.body);
+      bd.body = null;
+    }
+  }
+}
 /*
 class MyContactListener extends ContactListener {
   final droneItem = new List();
@@ -86,47 +219,6 @@ void setupPhysics(Evt evt, [drawDebug = false]) {
   var debugDraw = null;
 
 
-  World initSpace() {
-    var space = new World(vzero, true, new DefaultWorldPool());
-    //space.damping = 0.3;
-
-//    begin(List arr){
-//      return (arb, space) {
-//        var shapes = arb.getShapes();
-//        arr.add(shapes);
-//        return false;
-//      };
-//    }
-
-    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_ITEM, begin(_contactDroneItem), null, null, null);
-    //space.addCollisionHandler(EntityTypes_DRONE, EntityTypes_WALL, begin(_contactDroneWall), null, null, null);
-    space.contactListener = _contactListener;
-
-// Setup the canvas.
-    if (drawDebug) {
-      // Create our canvas drawing tool to give to the world.
-      if (debugDraw == null) {
-        var canvas = new Element.tag('canvas');
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-        window.document.query("#layers").children.add(canvas);
-        _ctx = canvas.getContext("2d");
-
-        // Create the viewport transform with the center at extents.
-        final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-        var viewport = new CanvasViewportTransform(extents, extents);
-        viewport.scale = _VIEWPORT_SCALE;
-
-        debugDraw = new CanvasDraw(viewport, _ctx);
-      }
-
-      // Have the world draw itself for debugging purposes.
-      space.debugDraw = debugDraw;
-    }
-
-
-    return space;
-  }
 
   dynamic forBody(String id, dynamic f(Body x1, UserData x2)){
     var back = null;

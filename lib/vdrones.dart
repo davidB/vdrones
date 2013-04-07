@@ -21,6 +21,7 @@ part 'src/components.dart';
 //part 'src/controls.dart';
 part 'src/entities.dart';
 part 'src/system_physics.dart';
+part 'src/system_renderer.dart';
 //part 'src/events.dart';
 //part 'src/gameplay.dart';
 //part 'src/layer2d.dart';
@@ -59,9 +60,15 @@ class VDrones {
     }
     //_evt.GameInit.dispatch([areaId]);
     //TODO remove every entities from _world
-    _entitiesFactory.newFullArea(areaId, "{}").forEach((e) => e.addToWorld());
+    _entitiesFactory.newFullArea(areaId)
+      .then((es) => es.forEach((e) => e.addToWorld()))
+      .catchError((error) => handleError(error))
+      ;
   }
 
+  void handleError(error) {
+    print("ERROR !! ${error}");
+  }
 
   void play() {
     if (_status == Status.INITIALIZED || _status == Status.STOPPED) {
@@ -75,6 +82,8 @@ class VDrones {
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
+    _world.addSystem(new System_Physics(), passive : false);
+    _worldRenderSystem = _world.addSystem(new System_Render3D(container), passive : true);
     _world.initialize();
     _entitiesFactory = new _EntitiesFactory(_world);
 

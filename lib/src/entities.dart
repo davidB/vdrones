@@ -23,36 +23,36 @@ class _EntitiesFactory {
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
   Entity newCube() => _newEntity([
-    new Position(0, 0, 0),
+    new Transform(0, 0, 0),
     _PhysicBodyFactory.newCube(),
     _Renderable3DFactory.newCube()
   ]);
 
   Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
-    new Position(0, 0, 0),
+    new Transform(0, 0, 0),
     new CubeGenerator(cellr, cells)
   ]);
 
   Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
-    new Position(0, 0, 0),
+    new Transform(0, 0, 0),
     _PhysicBodyFactory.cells2boxes2d(cellr, cells, EntityTypes_WALL),
     _Renderable3DFactory.cells2boxes3d(cellr, cells, width, height)
   ]);
 
   Entity newGateIn(num cellr, List<num> cells) => _newEntity([
-    new Position(0, 0, 0),
+    new Transform(0, 0, 0),
     //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
     _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
   ]);
 
   Entity newGateOut(num cellr, List<num> cells) => _newEntity([
-    new Position(0, 0, 0),
+    new Transform(0, 0, 0),
     _PhysicBodyFactory.cells2circles2d(cellr, cells, 0.3, EntityTypes_ITEM),
     _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_out.png")
   ]);
 
   Entity newMobileWall(double x0,double y0, double dx, double dy, double dz, double speedx, double speedy, double duration,  bool inout) => _newEntity([
-    new Position(x0, y0, 0),
+    new Transform(x0, y0, 0),
     _PhysicBodyFactory.newMobileWall(dx, dy),
     _Renderable3DFactory.newMobileWall(dx, dy, dz)
   ]);
@@ -62,40 +62,62 @@ class _EntitiesFactory {
     new Area(name)
   ]);
 
-  List<Entity> newFullArea(String name, String jsonStr) {
-    var area = JSON.parse(jsonStr);
-    var cellr = area["cellr"];
+  Entity newCamera() => _newEntity([
+    new Camera(),
+    new Transform(0,0,0),
+    _Renderable3DFactory.newCamera()
+  ]);
 
-    void addBorderAsCells(num w, num h, List<num>cells) {
-      cells..add(-1)..add(-1)..add(w+2)..add(  1);
-      cells..add(-1)..add(-1)..add(  1)..add(h+2);
-      cells..add( w)..add(-1)..add(  1)..add(h+2);
-      cells..add(-1)..add( h)..add(w+2)..add(  1);
-    }
+  Entity newLight() => _newEntity([
+    new Transform(40, 40, 0),
+    _Renderable3DFactory.newLight()
+  ]);
+  
+  Entity newAmbientLight() => _newEntity([
+    new Transform(0, 0, 0),
+    _Renderable3DFactory.newAmbientLight()
+  ]);
 
-    addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
-    var es = new List<Entity>();
-    es.add(newArea(name));
-    es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
-    es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"]));
-    es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
-    es.add(newCubeGenerator(cellr, area["zones"]["targetg1_spawn"]["cells"]));
-    if (area["zones"]["mobile_walls"] != null) {
-      area["zones"]["mobile_walls"].forEach((t) {
-        es.add(newMobileWall(
-          t[0] * cellr,
-          t[1] * cellr,
-          math.max(1, t[2] * cellr),
-          math.max(1, t[3] * cellr),
-          math.max(2, cellr /2),
-          t[4] * cellr,
-          t[5] * cellr,
-          t[6],
-          t[7] == 1
-        ));
-      });
-    }
-    return es;
+  Future<List<Entity>> newFullArea(String name) {
+    return _loadTxt("_areas/${name}.json").then((jsonStr){
+      var area = JSON.parse(jsonStr);
+      var cellr = area["cellr"];
+
+      void addBorderAsCells(num w, num h, List<num>cells) {
+        cells..add(-1)..add(-1)..add(w+2)..add(  1);
+        cells..add(-1)..add(-1)..add(  1)..add(h+2);
+        cells..add( w)..add(-1)..add(  1)..add(h+2);
+        cells..add(-1)..add( h)..add(w+2)..add(  1);
+      }
+
+      addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
+      var es = new List<Entity>();
+      es.add(newCamera());
+      es.add(newAmbientLight());
+      es.add(newLight());
+      es.add(newArea(name));
+      es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
+      es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"]));
+      es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
+      es.add(newCubeGenerator(cellr, area["zones"]["targetg1_spawn"]["cells"]));
+      if (area["zones"]["mobile_walls"] != null) {
+        area["zones"]["mobile_walls"].forEach((t) {
+          es.add(newMobileWall(
+            t[0] * cellr,
+            t[1] * cellr,
+            math.max(1, t[2] * cellr),
+            math.max(1, t[3] * cellr),
+            math.max(2, cellr /2),
+            t[4] * cellr,
+            t[5] * cellr,
+            t[6],
+            t[7] == 1
+          ));
+        });
+      }
+      print("nb entities for area : ${es.length}");
+      return es;
+    });
   }
 }
 
@@ -170,6 +192,9 @@ class _PhysicBodyFactory {
 }
 
 class _Renderable3DFactory {
+  static const FAR = 1000;
+  static const _devMode = false;
+
   static Renderable3D _newRenderable3D(f) => new Renderable3D(js.scoped(f));
 
   static Renderable3D newCube() => _newRenderable3D((){
@@ -281,6 +306,40 @@ class _Renderable3DFactory {
     obj3d.add(walls);
     obj3d.add(floor);
     return js.retain(obj3d);
+  });
+
+  static Renderable3D newCamera() => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
+    return js.retain(camera);
+  });
+
+  static Renderable3D newAmbientLight() => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    return js.retain(new js.Proxy(THREE.AmbientLight, 0x444444));
+  });
+
+  static Renderable3D newLight() => _newRenderable3D((){
+    final THREE = (js.context as dynamic).THREE;
+    //var light = new js.Proxy.withArgList(THREE.DirectionalLight,  [0xffffff, 1, 0] );
+    var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1.0, 0.0, math.PI, 1] );
+    light.target.position.set( 90, 90, 0 );
+    light.position.set( 40, 40, 100 );
+
+    light.castShadow = true;
+
+    light.shadowCameraNear = 5;
+    light.shadowCameraFar = 200;
+    light.shadowCameraFov = 110;
+
+    light.shadowCameraVisible = _devMode;
+
+    light.shadowBias = 0.00001;
+    light.shadowDarkness = 0.5;
+
+    light.shadowMapWidth = 2048;
+    light.shadowMapHeight = 2048;
+    return js.retain(light);
   });
 }
 /*
