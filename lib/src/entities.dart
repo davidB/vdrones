@@ -64,7 +64,7 @@ class _EntitiesFactory {
 
   Entity newCamera() => _newEntity([
     new Camera(),
-    new Transform(0,0,0),
+    new Transform(0,-25, 0),
     _Renderable3DFactory.newCamera()
   ]);
 
@@ -311,6 +311,10 @@ class _Renderable3DFactory {
   static Renderable3D newCamera() => _newRenderable3D((){
     final THREE = (js.context as dynamic).THREE;
     var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
+    camera.position.x = 0;
+    camera.position.y = -25;
+    camera.position.z = 30;
+    camera.lookAt(new js.Proxy(THREE.Vector3, 0,0,0));
     return js.retain(camera);
   });
 

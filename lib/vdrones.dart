@@ -61,7 +61,13 @@ class VDrones {
     //_evt.GameInit.dispatch([areaId]);
     //TODO remove every entities from _world
     _entitiesFactory.newFullArea(areaId)
-      .then((es) => es.forEach((e) => e.addToWorld()))
+      .then((es){
+        es.forEach((e){
+          e.addToWorld();
+          print("add to world : ${e}");
+        });
+        _status = Status.RUNNING;
+      })
       .catchError((error) => handleError(error))
       ;
   }
@@ -140,13 +146,17 @@ class VDrones {
   }
 
   void _loop(num highResTime) {
+    try {
     _world.delta = (_lastTime == -1) ? 0 : highResTime - _lastTime;
     _world.process();
     _worldRenderSystem.process();
     //_hudRenderSystem.process();
     _lastTime = highResTime;
-    if (_status == Status.RUNNING) {
+    //if (_status == Status.RUNNING) {
       window.animationFrame.then(_loop);
+    //}
+    } catch(error) {
+      print(error);
     }
   }
 

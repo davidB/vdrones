@@ -23,7 +23,6 @@ class System_Render3D extends EntitySystem {
       // attach into the page
       _container.children.add(_renderer.domElement);
       Window.resizeEvent.forTarget(window).listen(_updateViewportSize);
-      _updateViewportSize(null);
     });
   }
 
@@ -66,7 +65,6 @@ class System_Render3D extends EntitySystem {
     });
   }
 
-
   void inserted(Entity entity){
     js.scoped((){
       var obj = _objMapper.get(entity).obj;
@@ -77,6 +75,7 @@ class System_Render3D extends EntitySystem {
       if (_cameraMapper.has(entity)) {
         print("set camera");
         _camera = obj;
+        _updateViewportSize(null);
       }
     });
     print("inserted into 3d ${entity}");
@@ -110,7 +109,7 @@ class System_Render3D extends EntitySystem {
     renderer.autoClear = false;
     //_renderer.sortObjects = false;
     //_renderer.setSize(container.client.width, container.client.height);
-    return renderer;
+    return js.retain(renderer);
   }
   static dynamic _clearScene(THREE, scene) {
     // create a new Scene for each call or set children.length to 0 generate (stranges) error at runtime

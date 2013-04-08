@@ -118,7 +118,7 @@ class System_Physics extends IntervalEntitySystem {
       p.angle = b.angle;
     });
   }
-
+  
   void inserted(Entity entity) {
     var bd = _bodyMapper.get(entity);
     var p = _transformMapper.get(entity);
