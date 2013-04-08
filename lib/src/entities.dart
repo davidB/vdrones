@@ -133,9 +133,10 @@ class _EntitiesFactory {
     return _loadTxt("_models/drone01.js")
       .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
       .then((x) => _newEntity([
-         new Transform.w3d(new vec3(20, 20, 0.3)),
+        new DroneControl(),
+        new Transform.w3d(new vec3(20, 20, 0.3)),
         _PhysicBodyFactory.newDrone(),
-        new PhysicMotion(10.0, radians(90.0)),
+        new PhysicMotion(0.0, radians(180.0)),
         x
       ], group : GROUP_DRONE, player : player))
       ;
@@ -212,7 +213,7 @@ class _PhysicBodyFactory {
 
   static PhysicBody newDrone() {
     var bdef = new b2.BodyDef();
-    //bdef.linearDamping = 5;
+    bdef.linearDamping = 5;
     bdef.type = b2.BodyType.DYNAMIC;
     var s = new b2.PolygonShape();
     s.setFrom([new vec2(3, 0), new vec2(-1, 2), new vec2(-1, -2)], 3);

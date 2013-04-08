@@ -101,6 +101,8 @@ class VDrones {
         ..playerToFollow = _player
       , passive : false
     );
+    _world.addSystem(new System_DroneController());
+    _world.addSystem(new System_DroneHandler());
     _worldRenderSystem = _world.addSystem(new System_Render3D(container), passive : true);
     _world.initialize();
     _entitiesFactory = new _EntitiesFactory(_world);

@@ -41,3 +41,62 @@ class System_PlayerFollower extends EntityProcessingSystem {
     t.lookAt(_targetPosition);
   }
 }
+
+class System_DroneController extends EntityProcessingSystem {
+  ComponentMapper<DroneControl> _droneControlMapper;
+  DroneControl _state;
+  var _subUp, _subDown;
+
+  System_DroneController() : super(Aspect.getAspectForAllOf([DroneControl]));
+
+  void initialize(){
+    _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
+    _state = new DroneControl();
+    _bindKeyboardControl();
+  }
+
+  void processEntity(Entity entity) {
+    var dest = _droneControlMapper.get(entity);
+    dest.forward = _state.forward;
+    dest.turn = _state.turn;
+  }
+
+  void _bindKeyboardControl(){
+    _subDown = document.onKeyDown.listen((KeyboardEvent e) {
+      if (_keysForward.contains(e.keyCode)) _state.forward = 5000.0;
+      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 45.0;
+      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -45.0;
+    });
+    _subUp = document.onKeyUp.listen((KeyboardEvent e) {
+      if (_keysForward.contains(e.keyCode)) _state.forward = 0.0;
+      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 0.0;
+      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = 0.0;
+    });
+  }
+
+  var _keysForward = [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ];
+  var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
+  var _keysTurnRight = [KeyCode.RIGHT, KeyCode.D];
+  //var _keysShoot = [KeyCode.SPACE];
+
+}
+
+class System_DroneHandler extends EntityProcessingSystem {
+  ComponentMapper<PhysicMotion> _motionMapper;
+  ComponentMapper<DroneControl> _droneControlMapper;
+
+  System_DroneHandler() : super(Aspect.getAspectForAllOf([DroneControl, PhysicMotion]));
+
+  void initialize(){
+    _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
+    _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
+  }
+
+  void processEntity(Entity entity) {
+    var ctrl = _droneControlMapper.get(entity);
+    var m = _motionMapper.get(entity);
+    m.acceleration = ctrl.forward;
+    m.angularVelocity = radians(ctrl.turn);
+  }
+}
+

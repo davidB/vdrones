@@ -13,14 +13,14 @@ class Area implements Component {
   }
 }
 
-class Drone implements Component {
-  String name;
+class DroneControl implements Component {
+  double forward = 0.0;
+  double turn = 0.0;
 
-  Drone._();
-  static _ctor() => new Drone._();
-  factory Drone(String name) {
-    var c = new Component(Drone, _ctor);
-    c.name = name;
+  DroneControl._();
+  static _ctor() => new DroneControl._();
+  factory DroneControl() {
+    var c = new Component(DroneControl, _ctor);
     return c;
   }
 }
