@@ -10,25 +10,36 @@ const EntityTypes_ITEM =   0x0010;
 class System_Physics extends IntervalEntitySystem {
   const int VELOCITY_ITERATIONS = 10;
   const int POSITION_ITERATIONS = 10;
+  
+  const int CANVAS_WIDTH = 900;
+  const int CANVAS_HEIGHT = 600;
+  const num _VIEWPORT_SCALE = 2;
 
   ComponentMapper<Transform> _transformMapper;
   ComponentMapper<PhysicBody> _bodyMapper;
   ComponentMapper<PhysicMotion> _motionMapper;
 
   b2.World _space;
+  var _drawDebug = false;
+  var _drawDebugCanvas;
   static final vzero = new vec2.zero();
 
-  System_Physics() : super(1000/30, Aspect.getAspectForAllOf([Transform, PhysicBody]));
+  System_Physics(bool drawDebug) : super(1000.0/30, Aspect.getAspectForAllOf([Transform, PhysicBody])) {
+    _drawDebug = !drawDebug; //toggle while be done during initialize()
+  }
 
   void initialize() {
     _transformMapper = new ComponentMapper<Transform>(Transform, world);
     _bodyMapper = new ComponentMapper<PhysicBody>(PhysicBody, world);
     _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
     _space = _initSpace();
+    drawDebug = !_drawDebug; //toggle need an initialized _space
   }
 
   b2.World _initSpace() {
     var space = new b2.World(vzero, true, new b2.DefaultWorldPool());
+    space.autoClearForces = true;
+
     //space.damping = 0.3;
 
 //    begin(List arr){
@@ -41,52 +52,67 @@ class System_Physics extends IntervalEntitySystem {
 
 //    space.contactListener = _contactListener;
 
-//// Setup the canvas.
-//    if (drawDebug) {
-//      // Create our canvas drawing tool to give to the world.
-//      if (debugDraw == null) {
-//        var canvas = new Element.tag('canvas');
-//        canvas.width = CANVAS_WIDTH;
-//        canvas.height = CANVAS_HEIGHT;
-//        window.document.query("#layers").children.add(canvas);
-//        _ctx = canvas.getContext("2d");
-//
-//        // Create the viewport transform with the center at extents.
-//        final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-//        var viewport = new CanvasViewportTransform(extents, extents);
-//        viewport.scale = _VIEWPORT_SCALE;
-//
-//        debugDraw = new CanvasDraw(viewport, _ctx);
-//      }
-//
-//      // Have the world draw itself for debugging purposes.
-//      space.debugDraw = debugDraw;
-//    }
 
 
     return space;
   }
 
+  // true => Have the world draw itself for debugging purposes.
+  set drawDebug(bool v) {
+    if (_drawDebug == v) return;
+
+    // Setup the canvas.
+    if (v) {
+      // Create our canvas drawing tool to give to the world.
+      _drawDebugCanvas = new CanvasElement(width : CANVAS_WIDTH, height : CANVAS_HEIGHT);
+      _drawDebugCanvas.style.zIndex = "1000";
+      window.document.query("#layers").children.add(_drawDebugCanvas);
+      // Create the viewport transform with the center at extents.
+      final extents = new vec2(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+      var viewport = new b2.CanvasViewportTransform(extents, extents);
+      viewport.scale = _VIEWPORT_SCALE;
+      _space.debugDraw = new b2.CanvasDraw(viewport, _drawDebugCanvas.context2d);
+    } else {
+      _space.debugDraw = null;
+      if (_drawDebugCanvas != null) {
+        _drawDebugCanvas.remove();
+        _drawDebugCanvas = null;
+      }
+    }
+    
+    _drawDebug = v;
+    print("Draw Debug physics : ${_drawDebug}");
+  }
 
   void processEntities(ImmutableBag<Entity> entities) {
     updateSpace(entities);
     updateEntities(entities);
+    if (_drawDebug) {
+      _drawDebugCanvas.context2d.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      _space.drawDebugData();
+    }
   }
 
   bool checkProcessing() => true;
 
   void updateSpace(ImmutableBag<Entity> entities){
-    var stepRate = interval; //_adaptative?  _acc / 1000 : (1 / _intervalRate);
-    var dt = (1 / stepRate);
+    //var stepRate = interval; //_adaptative?  _acc / 1000 : (1 / _intervalRate);
+    var dt = interval / 1000;
 
-    _space.clearForces();
     entities.forEach((entity) {
       var b = _bodyMapper.get(entity).body;
       var m = _motionMapper.getSafe(entity);
       if (m != null) {
-        var force = m.acc * dt;
-        var acc = new vec2(math.cos(b.angle) * force, math.sin(b.angle)* force);
-        b.applyForce(acc, vzero);
+        //b.active = true;
+        //b.awake = true;
+        if (m.acceleration != 0) {
+          var force = m.acceleration * dt;
+          var acc = new vec2(math.cos(b.angle) * force, math.sin(b.angle)* force);
+          b.applyForce(acc, vzero);
+        }
+        if (b.angularVelocity != m.angularVelocity) {
+          b.angularVelocity = m.angularVelocity; //radians per second
+        }
       } else {
         // transform is managed by an other system but physic 'space should be updated
         var p = _transformMapper.get(entity);
@@ -94,11 +120,7 @@ class System_Physics extends IntervalEntitySystem {
       }
     });
 
-    _space.step(stepRate, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
-//    if (drawDebug) {
-//      _ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-//      _space.drawDebugData();
-//    }
+    _space.step(dt, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
   }
 
   void updateEntities(entities){
@@ -114,7 +136,7 @@ class System_Physics extends IntervalEntitySystem {
     entities.forEach((entity) {
       var b = _bodyMapper.get(entity).body;
       var p = _transformMapper.get(entity);
-      p.position.set(b.position); //TODO usefull ?
+      p.position = b.position;
       p.angle = b.angle;
     });
   }

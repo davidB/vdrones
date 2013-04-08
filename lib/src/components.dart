@@ -24,6 +24,7 @@ class Drone implements Component {
     return c;
   }
 }
+
 class CubeGenerator implements Component {
   num cellr;
   List<num> cells;
@@ -56,12 +57,14 @@ class Cube implements Component {
   }
 }
 */
-class Camera implements Component {
+class PlayerFollower implements Component {
+  vec3 targetTranslation;
 
-  Camera._();
-  static _ctor() => new Camera._();
-  factory Camera() {
-    var c = new Component(Camera, _ctor);
+  PlayerFollower._();
+  static _ctor() => new PlayerFollower._();
+  factory PlayerFollower(vec3 targetTranslation) {
+    var c = new Component(PlayerFollower, _ctor);
+    c.targetTranslation = targetTranslation;
     return c;
   }
 }
@@ -70,16 +73,52 @@ class Camera implements Component {
 // Technics
 
 class Transform implements Component {
-  num angle;
-  vec2 position;
+  vec3 position3d;
+  vec3 rotation3d;
+  vec3 scale3d;
+
+  // 2d view
+  vec2 _position2d = new vec2.zero();
+  double get angle => rotation3d.z;
+  set angle(double v) => rotation3d.z = v;
+  vec2 get position {
+    _position2d.x = position3d.x;
+    _position2d.y = position3d.y;
+    return _position2d;
+  }
+  set position(vec2 v) {
+    position3d.x = v.x;
+    position3d.y = v.y;
+  }
 
   Transform._();
   static _ctor() => new Transform._();
-  factory Transform(num x, num y, num a) {
+  factory Transform.w2d(num x, num y, num a) {
+    return new Transform.w3d(new vec3(x, y, 0), new vec3(0,0,a));
+  }
+  factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
     var c = new Component(Transform, _ctor);
-    c.position = new vec2(x, y);
-    c.angle = a;
+    c.position3d = position;
+    c.rotation3d = (rotation == null) ? new vec3(0,0,0) : rotation;
+    c.scale3d = (scale == null) ? new vec3(1,1,1) : scale;
     return c;
+  }
+  /// this method mofidy the Transform (usefull for creation)
+  /// return this
+  Transform lookAt(vec3 target, [vec3 up]) {
+    up = (up == null) ? new vec3(0,1,0) : up;
+    var m = makeLookAt(position3d, target, up).getRotation();
+    // code from (euler order XYZ)
+    // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
+    rotation3d.y = math.asin( clamp( m.col0.z, -1 ,1 ) );
+    if ( m.col0.z.abs() < 0.99999 ) {
+      rotation3d.x = math.atan2( - m.col1.z, m.col2.z );
+      rotation3d.z = math.atan2( - m.col0.y, m.col0.x );
+    } else {
+      rotation3d.x = math.atan2( m.col2.y, m.col1.y );
+      rotation3d.z = 0.0;
+    }
+    return this;
   }
 }
 
@@ -100,7 +139,9 @@ class PhysicBody implements Component {
 }
 
 class PhysicMotion implements Component {
+  /// unit per second
   num acceleration;
+  /// radians per second
   num angularVelocity;
 
   PhysicMotion._();

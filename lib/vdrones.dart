@@ -22,6 +22,7 @@ part 'src/components.dart';
 part 'src/entities.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
+part 'src/system_controller.dart';
 //part 'src/events.dart';
 //part 'src/gameplay.dart';
 //part 'src/layer2d.dart';
@@ -48,6 +49,7 @@ class VDrones {
   var _world = new World();
   var _lastTime = -1;
   _EntitiesFactory _entitiesFactory;
+  var _player = "u0";
 
   var _worldRenderSystem;
   var _hudRenderSystem;
@@ -70,6 +72,9 @@ class VDrones {
       })
       .catchError((error) => handleError(error))
       ;
+    _entitiesFactory.newDrone(_player)
+      .then((e) => e.addToWorld())
+      ;
   }
 
   void handleError(error) {
@@ -88,7 +93,14 @@ class VDrones {
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
-    _world.addSystem(new System_Physics(), passive : false);
+    _world.addManager(new PlayerManager());
+    _world.addManager(new GroupManager());
+    _world.addSystem(new System_Physics(false), passive : false);
+    _world.addSystem(
+      new System_PlayerFollower()
+        ..playerToFollow = _player
+      , passive : false
+    );
     _worldRenderSystem = _world.addSystem(new System_Render3D(container), passive : true);
     _world.initialize();
     _entitiesFactory = new _EntitiesFactory(_world);

@@ -6,15 +6,24 @@ class vec2 extends Vector{
 }
 */
 
+const GROUP_CAMERA = "camera";
+const GROUP_DRONE = "drone";
+
 class _EntitiesFactory {
 
   World _world;
 
   _EntitiesFactory(this._world);
 
-  Entity _newEntity(List<Component> cs) {
+  Entity _newEntity(List<Component> cs, {group : String, player : String}) {
     var e = _world.createEntity();
     cs.forEach((c) => e.addComponent(c));
+    if (group != null) {
+      (_world.getManager(GroupManager) as GroupManager).add(e, group);
+    }
+    if (player != null) {
+      (_world.getManager(PlayerManager) as PlayerManager).setPlayer(e, player);
+    }
     return e;
   }
 
@@ -23,36 +32,36 @@ class _EntitiesFactory {
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
   Entity newCube() => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w2d(0, 0, 0),
     _PhysicBodyFactory.newCube(),
     _Renderable3DFactory.newCube()
   ]);
 
   Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w2d(0, 0, 0),
     new CubeGenerator(cellr, cells)
   ]);
 
   Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w2d(0, 0, 0),
     _PhysicBodyFactory.cells2boxes2d(cellr, cells, EntityTypes_WALL),
     _Renderable3DFactory.cells2boxes3d(cellr, cells, width, height)
   ]);
 
   Entity newGateIn(num cellr, List<num> cells) => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w3d(new vec3(0, 0, 0.2)),
     //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
     _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
   ]);
 
   Entity newGateOut(num cellr, List<num> cells) => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w3d(new vec3(0, 0, 0.2)),
     _PhysicBodyFactory.cells2circles2d(cellr, cells, 0.3, EntityTypes_ITEM),
     _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_out.png")
   ]);
 
   Entity newMobileWall(double x0,double y0, double dx, double dy, double dz, double speedx, double speedy, double duration,  bool inout) => _newEntity([
-    new Transform(x0, y0, 0),
+    new Transform.w2d(x0, y0, 0),
     _PhysicBodyFactory.newMobileWall(dx, dy),
     _Renderable3DFactory.newMobileWall(dx, dy, dz)
   ]);
@@ -63,18 +72,18 @@ class _EntitiesFactory {
   ]);
 
   Entity newCamera() => _newEntity([
-    new Camera(),
-    new Transform(0,-25, 0),
+    new PlayerFollower(new vec3(0, -25, 30)),
+    new Transform.w3d(new vec3(0, -25, 30)).lookAt(new vec3(0,0,0)),
     _Renderable3DFactory.newCamera()
-  ]);
+  ], group : GROUP_CAMERA);
 
   Entity newLight() => _newEntity([
-    new Transform(40, 40, 0),
+    new Transform.w3d(new vec3(40, 40, 100)).lookAt(new vec3(90, 90, 0)),
     _Renderable3DFactory.newLight()
   ]);
   
   Entity newAmbientLight() => _newEntity([
-    new Transform(0, 0, 0),
+    new Transform.w2d(0, 0, 0),
     _Renderable3DFactory.newAmbientLight()
   ]);
 
@@ -118,6 +127,18 @@ class _EntitiesFactory {
       print("nb entities for area : ${es.length}");
       return es;
     });
+  }
+
+  Future<Entity> newDrone(player) {
+    return _loadTxt("_models/drone01.js")
+      .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
+      .then((x) => _newEntity([
+         new Transform.w3d(new vec3(20, 20, 0.3)),
+        _PhysicBodyFactory.newDrone(),
+        new PhysicMotion(10.0, radians(90.0)),
+        x
+      ], group : GROUP_DRONE, player : player))
+      ;
   }
 }
 
@@ -187,6 +208,19 @@ class _PhysicBodyFactory {
       }
     }
     return new PhysicBody(b, fdefs);
+  }
+
+  static PhysicBody newDrone() {
+    var bdef = new b2.BodyDef();
+    //bdef.linearDamping = 5;
+    bdef.type = b2.BodyType.DYNAMIC;
+    var s = new b2.PolygonShape();
+    s.setFrom([new vec2(3, 0), new vec2(-1, 2), new vec2(-1, -2)], 3);
+    var f = new b2.FixtureDef();
+    f.shape = s;
+    //s.sensor = false;
+    f.filter.groupIndex = EntityTypes_DRONE;
+    return new PhysicBody(bdef, [f]);
   }
 
 }
@@ -311,10 +345,6 @@ class _Renderable3DFactory {
   static Renderable3D newCamera() => _newRenderable3D((){
     final THREE = (js.context as dynamic).THREE;
     var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
-    camera.position.x = 0;
-    camera.position.y = -25;
-    camera.position.z = 30;
-    camera.lookAt(new js.Proxy(THREE.Vector3, 0,0,0));
     return js.retain(camera);
   });
 
@@ -327,8 +357,6 @@ class _Renderable3DFactory {
     final THREE = (js.context as dynamic).THREE;
     //var light = new js.Proxy.withArgList(THREE.DirectionalLight,  [0xffffff, 1, 0] );
     var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1.0, 0.0, math.PI, 1] );
-    light.target.position.set( 90, 90, 0 );
-    light.position.set( 40, 40, 100 );
 
     light.castShadow = true;
 
@@ -345,6 +373,37 @@ class _Renderable3DFactory {
     light.shadowMapHeight = 2048;
     return js.retain(light);
   });
+
+  static Future<Renderable3D> makeModel(jsonStr, texturePath) {
+    var deferred = new Completer();
+    try {
+      js.scoped((){
+        final THREE = (js.context as dynamic).THREE;
+        var loader = new js.Proxy(THREE.JSONLoader);
+        //texturePath = loader.extractUrlBase( d.src )
+        var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
+        //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
+        //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
+        //geometry.materials[ 0 ].shading = three.FlatShading;
+        //var material = new js.Proxy(THREE.MeshFaceMaterial, );
+        //var material0 = geometry.materials[0];
+        var material0 = r.materials[0];
+        //material.transparent = true
+        //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
+        //TODO should create a new object or at least change the timestamp
+        //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
+        var obj3d = new js.Proxy(THREE.Mesh, r.geometry, material0);
+        obj3d.castShadow = true;
+        obj3d.receiveShadow = true;
+     //obj3d = fixOrientation(obj3d);
+        deferred.complete(new Renderable3D(js.retain(obj3d)));
+      });
+    } catch(exc) {
+      deferred.completeError(exc);
+    }
+    return deferred.future;
+  }
+  
 }
 /*
 class EntityProvider4Message extends EntityProvider {

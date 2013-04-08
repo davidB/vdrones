@@ -3,7 +3,7 @@ part of vdrones;
 class System_Render3D extends EntitySystem {
   ComponentMapper<Transform> _transformMapper;
   ComponentMapper<Renderable3D> _objMapper;
-  ComponentMapper<Camera> _cameraMapper;
+  GroupManager _groupManager;
 
   var _scene;
   var _renderer;
@@ -15,7 +15,7 @@ class System_Render3D extends EntitySystem {
   void initialize(){
     _transformMapper = new ComponentMapper<Transform>(Transform, world);
     _objMapper = new ComponentMapper<Renderable3D>(Renderable3D, world);
-    _cameraMapper = new ComponentMapper<Camera>(Camera, world);
+    _groupManager = world.getManager(GroupManager) as GroupManager;
     js.scoped((){
       var THREE = (js.context as dynamic).THREE;
       _renderer = _newRenderer(THREE);
@@ -72,7 +72,7 @@ class System_Render3D extends EntitySystem {
       obj.name = entity.uniqueId.toString();
       _applyTransform(obj, t);
       _scene.add(obj);
-      if (_cameraMapper.has(entity)) {
+      if (_groupManager.isInGroup(entity, GROUP_CAMERA)) {
         print("set camera");
         _camera = obj;
         _updateViewportSize(null);
@@ -90,10 +90,12 @@ class System_Render3D extends EntitySystem {
   }
 
   static void _applyTransform(obj, Transform t) {
-    obj.position.x = t.position.x;
-    obj.position.y = t.position.y;
+    obj.position.set(t.position3d.x, t.position3d.y, t.position3d.z);
+    obj.scale.set(t.scale3d.x, t.scale3d.y, t.scale3d.z);
     //obj.position.z = 0.0;
-    if (!(obj.rotation is num)) obj.rotation.z = t.angle;
+    if (!(obj.rotation is num)) {
+      obj.rotation.set(t.rotation3d.x, t.rotation3d.y, t.rotation3d.z);
+    }
   }
 
   static dynamic _newRenderer(THREE) {
