@@ -6,8 +6,13 @@ init:
 	ln -sf ../packages target/packages
 
 check: init
-	dart_analyzer --work target/dart-work --package-root=packages/ --fatal-type-errors --enable_type_checks --dart-sdk "$(DART_SDK)" web/index.dart
-	#dart_analyzer --work target/dart-work --package-root=packages/ --metrics --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+	dart_analyzer --work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk "$(DART_SDK)" web/index.dart
+	#DART_SDKanalyzer --work target/dart-work --package-root=packages/ --metrics --incremental --enable_type_checks --dart-sdk "$DART_SDK" web/index.dart
+
+tests:
+	#for test in test/*_test.dart ; do ; echo -e "\nRunning test suite $(basename $(test))" ; dart --checked $(test) ; done
+	for test in $(ls test/*_test.dart) ; do dart --checked $(test) ; done
+	echo -e "\n[32m✓ OK[0m "
 
 web0: check
 	cat >target/filter <<EOF
@@ -65,7 +70,7 @@ js: web0
 	  </script>
 	EOF
 
-deploy-init: js
+deploy-init: test js
 	cd target/web
 	rm -Rf packages **/packages
 	rm **/*.dart **/*.dart.map *.dart *.dart.map
