@@ -60,7 +60,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
 
   dynamic obj3dF(){
     return js.scoped((){
-      final THREE = js.context.THREE;
+      final THREE = (js.context as dynamic).THREE;
       var s = 1;
       var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
       var material = new js.Proxy(THREE.MeshNormalMaterial);
@@ -82,7 +82,7 @@ class EntityProvider4Targetg102 extends EntityProvider {
 class EntityProvider4Message extends EntityProvider {
   dynamic obj3dF(){
     //return js.scoped((){
-      final THREE = js.context.THREE;
+    final THREE = (js.context as dynamic).THREE;
 //      var x = js.context.document.createElement("canvas");
 //      x.width = 300;
 //      x.height = 15;
@@ -129,7 +129,7 @@ class EntityProvider4MobileWall extends EntityProvider {
   Object2D obj2dF(){
     var r = new Object2D();
     r.bdef = new BodyDef();
-    r.bdef.type= b2_kinematicBody;
+    r.bdef.type= BodyType.KINEMATIC;
     //TODO optim replace boxes (polyshape) by segment + thick (=> change the display) if w or h is 0
     var shape = new PolygonShape();
     shape.setAsBox(this.dx/2, this.dy/2);
@@ -141,10 +141,11 @@ class EntityProvider4MobileWall extends EntityProvider {
   }
   dynamic obj3dF(){
     return js.scoped((){
+      final THREE = (js.context as dynamic).THREE;
       var texture = THREE.ImageUtils.loadTexture('_images/mobilewalls.png');
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set( 2, 2 );
-      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
+      var material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
         "map" : texture,
         //"blending" : THREE.AdditiveBlending,
         //"color": 0xffffff,
@@ -201,7 +202,7 @@ AreaDef makeArea(jsonStr) {
   js.Proxy cells2boxes3d(List<num> cells, num width, num height){
     var o;
     js.scoped((){
-    final THREE = js.context.THREE;
+      final THREE = (js.context as dynamic).THREE;
       var geometry = new js.Proxy(THREE.Geometry);
       //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
       var materialW = new js.Proxy(THREE.MeshLambertMaterial, js.map({"color" : 0x8a8265, "transparent": false, "opacity": 1, "vertexColors" : THREE.VertexColors}));
@@ -291,7 +292,7 @@ AreaDef makeArea(jsonStr) {
   js.Proxy cells2surface3d(cells, offz, [String imgUrl]) {
     var o;
     js.scoped((){
-    final THREE = js.context.THREE;
+      final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry );
     //#material = new js.Proxy(THREE.MeshNormalMaterial, )
     var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
@@ -355,7 +356,7 @@ AreaDef makeArea(jsonStr) {
       cellr
   );
   r.mobileWalls = ((area["zones"]["mobile_walls"] != null) ?
-    area["zones"]["mobile_walls"].map((t) => new EntityProvider4MobileWalls(
+    area["zones"]["mobile_walls"].map((t) => new EntityProvider4MobileWall(
           t[0] * cellr,
           t[1] * cellr,
           math.max(1, t[2] * cellr),
@@ -372,7 +373,7 @@ AreaDef makeArea(jsonStr) {
 }
 
 class EntityProvider4Drone extends EntityProvider {
-  js.Proxy _obj3dPattern;
+  dynamic _obj3dPattern;
 
   Object2D obj2dF() {
     var r = new Object2D();
@@ -389,7 +390,7 @@ class EntityProvider4Drone extends EntityProvider {
     return r;
   }
 
-  js.Proxy obj3dF() {
+  dynamic obj3dF() {
     _obj3dPattern.position.z = 0.3;
     _obj3dPattern.castShadow = true;
     _obj3dPattern.receiveShadow = true;
@@ -420,7 +421,7 @@ Future<js.Proxy> makeModel(jsonStr, texturePath) {
   var deferred = new Completer();
   try {
     js.scoped((){
-      final THREE = js.context.THREE;
+      final THREE = (js.context as dynamic).THREE;
       var loader = new js.Proxy(THREE.JSONLoader);
       //texturePath = loader.extractUrlBase( d.src )
       var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
