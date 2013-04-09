@@ -28,12 +28,8 @@
 
   <target name="-init">
     <mkdir dir="${target}"/>
-    <exec dir="${target}" executable="ln">
-      <arg line="-sf ${basedir}/packages packages"/>
-    </exec>
-    <exec dir="packages" executable="ln">
-      <arg line="-sf ${basedir}/lib vdrones"/>
-    </exec>
+    <symlink link="${target}/packages" resource="${basedir}/packages" overwrite="true"/>
+    <symlink link="packages/vdrones" resource="${basedir}/lib" overwrite="true"/>
   </target>
 
   <target name="check" depends="-init">
@@ -94,8 +90,11 @@
   </target>
   <target name="remove_packages" depends="js">
 	<delete includeemptydirs="true">
-      <fileset dir="${target}/web" includes="**/packages,packages"/>
-      <fileset dir="${target}/web" includes="**/*.dart,**/*.dart.map"/>
+      <fileset dir="${target}/web" includes="**/packages"/>
+      <fileset dir="${target}/web/packages"/>
+    </delete>
+	<delete includeemptydirs="true">
+      <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
     </delete>
 	<mkdir dir="${target}/web/packages"/>
 	<copy todir="${target}/web/packages">
