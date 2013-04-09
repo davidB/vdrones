@@ -39,7 +39,7 @@ void setupGameplay(Evt evt){
       evt.GameStates.boosting.v = false;
 
       var drone = l[0], area = l[1];
-      var zone = area["gate_in"];
+      var zone = area.gateIn;
       var z = zone.cells;
       var cellr = zone.cellr;
       var x = z[0] * cellr + z[2] * cellr / 2;
