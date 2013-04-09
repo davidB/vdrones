@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="VDrones" default="default">
+    <!-- Expect ant-contrib 1.0b5 available -->
+<!--
+  <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+-->
+  <property environment="env" />
+  <fail message="ERROR: Please set environmental variable DART_SDK">
+    <condition>
+      <not>
+        <isset property="env.DART_SDK" />
+      </not>
+    </condition>
+  </fail>
+
+  <property name="dart.sdk.dir" value="${env.DART_SDK}" />
+  <property name="dart" value="${dart.sdk.dir}/bin/dart" />
+  <property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
+  <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
+  <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
+  <property name="pub" value="${dart.sdk.dir}/bin/pub" />
+  <property name="target" location="${basedir}/target"/>
+
+  <target name="clean">
+    <delete dir="${target}"/>
+  </target>
+
+
+  <target name="-init">
+    <mkdir dir="${target}"/>
+    <exec dir="${target}" executable="ln">
+      <arg line="-sf ${basedir}/packages packages"/>
+    </exec>
+    <exec dir="packages" executable="ln">
+      <arg line="-sf ${basedir}/lib vdrones"/>
+    </exec>
+  </target>
+
+  <target name="check" depends="-init">
+    <exec executable="${dart_analyzer}" failonerror="true">
+      <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' web/index.dart"/>
+    </exec>
+  </target>
+
+  <target name="test">
+  </target>
+
+  <target name="web" depends="check">
+	<exec executable="rsync">
+      <arg line="-av --delete --links web target"/>
+    </exec>
+    <exec executable="${dart}" dir="${target}/web">
+      <arg line="--package-root=packages/ packages/web_ui/dwc.dart index0.html"/>
+    </exec>
+	<delete file="${target}/web/index0.html"/>
+	<move file="${target}/web/_index0.html.html" tofile="${target}/web/index0.html"/>
+	<!--#HACK for web_ui that remove disabled attribute-->
+    <replace file="${target}/web/index0.html">
+      <replacetoken><![CDATA[<button class="btn btn-primary" id="_]]></replacetoken>
+      <replacevalue><![CDATA[<button class="btn btn-primary" disabled id="_]]></replacevalue>
+    </replace>
+  </target>
+
+  <target name="js" depends="web">
+    <exec executable="${dart2js}" dir="${target}/web">
+      <arg line="--package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
+    </exec>
+    <copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/>
+	<replace file="${target}/web/index.html">
+      <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
+      <replacefilter token='.dart' value='.dart.js'/>
+    </replace>
+   </target>
+
+   <target name="insert_ga" depends="js">
+    <replace file="${target}/web/index0.html">
+      <replacetoken><![CDATA[</body>]]></replacetoken>
+      <replacevalue><![CDATA[
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18659445-4']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+  </body>]]></replacevalue>
+    </replace>
+  </target>
+  <target name="remove_packages" depends="js">
+	<delete includeemptydirs="true">
+      <fileset dir="${target}/web" includes="**/packages,packages"/>
+      <fileset dir="${target}/web" includes="**/*.dart,**/*.dart.map"/>
+    </delete>
+	<mkdir dir="${target}/web/packages"/>
+	<copy todir="${target}/web/packages">
+	  <fileset dir="packages/browser"/>
+    </copy>
+  </target>
+
+  <target name="deploy0" depends="js, insert_ga, remove_packages"/>
+  <target name="deploy" depends="deploy0">
+    <exec executable="appcfg.sh">
+      <arg line="--use_java7 update target/web"/>
+    </exec>
+  </target>
+</project>
