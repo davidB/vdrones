@@ -22,7 +22,9 @@
   <property name="target" location="${basedir}/target"/>
 
   <target name="clean">
-    <delete dir="${target}"/>
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
+      <fileset dir="${target}" followSymlinks="false"/>
+    </delete>
   </target>
 
 
@@ -41,7 +43,7 @@
   <target name="test">
   </target>
 
-  <target name="web" depends="check">
+  <target name="web" depends="-init">
 	<exec executable="rsync">
       <arg line="-av --delete --links web target"/>
     </exec>
@@ -57,7 +59,7 @@
     </replace>
   </target>
 
-  <target name="js" depends="web">
+  <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
       <arg line="--package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
     </exec>
@@ -89,9 +91,9 @@
     </replace>
   </target>
   <target name="remove_packages" depends="js">
-	<delete includeemptydirs="true">
-      <fileset dir="${target}/web" includes="**/packages"/>
-      <fileset dir="${target}/web/packages"/>
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
+      <fileset dir="${target}/web" includes="**/packages" followsymlinks="false"/>
+      <fileset dir="${target}/web/packages" followsymlinks="false"/>
     </delete>
 	<delete includeemptydirs="true">
       <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
