@@ -71,7 +71,7 @@
    </target>
 
    <target name="insert_ga" depends="js">
-    <replace file="${target}/web/index0.html">
+    <replace file="${target}/web/index.html">
       <replacetoken><![CDATA[</body>]]></replacetoken>
       <replacevalue><![CDATA[
   <script type="text/javascript">
