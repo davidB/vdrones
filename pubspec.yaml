@@ -1,5 +1,5 @@
 name: vdrones
-version: 0.5.0
+version: 0.6.1+1
 author: david bernard
 description: A sample web application
 homepage: https://vdrones.appspot.com/
@@ -15,7 +15,10 @@ dependencies:
   browser: any
   logging: any
   web_ui: any
-  widget: any
+  widget:
+    git:
+      ref: 0.2.4+p0
+      url: git://github.com/davidB/widget.dart.git
   dartemis: 
     path: /home/dwayne/dart/dartemis
 dev_dependencies:

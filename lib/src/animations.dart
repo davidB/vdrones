@@ -9,7 +9,7 @@ typedef bool OnComplete(double t, double t0);
 
 bool onNoop(num t, num t0){ return false;}
 
-//final THREE = js.context.THREE;
+//final THREE = (js.context as dynamic).THREE;
 
 class Animator {
   //final _anims = new SimpleLinkedList<AnimEntry>();
@@ -229,7 +229,7 @@ class Explode {
 
   Explode(this.nParticles) {
     js.scoped((){
-    var THREE = js.context.THREE;
+    final THREE = (js.context as dynamic).THREE;
     uniforms = js.retain(js.map({
       "time": { "type" :"f", "value" : 0}
 //      "center": { "type" : "v3", "value" : new js.Proxy(THREE.Vector3, 0, 0, 1.0)}
@@ -264,7 +264,7 @@ class Explode {
   }
 
   void _reset(attributes) {
-    final THREE = js.context.THREE;
+    final THREE = (js.context as dynamic).THREE;
     for (var i=0; i<nParticles; i++) {
       // position
       var point = randomPointOnSphere();

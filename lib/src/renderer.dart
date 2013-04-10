@@ -17,7 +17,7 @@ class CameraMove {
 void setupRenderer(Evt evt, Element container, Animator animator) {
   const FAR = 1000;
 js.scoped((){
-    final THREE = js.context.THREE;
+    final THREE = (js.context as dynamic).THREE;
     js.retain(THREE);
 //  if (!webglDetector.webgl) {
 //    // #TODO display message if Webgl required
