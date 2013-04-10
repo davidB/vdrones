@@ -93,13 +93,14 @@
   <target name="remove_packages" depends="js">
     <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
       <fileset dir="${target}/web" includes="**/packages" followsymlinks="false"/>
-      <fileset dir="${target}/web/packages" followsymlinks="false"/>
+      <!--fileset dir="${target}/web/packages" followsymlinks="false"/-->
     </delete>
 	<delete includeemptydirs="true">
       <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
     </delete>
+    <!-- keep browser/dart.js : required by js-interop -->
 	<mkdir dir="${target}/web/packages"/>
-	<copy todir="${target}/web/packages">
+    <copy todir="${target}/web/packages/browser">
 	  <fileset dir="packages/browser"/>
     </copy>
   </target>
