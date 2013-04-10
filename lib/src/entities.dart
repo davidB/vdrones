@@ -48,11 +48,22 @@ class _EntitiesFactory {
     _Renderable3DFactory.cells2boxes3d(cellr, cells, width, height)
   ]);
 
-  Entity newGateIn(num cellr, List<num> cells) => _newEntity([
-    new Transform.w3d(new vec3(0, 0, 0.2)),
-    //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-    _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
-  ]);
+  Entity newGateIn(num cellr, List<num> cells, List<num> rzs) {
+    var points = new List<vec3>();
+    for (var i = 0; i < cells.length; i += 4) {
+      points.add(new vec3(
+        (cells[i] + cells[i+2] / 2) * cellr,
+        (cells[i+1] + cells[i+3] / 2) * cellr,
+        radians(rzs[(i/4).toInt()])
+      ));
+    }
+    return  _newEntity([
+      new Transform.w3d(new vec3(0, 0, 0.2)),
+      //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
+      _Renderable3DFactory.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
+      new DroneGenerator(points, 1)
+    ]);
+  }
 
   Entity newGateOut(num cellr, List<num> cells) => _newEntity([
     new Transform.w3d(new vec3(0, 0, 0.2)),
@@ -106,9 +117,9 @@ class _EntitiesFactory {
       es.add(newLight());
       es.add(newArea(name));
       es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
-      es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"]));
+      es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"]));
       es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
-      es.add(newCubeGenerator(cellr, area["zones"]["targetg1_spawn"]["cells"]));
+      es.add(newCubeGenerator(cellr, area["zones"]["cubes_gen"]["cells"]));
       if (area["zones"]["mobile_walls"] != null) {
         area["zones"]["mobile_walls"].forEach((t) {
           es.add(newMobileWall(
@@ -129,14 +140,14 @@ class _EntitiesFactory {
     });
   }
 
-  Future<Entity> newDrone(player) {
+  Future<Entity> newDrone(String player, double x0, double y0, double rz0) {
     return _loadTxt("_models/drone01.js")
       .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
       .then((x) => _newEntity([
         new DroneControl(),
-        new Transform.w3d(new vec3(20, 20, 0.3)),
+        new Transform.w3d(new vec3(x0, y0, 0.3), new vec3(0.0, 0.0, rz0)),
         _PhysicBodyFactory.newDrone(),
-        new PhysicMotion(0.0, radians(180.0)),
+        new PhysicMotion(0.0, 0.0),
         x
       ], group : GROUP_DRONE, player : player))
       ;

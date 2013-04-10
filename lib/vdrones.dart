@@ -72,9 +72,6 @@ class VDrones {
       })
       .catchError((error) => handleError(error))
       ;
-    _entitiesFactory.newDrone(_player)
-      .then((e) => e.addToWorld())
-      ;
   }
 
   void handleError(error) {
@@ -93,19 +90,20 @@ class VDrones {
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
+    _entitiesFactory = new _EntitiesFactory(_world);
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
-    _world.addSystem(new System_Physics(false), passive : false);
+    _world.addSystem(new System_Physics(true), passive : false);
     _world.addSystem(
       new System_PlayerFollower()
         ..playerToFollow = _player
       , passive : false
     );
+    _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler());
     _worldRenderSystem = _world.addSystem(new System_Render3D(container), passive : true);
     _world.initialize();
-    _entitiesFactory = new _EntitiesFactory(_world);
 
 /*
     _world.addSystem(new AreaLoader());

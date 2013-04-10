@@ -38,6 +38,22 @@ class CubeGenerator implements Component {
     return c;
   }
 }
+
+class DroneGenerator implements Component {
+  // number of drone to generate
+  num nb;
+  int nextPointsIdx = 0;
+  List<vec3> points;
+
+  DroneGenerator._();
+  static _ctor() => new DroneGenerator._();
+  factory DroneGenerator(List<vec3> points, num nb) {
+    var c = new Component(DroneGenerator, _ctor);
+    c.nb = nb;
+    c.points = points;
+    return c;
+  }
+}
 /*
 class StaticWalls implements Component {
   StaticWalls._();

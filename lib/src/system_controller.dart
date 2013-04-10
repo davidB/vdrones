@@ -63,9 +63,9 @@ class System_DroneController extends EntityProcessingSystem {
 
   void _bindKeyboardControl(){
     _subDown = document.onKeyDown.listen((KeyboardEvent e) {
-      if (_keysForward.contains(e.keyCode)) _state.forward = 5000.0;
-      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 45.0;
-      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -45.0;
+      if (_keysForward.contains(e.keyCode)) _state.forward = 5500.0;
+      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 110.0;
+      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -110.0;
     });
     _subUp = document.onKeyUp.listen((KeyboardEvent e) {
       if (_keysForward.contains(e.keyCode)) _state.forward = 0.0;
@@ -99,4 +99,27 @@ class System_DroneHandler extends EntityProcessingSystem {
     m.angularVelocity = radians(ctrl.turn);
   }
 }
+
+class System_DroneGenerator extends EntityProcessingSystem {
+  ComponentMapper<DroneGenerator> _droneGeneratorMapper;
+  _EntitiesFactory _efactory;
+  String _player;
+
+  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Transform]));
+
+  void initialize(){
+    _droneGeneratorMapper = new ComponentMapper<DroneGenerator>(DroneGenerator, world);
+  }
+
+  void processEntity(Entity entity) {
+    var gen = _droneGeneratorMapper.get(entity);
+    for(var i = gen.nb; i > 0; i--) {
+      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.points.length) : gen.nextPointsIdx % gen.points.length;
+      var p = gen.points[pointsIdx];
+      _efactory.newDrone(_player, p.x, p.y, p.z).then((e) => world.addEntity(e));
+    }
+    gen.nb = 0;
+  }
+}
+
 
