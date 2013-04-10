@@ -15,6 +15,7 @@ dependencies:
   browser: any
   logging: any
   web_ui: any
+  vector_math: '>=0.9.7'
   widget:
     git:
       ref: 0.2.4+p0

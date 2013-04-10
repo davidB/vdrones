@@ -185,7 +185,7 @@ table.stats td {
   text-align: right;
 }
 
-//HACK to hide modal during loading of the page, and code
+/* HACK to hide modal during loading of the page, and code */
 x-modal {
   display: none;
 }

@@ -107,7 +107,7 @@ class Transform implements Component {
   /// return this
   Transform lookAt(vec3 target, [vec3 up]) {
     up = (up == null) ? new vec3(0,1,0) : up;
-    var m = makeLookAt(position3d, target, up).getRotation();
+    var m = makeViewMatrix(position3d, target, up).getRotation();
     // code from (euler order XYZ)
     // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
     rotation3d.y = math.asin( clamp( m.col0.z, -1 ,1 ) );
