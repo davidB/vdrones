@@ -184,3 +184,7 @@ table.stats th {
 table.stats td {
   text-align: right;
 }
+
+x-modal {
+  display: none;
+}
