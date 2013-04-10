@@ -36,6 +36,7 @@ class XModal extends WebComponent implements ShowHideComponent {
 
         if(_isShown) {
           watchers.dispatch();
+          this.style.display = "block";
           ModalManager.show(modal, effect: effect/*, backdropClickHandler: _onBackdropClicked*/);
         } else {
           ModalManager.hide(modal, effect: effect);
@@ -74,7 +75,7 @@ class XModal extends WebComponent implements ShowHideComponent {
     }
   }
 
-  Element _getModalElement() => this.query('x-modal > .modal');
+  Element _getModalElement() => this.query('.modal');
 
   void _onKeyUp(KeyboardEvent event) {
     print("_onKeyUp ${event}");
