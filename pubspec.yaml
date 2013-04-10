@@ -15,7 +15,8 @@ dependencies:
   browser: any
   logging: any
   web_ui: any
-  widget: any
+  widget:
+    path:  /home/dwayne/dart/widget.dart
 dev_dependencies:
   unittest: any
 
