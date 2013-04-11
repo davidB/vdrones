@@ -63,9 +63,9 @@ class System_DroneController extends EntityProcessingSystem {
 
   void _bindKeyboardControl(){
     _subDown = document.onKeyDown.listen((KeyboardEvent e) {
-      if (_keysForward.contains(e.keyCode)) _state.forward = 5500.0;
-      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 110.0;
-      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -110.0;
+      if (_keysForward.contains(e.keyCode)) _state.forward = 1.0;
+      else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 1.0;
+      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -1.0;
     });
     _subUp = document.onKeyUp.listen((KeyboardEvent e) {
       if (_keysForward.contains(e.keyCode)) _state.forward = 0.0;
@@ -95,8 +95,8 @@ class System_DroneHandler extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var ctrl = _droneControlMapper.get(entity);
     var m = _motionMapper.get(entity);
-    m.acceleration = ctrl.forward;
-    m.angularVelocity = radians(ctrl.turn);
+    m.acceleration = ctrl.forward * 5500.0;
+    m.angularVelocity = radians(ctrl.turn * 110.0);
   }
 }
 
