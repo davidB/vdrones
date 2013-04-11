@@ -2,7 +2,7 @@ library vdrones;
 
 
 import 'package:logging/logging.dart';
-import 'package:box2d/box2d_browser.dart' as b2 hide Position;
+import 'package:box2d/box2d_browser.dart' as b2;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:json' as JSON;
