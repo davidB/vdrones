@@ -169,6 +169,21 @@ class PhysicMotion implements Component {
     return c;
   }
 }
+
+class Collider {
+  Entity e;
+  // the collision groupId
+  int group; //HACK quick to know the entity kind
+  Collider(this.e, this.group);
+}
+class PhysicCollisions implements Component {
+  var colliders = new List<Collider>();
+
+  PhysicCollisions._();
+  static _ctor() => new PhysicCollisions._();
+  factory PhysicCollisions() => new Component(PhysicCollisions, _ctor);
+}
+
 class Renderable3D implements Component {
   var obj;
 
