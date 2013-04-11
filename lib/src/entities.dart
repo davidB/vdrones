@@ -54,7 +54,7 @@ class _EntitiesFactory {
       points.add(new vec3(
         (cells[i] + cells[i+2] / 2) * cellr,
         (cells[i+1] + cells[i+3] / 2) * cellr,
-        radians(rzs[(i/4).toInt()])
+        radians(rzs[i~/4])
       ));
     }
     return  _newEntity([

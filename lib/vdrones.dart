@@ -46,13 +46,13 @@ class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
-  var _world = new World();
+  World _world = null;
   var _lastTime = -1;
   _EntitiesFactory _entitiesFactory;
   var _player = "u0";
 
-  var _worldRenderSystem;
-  var _hudRenderSystem;
+  //var _worldRenderSystem;
+  //var _hudRenderSystem;
 
   get status => _status;
 
@@ -62,6 +62,7 @@ class VDrones {
     }
     //_evt.GameInit.dispatch([areaId]);
     //TODO remove every entities from _world
+    newWorld();
     _entitiesFactory.newFullArea(areaId)
       .then((es){
         es.forEach((e){
@@ -87,13 +88,18 @@ class VDrones {
   }
 
   void setup() {
+    window.animationFrame.then(_loop);
+  }
+
+  void newWorld() {
+    _world = new World();
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
     _entitiesFactory = new _EntitiesFactory(_world);
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
-    _world.addSystem(new System_Physics(true), passive : false);
+    _world.addSystem(new System_Physics(false), passive : false);
     _world.addSystem(
       new System_PlayerFollower()
         ..playerToFollow = _player
@@ -102,7 +108,9 @@ class VDrones {
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler());
-    _worldRenderSystem = _world.addSystem(new System_Render3D(container), passive : true);
+    // Dart is single Threaded, and System doesn't run in // => component aren't
+    // modified concurrently => Render3D.process like other System
+    _world.addSystem(new System_Render3D(container), passive : false);
     _world.initialize();
 
 /*
@@ -154,19 +162,23 @@ class VDrones {
       window.animationFrame.then(loop);
     });
 */
-    window.animationFrame.then(_loop);
   }
 
   void _loop(num highResTime) {
     try {
-    _world.delta = (_lastTime == -1) ? 0 : highResTime - _lastTime;
-    _world.process();
-    _worldRenderSystem.process();
+    if (_world != null) {
+      var world = _world;
+      world.delta = (_lastTime == -1) ? 0 : highResTime - _lastTime;
+      world.process();
+      //_worldRenderSystem.process();
     //_hudRenderSystem.process();
-    _lastTime = highResTime;
+      _lastTime = highResTime;
     //if (_status == Status.RUNNING) {
       window.animationFrame.then(_loop);
     //}
+    } else {
+      _lastTime = -1;
+    }
     } catch(error) {
       print(error);
     }
