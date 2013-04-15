@@ -10,6 +10,5 @@ target
 web/out
 filter
 .idea
-appengine-web.xml
 *.orig
 /.project
