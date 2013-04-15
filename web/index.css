@@ -1,17 +1,18 @@
-  @font-face{
+@font-face{
+  font-family: 'SciFly';
+  src: url('_vendors/scifly/scifly-sans-webfont.eot');
+  src: url('_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
+  url('_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
+  url('_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
+  url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
     font-family: 'SciFly';
-    src: url('_vendors/scifly/scifly-sans-webfont.eot');
-    src: url('_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
-    url('_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
-    url('_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
-    url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
+    src: url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
   }
-  @media screen and (-webkit-min-device-pixel-ratio:0) {
-    @font-face {
-      font-family: 'SciFly';
-      src: url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
-    }
- }
+}
+
 body {
   font-family: 'SciFly', Arial, sans-serif;
 }
@@ -148,9 +149,10 @@ footer {
   -o-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
   position: absolute;
-  top: -25px;
-  left: -26px;
-  width: 200px;
+  top: 20px;
+  left: -6px;
+  width: 100px;
+  text-align: center
 }
 
 @-webkit-keyframes opacityBlink{
@@ -188,5 +190,13 @@ table.stats td {
 /* HACK to hide modal during loading of the page, and code */
 x-modal {
   display: none;
+}
+.btn_feedback{
+  font-size: 40%;
+  cursor:  pointer;
+}
+#feedback_dialog > .modal {
+  width: 850px;
+  height: 550px;
 }
 
