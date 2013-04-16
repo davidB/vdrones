@@ -122,11 +122,11 @@ class Transform implements Component {
   /// this method mofidy the Transform (usefull for creation)
   /// return this
   Transform lookAt(vec3 target, [vec3 up]) {
-    up = (up == null) ? new vec3(0,1,0) : up;
+    up = (up == null) ? new vec3(0.0, 1.0, 0.0) : up;
     var m = makeViewMatrix(position3d, target, up).getRotation();
     // code from (euler order XYZ)
     // https://github.com/mrdoob/three.js/blob/master/src/math/Vector3.js
-    rotation3d.y = math.asin( clamp( m.col0.z, -1 ,1 ) );
+    rotation3d.y = math.asin( clamp( m.col0.z, -1.0 ,1.0 ) );
     if ( m.col0.z.abs() < 0.99999 ) {
       rotation3d.x = math.atan2( - m.col1.z, m.col2.z );
       rotation3d.z = math.atan2( - m.col0.y, m.col0.x );

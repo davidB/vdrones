@@ -161,10 +161,24 @@ class _EntitiesFactory {
     var transform = new ComponentProvider(Transform, (e) => new Transform.w3d(new vec3(0.0, 0.0, 0.3)));
     var pbody = new ComponentProvider(PhysicBody, (e) => _PhysicBodyFactory.newDrone());
     var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
+    var animatable0 = new ComponentProvider(Animatable,
+      (e) {
+        return new Animatable()
+          ..l.add(AnimationFactory.newScaleIn()
+            ..onComplete = (e, t, t0) {
+              var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
+              esc.fsm.currentState = "driving";
+            }
+          )
+          ;
+      },
+      ComponentProvider.alwaysNewId
+    );
     return new EntityStateRepository()
       ..registerState("creating", new EntityState()
         ..add(renderable)
         ..add(transform)
+        ..add(animatable0)
       )
       ..registerState("driving", new EntityState()
         ..add(renderable)
