@@ -191,12 +191,18 @@ table.stats td {
 x-modal {
   display: none;
 }
-.btn_feedback{
-  font-size: 40%;
-  cursor:  pointer;
-}
 #feedback_dialog > .modal {
   width: 850px;
   height: 550px;
 }
-
+.navbar .navbar-inner {
+  min-height:0px;
+}
+.navbar .nav>li>a {
+  padding: 0;
+  line-height: 20px;
+}
+.navbar-inverse .navbar-inner {
+  background-color: #272b30;
+  background-image: -webkit-linear-gradient(#202328,#272b30 70%,#272b30);
+}

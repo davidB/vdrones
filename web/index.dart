@@ -1,27 +1,50 @@
 import 'dart:html';
+import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
 import 'package:web_ui/web_ui.dart';
 
 var game = new vdrones.VDrones();
+var feedbackScreen = null;
 
 void main() {
-  _setupLog();
-  game.setup();
-  _setupRoutes();
-  //game.gotoArea("alpha0");
+  // xtag is null until the end of the event loop (known dart web ui issue)
+  new Timer(const Duration(), () {
+    _setupLog();
+    game.setup();
+    _setupRoutes();
+  });
 }
 
 void _setupRoutes() {
-  Window.hashChangeEvent.forTarget(window).listen((e) {
-    String path = window.location.hash.substring(2);
-    game.gotoArea(path);
+  feedbackScreen = query('#feedback_dialog').xtag;
+  feedbackScreen.onToggle.listen((e){
+    if (!feedbackScreen.isShown) {
+      window.location.hash = '/a/${game.area}';
+    }
   });
-  if (window.location.hash.isEmpty) {
-    window.location.hash = "/alpha0";
-  } else {
-    String path = window.location.hash.substring(2);
-    game.gotoArea(path);
+
+  
+  Window.hashChangeEvent.forTarget(window).listen((e) {
+    _route(window.location.hash);
+  });
+  _route(window.location.hash);
+}
+
+void _route(String hash) {
+  //RegExp exp = new RegExp(r"(\w+)");
+  switch(hash) {
+    case '#/a/alpha0' :
+      game.area = 'alpha0';
+      break;
+    case '#/a/beta0' :
+      game.area = 'beta0';
+      break;
+    case '#/comments':
+      feedbackScreen.show();
+      break;
+    default:
+      window.location.hash = '/a/alpha0';
   }
 }
 

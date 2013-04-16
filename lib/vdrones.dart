@@ -40,14 +40,18 @@ class VDrones {
   var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
+  var _areaId = '';
 
   get status => _status;
 
-  void gotoArea(String areaId) {
+  get area => _areaId;
+  set area(String v) {
+    if (v == _areaId) return;
+    _areaId = v;
     if (_status == Status.RUNNING) {
       _evt.GameStop.dispatch([false]);
     }
-    _evt.GameInit.dispatch([areaId]);
+    _evt.GameInit.dispatch([_areaId]);
   }
 
   void play() {
