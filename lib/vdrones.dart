@@ -45,15 +45,17 @@ class Status {
 
 class TimeInfo {
   double _time;
-  double _previousTime = -1.0;
-  double _delta = 0.0;
+  double _previousTime;
+  double _delta;
 
-  get delta => _delta; 
+  TimeInfo(){ reset(); }
+
+  get delta => _delta;
   get time => _time;
   set time(double v) {
-    _delta = (_previousTime < 0) ? 0 : v - _time;
-    _previousTime = _time;
+    _previousTime = (_previousTime < 0.0) ? v : _time;
     _time = v;
+    _delta = _time - _previousTime;
   }
 
   void reset() {
