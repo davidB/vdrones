@@ -21,8 +21,8 @@ class System_Animator extends EntityProcessingSystem {
     var animatable = _animatableMapper.get(entity);
     var time = timeInfo.time;
     animatable.l.iterateAndRemove((anim) {
-      if (anim.t0 < 0) {
-        anim.t0 = time;
+      if (anim._t0 < 0) {
+        anim._t0 = time;
         anim.onStart(entity, time, anim._t0);
       }
       var cont = (anim._t0 <= time)? anim.onUpdate(entity, time, anim._t0) : true;
@@ -51,7 +51,7 @@ class AnimationFactory {
   static final transformCT = ComponentTypeManager.getTypeFor(Transform);
   static final renderable3dCT = ComponentTypeManager.getTypeFor(Renderable3D);
 
-  Animation newRotateXYEndless() {
+  static Animation newRotateXYEndless() {
     return new Animation()
       ..onUpdate = (Entity e, num t, num t0){
         var t = e.getComponent(transformCT);
@@ -63,14 +63,14 @@ class AnimationFactory {
       ;
   }
 
-  Animation newScaleOut([OnComplete onComplete = onNoop]) {
+  static Animation newScaleOut([OnComplete onComplete = onNoop]) {
     return new Animation()
       ..onUpdate = (Entity e, num t, num t0){
-        var t = e.getComponent(transformCT);
-        if (t == null) return false;
+        var transform = e.getComponent(transformCT);
+        if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
-        t.scale3d.setComponents(
+        transform.scale3d.setComponents(
           Easing.easeInQuad(ratio, -1, 1),
           Easing.easeInQuad(ratio, -1, 1),
           Easing.easeInQuad(ratio, -1, 1)
@@ -81,14 +81,14 @@ class AnimationFactory {
       ;
   }
 
-  Animation newScaleIn() {
+  static Animation newScaleIn() {
     return new Animation()
       ..onUpdate = (Entity e, num t, num t0){
-        var t = e.getComponent(transformCT);
-        if (t == null) return false;
+        var transform = e.getComponent(transformCT);
+        if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
-        t.scale3d.setComponents(
+        transform.scale3d.setComponents(
           Easing.easeInQuad(ratio, 1, 0),
           Easing.easeInQuad(ratio, 1, 0),
           Easing.easeInQuad(ratio, 1, 0)
@@ -115,7 +115,7 @@ class AnimationFactory {
 
 //  static var explode = null;
 
-  Animation newExplodeOut() {
+  static Animation newExplodeOut() {
     return new Animation();
 /*
    //TODO should create a new Entity
