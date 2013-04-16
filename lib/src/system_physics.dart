@@ -8,12 +8,13 @@ const EntityTypes_SHIELD = 0x0008;
 const EntityTypes_ITEM =   0x0010;
 
 class System_Physics extends IntervalEntitySystem {
-  const int VELOCITY_ITERATIONS = 10;
-  const int POSITION_ITERATIONS = 10;
+  static const int VELOCITY_ITERATIONS = 10;
+  static const int POSITION_ITERATIONS = 10;
   
-  const int CANVAS_WIDTH = 900;
-  const int CANVAS_HEIGHT = 600;
-  const num _VIEWPORT_SCALE = 2;
+  static const int CANVAS_WIDTH = 900;
+  static const int CANVAS_HEIGHT = 600;
+  static const num _VIEWPORT_SCALE = 2;
+  static const num interval = 1000.0/30;
 
   ComponentMapper<Transform> _transformMapper;
   ComponentMapper<PhysicBody> _bodyMapper;
@@ -24,7 +25,7 @@ class System_Physics extends IntervalEntitySystem {
   var _drawDebugCanvas;
   static final vzero = new vec2.zero();
 
-  System_Physics(bool drawDebug) : super(1000.0/30, Aspect.getAspectForAllOf([Transform, PhysicBody])) {
+  System_Physics(bool drawDebug) : super(interval, Aspect.getAspectForAllOf([Transform, PhysicBody])) {
     _drawDebug = !drawDebug; //toggle while be done during initialize()
   }
 
@@ -70,7 +71,7 @@ class System_Physics extends IntervalEntitySystem {
     print("Draw Debug physics : ${_drawDebug}");
   }
 
-  void processEntities(ImmutableBag<Entity> entities) {
+  void processEntities(ReadOnlyBag<Entity> entities) {
     updateSpace(entities);
     updateEntities(entities);
     if (_drawDebug) {
@@ -81,7 +82,7 @@ class System_Physics extends IntervalEntitySystem {
 
   bool checkProcessing() => true;
 
-  void updateSpace(ImmutableBag<Entity> entities){
+  void updateSpace(ReadOnlyBag<Entity> entities){
     //var stepRate = interval; //_adaptative?  _acc / 1000 : (1 / _intervalRate);
     var dt = interval / 1000;
 

@@ -48,7 +48,7 @@ class System_Render3D extends EntitySystem {
 
   bool checkProcessing() => _camera != null;
 
-  void processEntities(ImmutableBag<Entity> entities) {
+  void processEntities(ReadOnlyBag<Entity> entities) {
     js.scoped((){
       entities.forEach((entity){
         var obj = _objMapper.get(entity).obj;
