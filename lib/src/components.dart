@@ -195,3 +195,13 @@ class Renderable3D implements Component {
     return c;
   }
 }
+
+class Animatable implements Component {
+  final l = new LinkedBag<Animation>();
+
+  Animatable._();
+  static _ctor() => new Animatable._();
+  factory Animatable() {
+    return new Component(Animatable, _ctor);
+  }
+}

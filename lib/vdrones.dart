@@ -23,6 +23,7 @@ part 'src/entities.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
+part 'src/system_animator.dart';
 //part 'src/events.dart';
 //part 'src/gameplay.dart';
 //part 'src/layer2d.dart';
@@ -42,12 +43,30 @@ class Status {
   static const STOPPED = 5;
 }
 
+class TimeInfo {
+  double _time;
+  double _previousTime = -1.0;
+  double _delta = 0.0;
+
+  get delta => _delta; 
+  get time => _time;
+  set time(double v) {
+    _delta = (_previousTime < 0) ? 0 : v - _time;
+    _previousTime = _time;
+    _time = v;
+  }
+
+  void reset() {
+    _previousTime = -1.0;
+    _delta = 0.0;
+  }
+}
 class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
   World _world = null;
-  var _lastTime = -1;
+  var timeInfo = new TimeInfo();
   _EntitiesFactory _entitiesFactory;
   var _player = "u0";
 
@@ -108,6 +127,7 @@ class VDrones {
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler());
+    _world.addSystem(new System_Animator(timeInfo));
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
@@ -167,17 +187,16 @@ class VDrones {
   void _loop(num highResTime) {
     try {
     if (_world != null) {
+      timeInfo.time = highResTime;
       var world = _world;
-      world.delta = (_lastTime == -1) ? 0 : highResTime - _lastTime;
+      world.delta = timeInfo.delta;
       world.process();
       //_worldRenderSystem.process();
-    //_hudRenderSystem.process();
-      _lastTime = highResTime;
     //if (_status == Status.RUNNING) {
       window.animationFrame.then(_loop);
     //}
     } else {
-      _lastTime = -1;
+      timeInfo.reset();
     }
     } catch(error) {
       print(error);
