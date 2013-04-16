@@ -143,13 +143,38 @@ class _EntitiesFactory {
   Future<Entity> newDrone(String player, double x0, double y0, double rz0) {
     return _loadTxt("_models/drone01.js")
       .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
-      .then((x) => _newEntity([
-        new DroneControl(),
-        new Transform.w3d(new vec3(x0, y0, 0.3), new vec3(0.0, 0.0, rz0)),
-        _PhysicBodyFactory.newDrone(),
-        new PhysicMotion(0.0, 0.0),
-        x
-      ], group : GROUP_DRONE, player : player))
+      .then((x) {
+        var e = _newEntity([], group : GROUP_DRONE, player : player);
+        var states = _droneStates(x);
+        e.addComponent(new EntityStateComponent(new EntityStateMachine(e, "creating", states)));
+        var t = (e.getComponentByClass(Transform) as Transform);
+        t.position3d.x = x0;
+        t.position3d.y = y0;
+        return e;
+      });
+      ;
+  }
+
+  _droneStates(Renderable3D c){
+    var renderable = new ComponentProvider(Renderable3D, (e) => c);
+    var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
+    var transform = new ComponentProvider(Transform, (e) => new Transform.w3d(new vec3(0.0, 0.0, 0.3)));
+    var pbody = new ComponentProvider(PhysicBody, (e) => _PhysicBodyFactory.newDrone());
+    var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
+    return new EntityStateRepository()
+      ..registerState("creating", new EntityState()
+        ..add(renderable)
+        ..add(transform)
+      )
+      ..registerState("driving", new EntityState()
+        ..add(renderable)
+        ..add(transform)
+        ..add(pbody)
+        ..add(pmotion)
+        ..add(control)
+      )
+      ..registerState("crashing", new EntityState())
+      ..registerState("exiting", new EntityState())
       ;
   }
 }
