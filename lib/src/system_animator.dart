@@ -20,7 +20,7 @@ class System_Animator extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var animatable = _animatableMapper.get(entity);
     var time = timeInfo.time;
-    animatable.l.iterateAndRemove((anim) {
+    animatable.l.iterateAndUpdate((anim) {
       if (anim._t0 < 0) {
         anim._t0 = time;
         anim.onStart(entity, time, anim._t0);
@@ -29,7 +29,7 @@ class System_Animator extends EntityProcessingSystem {
       if (!cont) {
         anim.onComplete(entity, time, anim._t0);
       }
-      return cont;
+      return cont ? anim : anim.next;
     });
   }
 }
@@ -41,6 +41,7 @@ class Animation {
   OnStart onStart = onNoop;
   OnUpdate onUpdate = onNoop;
   OnComplete onComplete = onNoop;
+  Animation next = null;
 }
 
 class AnimationFactory {

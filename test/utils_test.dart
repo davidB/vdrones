@@ -2,7 +2,7 @@ library utils_test;
 
 import 'package:unittest/unittest.dart';
 import '../lib/utils.dart';
-import 'dart:html';
+//import 'dart:html';
 import 'dart:async';
 
 main() {
@@ -14,25 +14,19 @@ main() {
     d.add(1);
     expect(d.length, equals(4));
 
-    var ndeleted = 0;
-    var lbefore = 0;
-    var lafter = 0;
+    //var lbefore = 0;
+    //var lafter = 0;
 
-    lbefore =  d.length;
-    ndeleted = d.iterateAndRemove((v) => v != 2);
-    lafter = d.length;
-    expect(lafter, equals(lbefore - ndeleted), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    d.iterateAndUpdate((v) => (v != 2)? v : null);
+    //expect(lafter, equals(lbefore - 1), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    expect(d.length, equals(3));
 
-    lbefore =  d.length;
-    ndeleted = d.iterateAndRemove((v) => v != 1);
-    lafter = d.length;
-    expect(lafter, equals(lbefore - ndeleted), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    d.iterateAndUpdate((v) => (v != 1)? v : null);
+    //expect(lafter, equals(lbefore - 2), reason : "${lbefore} - ${ndeleted} != ${lafter}");
     expect(d.length, equals(1));
 
-    lbefore =  d.length;
-    ndeleted = d.iterateAndRemove((v) => v != 1);
-    lafter = d.length;
-    expect(lafter, equals(lbefore - ndeleted), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    d.iterateAndUpdate((v) => (v != 1)? v : null);
+    //expect(lafter, equals(lbefore - 0), reason : "${lbefore} - ${ndeleted} != ${lafter}");
     expect(d.length, equals(1));
 
     d.add(3);
@@ -40,19 +34,15 @@ main() {
     d.add(1);
     expect(d.length, equals(4));
 
-    lbefore =  d.length;
-    ndeleted = d.iterateAndRemove((v) => v != 3);
-    lafter = d.length;
-    expect(lafter, equals(lbefore - ndeleted), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    d.iterateAndUpdate((v) => (v != 3)? v : null);
+    //expect(lafter, equals(lbefore - 2), reason : "${lbefore} - ${ndeleted} != ${lafter}");
     expect(d.length, equals(2));
 
-    lbefore =  d.length;
-    ndeleted = d.iterateAndRemove((v) => v != 1);
-    lafter = d.length;
-    expect(lafter, equals(lbefore - ndeleted), reason : "${lbefore} - ${ndeleted} != ${lafter}");
+    d.iterateAndUpdate((v) => (v != 1)? v : null);
+    //expect(lafter, equals(lbefore - 2), reason : "${lbefore} - ${ndeleted} != ${lafter}");
     expect(d.length, equals(0));
   });
-
+/*
   test("SimpleLinkedList in async land", () {
     var sut = new SimpleLinkedList();
 
@@ -83,6 +73,7 @@ main() {
     var f = Future.wait(fs).then((x){ running = false; return x;}).catchError((e){running = false; print(e);});
     expect(f, completes);
   });
+*/  
 }
 
 

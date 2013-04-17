@@ -35,18 +35,17 @@ class LinkedBag<E> {
     }
   }
 
-  num iterateAndRemove(bool f(E)) {
+  /**
+   * Iterate over the entries (!= null) in the bag.
+   * [f] update the entry in the bag (return null => free the entry)
+   */
+  void iterateAndUpdate(E f(E)) {
     int i = 0;
     for(var current = _head; current != null; current = current._next) {
       if (current._obj != null) {
-        var cont = f(current._obj);
-        if (!cont) {
-          i++;
-          current._obj = null;
-        }
+        current._obj = f(current._obj);
       }
     }
-    return i;
   }
 }
 
