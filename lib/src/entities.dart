@@ -143,50 +143,48 @@ class _EntitiesFactory {
   Future<Entity> newDrone(String player, double x0, double y0, double rz0) {
     return _loadTxt("_models/drone01.js")
       .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
-      .then((x) {
-        var e = _newEntity([], group : GROUP_DRONE, player : player);
-        var states = _droneStates(x);
-        e.addComponent(new EntityStateComponent(new EntityStateMachine(e, "creating", states)));
-        var t = (e.getComponentByClass(Transform) as Transform);
-        t.position3d.x = x0;
-        t.position3d.y = y0;
-        return e;
-      });
-      ;
+      .then((x) => _newEntity([
+          new Transform.w3d(new vec3(x0, y0, 0.3)),
+          new EntityStateComponent("creating", _droneStates(x))
+        ], group : GROUP_DRONE, player : player)
+      );
   }
 
   _droneStates(Renderable3D c){
     var renderable = new ComponentProvider(Renderable3D, (e) => c);
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
-    var transform = new ComponentProvider(Transform, (e) => new Transform.w3d(new vec3(0.0, 0.0, 0.3)));
     var pbody = new ComponentProvider(PhysicBody, (e) => _PhysicBodyFactory.newDrone());
     var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
+    var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
     var animatable = new ComponentProvider(Animatable, (e) => new Animatable());
     var animatableCreating = new ComponentModifier<Animatable>(Animatable, (a){
       a.l.add(AnimationFactory.newScaleIn()
         ..onComplete = (e, t, t0) {
           var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
-          esc.fsm.currentState = "driving";
+          esc.state = "driving";
         }
       )
       ;
     });
-    return new EntityStateRepository()
-      ..registerState("creating", new EntityState()
+    return new Map<String, EntityState>()
+      ..["creating"] = (new EntityState()
         ..add(renderable)
-        ..add(transform)
         ..add(animatable)
         ..modifiers.add(animatableCreating)
       )
-      ..registerState("driving", new EntityState()
+      ..["driving"] = (new EntityState()
         ..add(renderable)
-        ..add(transform)
         ..add(pbody)
         ..add(pmotion)
+        ..add(pcollisions)
         ..add(control)
+        ..add(animatable)
       )
-      ..registerState("crashing", new EntityState())
-      ..registerState("exiting", new EntityState())
+      ..["crashing"] = (new EntityState()
+        ..add(renderable)
+        ..add(animatable)
+      )
+      ..["exiting"] = new EntityState()
       ;
   }
 }

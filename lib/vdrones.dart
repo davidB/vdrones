@@ -133,6 +133,7 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
+    _world.addSystem(new EntityStateSystem());
     _world.initialize();
 
 /*
