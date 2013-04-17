@@ -9,6 +9,18 @@ class vec2 extends Vector{
 const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
 
+const EntityTypes_WALL =   0x0001;
+const EntityTypes_DRONE =  0x0002;
+const EntityTypes_BULLET = 0x0004;
+const EntityTypes_SHIELD = 0x0008;
+const EntityTypes_ITEM =   0x0010;
+
+const State_CREATING = 1;
+const State_DRIVING = 2;
+const State_CRASHING = 3;
+const State_EXITING = 4;
+const State_RUNNING = 10;
+
 class _EntitiesFactory {
 
   World _world;
@@ -145,7 +157,7 @@ class _EntitiesFactory {
       .then((x) => _Renderable3DFactory.makeModel(x, '_models'))
       .then((x) => _newEntity([
           new Transform.w3d(new vec3(x0, y0, 0.3)),
-          new EntityStateComponent("creating", _droneStates(x))
+          new EntityStateComponent(State_CREATING, _droneStates(x))
         ], group : GROUP_DRONE, player : player)
       );
   }
@@ -161,18 +173,18 @@ class _EntitiesFactory {
       a.l.add(AnimationFactory.newScaleIn()
         ..onComplete = (e, t, t0) {
           var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
-          esc.state = "driving";
+          esc.state = State_DRIVING;
         }
       )
       ;
     });
-    return new Map<String, EntityState>()
-      ..["creating"] = (new EntityState()
+    return new Map<int, EntityState>()
+      ..[State_CREATING] = (new EntityState()
         ..add(renderable)
         ..add(animatable)
         ..modifiers.add(animatableCreating)
       )
-      ..["driving"] = (new EntityState()
+      ..[State_DRIVING] = (new EntityState()
         ..add(renderable)
         ..add(pbody)
         ..add(pmotion)
@@ -180,11 +192,14 @@ class _EntitiesFactory {
         ..add(control)
         ..add(animatable)
       )
-      ..["crashing"] = (new EntityState()
+      ..[State_CRASHING] = (new EntityState()
         ..add(renderable)
         ..add(animatable)
       )
-      ..["exiting"] = new EntityState()
+      ..[State_EXITING] = (new EntityState()
+        ..add(renderable)
+        ..add(animatable)
+      )
       ;
   }
 }

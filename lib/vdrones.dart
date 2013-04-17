@@ -12,6 +12,7 @@ import 'package:js/js.dart' as js;
 import 'package:lawndart/lawndart.dart';
 import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
+import 'package:dartemis_addons/entity_state.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'utils.dart';
@@ -188,7 +189,7 @@ class VDrones {
   }
 
   void _loop(num highResTime) {
-    try {
+//    try {
     if (_world != null) {
       timeInfo.time = highResTime;
       var world = _world;
@@ -201,9 +202,9 @@ class VDrones {
     } else {
       timeInfo.reset();
     }
-    } catch(error) {
-      print(error);
-    }
+//    } catch(error) {
+//      error);
+//    }
   }
 
 }
