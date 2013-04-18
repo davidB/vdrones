@@ -13,9 +13,9 @@ import 'package:lawndart/lawndart.dart';
 import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_addons/entity_state.dart';
+import 'package:dartemis_addons/animator.dart';
 import 'package:vector_math/vector_math.dart';
-
-import 'utils.dart';
+//import 'utils.dart';
 
 part 'src/components.dart';
 //part 'src/animations.dart';
@@ -24,7 +24,9 @@ part 'src/entities.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
-part 'src/system_animator.dart';
+part 'src/factory_physics.dart';
+part 'src/factory_animations.dart';
+part 'src/factory_renderables.dart';
 //part 'src/events.dart';
 //part 'src/gameplay.dart';
 //part 'src/layer2d.dart';
@@ -130,11 +132,11 @@ class VDrones {
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler());
-    _world.addSystem(new System_Animator(timeInfo));
+    _world.addSystem(new System_Animator());
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
-    _world.addSystem(new EntityStateSystem());
+    _world.addSystem(new System_EntityState());
     _world.initialize();
 
 /*

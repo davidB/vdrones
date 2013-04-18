@@ -1,22 +1,77 @@
 part of vdrones;
 
+// -- Components --------------------------------------------------------------
 
-const EntityTypes_WALL =   0x0001;
-const EntityTypes_DRONE =  0x0002;
-const EntityTypes_BULLET = 0x0004;
-const EntityTypes_SHIELD = 0x0008;
-const EntityTypes_ITEM =   0x0010;
+class PhysicBody implements Component {
+  b2.BodyDef bdef;
+  List<b2.FixtureDef> fdefs;
+
+  PhysicBody._();
+  static _ctor() => new PhysicBody._();
+  factory PhysicBody(b2.BodyDef b, List<b2.FixtureDef> f) {
+    var c = new Component(PhysicBody, _ctor);
+    c.bdef = b;
+    c.fdefs = f;
+    return c;
+  }
+}
+
+// cache of the body (only used by System_Physics)
+class PhysicBodyCache implements Component {
+  b2.Body body;
+
+  PhysicBodyCache._();
+  static _ctor() => new PhysicBodyCache._();
+  factory PhysicBodyCache(b2.Body b) {
+    var c = new Component(PhysicBodyCache, _ctor);
+    c.body = b;
+    return c;
+  }
+}
+
+class PhysicMotion implements Component {
+  /// unit per second
+  num acceleration;
+  /// radians per second
+  num angularVelocity;
+
+  PhysicMotion._();
+  static _ctor() => new PhysicMotion._();
+  factory PhysicMotion(acc, av) {
+    var c = new Component(PhysicMotion, _ctor);
+    c.acceleration = acc;
+    c.angularVelocity = av;
+    return c;
+  }
+}
+
+class Collider {
+  Entity e;
+  // the collision groupId
+  int group; //HACK quick to know the entity kind
+  Collider(this.e, this.group);
+}
+
+class PhysicCollisions implements Component {
+  var colliders = new List<Collider>();
+
+  PhysicCollisions._();
+  static _ctor() => new PhysicCollisions._();
+  factory PhysicCollisions() => new Component(PhysicCollisions, _ctor);
+}
+
+// -- Systems -----------------------------------------------------------------
 
 class System_Physics extends IntervalEntitySystem {
   static const int VELOCITY_ITERATIONS = 10;
   static const int POSITION_ITERATIONS = 10;
-  
+
   static const int CANVAS_WIDTH = 900;
   static const int CANVAS_HEIGHT = 600;
   static const num _VIEWPORT_SCALE = 2;
-  static const num interval = 1000.0/30;
 
   ComponentMapper<Transform> _transformMapper;
+  ComponentMapper<PhysicBodyCache> _bodyCacheMapper;
   ComponentMapper<PhysicBody> _bodyMapper;
   ComponentMapper<PhysicMotion> _motionMapper;
 
@@ -25,13 +80,14 @@ class System_Physics extends IntervalEntitySystem {
   var _drawDebugCanvas;
   static final vzero = new vec2.zero();
 
-  System_Physics(bool drawDebug) : super(interval, Aspect.getAspectForAllOf([Transform, PhysicBody])) {
+  System_Physics(bool drawDebug) : super(1000.0/30, Aspect.getAspectForAllOf([Transform, PhysicBody])) {
     _drawDebug = !drawDebug; //toggle while be done during initialize()
   }
 
   void initialize() {
     _transformMapper = new ComponentMapper<Transform>(Transform, world);
     _bodyMapper = new ComponentMapper<PhysicBody>(PhysicBody, world);
+    _bodyCacheMapper = new ComponentMapper<PhysicBodyCache>(PhysicBodyCache, world);
     _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
     _space = _initSpace();
     drawDebug = !_drawDebug; //toggle need an initialized _space
@@ -66,7 +122,7 @@ class System_Physics extends IntervalEntitySystem {
         _drawDebugCanvas = null;
       }
     }
-    
+
     _drawDebug = v;
     print("Draw Debug physics : ${_drawDebug}");
   }
@@ -80,14 +136,15 @@ class System_Physics extends IntervalEntitySystem {
     }
   }
 
-  bool checkProcessing() => true;
-
   void updateSpace(ReadOnlyBag<Entity> entities){
     //var stepRate = interval; //_adaptative?  _acc / 1000 : (1 / _intervalRate);
-    var dt = interval / 1000;
+    var dt = delta / 1000;
 
     entities.forEach((entity) {
-      var b = _bodyMapper.get(entity).body;
+      var bc = _bodyCacheMapper.getSafe(entity);
+      assert(bc != null);
+      var b = bc.body;
+      if (b.type == b2.BodyType.STATIC) return;
       var m = _motionMapper.getSafe(entity);
       if (m != null) {
         //b.active = true;
@@ -112,13 +169,16 @@ class System_Physics extends IntervalEntitySystem {
 
   void updateEntities(entities){
     entities.forEach((entity) {
-      var b = _bodyMapper.get(entity).body;
+      var bc = _bodyCacheMapper.getSafe(entity);
+      if (bc == null) return;
+      var b = bc.body;
+      if (b.type == b2.BodyType.STATIC) return;
       var p = _transformMapper.get(entity);
       p.position = b.position;
       p.angle = b.angle;
     });
   }
-  
+
   void inserted(Entity entity) {
     var bd = _bodyMapper.get(entity);
     var p = _transformMapper.get(entity);
@@ -128,15 +188,20 @@ class System_Physics extends IntervalEntitySystem {
     bd.fdefs.forEach((fd) {
       body.createFixture(fd);
     });
-    bd.body = body;
+    entity.addComponent(new PhysicBodyCache(body));
+    entity.changedInWorld();
   }
 
+  //TODO find a quicker way to remove body from space than browse every body
   void removed(Entity entity) {
-    var bd = _bodyMapper.get(entity);
-    if (bd.body != null) {
-      _space.destroyBody(bd.body);
-      bd.body = null;
+    var bc = _bodyCacheMapper.getSafe(entity);
+    if (bc == null) return;
+    var b = bc.body;
+    if (b != null) {
+      _space.destroyBody(b);
+      bc.body = null;
     }
+    entity.removeComponent(PhysicBodyCache);
   }
 }
 

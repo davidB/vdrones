@@ -53,7 +53,7 @@ class LinkedEntry {
   LinkedEntry _next = null;
   var _obj;
 }
-
+/*
 class SimpleLinkedEntry {
   SimpleLinkedEntry _next = null;
   var _obj;
@@ -117,3 +117,4 @@ class SimpleLinkedList<E> {
     return i;
   }
 }
+*/

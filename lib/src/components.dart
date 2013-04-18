@@ -24,7 +24,17 @@ class DroneControl implements Component {
     return c;
   }
 }
+class Generated implements Component {
+  Entity generator;
 
+  Generated._();
+  static _ctor() => new Generated._();
+  factory Generated(Entity generator) {
+    var c = new Component(Generated, _ctor);
+    c.generator = generator;
+    return c;
+  }
+}
 class CubeGenerator implements Component {
   num cellr;
   List<num> cells;
@@ -50,6 +60,7 @@ class DroneGenerator implements Component {
   factory DroneGenerator(List<vec3> points, num nb) {
     var c = new Component(DroneGenerator, _ctor);
     c.nb = nb;
+    c.nextPointsIdx = 0;
     c.points = points;
     return c;
   }
@@ -138,52 +149,6 @@ class Transform implements Component {
   }
 }
 
-class PhysicBody implements Component {
-  b2.BodyDef bdef;
-  List<b2.FixtureDef> fdefs;
-  // cache of the body (only used by System_Physics)
-  b2.Body body;
-
-  PhysicBody._();
-  static _ctor() => new PhysicBody._();
-  factory PhysicBody(b2.BodyDef b, List<b2.FixtureDef> f) {
-    var c = new Component(PhysicBody, _ctor);
-    c.bdef = b;
-    c.fdefs = f;
-    return c;
-  }
-}
-
-class PhysicMotion implements Component {
-  /// unit per second
-  num acceleration;
-  /// radians per second
-  num angularVelocity;
-
-  PhysicMotion._();
-  static _ctor() => new PhysicMotion._();
-  factory PhysicMotion(acc, av) {
-    var c = new Component(PhysicMotion, _ctor);
-    c.acceleration = acc;
-    c.angularVelocity = av;
-    return c;
-  }
-}
-
-class Collider {
-  Entity e;
-  // the collision groupId
-  int group; //HACK quick to know the entity kind
-  Collider(this.e, this.group);
-}
-class PhysicCollisions implements Component {
-  var colliders = new List<Collider>();
-
-  PhysicCollisions._();
-  static _ctor() => new PhysicCollisions._();
-  factory PhysicCollisions() => new Component(PhysicCollisions, _ctor);
-}
-
 class Renderable3D implements Component {
   var obj;
 
@@ -196,12 +161,3 @@ class Renderable3D implements Component {
   }
 }
 
-class Animatable implements Component {
-  final l = new LinkedBag<Animation>();
-
-  Animatable._();
-  static _ctor() => new Animatable._();
-  factory Animatable() {
-    return new Component(Animatable, _ctor);
-  }
-}
