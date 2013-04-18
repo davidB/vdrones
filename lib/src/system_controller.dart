@@ -103,7 +103,8 @@ class System_DroneHandler extends EntityProcessingSystem {
     var collisions = _collisionsMapper.get(entity);
     collisions.colliders.forEach((collider){
       if (collider.group == EntityTypes_WALL) {
-        esc.state = State_CRASHING;
+        entity.deleteFromWorld();
+//        esc.state = State_CRASHING;
         print("CRASHING");
         //TODO spawn Explosion
       }

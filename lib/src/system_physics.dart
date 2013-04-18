@@ -53,11 +53,15 @@ class Collider {
 }
 
 class PhysicCollisions implements Component {
-  var colliders = new List<Collider>();
+  final colliders = new List<Collider>();
 
   PhysicCollisions._();
   static _ctor() => new PhysicCollisions._();
-  factory PhysicCollisions() => new Component(PhysicCollisions, _ctor);
+  factory PhysicCollisions() {
+    var c = new Component(PhysicCollisions, _ctor);
+    c.colliders.clear();
+    return c;
+  }
 }
 
 // -- Systems -----------------------------------------------------------------
@@ -222,10 +226,21 @@ class _EntityContactListener extends b2.ContactListener {
     }
     var collisionsB = _collisionsMapper.getSafe(entityB);
     if (collisionsB != null) {
-      collisionsB.colliders.add(new Collider(entityB, contact.fixtureA.filter.groupIndex));
+      collisionsB.colliders.add(new Collider(entityA, contact.fixtureA.filter.groupIndex));
     }
   }
   void endContact(b2.Contact contact) {
+    if (contact.fixtureA.filter.groupIndex == contact.fixtureB.filter.groupIndex) return;
+    var entityA = contact.fixtureA.body.userData as Entity;
+    var entityB = contact.fixtureB.body.userData as Entity;
+    var collisionsA = _collisionsMapper.getSafe(entityA);
+    if (collisionsA != null) {
+      collisionsA.colliders.removeWhere((x) => x.e == entityB);
+    }
+    var collisionsB = _collisionsMapper.getSafe(entityB);
+    if (collisionsB != null) {
+      collisionsB.colliders.removeWhere((x) => x.e == entityA);
+    }
   }
   void preSolve(b2.Contact contact, b2.Manifold oldManifold){
   }
