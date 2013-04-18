@@ -20,11 +20,11 @@ import 'package:vector_math/vector_math.dart';
 part 'src/components.dart';
 //part 'src/animations.dart';
 //part 'src/controls.dart';
-part 'src/entities.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
 part 'src/factory_physics.dart';
+part 'src/factory_entities.dart';
 part 'src/factory_animations.dart';
 part 'src/factory_renderables.dart';
 //part 'src/events.dart';
@@ -72,7 +72,7 @@ class VDrones {
   var _status = Status.NONE;
   World _world = null;
   var timeInfo = new TimeInfo();
-  _EntitiesFactory _entitiesFactory;
+  Factory_Entities _entitiesFactory;
   var _player = "u0";
 
   //var _worldRenderSystem;
@@ -120,7 +120,7 @@ class VDrones {
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
-    _entitiesFactory = new _EntitiesFactory(_world);
+    _entitiesFactory = new Factory_Entities(_world);
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
     _world.addSystem(new System_Physics(false), passive : false);

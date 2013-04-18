@@ -121,14 +121,16 @@ class System_DroneHandler extends EntityProcessingSystem {
 class System_DroneGenerator extends EntityProcessingSystem {
   ComponentMapper<DroneGenerator> _droneGeneratorMapper;
   ComponentMapper<Generated> _genMapper;
-  _EntitiesFactory _efactory;
+  ComponentMapper<Animatable> _animatableMapper;
+  Factory_Entities _efactory;
   String _player;
 
-  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Transform]));
+  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Transform, Animatable]));
 
   void initialize(){
     _droneGeneratorMapper = new ComponentMapper<DroneGenerator>(DroneGenerator, world);
     _genMapper = new ComponentMapper<Generated>(Generated, world);
+    _animatableMapper = new ComponentMapper<Animatable>(Animatable, world);
   }
 
   void processEntity(Entity entity) {
@@ -150,8 +152,13 @@ class System_DroneGenerator extends EntityProcessingSystem {
     var g0 = _genMapper.get(e);
     if (g0 != null) {
       print("DEleted with generated");
-      var g = _droneGeneratorMapper.get(g0.generator);
-      if (g != null ) g.nb += 1;
+      var generator = g0.generator;
+      var a = _animatableMapper.get(generator).l.add(Factory_Animations.newDelay(900)
+        ..onEnd = (e0,t,t0) {
+          var g = _droneGeneratorMapper.get(e0);
+          if (g != null ) g.nb += 1;
+        }
+      );
     }
   }
 }

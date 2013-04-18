@@ -8,6 +8,13 @@ class Factory_Animations {
   static final transformCT = ComponentTypeManager.getTypeFor(Transform);
   static final renderable3dCT = ComponentTypeManager.getTypeFor(Renderable3D);
 
+  static Animation newDelay(num millis) {
+    return new Animation()
+      ..onTick = (Entity e, num t, num t0){
+        return t-t0 < millis;
+      }
+    ;
+  }
   static Animation newRotateXYEndless() {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){

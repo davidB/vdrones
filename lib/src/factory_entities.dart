@@ -1,10 +1,4 @@
 part of vdrones;
-/*
-class vec2 extends Vector{
-  vec2(x, y) : super(x,y);
-  vec2.zero() : super(0,0);
-}
-*/
 
 const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
@@ -21,11 +15,11 @@ const State_CRASHING = 3;
 const State_EXITING = 4;
 const State_RUNNING = 10;
 
-class _EntitiesFactory {
+class Factory_Entities {
 
   World _world;
 
-  _EntitiesFactory(this._world);
+  Factory_Entities(this._world);
 
   Entity _newEntity(List<Component> cs, {String group, String player}) {
     var e = _world.createEntity();
@@ -73,6 +67,7 @@ class _EntitiesFactory {
       new Transform.w3d(new vec3(0, 0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
       Factory_Renderables.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
+      new Animatable(),
       new DroneGenerator(points, 1)
     ]);
   }
