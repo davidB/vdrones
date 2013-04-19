@@ -22,8 +22,9 @@ dependencies:
 #      ref: 0.2.4+p0
 #      url: git://github.com/davidB/widget.dart.git
   dartemis: 
-    path: ../dartemis
+#    path: ../dartemis
 #    git: git://github.com/davidB/dartemis.git
+    git: git://github.com/denniskaselow/dartemis.git
   dartemis_addons: 
     path: ../dartemis_addons
 #    git: git://github.com/davidB/dartemis_addons.git
