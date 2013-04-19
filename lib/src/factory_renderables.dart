@@ -181,7 +181,7 @@ class Factory_Renderables {
 
   //static var _explode = newExplode(100);
   static var _explode = new Renderable3D(new Explode(100).particles);
-  static Renderable3D newExplode(int nbParticles) {
+  static Renderable3D newExplode() {
     return _explode;
   }
 }
