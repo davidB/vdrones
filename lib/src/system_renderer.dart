@@ -89,6 +89,8 @@ class System_Render3D extends EntitySystem {
     print("removed 3d ${entity}");
   }
 
+  //TODO on deleted entity with Renderable3D, free the js object
+
   static void _applyTransform(obj, Transform t) {
     obj.position.set(t.position3d.x, t.position3d.y, t.position3d.z);
     obj.scale.set(t.scale3d.x, t.scale3d.y, t.scale3d.z);

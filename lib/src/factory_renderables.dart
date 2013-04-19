@@ -179,8 +179,10 @@ class Factory_Renderables {
     return deferred.future;
   }
 
-  static Renderable3D newExplode(int nbParticules) {
-    new Renderable3D(new Explode(nbParticules).particles);
+  //static var _explode = newExplode(100);
+  static var _explode = new Renderable3D(new Explode(100).particles);
+  static Renderable3D newExplode(int nbParticles) {
+    return _explode;
   }
 }
 

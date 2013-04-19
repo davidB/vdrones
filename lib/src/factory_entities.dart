@@ -197,6 +197,15 @@ class Factory_Entities {
       )
       ;
   }
+
+  Entity newExplosion(Transform t) => _newEntity([
+    new Transform.w3d(t.position3d, t.rotation3d), // no need to clone the vec3 of transform
+    Factory_Renderables.newExplode(100),
+    new Animatable()..l.add(
+      Factory_Animations.newExplodeOut()
+        ..onEnd = (e, t ,t0) { e.deleteFromWorld();}
+    )
+  ]);
 }
 
 

@@ -80,36 +80,19 @@ class Factory_Animations {
 //  static var explode = null;
 
   static Animation newExplodeOut() {
-    return new Animation();
-/*
-   //TODO should create a new Entity
-      ..onUpdate = (Entity e, num t, num t0){
+    return new Animation()
+      ..onTick = (Entity e, num t, num t0){
         var cont = (t - t0) < 2000;
-        js.scoped((){
-          if (cont)
+        if (cont) js.scoped((){
           var runningTime = (t - t0)/1000;
           runningTime = runningTime - (runningTime/6.0).floor() *6.0;
-          //explode.uniforms["time"].value = runningTime;
-          particules.material.uniforms["time"].value = runningTime;
+          var r3d = (e.getComponent(renderable3dCT) as Renderable3D);
+          assert(r3d != null);
+          r3d.obj.material.uniforms["time"].value = runningTime;
         });
-        var p = explode.particles.parent;
-        if (p != null) p.remove(explode.particles);
         return cont;
       }
-      ..onComplete = (num t, num t0) {
-      js.scoped((){
-        r.complete(obj3d);
-      });
-    };
-    ..onBegin = (Entity e, num t, num t0){
-      js.scoped((){
-        //explode.uniforms["center"].value = obj3d.position.clone();
-        explode.particles.position = obj3d.position.clone();
-        //explode.particles.position.z = 1;
-        obj3d.parent.add(explode.particles);
-      });
-    return r.future;
-*/
+    ;
   }
 }
 

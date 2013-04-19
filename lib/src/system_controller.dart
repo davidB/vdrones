@@ -88,14 +88,17 @@ class System_DroneHandler extends EntityProcessingSystem {
   ComponentMapper<EntityStateComponent> _statesMapper;
   ComponentMapper<Generated> _genMapper;
   ComponentMapper<DroneGenerator> _droneGenMapper;
+  ComponentMapper<Transform> _transformMapper;
+  Factory_Entities _efactory;
 
-  System_DroneHandler() : super(Aspect.getAspectForAllOf([DroneControl, PhysicMotion, PhysicCollisions, EntityStateComponent]));
+  System_DroneHandler(this._efactory) : super(Aspect.getAspectForAllOf([DroneControl, PhysicMotion, PhysicCollisions, EntityStateComponent]));
 
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
     _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
     _collisionsMapper = new ComponentMapper<PhysicCollisions>(PhysicCollisions, world);
     _statesMapper = new ComponentMapper<EntityStateComponent>(EntityStateComponent, world);
+    _transformMapper = new ComponentMapper<Transform>(Transform, world);
   }
 
   void processEntity(Entity entity) {
@@ -103,10 +106,7 @@ class System_DroneHandler extends EntityProcessingSystem {
     var collisions = _collisionsMapper.get(entity);
     collisions.colliders.forEach((collider){
       if (collider.group == EntityTypes_WALL) {
-        entity.deleteFromWorld();
-//        esc.state = State_CRASHING;
-        print("CRASHING");
-        //TODO spawn Explosion
+        _crash(entity);
       }
     });
     if (esc.state == State_DRIVING) {
@@ -115,6 +115,13 @@ class System_DroneHandler extends EntityProcessingSystem {
       m.acceleration = ctrl.forward * 5500.0;
       m.angularVelocity = radians(ctrl.turn * 110.0);
     }
+  }
+
+  void _crash(Entity entity) {
+    var transform = _transformMapper.get(entity);
+    if (transform != null) world.addEntity( _efactory.newExplosion(transform));
+    entity.deleteFromWorld();
+    // esc.state = State_CRASHING;
   }
 }
 
