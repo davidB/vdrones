@@ -37,15 +37,25 @@ class Factory_Entities {
 //      anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
-  Entity newCube() => _newEntity([
-    new Transform.w2d(0, 0, 0),
+  Entity newCube(x, y) => _newEntity([
+    new Transform.w3d(new vec3(x, y, 1)),
     Factory_Physics.newCube(),
-    Factory_Renderables.newCube()
+    Factory_Renderables.newCube(),
+    new Animatable()
+      ..add(Factory_Animations.newScaleIn()
+        ..next = Factory_Animations.newRotateXYEndless()
+      )
+      ..add(Factory_Animations.newDelay(55555 * 1000)
+        ..next = (Factory_Animations.newScaleOut()
+          ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+        )
+      )
+    
   ]);
 
   Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
-    new Transform.w2d(0, 0, 0),
-    new CubeGenerator(cellr, cells)
+    new CubeGenerator(cellr, cells),
+    new Animatable()
   ]);
 
   Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
@@ -165,7 +175,7 @@ class Factory_Entities {
     var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
     var animatable = new ComponentProvider(Animatable, (e) => new Animatable());
     var animatableCreating = new ComponentModifier<Animatable>(Animatable, (a){
-      a.l.add(Factory_Animations.newScaleIn()
+      a.add(Factory_Animations.newScaleIn()
         ..onEnd = (e, t, t0) {
           var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
           esc.state = State_DRIVING;

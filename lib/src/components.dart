@@ -35,9 +35,12 @@ class Generated implements Component {
     return c;
   }
 }
+
 class CubeGenerator implements Component {
   num cellr;
   List<num> cells;
+  int subZoneOffset = 0;
+  int nb = 1;
 
   CubeGenerator._();
   static _ctor() => new CubeGenerator._();

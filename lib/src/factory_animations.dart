@@ -11,7 +11,7 @@ class Factory_Animations {
   static Animation newDelay(num millis) {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
-        return t-t0 < millis;
+        return (t - t0) <= millis;
       }
     ;
   }

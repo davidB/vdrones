@@ -105,8 +105,9 @@ class System_DroneHandler extends EntityProcessingSystem {
     var esc = _statesMapper.getSafe(entity);
     var collisions = _collisionsMapper.get(entity);
     collisions.colliders.forEach((collider){
-      if (collider.group == EntityTypes_WALL) {
-        _crash(entity);
+      switch(collider.group) {
+        case  EntityTypes_WALL : _crash(entity); break;
+        case EntityTypes_ITEM : _grabCube(entity, collider.e); break;
       }
     });
     if (esc.state == State_DRIVING) {
@@ -123,6 +124,17 @@ class System_DroneHandler extends EntityProcessingSystem {
     entity.deleteFromWorld();
     // esc.state = State_CRASHING;
   }
+
+  void _grabCube(Entity drone, Entity cube) {
+     //var emax = evt.GameStates.energyMax.v;
+     //evt.GameStates.energy.v = math.max(evt.GameStates.energy.v + emax /2, emax);
+     //evt.GameStates.score.v = evt.GameStates.score.v + 1;
+//     _entities.find('message').then((x){
+//       evt.ObjPop.dispatch(["msg/"+objId, dronePos, x]);
+//     });
+    print("hit cube");
+    cube.deleteFromWorld();
+  }
 }
 
 class System_DroneGenerator extends EntityProcessingSystem {
@@ -132,7 +144,7 @@ class System_DroneGenerator extends EntityProcessingSystem {
   Factory_Entities _efactory;
   String _player;
 
-  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Transform, Animatable]));
+  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Animatable]));
 
   void initialize(){
     _droneGeneratorMapper = new ComponentMapper<DroneGenerator>(DroneGenerator, world);
@@ -154,11 +166,9 @@ class System_DroneGenerator extends EntityProcessingSystem {
   }
 
   void deleted(Entity e) {
-    print("deleted");
     super.deleted(e);
     var g0 = _genMapper.get(e);
     if (g0 != null) {
-      print("DEleted with generated");
       var generator = g0.generator;
       var a = _animatableMapper.get(generator).l.add(Factory_Animations.newDelay(900)
         ..onEnd = (e0,t,t0) {
@@ -170,4 +180,63 @@ class System_DroneGenerator extends EntityProcessingSystem {
   }
 }
 
+//-- Cubes --------------------------------------------------------------------
+class System_CubeGenerator extends EntityProcessingSystem {
+  static final _random = new math.Random();
+  static num random(min, max) => _random.nextDouble() * (max - min) + min;
+
+  ComponentMapper<CubeGenerator> _cubeGeneratorMapper;
+  ComponentMapper<Generated> _genMapper;
+  ComponentMapper<Animatable> _animatableMapper;
+  Factory_Entities _efactory;
+
+  System_CubeGenerator(this._efactory) : super(Aspect.getAspectForAllOf([CubeGenerator, Animatable]));
+
+  void initialize(){
+    _cubeGeneratorMapper = new ComponentMapper<CubeGenerator>(CubeGenerator, world);
+    _genMapper = new ComponentMapper<Generated>(Generated, world);
+    _animatableMapper = new ComponentMapper<Animatable>(Animatable, world);
+  }
+
+  void processEntity(Entity entity) {
+    var gen = _cubeGeneratorMapper.get(entity);
+    for(var i = gen.nb; i > 0; i--) {
+      var p = _nextPosition(gen);
+      var e = _efactory.newCube(p.x, p.y);
+      e.addComponent(new Generated(entity));
+      world.addEntity(e);
+    }
+    gen.nb = 0;
+  }
+
+  void deleted(Entity e) {
+    super.deleted(e);
+    var g0 = _genMapper.get(e);
+    if (g0 != null) {
+      var generator = g0.generator;
+      var a = _animatableMapper.get(generator).l.add(Factory_Animations.newDelay(200)
+        ..onEnd = (e0,t,t0) {
+          var g = _cubeGeneratorMapper.get(e0);
+          if (g != null ) g.nb += 1;
+        }
+      );
+    }
+  }
+
+  vec2 _nextPosition(CubeGenerator gen) {
+    var offset = gen.subZoneOffset;
+    gen.subZoneOffset = (gen.subZoneOffset + 4) % gen.cells.length;
+    //1.0 around for wall
+    //0.5 half size of generated cube;
+    var xmin = gen.cells[offset + 0] * gen.cellr + 1 + 0.5;
+    var xmax = xmin + gen.cells[offset + 2] * gen.cellr - 2 - 0.5;
+    var ymin = gen.cells[offset + 1] * gen.cellr + 1 + 0.5;
+    var ymax = ymin + gen.cells[offset + 3] * gen.cellr - 2 - 0.5;
+
+    var x = random(xmin, xmax);
+    var y = random(ymin, ymax);
+    return new vec2(x, y);
+  }
+  
+}
 
