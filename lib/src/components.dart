@@ -149,15 +149,4 @@ class Transform implements Component {
   }
 }
 
-class Renderable3D implements Component {
-  var obj;
-
-  Renderable3D._();
-  static _ctor() => new Renderable3D._();
-  factory Renderable3D(v) {
-    var c = new Component(Renderable3D, _ctor);
-    c.obj = v;
-    return c;
-  }
-}
 

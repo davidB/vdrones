@@ -6,7 +6,7 @@ class Factory_Animations {
 
   //static Future noop(Animator animator, obj3d) => new Future.immediate(obj3d);
   static final transformCT = ComponentTypeManager.getTypeFor(Transform);
-  static final renderable3dCT = ComponentTypeManager.getTypeFor(Renderable3D);
+  static final renderableCacheCT = ComponentTypeManager.getTypeFor(RenderableCache);
 
   static Animation newDelay(num millis) {
     return new Animation()
@@ -86,9 +86,9 @@ class Factory_Animations {
         if (cont) js.scoped((){
           var runningTime = (t - t0)/1000;
           runningTime = runningTime - (runningTime/6.0).floor() *6.0;
-          var r3d = (e.getComponent(renderable3dCT) as Renderable3D);
+          var r3d = (e.getComponent(renderableCacheCT) as RenderableCache);
           assert(r3d != null);
-          r3d.obj.material.uniforms["time"].value = runningTime;
+          if (r3d != null) r3d.obj.material.uniforms["time"].value = runningTime;
         });
         return cont;
       }

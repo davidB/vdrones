@@ -157,8 +157,8 @@ class Factory_Entities {
       );
   }
 
-  _droneStates(Renderable3D c){
-    var renderable = new ComponentProvider(Renderable3D, (e) => c);
+  _droneStates(RenderableDef c){
+    var renderable = new ComponentProvider(RenderableDef, (e) => c);
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
     var pbody = new ComponentProvider(PhysicBody, (e) => Factory_Physics.newDrone());
     var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));

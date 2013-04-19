@@ -4,9 +4,9 @@ class Factory_Renderables {
   static const FAR = 1000;
   static const _devMode = false;
 
-  static Renderable3D _newRenderable3D(f) => new Renderable3D(js.scoped(f));
+  static RenderableDef _newRenderableDef(f) => new RenderableDef(() => js.scoped(f));
 
-  static Renderable3D newCube() => _newRenderable3D((){
+  static RenderableDef newCube() => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var s = 1;
     var geometry = new js.Proxy(THREE.CubeGeometry, s, s, s);
@@ -18,7 +18,7 @@ class Factory_Renderables {
     return js.retain(o);
   });
 
-  static Renderable3D newMobileWall(num dx, num dy, num dz) => _newRenderable3D((){
+  static RenderableDef newMobileWall(num dx, num dy, num dz) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var texture = THREE.ImageUtils.loadTexture('_images/mobilewalls.png');
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -39,14 +39,14 @@ class Factory_Renderables {
   });
 
   /// default length of axis is 100
-  static Renderable3D newAxis(num scale) => _newRenderable3D((){
+  static RenderableDef newAxis(num scale) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var o = new js.Proxy(THREE.AxisHelper) as dynamic;
     o.scale.setValues(scale, scale, scale);
     return js.retain(o);
   });
 
-  static Renderable3D cells2surface3d(num cellr, List<num> cells, num offz, [String imgUrl]) => _newRenderable3D((){
+  static RenderableDef cells2surface3d(num cellr, List<num> cells, num offz, [String imgUrl]) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry );
     //#material = new js.Proxy(THREE.MeshNormalMaterial, )
@@ -81,7 +81,7 @@ class Factory_Renderables {
     return js.retain(obj3d);
   });
 
-  static Renderable3D cells2boxes3d(num cellr, List<num> cells, num width, num height) => _newRenderable3D((){
+  static RenderableDef cells2boxes3d(num cellr, List<num> cells, num width, num height) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry);
     //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
@@ -117,18 +117,18 @@ class Factory_Renderables {
     return js.retain(obj3d);
   });
 
-  static Renderable3D newCamera() => _newRenderable3D((){
+  static RenderableDef newCamera() => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
     return js.retain(camera);
   });
 
-  static Renderable3D newAmbientLight() => _newRenderable3D((){
+  static RenderableDef newAmbientLight() => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     return js.retain(new js.Proxy(THREE.AmbientLight, 0x444444));
   });
 
-  static Renderable3D newLight() => _newRenderable3D((){
+  static RenderableDef newLight() => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     //var light = new js.Proxy.withArgList(THREE.DirectionalLight,  [0xffffff, 1, 0] );
     var light = new js.Proxy.withArgList(THREE.SpotLight,  [0xffffff, 1.0, 0.0, math.PI, 1] ) as dynamic;
@@ -149,40 +149,32 @@ class Factory_Renderables {
     return js.retain(light);
   });
 
-  static Future<Renderable3D> makeModel(jsonStr, texturePath) {
-    var deferred = new Completer();
-    try {
-      js.scoped((){
-        final THREE = (js.context as dynamic).THREE;
-        var loader = new js.Proxy(THREE.JSONLoader) as dynamic;
-        //texturePath = loader.extractUrlBase( d.src )
-        var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
-        //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
-        //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
-        //geometry.materials[ 0 ].shading = three.FlatShading;
-        //var material = new js.Proxy(THREE.MeshFaceMaterial, );
-        //var material0 = geometry.materials[0];
-        var material0 = r.materials[0];
-        //material.transparent = true
-        //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
-        //TODO should create a new object or at least change the timestamp
-        //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-        var obj3d = new js.Proxy(THREE.Mesh, r.geometry, material0) as dynamic;
-        obj3d.castShadow = true;
-        obj3d.receiveShadow = true;
-     //obj3d = fixOrientation(obj3d);
-        deferred.complete(new Renderable3D(js.retain(obj3d)));
-      });
-    } catch(exc) {
-      deferred.completeError(exc);
-    }
-    return deferred.future;
-  }
+  static RenderableDef makeModel(jsonStr, texturePath) => _newRenderableDef((){
+    final THREE = (js.context as dynamic).THREE;
+    var loader = new js.Proxy(THREE.JSONLoader) as dynamic;
+    //texturePath = loader.extractUrlBase( d.src )
+    var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
+    //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
+    //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
+    //geometry.materials[ 0 ].shading = three.FlatShading;
+    //var material = new js.Proxy(THREE.MeshFaceMaterial, );
+    //var material0 = geometry.materials[0];
+    var material0 = r.materials[0];
+    //material.transparent = true
+    //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
+    //TODO should create a new object or at least change the timestamp
+    //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
+    var obj3d = new js.Proxy(THREE.Mesh, r.geometry, material0) as dynamic;
+    obj3d.castShadow = true;
+    obj3d.receiveShadow = false;
+    //obj3d = fixOrientation(obj3d);
+    return js.retain(obj3d);
+  });
 
   //static var _explode = newExplode(100);
-  static var _explode = new Renderable3D(new Explode(100).particles);
-  static Renderable3D newExplode() {
-    return _explode;
+  static var _explode = new Explode(100).particles;
+  static RenderableDef newExplode() {
+    return new RenderableDef(() => _explode);
   }
 }
 
