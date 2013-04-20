@@ -13,6 +13,18 @@ class Area implements Component {
   }
 }
 
+class Chronometer implements Component {
+  int millis;
+
+  Chronometer._();
+  static _ctor() => new Chronometer._();
+  factory Chronometer(int start) {
+    var c = new Component(Chronometer, _ctor);
+    c.millis = start;
+    return c;
+  }
+}
+
 class DroneControl implements Component {
   double forward = 0.0;
   double turn = 0.0;
@@ -53,18 +65,38 @@ class CubeGenerator implements Component {
 }
 
 class DroneGenerator implements Component {
-  // number of drone to generate
-  num nb;
+  /// score of drone to generate
+  List<int> scores;
   int nextPointsIdx = 0;
   List<vec3> points;
 
   DroneGenerator._();
   static _ctor() => new DroneGenerator._();
-  factory DroneGenerator(List<vec3> points, num nb) {
+  factory DroneGenerator(List<vec3> points, List<int> scores) {
     var c = new Component(DroneGenerator, _ctor);
-    c.nb = nb;
+    c.scores = scores;
     c.nextPointsIdx = 0;
     c.points = points;
+    return c;
+  }
+}
+
+class DroneNumbers implements Component {
+  int energy = 500;
+  int energyMax = 1000;
+  double acc = 5500.0;
+  double angularv = 110.0;
+  int score = 0;
+
+  DroneNumbers._();
+  static _ctor() => new DroneNumbers._();
+  factory DroneNumbers() {
+    var c = new Component(DroneNumbers, _ctor);
+    c.energy = 500;
+    c.energyMax = 1000;
+    c.acc = 5500.0;
+    c.angularv = 110.0;
+    c.score = 0;
     return c;
   }
 }

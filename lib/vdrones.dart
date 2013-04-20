@@ -18,24 +18,14 @@ import 'package:vector_math/vector_math.dart';
 //import 'utils.dart';
 
 part 'src/components.dart';
-//part 'src/animations.dart';
-//part 'src/controls.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
+part 'src/system_hud.dart';
 part 'src/factory_physics.dart';
 part 'src/factory_entities.dart';
 part 'src/factory_animations.dart';
 part 'src/factory_renderables.dart';
-//part 'src/events.dart';
-//part 'src/gameplay.dart';
-//part 'src/layer2d.dart';
-//part 'src/periodic.dart';
-//part 'src/physics.dart';
-//part 'src/renderer.dart';
-//part 'src/zone_cubes.dart';
-//part 'src/zone_gate_out.dart';
-//part 'src/stats.dart';
 
 class Status {
   static const NONE = 0;
@@ -137,6 +127,7 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
+    _world.addSystem(new System_Hud(container, _player));
     _world.addSystem(new System_EntityState());
     _world.initialize();
 

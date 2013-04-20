@@ -16,6 +16,7 @@ const State_EXITING = 4;
 const State_RUNNING = 10;
 
 class Factory_Entities {
+  static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
 
   World _world;
 
@@ -50,7 +51,7 @@ class Factory_Entities {
           ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
         )
       )
-    
+
   ]);
 
   Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
@@ -78,7 +79,7 @@ class Factory_Entities {
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
       Factory_Renderables.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
       new Animatable(),
-      new DroneGenerator(points, 1)
+      new DroneGenerator(points, [0])
     ]);
   }
 
@@ -97,6 +98,17 @@ class Factory_Entities {
 
   Entity newArea(String name) => _newEntity([
     new Area(name)
+  ]);
+
+  Entity newChronometer(int millis) => _newEntity([
+    new Chronometer(millis),
+    new Animatable()
+      ..add(new Animation()
+        ..onTick = (e, t, t0) {
+          e.getComponent(chronometerCT).millis = millis + (t - t0).toInt();
+          return true;
+        }
+      )
   ]);
 
   Entity newCamera() => _newEntity([
@@ -133,6 +145,7 @@ class Factory_Entities {
       es.add(newAmbientLight());
       es.add(newLight());
       es.add(newArea(name));
+      es.add(newChronometer(-60 * 1000));
       es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
       es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"]));
       es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
@@ -162,6 +175,7 @@ class Factory_Entities {
       .then((x) => Factory_Renderables.makeModel(x, '_models'))
       .then((x) => _newEntity([
           new Transform.w3d(new vec3(x0, y0, 0.3)),
+          new DroneNumbers(),
           new EntityStateComponent(State_CREATING, _droneStates(x))
         ], group : GROUP_DRONE, player : player)
       );
@@ -197,14 +211,14 @@ class Factory_Entities {
         ..add(control)
         ..add(animatable)
       )
-      ..[State_CRASHING] = (new EntityState()
-        ..add(renderable)
-        ..add(animatable)
-      )
-      ..[State_EXITING] = (new EntityState()
-        ..add(renderable)
-        ..add(animatable)
-      )
+//      ..[State_CRASHING] = (new EntityState()
+//        ..add(renderable)
+//        ..add(animatable)
+//      )
+//      ..[State_EXITING] = (new EntityState()
+//        ..add(renderable)
+//        ..add(animatable)
+//      )
       ;
   }
 
