@@ -46,7 +46,7 @@ class Factory_Entities {
       ..add(Factory_Animations.newScaleIn()
         ..next = Factory_Animations.newRotateXYEndless()
       )
-      ..add(Factory_Animations.newDelay(55555 * 1000)
+      ..add(Factory_Animations.newDelay(5 * 1000)
         ..next = (Factory_Animations.newScaleOut()
           ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
         )
@@ -100,14 +100,15 @@ class Factory_Entities {
     new Area(name)
   ]);
 
-  Entity newChronometer(int millis) => _newEntity([
+  Entity newChronometer(int millis, timeout) => _newEntity([
     new Chronometer(millis),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
           e.getComponent(chronometerCT).millis = millis + (t - t0).toInt();
-          return true;
+          return (millis >= 0) || (e.getComponent(chronometerCT).millis <= 0);
         }
+        ..onEnd = timeout
       )
   ]);
 
@@ -127,7 +128,7 @@ class Factory_Entities {
     Factory_Renderables.newAmbientLight()
   ]);
 
-  Future<List<Entity>> newFullArea(String name) {
+  Future<List<Entity>> newFullArea(String name, timeout) {
     return _loadTxt("_areas/${name}.json").then((jsonStr){
       var area = JSON.parse(jsonStr);
       var cellr = area["cellr"];
@@ -145,7 +146,7 @@ class Factory_Entities {
       es.add(newAmbientLight());
       es.add(newLight());
       es.add(newArea(name));
-      es.add(newChronometer(-60 * 1000));
+      es.add(newChronometer(-60 * 1000, timeout));
       es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
       es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"]));
       es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));

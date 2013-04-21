@@ -32,7 +32,7 @@ class Status {
   static const INITIALIZING = 1;
   static const INITIALIZED = 2;
   static const RUNNING = 3;
-  //static const STOPPING = 4;
+  static const STOPPING = 4;
   static const STOPPED = 5;
 }
 
@@ -56,6 +56,20 @@ class TimeInfo {
     _delta = 0.0;
   }
 }
+
+void showScreen(id){
+  document.queryAll('.screen_info').forEach((screen) {
+    //screen.style.opacity = (screen.id === id)?1 : 0;
+    if (screen.id == id) {
+      screen.classes.remove('hidden');
+      screen.classes.add('show');
+    } else {
+      screen.classes.remove('show');
+      screen.classes.add('hidden');
+    }
+  });
+}
+
 class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
@@ -64,48 +78,86 @@ class VDrones {
   var timeInfo = new TimeInfo();
   Factory_Entities _entitiesFactory;
   var _player = "u0";
+  var _areaId = null;
 
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
   get status => _status;
+  void _updateStatus(int v) {
+    _status = v;
+    watchers.dispatch();
+  }
 
+  void setup() {
+    //NOTHING
+  }
   void gotoArea(String areaId) {
-    if (_status == Status.RUNNING) {
-      //_evt.GameStop.dispatch([false]);
-    }
-    //_evt.GameInit.dispatch([areaId]);
-    //TODO remove every entities from _world
-    newWorld();
-    _entitiesFactory.newFullArea(areaId)
-      .then((es){
-        es.forEach((e){
-          e.addToWorld();
-          print("add to world : ${e}");
-        });
-        _status = Status.RUNNING;
-      })
-      .catchError((error) => handleError(error))
-      ;
+    _initialize(areaId);
   }
 
   void handleError(error) {
     print("ERROR !! ${error}");
   }
 
-  void play() {
-    if (_status == Status.INITIALIZED || _status == Status.STOPPED) {
-      //HACK screen should be converted into WebComponent
-      //showScreen('none');
-      //_evt.GameStart.dispatch(null);
+
+  bool playable () => (_status == Status.INITIALIZED || _status == Status.STOPPING);
+
+  bool play() {
+    if  (!playable()){
+      print("NOT playable : ${_status}");
+      return false;
     }
-  }
-
-  void setup() {
+    //HACK screen should be converted into WebComponent
+    //showScreen('none');
+    //_evt.GameStart.dispatch(null);
+    //TODO spawn drone
+    //TODO start area (=> start chronometer)
+    _updateStatus(Status.RUNNING);
+    showScreen('none');
     window.animationFrame.then(_loop);
+    return true;
   }
 
-  void newWorld() {
+  bool stop(bool viaExit) {
+    if (_status == Status.RUNNING) {
+      _updateStatus(Status.STOPPING);
+    }
+    var runresult = query('#runresult').xtag;
+//    runresult.areaId = areaId;
+//    runresult.cubesLast = stats[areaId + Stats.AREA_CUBES_LAST_V];
+//    runresult.cubesMax = stats[areaId + Stats.AREA_CUBES_MAX_V];
+//    runresult.cubesTotal = stats[areaId + Stats.AREA_CUBES_TOTAL_V];
+    query('#runresult_dialog').xtag.show();
+  }
+
+  Future _initialize(String areaId) {
+    print("Request init");
+    if (_status == Status.INITIALIZING) {
+      return new Future.error("already initializing an area : ${_areaId}");
+    }
+    _updateStatus(Status.INITIALIZING);
+    showScreen('screenInit');
+    if (_world == null) _newWorld();
+    _world.deleteAllEntities();
+    return _loadArea(areaId).then((a){
+      _areaId = a;
+      _updateStatus(Status.INITIALIZED);
+      return _areaId;
+    });
+  }
+
+  Future _loadArea(String areaId) {
+    return _entitiesFactory.newFullArea(areaId, (e,t,t0){ stop(false); }).then((es){
+      es.forEach((e){
+        e.addToWorld();
+        print("add to world : ${e}");
+      });
+      return areaId;
+    });
+  }
+
+  void _newWorld() {
     _world = new World();
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
@@ -113,7 +165,7 @@ class VDrones {
     _entitiesFactory = new Factory_Entities(_world);
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
-    _world.addSystem(new System_Physics(true), passive : false);
+    _world.addSystem(new System_Physics(false), passive : false);
     _world.addSystem(
       new System_PlayerFollower()
         ..playerToFollow = _player
@@ -190,9 +242,9 @@ class VDrones {
       world.delta = timeInfo.delta;
       world.process();
       //_worldRenderSystem.process();
-    //if (_status == Status.RUNNING) {
-      window.animationFrame.then(_loop);
-    //}
+      if (_status == Status.RUNNING) {
+        window.animationFrame.then(_loop);
+      }
     } else {
       timeInfo.reset();
     }
