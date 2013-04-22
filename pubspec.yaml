@@ -1,7 +1,7 @@
 name: vdrones
-version: 0.6.1+1
+version: 0.8.0
 author: david bernard
-description: A sample web application
+description: An arcade game
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:

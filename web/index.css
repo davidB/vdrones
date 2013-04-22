@@ -1,17 +1,18 @@
-  @font-face{
+@font-face{
+  font-family: 'SciFly';
+  src: url('_vendors/scifly/scifly-sans-webfont.eot');
+  src: url('_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
+  url('_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
+  url('_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
+  url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
     font-family: 'SciFly';
-    src: url('_vendors/scifly/scifly-sans-webfont.eot');
-    src: url('_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
-    url('_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
-    url('_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
-    url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
+    src: url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
   }
-  @media screen and (-webkit-min-device-pixel-ratio:0) {
-    @font-face {
-      font-family: 'SciFly';
-      src: url('_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
-    }
- }
+}
+
 body {
   font-family: 'SciFly', Arial, sans-serif;
 }
@@ -148,9 +149,10 @@ footer {
   -o-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
   position: absolute;
-  top: -25px;
-  left: -26px;
-  width: 200px;
+  top: 20px;
+  left: -6px;
+  width: 100px;
+  text-align: center
 }
 
 @-webkit-keyframes opacityBlink{
@@ -189,4 +191,18 @@ table.stats td {
 x-modal {
   display: none;
 }
-
+#feedback_dialog > .modal {
+  width: 850px;
+  height: 550px;
+}
+.navbar .navbar-inner {
+  min-height:0px;
+}
+.navbar .nav>li>a {
+  padding: 0;
+  line-height: 20px;
+}
+.navbar-inverse .navbar-inner {
+  background-color: #272b30;
+  background-image: -webkit-linear-gradient(#202328,#272b30 70%,#272b30);
+}
