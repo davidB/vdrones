@@ -47,7 +47,7 @@ class DroneNumbers extends Component {
   int energy = 500;
   int energyMax = 1000;
   double acc = 5500.0;
-  double angularv = 110.0;
+  double angularv = 210.0;
   int score = 0;
 
   DroneNumbers();

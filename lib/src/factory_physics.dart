@@ -69,7 +69,7 @@ class Factory_Physics {
 
   static PhysicBody newDrone() {
     var bdef = new b2.BodyDef();
-    bdef.linearDamping = 5;
+    bdef.linearDamping = 2.5;
     bdef.type = b2.BodyType.DYNAMIC;
     var s = new b2.PolygonShape();
     s.setFrom([new vec2(3, 0), new vec2(-1, 2), new vec2(-1, -2)], 3);
