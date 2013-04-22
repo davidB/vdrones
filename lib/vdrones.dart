@@ -135,13 +135,16 @@ class VDrones {
     if (_status == Status.RUNNING) {
       _updateStatus(Status.STOPPING);
     }
-    _stats.updateCubesLast(_areaId, (viaExit)? cubesGrabbed : 0);
-    var runresult = query('#runresult').xtag;
-    runresult.areaId = _areaId;
-    runresult.cubesLast = _stats[_areaId + Stats.AREA_CUBES_LAST_V];
-    runresult.cubesMax = _stats[_areaId + Stats.AREA_CUBES_MAX_V];
-    runresult.cubesTotal = _stats[_areaId + Stats.AREA_CUBES_TOTAL_V];
-    query('#runresult_dialog').xtag.show();
+    _stats
+      .updateCubesLast(_areaId, (viaExit)? cubesGrabbed : 0)
+      .then((stats){
+        var runresult = query('#runresult').xtag;
+        runresult.areaId = _areaId;
+        runresult.cubesLast = stats[_areaId + Stats.AREA_CUBES_LAST_V];
+        runresult.cubesMax = stats[_areaId + Stats.AREA_CUBES_MAX_V];
+        runresult.cubesTotal = stats[_areaId + Stats.AREA_CUBES_TOTAL_V];
+        query('#runresult_dialog').xtag.show();
+      });
   }
 
   Future _initialize(String areaId) {

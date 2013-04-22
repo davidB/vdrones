@@ -38,13 +38,16 @@ class Stats{
   }
 
   Future updateCubesLast(String areaId, int v) {
-    store.then((db) => _updateCubesLastMem(areaId, v));
-    _saveStatistics();
+    return store
+      .then((db) => _updateCubesLastMem(areaId, v))
+      .then((_) => _saveStatistics())
+      ;
   }
 
   Future _saveStatistics() {
     return store.then((db){
       db.save(JSON.stringify(_statistics), STATS_KEY);
+      return _statistics;
     });
   }
 
