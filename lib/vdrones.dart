@@ -14,6 +14,7 @@ import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_addons/entity_state.dart';
 import 'package:dartemis_addons/animator.dart';
+import 'package:dartemis_addons/utils.dart';
 import 'package:vector_math/vector_math.dart';
 //import 'utils.dart';
 
@@ -26,6 +27,7 @@ part 'src/factory_physics.dart';
 part 'src/factory_entities.dart';
 part 'src/factory_animations.dart';
 part 'src/factory_renderables.dart';
+part 'src/stats.dart';
 
 class Status {
   static const NONE = 0;
@@ -79,6 +81,7 @@ class VDrones {
   Factory_Entities _entitiesFactory;
   var _player = "u0";
   var _areaId = null;
+  var _stats = new Stats("u0", clean : false);
 
   //var _worldRenderSystem;
   //var _hudRenderSystem;
@@ -104,30 +107,40 @@ class VDrones {
   bool playable () => (_status == Status.INITIALIZED || _status == Status.STOPPING);
 
   bool play() {
+    print("call play : ${_status}");
     if  (!playable()){
       print("NOT playable : ${_status}");
       return false;
     }
-    //HACK screen should be converted into WebComponent
-    //showScreen('none');
-    //_evt.GameStart.dispatch(null);
+    if (_status != Status.INITIALIZED) {
+      print("initialize : ${_status}");
+      _initialize(_areaId).then((_) => _start());
+      return true;
+    } else {
+      _start();
+      return true;
+    }
+  }
+
+  void _start() {
     //TODO spawn drone
     //TODO start area (=> start chronometer)
     _updateStatus(Status.RUNNING);
+    //HACK screen should be converted into WebComponent
     showScreen('none');
     window.animationFrame.then(_loop);
-    return true;
   }
 
-  bool stop(bool viaExit) {
+  bool _stop(bool viaExit, int cubesGrabbed) {
     if (_status == Status.RUNNING) {
       _updateStatus(Status.STOPPING);
     }
+    _stats.updateCubesLast(_areaId, (viaExit)? cubesGrabbed : 0);
     var runresult = query('#runresult').xtag;
-//    runresult.areaId = areaId;
-//    runresult.cubesLast = stats[areaId + Stats.AREA_CUBES_LAST_V];
-//    runresult.cubesMax = stats[areaId + Stats.AREA_CUBES_MAX_V];
-//    runresult.cubesTotal = stats[areaId + Stats.AREA_CUBES_TOTAL_V];
+    runresult.areaId = _areaId;
+    runresult.cubesLast = _stats[_areaId + Stats.AREA_CUBES_LAST_V];
+    runresult.cubesMax = _stats[_areaId + Stats.AREA_CUBES_MAX_V];
+    runresult.cubesTotal = _stats[_areaId + Stats.AREA_CUBES_TOTAL_V];
     query('#runresult_dialog').xtag.show();
   }
 
@@ -140,6 +153,7 @@ class VDrones {
     showScreen('screenInit');
     if (_world == null) _newWorld();
     _world.deleteAllEntities();
+    //_newWorld();
     return _loadArea(areaId).then((a){
       _areaId = a;
       _updateStatus(Status.INITIALIZED);
@@ -148,7 +162,7 @@ class VDrones {
   }
 
   Future _loadArea(String areaId) {
-    return _entitiesFactory.newFullArea(areaId, (e,t,t0){ stop(false); }).then((es){
+    return _entitiesFactory.newFullArea(areaId, (e,t,t0){ _stop(false, 0); }).then((es){
       es.forEach((e){
         e.addToWorld();
         print("add to world : ${e}");
@@ -173,7 +187,7 @@ class VDrones {
     );
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
-    _world.addSystem(new System_DroneHandler(_entitiesFactory));
+    _world.addSystem(new System_DroneHandler(_entitiesFactory, this));
     _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_Animator());
     // Dart is single Threaded, and System doesn't run in // => component aren't
@@ -236,15 +250,13 @@ class VDrones {
 
   void _loop(num highResTime) {
 //    try {
-    if (_world != null) {
+    if ((_world != null) && (_status == Status.RUNNING)) {
       timeInfo.time = highResTime;
       var world = _world;
       world.delta = timeInfo.delta;
       world.process();
       //_worldRenderSystem.process();
-      if (_status == Status.RUNNING) {
-        window.animationFrame.then(_loop);
-      }
+      window.animationFrame.then(_loop);
     } else {
       timeInfo.reset();
     }

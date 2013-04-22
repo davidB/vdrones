@@ -3,11 +3,11 @@ part of vdrones;
 const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
 
-const EntityTypes_WALL =   0x0001;
-const EntityTypes_DRONE =  0x0002;
-const EntityTypes_BULLET = 0x0004;
-const EntityTypes_SHIELD = 0x0008;
-const EntityTypes_ITEM =   0x0010;
+const EntityTypes_WALL    = 0x0001;
+const EntityTypes_DRONE   = 0x0002;
+const EntityTypes_GATEOUT = 0x0004;
+const EntityTypes_SHIELD  = 0x0008;
+const EntityTypes_ITEM    = 0x0010;
 
 const State_CREATING = 1;
 const State_DRIVING = 2;
@@ -85,7 +85,7 @@ class Factory_Entities {
 
   Entity newGateOut(num cellr, List<num> cells) => _newEntity([
     new Transform.w3d(new vec3(0, 0, 0.2)),
-    Factory_Physics.cells2circles2d(cellr, cells, 0.3, EntityTypes_ITEM),
+    Factory_Physics.cells2circles2d(cellr, cells, 0.3, EntityTypes_GATEOUT),
     Factory_Renderables.cells2surface3d(cellr, cells, 0.5, "_images/gate_out.png")
   ]);
 

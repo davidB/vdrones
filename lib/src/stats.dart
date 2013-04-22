@@ -1,6 +1,7 @@
 part of vdrones;
 
 class Stats{
+  static const STATS_KEY = "stats";
   static const MONEY_CURRENT_V = r'money/current/v';
   static const MONEY_CUMUL_V = r'money/cumul/v';
   static const MONEY_LAST_V = r'money/last/v';
@@ -8,26 +9,22 @@ class Stats{
   static const AREA_CUBES_TOTAL_V = r'/cubes/total/v';
   static const AREA_CUBES_LAST_V = r'/cubes/last/v';
 
-  final Evt evt;
-  final String dbName;
-  String _areaId;
+  final String dbName = "vdrones0";
   final Map<String, num> _statistics = new Map<String, num>();
   Future<Store> store;
 
-  Stats(this.evt, this.dbName, {bool clean : false}) {
-    evt.GameInit.add((areaPath){
-      _areaId = areaPath;
-      store = _loadStatistics(_areaId, clean);
-    });
-    evt.GameStop.add(_stop);
+  Stats(String userId, {bool clean : false}) {
+    store = _loadStatistics(userId, clean);
   }
 
-  num operator[](String k) => _statistics[k];
+  num operator[](String k) {
+    var v = _statistics[k];
+    return (v == null) ? 0 : v;
+  }
 
-  void updateCubesLast(String areaId, int v) {
+  void _updateCubesLastMem(String areaId, int v) {
     num update(String k, Function f) {
-      var x = this[k];
-      _statistics[k] = f((x == null) ? 0 : x);
+      _statistics[k] = f(this[k]);
     }
 
     var cubesMax = this[areaId + AREA_CUBES_MAX_V];
@@ -40,45 +37,32 @@ class Stats{
     update(areaId + AREA_CUBES_LAST_V, (x) => v);
   }
 
-  void _stop(bool exit) {
-    var v = (exit) ? evt.GameStates.score.v : 0;
-    updateCubesLast(_areaId, v);
+  Future updateCubesLast(String areaId, int v) {
+    store.then((db) => _updateCubesLastMem(areaId, v));
     _saveStatistics();
   }
 
   Future _saveStatistics() {
     return store.then((db){
-      db.batch(_statistics);
+      db.save(JSON.stringify(_statistics), STATS_KEY);
     });
   }
 
-  Future<Store> _loadStatistics(String areaId, bool clean) {
-    var dbStore = evt.GameStates.userId.v;
+  Future<Store> _loadStatistics(String userId, bool clean) {
+    var dbStore = userId;
 
-    var db = new IndexedDbStore(dbName, dbStore);
-//      IndexedDbStore.supported ? new IndexedDbStore(dbName, dbStore):
-//      WebSqlStore.supported ?  new WebSqlStore(dbName, dbStore) :
-//      new LocalStorageStore()
-//      ;
+    var db = IndexedDbStore.supported ? new IndexedDbStore(dbName, dbStore):
+      WebSqlStore.supported ?  new WebSqlStore(dbName, dbStore) :
+      new LocalStorageStore()
+      ;
     var dbf = db.open();
     if (clean) {
       dbf = dbf.then((_) => db.nuke());
     }
-    Future loadEntry(key) {
-      return dbf.then((_) => db.getByKey(key).then((x) {
-        _statistics[key] = (x == null) ? 0 : x;
-        return x;
-      }));
-    }
-    return Future.wait([
-      MONEY_CURRENT_V,
-      MONEY_CUMUL_V,
-      MONEY_LAST_V,
-      areaId + AREA_CUBES_MAX_V,
-      areaId + AREA_CUBES_TOTAL_V,
-      areaId + AREA_CUBES_LAST_V
-      ].map(loadEntry)
-    ).then((x) => db);
+    return dbf.then((_) => db.getByKey(STATS_KEY).then((x) {
+      if (x != null) _statistics.addAll(JSON.parse(x) as Map);
+      return db;
+    }));
   }
 
 }

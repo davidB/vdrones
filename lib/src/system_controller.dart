@@ -91,8 +91,9 @@ class System_DroneHandler extends EntityProcessingSystem {
   ComponentMapper<DroneNumbers> _droneNumbersMapper;
   ComponentMapper<Transform> _transformMapper;
   Factory_Entities _efactory;
+  VDrones _game;
 
-  System_DroneHandler(this._efactory) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, PhysicMotion, PhysicCollisions, EntityStateComponent]));
+  System_DroneHandler(this._efactory, this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, PhysicMotion, PhysicCollisions, EntityStateComponent]));
 
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
@@ -106,11 +107,13 @@ class System_DroneHandler extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var esc = _statesMapper.getSafe(entity);
     var collisions = _collisionsMapper.get(entity);
-    collisions.colliders.forEach((collider){
+    collisions.colliders.iterateAndUpdate((collider){
       switch(collider.group) {
         case EntityTypes_WALL : _crash(entity); break;
         case EntityTypes_ITEM : _grabCube(entity, collider.e); break;
+        case EntityTypes_GATEOUT : _exiting(entity); break;
       }
+      return collider;
     });
     if (esc.state == State_DRIVING) {
       var numbers = _droneNumbersMapper.get(entity);
@@ -127,6 +130,11 @@ class System_DroneHandler extends EntityProcessingSystem {
     if (transform != null) world.addEntity( _efactory.newExplosion(transform));
     entity.deleteFromWorld();
     // esc.state = State_CRASHING;
+  }
+
+  void _exiting(Entity drone) {
+    var numbers = _droneNumbersMapper.get(drone);
+    _game._stop(true, numbers.score);
   }
 
   void _updateEnergy(numbers, ctrl) {
@@ -195,10 +203,10 @@ class System_DroneGenerator extends EntityProcessingSystem {
 
   void deleted(Entity e) {
     super.deleted(e);
-    var g0 = _genMapper.get(e);
+    var g0 = _genMapper.getSafe(e);
     if (g0 != null) {
       var egenerator = g0.generator;
-      var generator = _droneGeneratorMapper.get(egenerator);
+      var generator = _droneGeneratorMapper.getSafe(egenerator);
       if (generator != null) {
         var score = _droneNumbersMapper.get(e).score;
         var a = _animatableMapper.get(egenerator).l.add(Factory_Animations.newDelay(900)
@@ -243,15 +251,17 @@ class System_CubeGenerator extends EntityProcessingSystem {
 
   void deleted(Entity e) {
     super.deleted(e);
-    var g0 = _genMapper.get(e);
+    var g0 = _genMapper.getSafe(e);
     if (g0 != null) {
-      var generator = g0.generator;
-      var a = _animatableMapper.get(generator).l.add(Factory_Animations.newDelay(200)
-        ..onEnd = (e0,t,t0) {
-          var g = _cubeGeneratorMapper.get(e0);
-          if (g != null ) g.nb += 1;
-        }
-      );
+      var egenerator = g0.generator;
+      var g = _cubeGeneratorMapper.getSafe(egenerator);
+      if (g != null) {
+        var a = _animatableMapper.get(egenerator).l.add(Factory_Animations.newDelay(200)
+          ..onEnd = (e0,t,t0) {
+            g.nb += 1;
+          }
+        );
+      }
     }
   }
 
