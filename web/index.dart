@@ -11,7 +11,6 @@ void main() {
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
     _setupLog();
-    game.setup();
     _setupRoutes();
   });
 }
@@ -24,7 +23,7 @@ void _setupRoutes() {
     }
   });
 
-  
+
   Window.hashChangeEvent.forTarget(window).listen((e) {
     _route(window.location.hash);
   });

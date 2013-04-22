@@ -92,11 +92,10 @@ class VDrones {
     watchers.dispatch();
   }
 
-  void setup() {
-    //NOTHING
-  }
-  void gotoArea(String areaId) {
-    _initialize(areaId);
+  get area => _areaId;
+  set area(String v) {
+    if (v == _areaId) return;
+    _initialize(v);
   }
 
   void handleError(error) {
@@ -199,60 +198,9 @@ class VDrones {
     _world.addSystem(new System_Hud(container, _player));
     _world.addSystem(new System_EntityState());
     _world.initialize();
-
-/*
-    _world.addSystem(new AreaLoader());
-
-  //  Stage4Periodic(evt)
-  //  Rules4Countdown(evt)
-  //  Rules4TargetG1(evt)
-  //  Stage4GameRules(evt)
-  //  Stage4Physics(evt)
-  //  Stage4UserInput(evt)
-  //  Stage4Animation(evt)
-    var stats = new Stats(_evt, "vdrones");
-    setupPeriodic(_evt);
-    setupPhysics(_evt);
-    var animator  = setupAnimations(_evt);
-    setupRenderer(_evt, container, animator);
-    setupLayer2D(_evt, document.query('#game_area'), stats);
-    setupControls(_evt);
-    setupGameplay(_evt);
-    //  if (devMode) {
-  //    Stage4DevMode(evt);
-  //    Stage4LogEvent(evt, ['Init', 'SpawnObj', 'DespawnObj', 'BeginContact', 'Start', 'Stop', 'Initialized']);
-  //    Stage4DatGui(evt);
-  //  }
-
-    //ring.push(evt.Start); //TODO push Start when ready and user hit star button
-    _evt.GameStop.add((_){
-      _status = Status.STOPPED;
-      watchers.dispatch();
-      print("status : ${_status}");
-    });
-    _evt.GameInit.add((_){
-      _status = Status.INITIALIZING;
-      watchers.dispatch();
-      print("status : ${_status}");
-    });
-    _evt.GameInitialized.add((){
-      _status = Status.INITIALIZED;
-      watchers.dispatch();
-      print("status : ${_status}");
-    });
-    _evt.GameStart.add(() {
-      _status = Status.RUNNING;
-       {watchers.dispatch();
-      print("status : ${_status}");
-      var tickArgs = [0, 0];
-      var lastDelta500 = -1;
-      window.animationFrame.then(loop);
-    });
-*/
   }
 
   void _loop(num highResTime) {
-//    try {
     if ((_world != null) && (_status == Status.RUNNING)) {
       timeInfo.time = highResTime;
       var world = _world;
@@ -263,9 +211,6 @@ class VDrones {
     } else {
       timeInfo.reset();
     }
-//    } catch(error) {
-//      error);
-//    }
   }
 
 }
