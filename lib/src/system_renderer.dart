@@ -1,27 +1,15 @@
 part of vdrones;
 
 typedef dynamic ProvideObject3D();
-class RenderableDef implements Component {
+class RenderableDef extends Component {
   ProvideObject3D provide;
 
-  RenderableDef._();
-  static _ctor() => new RenderableDef._();
-  factory RenderableDef(ProvideObject3D v) {
-    var c = new Component(RenderableDef, _ctor);
-    c.provide = v;
-    return c;
-  }
+  RenderableDef(this.provide);
 }
-class RenderableCache implements Component {
+class RenderableCache extends Component {
   var obj;
 
-  RenderableCache._();
-  static _ctor() => new RenderableCache._();
-  factory RenderableCache(v) {
-    var c = new Component(RenderableCache, _ctor);
-    c.obj = v;
-    return c;
-  }
+  RenderableCache(this.obj);
 }
 
 

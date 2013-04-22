@@ -2,47 +2,27 @@ part of vdrones;
 
 // -- Components --------------------------------------------------------------
 
-class PhysicBody implements Component {
+class PhysicBody extends Component {
   b2.BodyDef bdef;
   List<b2.FixtureDef> fdefs;
 
-  PhysicBody._();
-  static _ctor() => new PhysicBody._();
-  factory PhysicBody(b2.BodyDef b, List<b2.FixtureDef> f) {
-    var c = new Component(PhysicBody, _ctor);
-    c.bdef = b;
-    c.fdefs = f;
-    return c;
-  }
+  PhysicBody(this.bdef, this.fdefs);
 }
 
 // cache of the body (only used by System_Physics)
-class PhysicBodyCache implements Component {
+class PhysicBodyCache extends Component {
   b2.Body body;
 
-  PhysicBodyCache._();
-  static _ctor() => new PhysicBodyCache._();
-  factory PhysicBodyCache(b2.Body b) {
-    var c = new Component(PhysicBodyCache, _ctor);
-    c.body = b;
-    return c;
-  }
+  PhysicBodyCache(this.body);
 }
 
-class PhysicMotion implements Component {
+class PhysicMotion extends Component {
   /// unit per second
   num acceleration;
   /// radians per second
   num angularVelocity;
 
-  PhysicMotion._();
-  static _ctor() => new PhysicMotion._();
-  factory PhysicMotion(acc, av) {
-    var c = new Component(PhysicMotion, _ctor);
-    c.acceleration = acc;
-    c.angularVelocity = av;
-    return c;
-  }
+  PhysicMotion(this.acceleration, this.angularVelocity);
 }
 
 class Collider {
@@ -52,15 +32,18 @@ class Collider {
   Collider(this.e, this.group);
 }
 
-class PhysicCollisions implements Component {
-  final colliders = new List<Collider>();
+class PhysicCollisions extends ComponentPoolable {
+  final colliders = new LinkedBag<Collider>();
 
   PhysicCollisions._();
   static _ctor() => new PhysicCollisions._();
   factory PhysicCollisions() {
-    var c = new Component(PhysicCollisions, _ctor);
-    c.colliders.clear();
+    var c = new Poolable.of(PhysicCollisions, _ctor);
     return c;
+  }
+
+  cleanUp() {
+    colliders.clear();
   }
 }
 
@@ -235,11 +218,11 @@ class _EntityContactListener extends b2.ContactListener {
     var entityB = contact.fixtureB.body.userData as Entity;
     var collisionsA = _collisionsMapper.getSafe(entityA);
     if (collisionsA != null) {
-      collisionsA.colliders.removeWhere((x) => x.e == entityB);
+      collisionsA.colliders.iterateAndUpdate((x) => (x.e == entityB)? null : x);
     }
     var collisionsB = _collisionsMapper.getSafe(entityB);
     if (collisionsB != null) {
-      collisionsB.colliders.removeWhere((x) => x.e == entityA);
+      collisionsB.colliders.iterateAndUpdate((x) => (x.e == entityA)? null : x);
     }
   }
   void preSolve(b2.Contact contact, b2.Manifold oldManifold){

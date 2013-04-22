@@ -1,104 +1,56 @@
 part of vdrones;
 
 // Kind
-class Area implements Component {
-  String name;
+class Area extends Component {
+  final String name;
 
-  Area._();
-  static _ctor() => new Area._();
-  factory Area(String name) {
-    var c = new Component(Area, _ctor);
-    c.name = name;
-    return c;
-  }
+  Area(this.name);
 }
 
-class Chronometer implements Component {
+class Chronometer extends Component {
   int millis;
 
-  Chronometer._();
-  static _ctor() => new Chronometer._();
-  factory Chronometer(int start) {
-    var c = new Component(Chronometer, _ctor);
-    c.millis = start;
-    return c;
-  }
+  Chronometer(int start) : this.millis = start;
 }
 
-class DroneControl implements Component {
+class DroneControl extends Component {
   double forward = 0.0;
   double turn = 0.0;
 
-  DroneControl._();
-  static _ctor() => new DroneControl._();
-  factory DroneControl() {
-    var c = new Component(DroneControl, _ctor);
-    return c;
-  }
+  DroneControl();
 }
-class Generated implements Component {
-  Entity generator;
+class Generated extends Component {
+  final Entity generator;
 
-  Generated._();
-  static _ctor() => new Generated._();
-  factory Generated(Entity generator) {
-    var c = new Component(Generated, _ctor);
-    c.generator = generator;
-    return c;
-  }
+  Generated(this.generator);
 }
 
-class CubeGenerator implements Component {
+class CubeGenerator extends Component {
   num cellr;
   List<num> cells;
   int subZoneOffset = 0;
   int nb = 1;
 
-  CubeGenerator._();
-  static _ctor() => new CubeGenerator._();
-  factory CubeGenerator(num cellr, List<num> cells) {
-    var c = new Component(CubeGenerator, _ctor);
-    c.cellr = cellr;
-    c.cells = cells;
-    return c;
-  }
+  CubeGenerator(this.cellr, this.cells);
 }
 
-class DroneGenerator implements Component {
+class DroneGenerator extends Component {
   /// score of drone to generate
   List<int> scores;
   int nextPointsIdx = 0;
   List<vec3> points;
 
-  DroneGenerator._();
-  static _ctor() => new DroneGenerator._();
-  factory DroneGenerator(List<vec3> points, List<int> scores) {
-    var c = new Component(DroneGenerator, _ctor);
-    c.scores = scores;
-    c.nextPointsIdx = 0;
-    c.points = points;
-    return c;
-  }
+  DroneGenerator(this.points, this.scores);
 }
 
-class DroneNumbers implements Component {
+class DroneNumbers extends Component {
   int energy = 500;
   int energyMax = 1000;
   double acc = 5500.0;
   double angularv = 110.0;
   int score = 0;
 
-  DroneNumbers._();
-  static _ctor() => new DroneNumbers._();
-  factory DroneNumbers() {
-    var c = new Component(DroneNumbers, _ctor);
-    c.energy = 500;
-    c.energyMax = 1000;
-    c.acc = 5500.0;
-    c.angularv = 110.0;
-    c.score = 0;
-    return c;
-  }
+  DroneNumbers();
 }
 /*
 class StaticWalls implements Component {
@@ -119,22 +71,16 @@ class Cube implements Component {
   }
 }
 */
-class PlayerFollower implements Component {
+class PlayerFollower extends Component {
   vec3 targetTranslation;
 
-  PlayerFollower._();
-  static _ctor() => new PlayerFollower._();
-  factory PlayerFollower(vec3 targetTranslation) {
-    var c = new Component(PlayerFollower, _ctor);
-    c.targetTranslation = targetTranslation;
-    return c;
-  }
+  PlayerFollower(this.targetTranslation);
 }
 
 
 // Technics
 
-class Transform implements Component {
+class Transform extends ComponentPoolable {
   vec3 position3d;
   vec3 rotation3d;
   vec3 scale3d;
@@ -159,7 +105,7 @@ class Transform implements Component {
     return new Transform.w3d(new vec3(x, y, 0), new vec3(0,0,a));
   }
   factory Transform.w3d(vec3 position, [vec3 rotation, vec3 scale]) {
-    var c = new Component(Transform, _ctor);
+    var c = new Poolable.of(Transform, _ctor) as Transform;
     c.position3d = position;
     c.rotation3d = (rotation == null) ? new vec3(0,0,0) : rotation;
     c.scale3d = (scale == null) ? new vec3(1,1,1) : scale;
