@@ -6,7 +6,7 @@ homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
   asset_pack: any
-  lawndart: 
+  lawndart:
     path: ../lawndart
 #  box2d: 0.0.7
   box2d:
@@ -21,13 +21,13 @@ dependencies:
 #    git:
 #      ref: 0.2.4+p0
 #      url: git://github.com/davidB/widget.dart.git
-  dartemis: 
+  dartemis:
 #    path: ../dartemis
 #    git: git://github.com/davidB/dartemis.git
     git: git://github.com/denniskaselow/dartemis.git
-  dartemis_addons: 
-    path: ../dartemis_addons
-#    git: git://github.com/davidB/dartemis_addons.git
+  dartemis_addons:
+#    path: ../dartemis_addons
+    git: git://github.com/davidB/dartemis_addons.git
 dev_dependencies:
   unittest: any
 
