@@ -22,7 +22,7 @@ class System_Hud extends IntervalEntitySystem {
     var src = "_images/gui.svg";
     HttpRequest.request(src, responseType : 'document').then((httpRequest){
       var doc = httpRequest.responseXml;
-      _initializeDom(doc.documentElement.clone(true));
+      _initializeDom(doc.documentElement.clone(true)..id = "hud_area");
     });
   }
 
@@ -76,5 +76,9 @@ class System_Hud extends IntervalEntitySystem {
         }
       }
     });
+  }
+
+  void reset() {
+    _initializeDom(query("#hud_area"));
   }
 }

@@ -79,6 +79,7 @@ class VDrones {
   World _world = null;
   var timeInfo = new TimeInfo();
   Factory_Entities _entitiesFactory;
+  System_Hud _hud;
   var _player = "u0";
   var _areaId = null;
   var _stats = new Stats("u0", clean : false);
@@ -155,6 +156,7 @@ class VDrones {
     showScreen('screenInit');
     if (_world == null) _newWorld();
     _world.deleteAllEntities();
+    _hud.reset();
     //_newWorld();
     return _loadArea(areaId).then((a){
       _areaId = a;
@@ -179,6 +181,7 @@ class VDrones {
     if (container == null) throw new StateError("#layers not found");
 
     _entitiesFactory = new Factory_Entities(_world);
+    _hud = new System_Hud(container, _player);
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
     _world.addSystem(new System_Physics(false), passive : false);
@@ -195,7 +198,7 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
-    _world.addSystem(new System_Hud(container, _player));
+    _world.addSystem(_hud);
     _world.addSystem(new System_EntityState());
     _world.initialize();
   }
