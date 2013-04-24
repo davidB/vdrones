@@ -36,7 +36,7 @@
 
   <target name="check" depends="-init">
     <exec executable="${dart_analyzer}" failonerror="true">
-      <arg line="--work target/dart-work --package-root=packages/ --enable_type_checks --dart-sdk '${dart.sdk.dir}' web/index.dart"/>
+      <arg line="--work target/dart-work --package-root=packages/ --error_format machine --enable_type_checks --dart-sdk '${dart.sdk.dir}' web/index.dart"/>
     </exec>
   </target>
 
