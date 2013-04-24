@@ -10,7 +10,7 @@ class Factory_Animations {
 
   static Animation newDelay(num millis) {
     return new Animation()
-      ..onTick = (Entity e, num t, num t0){
+      ..onTick = (Entity e, double t, double t0){
         return (t - t0) <= millis;
       }
     ;
@@ -29,7 +29,7 @@ class Factory_Animations {
 
   static Animation newScaleOut([OnComplete onComplete = onNoop]) {
     return new Animation()
-      ..onTick = (Entity e, num t, num t0){
+      ..onTick = (Entity e, double t, double t0){
         var transform = e.getComponent(transformCT);
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
@@ -47,7 +47,7 @@ class Factory_Animations {
 
   static Animation newScaleIn() {
     return new Animation()
-      ..onTick = (Entity e, num t, num t0){
+      ..onTick = (Entity e, double t, double t0){
         var transform = e.getComponent(transformCT);
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
@@ -81,7 +81,7 @@ class Factory_Animations {
 
   static Animation newExplodeOut() {
     return new Animation()
-      ..onTick = (Entity e, num t, num t0){
+      ..onTick = (Entity e, double t, double t0){
         var cont = (t - t0) < 2000;
         if (cont) js.scoped((){
           var runningTime = (t - t0)/1000;

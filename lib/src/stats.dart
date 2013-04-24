@@ -10,7 +10,7 @@ class Stats{
   static const AREA_CUBES_LAST_V = r'/cubes/last/v';
 
   final String dbName = "vdrones0";
-  final Map<String, num> _statistics = new Map<String, num>();
+  final HashMap<String, num> _statistics = new HashMap<String, num>();
   Future<Store> store;
 
   Stats(String userId, {bool clean : false}) {
@@ -54,7 +54,7 @@ class Stats{
   Future<Store> _loadStatistics(String userId, bool clean) {
     var dbStore = userId;
 
-    var db = IndexedDbStore.supported ? new IndexedDbStore(dbName, dbStore):
+    Store db = IndexedDbStore.supported ? new IndexedDbStore(dbName, dbStore):
       WebSqlStore.supported ?  new WebSqlStore(dbName, dbStore) :
       new LocalStorageStore()
       ;
