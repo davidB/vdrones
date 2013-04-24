@@ -19,8 +19,9 @@ class Factory_Entities {
   static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
 
   World _world;
+  AssetManager _assetManager;
 
-  Factory_Entities(this._world);
+  Factory_Entities(this._world, this._assetManager);
 
   Entity _newEntity(List<Component> cs, {String group, String player}) {
     var e = _world.createEntity();
@@ -65,7 +66,7 @@ class Factory_Entities {
     Factory_Renderables.cells2boxes3d(cellr, cells, width, height)
   ]);
 
-  Entity newGateIn(num cellr, List<num> cells, List<num> rzs) {
+  Entity newGateIn(num cellr, List<num> cells, List<num> rzs, AssetPack assetpack) {
     var points = new List<vec3>();
     for (var i = 0; i < cells.length; i += 4) {
       points.add(new vec3(
@@ -77,16 +78,16 @@ class Factory_Entities {
     return  _newEntity([
       new Transform.w3d(new vec3(0, 0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      Factory_Renderables.cells2surface3d(cellr, cells, 0.5, "_images/gate_in.png"),
+      Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_in"]),
       new Animatable(),
       new DroneGenerator(points, [0])
     ]);
   }
 
-  Entity newGateOut(num cellr, List<num> cells) => _newEntity([
+  Entity newGateOut(num cellr, List<num> cells, AssetPack assetpack) => _newEntity([
     new Transform.w3d(new vec3(0, 0, 0.2)),
     Factory_Physics.cells2circles2d(cellr, cells, 0.3, EntityTypes_GATEOUT),
-    Factory_Renderables.cells2surface3d(cellr, cells, 0.5, "_images/gate_out.png")
+    Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_out"])
   ]);
 
   Entity newMobileWall(double x0,double y0, double dx, double dy, double dz, double speedx, double speedy, double duration,  bool inout) => _newEntity([
@@ -128,58 +129,55 @@ class Factory_Entities {
     Factory_Renderables.newAmbientLight()
   ]);
 
-  Future<List<Entity>> newFullArea(String name, timeout) {
-    return _loadTxt("_areas/${name}.json").then((jsonStr){
-      var area = JSON.parse(jsonStr);
-      var cellr = area["cellr"];
+  List<Entity> newFullArea(AssetPack assetpack, timeout) {
+    var area = assetpack["area"];
+    var cellr = area["cellr"];
 
-      void addBorderAsCells(num w, num h, List<num>cells) {
-        cells..add(-1)..add(-1)..add(w+2)..add(  1);
-        cells..add(-1)..add(-1)..add(  1)..add(h+2);
-        cells..add( w)..add(-1)..add(  1)..add(h+2);
-        cells..add(-1)..add( h)..add(w+2)..add(  1);
-      }
+    void addBorderAsCells(num w, num h, List<num>cells) {
+      cells..add(-1)..add(-1)..add(w+2)..add(  1);
+      cells..add(-1)..add(-1)..add(  1)..add(h+2);
+      cells..add( w)..add(-1)..add(  1)..add(h+2);
+      cells..add(-1)..add( h)..add(w+2)..add(  1);
+    }
 
-      addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
-      var es = new List<Entity>();
-      es.add(newCamera());
-      es.add(newAmbientLight());
-      es.add(newLight());
-      es.add(newArea(name));
-      es.add(newChronometer(-60 * 1000, timeout));
-      es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
-      es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"]));
-      es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"]));
-      es.add(newCubeGenerator(cellr, area["zones"]["cubes_gen"]["cells"]));
-      if (area["zones"]["mobile_walls"] != null) {
-        area["zones"]["mobile_walls"].forEach((t) {
-          es.add(newMobileWall(
-            t[0] * cellr,
-            t[1] * cellr,
-            math.max(1, t[2] * cellr),
-            math.max(1, t[3] * cellr),
-            math.max(2, cellr /2),
-            t[4] * cellr,
-            t[5] * cellr,
-            t[6],
-            t[7] == 1
-          ));
-        });
-      }
-      print("nb entities for area : ${es.length}");
-      return es;
-    });
+    addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
+    var es = new List<Entity>();
+    es.add(newCamera());
+    es.add(newAmbientLight());
+    es.add(newLight());
+    es.add(newArea(assetpack.name));
+    es.add(newChronometer(-60 * 1000, timeout));
+    es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
+    es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"], assetpack));
+    es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"], assetpack));
+    es.add(newCubeGenerator(cellr, area["zones"]["cubes_gen"]["cells"]));
+    if (area["zones"]["mobile_walls"] != null) {
+      area["zones"]["mobile_walls"].forEach((t) {
+        es.add(newMobileWall(
+          t[0] * cellr,
+          t[1] * cellr,
+          math.max(1, t[2] * cellr),
+          math.max(1, t[3] * cellr),
+          math.max(2, cellr /2),
+          t[4] * cellr,
+          t[5] * cellr,
+          t[6],
+          t[7] == 1
+        ));
+      });
+    }
+    print("nb entities for area : ${es.length}");
+    return es;
   }
 
-  Future<Entity> newDrone(String player, double x0, double y0, double rz0) {
-    return _loadTxt("_models/drone01.js")
-      .then((x) => Factory_Renderables.makeModel(x, '_models'))
-      .then((x) => _newEntity([
-          new Transform.w3d(new vec3(x0, y0, 0.3)),
-          new DroneNumbers(),
-          new EntityStateComponent(State_CREATING, _droneStates(x))
-        ], group : GROUP_DRONE, player : player)
-      );
+  Entity newDrone(String player, double x0, double y0, double rz0) {
+    var rd = Factory_Renderables.makeModel(_assetManager.root["drone01"], '_models');
+    return _newEntity([
+        new Transform.w3d(new vec3(x0, y0, 0.3)),
+        new DroneNumbers(),
+        new EntityStateComponent(State_CREATING, _droneStates(rd))
+      ], group : GROUP_DRONE, player : player)
+    ;
   }
 
   _droneStates(RenderableDef c){

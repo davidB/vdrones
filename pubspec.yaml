@@ -5,7 +5,11 @@ description: An arcade game
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
-  asset_pack: any
+  asset_pack:
+#    path: ../asset_pack
+    git:
+      ref: exp_progressbar
+      url: git://github.com/davidB/asset_pack.git
   lawndart:
     path: ../lawndart
 #  box2d: 0.0.7
@@ -18,9 +22,6 @@ dependencies:
   vector_math: '>=0.9.7'
   widget:
     git: git://github.com/kevmoo/widget.dart.git
-#    git:
-#      ref: 0.2.4+p0
-#      url: git://github.com/davidB/widget.dart.git
   dartemis:
 #    path: ../dartemis
 #    git: git://github.com/davidB/dartemis.git

@@ -46,14 +46,15 @@ class Factory_Renderables {
     return js.retain(o);
   });
 
-  static RenderableDef cells2surface3d(num cellr, List<num> cells, num offz, [String imgUrl]) => _newRenderableDef((){
+  static RenderableDef cells2surface3d(num cellr, List<num> cells, num offz, [ImageElement img]) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry );
     //#material = new js.Proxy(THREE.MeshNormalMaterial, )
     var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
     var material = material0;
-    if (?imgUrl) {
-      var texture = THREE.ImageUtils.loadTexture(imgUrl);
+    if (?img) {
+      var texture = new js.Proxy(THREE.Texture, img) as dynamic;
+      texture.needsUpdate = true;
       material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
         "map" : texture,
         //"blending" : THREE.AdditiveBlending,
@@ -149,11 +150,11 @@ class Factory_Renderables {
     return js.retain(light);
   });
 
-  static RenderableDef makeModel(jsonStr, texturePath) => _newRenderableDef((){
+  static RenderableDef makeModel(json, texturePath) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var loader = new js.Proxy(THREE.JSONLoader) as dynamic;
     //texturePath = loader.extractUrlBase( d.src )
-    var r = loader.parse(js.map(JSON.parse(jsonStr)), texturePath);
+    var r = loader.parse(js.map(json), texturePath);
     //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
     //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
     //geometry.materials[ 0 ].shading = three.FlatShading;

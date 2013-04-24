@@ -192,11 +192,10 @@ class System_DroneGenerator extends EntityProcessingSystem {
     gen.scores.removeWhere((score) {
       var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.points.length) : gen.nextPointsIdx % gen.points.length;
       var p = gen.points[pointsIdx];
-      _efactory.newDrone(_player, p.x, p.y, p.z).then((e){
-        e.addComponent(new Generated(entity));
-        _droneNumbersMapper.get(e).score = score;
-        world.addEntity(e);
-      });
+      var e = _efactory.newDrone(_player, p.x, p.y, p.z);
+      e.addComponent(new Generated(entity));
+      _droneNumbersMapper.get(e).score = score;
+      world.addEntity(e);
       return true;
     });
   }

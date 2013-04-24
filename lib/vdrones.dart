@@ -8,6 +8,7 @@ import 'dart:math' as math;
 import 'dart:json' as JSON;
 import 'dart:html';
 import 'dart:svg' as svg;
+import 'dart:collection';
 import 'package:js/js.dart' as js;
 import 'package:lawndart/lawndart.dart';
 import 'package:web_ui/watcher.dart' as watchers;
@@ -16,7 +17,7 @@ import 'package:dartemis_addons/entity_state.dart';
 import 'package:dartemis_addons/animator.dart';
 import 'package:dartemis_addons/utils.dart';
 import 'package:vector_math/vector_math.dart';
-//import 'utils.dart';
+import 'package:asset_pack/asset_pack.dart';
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -83,9 +84,23 @@ class VDrones {
   var _player = "u0";
   var _areaId = null;
   var _stats = new Stats("u0", clean : false);
-
+  AssetManager _assetManager = null;
   //var _worldRenderSystem;
   //var _hudRenderSystem;
+
+  VDrones() {
+    var bar = document.query('#gameload');
+    _assetManager = newAssetManager(bar);
+
+    var container = document.query('#layers');
+    if (container == null) throw new StateError("#layers not found");
+    _world = new World();
+    _entitiesFactory = new Factory_Entities(_world, _assetManager);
+    _hud = new System_Hud(container, _player);
+    _setupWorld(container);
+
+    container.tabIndex = -1;
+  }
 
   get status => _status;
   void _updateStatus(int v) {
@@ -154,7 +169,6 @@ class VDrones {
     }
     _updateStatus(Status.INITIALIZING);
     showScreen('screenInit');
-    if (_world == null) _newWorld();
     _world.deleteAllEntities();
     _hud.reset();
     //_newWorld();
@@ -166,22 +180,22 @@ class VDrones {
   }
 
   Future _loadArea(String areaId) {
-    return _entitiesFactory.newFullArea(areaId, (e,t,t0){ _stop(false, 0); }).then((es){
-      es.forEach((e){
-        e.addToWorld();
-        print("add to world : ${e}");
-      });
-      return areaId;
-    });
+    var fpack = _assetManager.loadPack(areaId, '_areas/${areaId}.pack');
+    var drones = (_assetManager['drone01'] == null) ?
+        _assetManager.loadAndRegisterAsset('drone01', 'json', '_models/drone01.js', null, null)
+        : new Future.value(_assetManager['drone01']);
+    return Future.wait([fpack, drones]).then((l){
+        var es = _entitiesFactory.newFullArea(l[0], (e,t,t0){ _stop(false, 0); });
+        es.forEach((e){
+          e.addToWorld();
+          print("add to world : ${e}");
+        });
+        return areaId;
+      })
+      ;
   }
 
-  void _newWorld() {
-    _world = new World();
-    var container = document.query('#layers');
-    if (container == null) throw new StateError("#layers not found");
-
-    _entitiesFactory = new Factory_Entities(_world);
-    _hud = new System_Hud(container, _player);
+  void _setupWorld(Element container) {
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
     _world.addSystem(new System_Physics(false), passive : false);
@@ -203,6 +217,19 @@ class VDrones {
     _world.initialize();
   }
 
+  // TODO add notification of errors
+  AssetManager newAssetManager(Element bar) {
+    var tracer = new AssetPackTrace();
+    var stream = tracer.asStream().asBroadcastStream();
+    new ProgressControler(bar).bind(stream);
+    new EventsPrintControler().bind(stream);
+
+    var b = new AssetManager(tracer);
+    b.loaders['img'] = new ImageLoader();
+    b.importers['img'] = new NoopImporter();
+    return b;
+  }
+
   void _loop(num highResTime) {
     if ((_world != null) && (_status == Status.RUNNING)) {
       timeInfo.time = highResTime;
@@ -216,4 +243,17 @@ class VDrones {
     }
   }
 
+}
+
+class EventsPrintControler {
+
+  EventsPrintControler();
+
+  StreamSubscription bind(Stream<AssetPackTraceEvent> tracer) {
+    return tracer.listen(onEvent);
+  }
+
+  void onEvent(AssetPackTraceEvent event) {
+    print("AssetPackTraceEvent : ${event}");
+  }
 }
