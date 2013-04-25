@@ -1,21 +1,22 @@
-/* TEAM */
+#  humanstxt.org
+#  The humans responsible & technology colophon
 
-    Lead: David Bernard
+# TEAM
+
+  Lead: David Bernard
 	Github: http://github.com/davidB
 	From: Chartres, France
 
-/* THANKS */
-
-    <name>
+# THANKS
 
                             
-/* SITE */
+# SITE
 
-                            
-	Last update: 2013/03/22
+	Last update: 2013/04/24
 	Language: English
 	Standards: HTML5, CSS3, Dart
 	Doctype:HTML5
-	Components: Three.js  
-	Software: DartEditor, Vim, Blender, Inkscape, Chromium, Firefox, Arch Linux
-	Fonts: Font-Awesome, SciFly
+	Components: Three.js, asset_pack, dartemis, dartbox2d,  
+	Software: DartEditor, Vim, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant
+	Fonts: Font-Awesome, Fontello, SciFly
+	Host: Google App Engine
