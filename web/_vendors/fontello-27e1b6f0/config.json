@@ -1,0 +1,299 @@
+{
+  "name": "icons",
+  "css_prefix_text": "icon-",
+  "css_use_suffix": false,
+  "glyphs": [
+    {
+      "search": [
+        "settings",
+        "cog",
+        "gear",
+        "params"
+      ],
+      "code": 9881,
+      "from": 9881,
+      "uid": "e99461abfef3923546da8d745372c995",
+      "css": "cog",
+      "orig_css": "cog",
+      "orig_code": 9881,
+      "src": "fontawesome"
+    },
+    {
+      "search": [
+        "share"
+      ],
+      "code": 59393,
+      "uid": "91426c82d94428a33353e495418435e3",
+      "css": "share-1",
+      "orig_css": "share",
+      "orig_code": 59393,
+      "src": "entypo",
+      "from": 59196
+    },
+    {
+      "search": [
+        "emoticon",
+        "smiley",
+        "happy"
+      ],
+      "code": 59392,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva, specially for fontello"
+      },
+      "uid": "c64623255a4a7c72436b199b05296c4f",
+      "css": "emo-happy",
+      "orig_css": "emo-happy",
+      "orig_code": 59392,
+      "src": "fontelico",
+      "from": 59392
+    },
+    {
+      "search": [
+        "emoticon",
+        "smiley",
+        "unhappy"
+      ],
+      "code": 59394,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva, specially for fontello"
+      },
+      "uid": "53ed8570225581269cd7eff5795e8bea",
+      "css": "emo-unhappy",
+      "orig_css": "emo-unhappy",
+      "orig_code": 59394,
+      "src": "fontelico",
+      "from": 59394
+    },
+    {
+      "search": [
+        "emoticon",
+        "smiley",
+        "thumbsup"
+      ],
+      "code": 59396,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva, specially for fontello"
+      },
+      "uid": "142263941b9f4cd4b2b84f1f4cd13b1d",
+      "css": "emo-thumbsup",
+      "orig_css": "emo-thumbsup",
+      "orig_code": 59396,
+      "src": "fontelico",
+      "from": 59396
+    },
+    {
+      "search": [
+        "load",
+        "progress",
+        "wait"
+      ],
+      "code": 59440,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva, specially for fontello"
+      },
+      "uid": "72109d2fb3088d0e66ea6a9204297651",
+      "css-ext": "animate-spin",
+      "css": "spin1",
+      "orig_css": "spin1",
+      "orig_code": 59440,
+      "src": "fontelico",
+      "from": 59440
+    },
+    {
+      "search": [
+        "browser",
+        "firefox"
+      ],
+      "code": 59456,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "62c089cb34e74b3a1200bc7f5314eb4e",
+      "css": "firefox",
+      "orig_css": "firefox",
+      "orig_code": 59456,
+      "src": "fontelico",
+      "from": 59456
+    },
+    {
+      "search": [
+        "browser",
+        "chrome"
+      ],
+      "code": 59457,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "9c2b737b16ae2c8d66b7bfd29ba5ecd8",
+      "css": "chrome",
+      "orig_css": "chrome",
+      "orig_code": 59457,
+      "src": "fontelico",
+      "from": 59457
+    },
+    {
+      "search": [
+        "resize",
+        "fullscreen"
+      ],
+      "code": 61618,
+      "uid": "b013f6403e5ab0326614e68d1850fd6b",
+      "css": "resize-full-alt",
+      "orig_css": "resize-full-alt",
+      "orig_code": 61618,
+      "src": "fontawesome",
+      "from": 61618
+    },
+    {
+      "search": [
+        "chat",
+        "talk"
+      ],
+      "code": 61670,
+      "uid": "31951fbb9820ed0690f675b3d495c8da",
+      "css": "chat-empty",
+      "orig_css": "chat-empty",
+      "orig_code": 61670,
+      "src": "fontawesome",
+      "from": 61670
+    },
+    {
+      "search": [
+        "spinner"
+      ],
+      "code": 61712,
+      "uid": "cda0cdcfd38f5f1d9255e722dad42012",
+      "css": "spinner",
+      "orig_css": "spinner",
+      "orig_code": 61712,
+      "src": "fontawesome",
+      "from": 61712
+    },
+    {
+      "search": [
+        "facebook"
+      ],
+      "code": 62209,
+      "meta": {
+        "twitter": "https://twitter.com/puzrin",
+        "github": "https://github.com/puzrin",
+        "author": "Vitaly Puzrin"
+      },
+      "uid": "8045477f6a7ef0bd7caff130ad25b88d",
+      "file": "facebook-rect",
+      "css": "facebook-rect",
+      "orig_css": "facebook-rect",
+      "orig_code": 62209,
+      "src": "brandico",
+      "from": 62209
+    },
+    {
+      "search": [
+        "twitter"
+      ],
+      "code": 62211,
+      "meta": {
+        "homepage": "https://twitter.com/about/resources/logos",
+        "author": "Twitter"
+      },
+      "uid": "4c01f5d3ba5fbf029bca8630cce41e6a",
+      "file": "twitter-bird",
+      "transform": {
+        "rescale": 0.9,
+        "offset": 0.05
+      },
+      "css": "twitter-bird",
+      "orig_css": "twitter-bird",
+      "orig_code": 62211,
+      "src": "brandico",
+      "from": 62211
+    },
+    {
+      "search": [
+        "github"
+      ],
+      "code": 62216,
+      "meta": {
+        "twitter": "https://twitter.com/puzrin",
+        "github": "https://github.com/puzrin",
+        "author": "Vitaly Puzrin"
+      },
+      "uid": "4a0bb1ac004980bb3837560d4c9e8cee",
+      "file": "github",
+      "transform": {
+        "rescale": 0.9,
+        "offset": 0.05
+      },
+      "css": "github",
+      "orig_css": "github",
+      "orig_code": 62216,
+      "src": "brandico",
+      "from": 62216
+    },
+    {
+      "search": [
+        "google"
+      ],
+      "code": 62217,
+      "meta": {
+        "homepage": "http://www.google.com/+/business/brand-guidelines.html",
+        "author": "Google"
+      },
+      "uid": "626fb97a7c0c0db53a1853fb9e96e223",
+      "file": "googleplus-rect",
+      "css": "googleplus-rect",
+      "orig_css": "googleplus-rect",
+      "orig_code": 62217,
+      "src": "brandico",
+      "from": 62217
+    },
+    {
+      "search": [
+        "top",
+        "trophy",
+        "prize",
+        "award"
+      ],
+      "code": 127945,
+      "from": 127945,
+      "uid": "ab656e280958018a7859eba9a1eabbc7",
+      "css": "award",
+      "orig_css": "award",
+      "orig_code": 127945,
+      "src": "fontawesome"
+    },
+    {
+      "search": [
+        "chart",
+        "pie",
+        "diagram"
+      ],
+      "code": 128200,
+      "from": 128200,
+      "uid": "pdnk53e9ff0ck5q3b16vcm1hh1447j7e",
+      "css": "chart",
+      "orig_css": "chart",
+      "orig_code": 128200,
+      "src": "typicons"
+    },
+    {
+      "search": [
+        "volume",
+        "sound"
+      ],
+      "code": 128266,
+      "from": 128266,
+      "uid": "76857a03fbaa6857fe063b6c25aa98ed",
+      "css": "volume-up",
+      "orig_css": "volume-up",
+      "orig_code": 128266,
+      "src": "fontawesome"
+    }
+  ]
+}

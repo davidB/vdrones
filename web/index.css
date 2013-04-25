@@ -199,7 +199,8 @@ x-modal {
   min-height:0px;
 }
 .navbar .nav>li>a {
-  padding: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   line-height: 20px;
 }
 .navbar-inverse .navbar-inner {
