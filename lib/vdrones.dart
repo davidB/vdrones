@@ -82,7 +82,7 @@ class VDrones {
   Factory_Entities _entitiesFactory;
   System_Hud _hud;
   var _player = "u0";
-  var _areaId = null;
+  var _areaPack = null;
   var _stats = new Stats("u0", clean : false);
   AssetManager _assetManager = null;
   //var _worldRenderSystem;
@@ -108,9 +108,9 @@ class VDrones {
     watchers.dispatch();
   }
 
-  get area => _areaId;
+  get area => (_areaPack == null) ? null : _areaPack.name;
   set area(String v) {
-    if (v == _areaId) return;
+    if (v == area) return;
     _initialize(v);
   }
 
@@ -129,7 +129,7 @@ class VDrones {
     }
     if (_status != Status.INITIALIZED) {
       print("initialize : ${_status}");
-      _initialize(_areaId).then((_) => _start());
+      _initialize(area).then((_) => _start());
       return true;
     } else {
       _start();
@@ -138,9 +138,14 @@ class VDrones {
   }
 
   void _start() {
+    _updateStatus(Status.RUNNING);
     //TODO spawn drone
     //TODO start area (=> start chronometer)
-    _updateStatus(Status.RUNNING);
+    var es = _entitiesFactory.newFullArea(_areaPack, (e,t,t0){ _stop(false, 0); });
+    es.forEach((e){
+      e.addToWorld();
+      print("add to world : ${e}");
+    });
     //HACK screen should be converted into WebComponent
     showScreen('none');
     window.animationFrame.then(_loop);
@@ -151,13 +156,13 @@ class VDrones {
       _updateStatus(Status.STOPPING);
     }
     _stats
-      .updateCubesLast(_areaId, (viaExit)? cubesGrabbed : 0)
+      .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
       .then((stats){
         var runresult = query('#runresult').xtag;
-        runresult.areaId = _areaId;
-        runresult.cubesLast = stats[_areaId + Stats.AREA_CUBES_LAST_V];
-        runresult.cubesMax = stats[_areaId + Stats.AREA_CUBES_MAX_V];
-        runresult.cubesTotal = stats[_areaId + Stats.AREA_CUBES_TOTAL_V];
+        runresult.areaId = area;
+        runresult.cubesLast = stats[area + Stats.AREA_CUBES_LAST_V];
+        runresult.cubesMax = stats[area + Stats.AREA_CUBES_MAX_V];
+        runresult.cubesTotal = stats[area + Stats.AREA_CUBES_TOTAL_V];
         query('#runresult_dialog').xtag.show();
       });
   }
@@ -165,34 +170,28 @@ class VDrones {
   Future _initialize(String areaId) {
     print("Request init");
     if (_status == Status.INITIALIZING) {
-      return new Future.error("already initializing an area : ${_areaId}");
+      return new Future.error("already initializing an area");
     }
     _updateStatus(Status.INITIALIZING);
     showScreen('screenInit');
-    _world.deleteAllEntities();
     _hud.reset();
+    _world.deleteAllEntities();
     //_newWorld();
-    return _loadArea(areaId).then((a){
-      _areaId = a;
+    return _loadArea(areaId).then((pack){
+      _areaPack = pack;
       _updateStatus(Status.INITIALIZED);
-      return _areaId;
+      return _areaPack;
     });
   }
 
   Future _loadArea(String areaId) {
-    var fpack = _assetManager.loadPack(areaId, '_areas/${areaId}.pack');
-    var drones = (_assetManager['drone01'] == null) ?
+    var fpack = (_assetManager[areaId] == null) ?
+        _assetManager.loadPack(areaId, '_areas/${areaId}.pack')
+        : new Future.value(_assetManager[areaId]);
+    var fdrones = (_assetManager['drone01'] == null) ?
         _assetManager.loadAndRegisterAsset('drone01', 'json', '_models/drone01.js', null, null)
         : new Future.value(_assetManager['drone01']);
-    return Future.wait([fpack, drones]).then((l){
-        var es = _entitiesFactory.newFullArea(l[0], (e,t,t0){ _stop(false, 0); });
-        es.forEach((e){
-          e.addToWorld();
-          print("add to world : ${e}");
-        });
-        return areaId;
-      })
-      ;
+    return Future.wait([fpack, fdrones]).then((l) => l[0]);
   }
 
   void _setupWorld(Element container) {
