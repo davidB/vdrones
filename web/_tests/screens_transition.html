@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"        xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"               xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"                      xmlns:ng="http://angularjs.org" xmlns:app="ignored"> <!--<![endif]-->
+	<head>
+		<title>vdrones - r7</title>
+		<meta name="description" content="">
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="../favicon.ico" >
+    <script src="../_vendors/modernizr-2.6.2.min.js"></script>
+    <link rel="stylesheet" href="../_vendors/normalize-2.0.1/normalize.css">
+    <link rel="stylesheet" href="../_vendors/bootstrap-20121128/css/slate-bootstrap.min.css">
+    <link rel="stylesheet" href="../_vendors/font-awesome-2.0.0/css/font-awesome.css">
+	<script src="../_vendors/requirejs-2.1.1/require.min.js"></script>
+	<script src="../_scripts/requirejs.config.js"></script>
+	<!--
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    html, body {
+      width: 95%;
+      height: 95%;
+      background-color: #333;
+      color: #ddd;
+      font-family: georgia;
+      text-align: center;
+      text-shadow: #000 0 0 0.5em;
+    }
+    h1{
+      font-variant:small-caps;
+      font-size:3em;
+    }
+    h1 a,#ft a{
+      color:#fff;
+      text-decoration: none
+    }
+    b {
+      color:orange
+    }
+    -->
+    <style>
+      @font-face{
+        font-family: 'SciFly';
+        src: url('../_vendors/scifly/scifly-sans-webfont.eot');
+        src: url('../_vendors/scifly/scifly-sans-webfont.eot?#iefix') format('embedded-opentype'),
+        url('../_vendors/scifly/scifly-sans-webfont.woff') format('woff'),
+        url('../_vendors/scifly/scifly-sans-webfont.ttf') format('truetype'),
+        url('../_vendors/scifly/scifly-sans-webfont.svg#webfont') format('svg');
+      }
+    body {
+      font-family: 'SciFly', Arial, sans-serif;
+    }
+    #score{
+      text-align:right;
+      right:0.5em;
+      float:right
+    }
+    .sh{
+      box-shadow:0px 0px 20px #111;
+      -moz-box-shadow:0px 0px 20px #111;
+      -webkit-box-shadow:0px 0px 20px #111;
+      -khtml-box-shadow:0px 0px 20px #111;
+    }
+    #game_area {
+      position: relative;
+      width: 1120px;
+      height: 630px;
+      margin: auto;
+    }
+    #game_area #layers, #game_area #layers canvas, #game_area #layers >div{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    /* see http://www.useragentman.com/blog/2012/01/03/cross-browser-html5-progress-bars-in-depth/ */
+    progress.gameload {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      /* Turns off styling - not usually needed, but good to know. */
+      appearance: none;
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      background: rgb(53, 60, 68) !important;
+      color: rgb(202, 46, 46);
+    }
+    /* putting them all together in one selector breaks every browser */
+    progress.gameload::-moz-progress-bar {
+       background: rgb(202, 46, 46);
+    }
+    progress.gameload::-webkit-progress-bar {
+      background: rgb(53, 60, 68);
+    }
+    progress.gameload::-webkit-progress-value {
+      background: rgb(202, 46, 46);
+    }
+
+    /* Polyfill */
+    progress.gameload[role][aria-valuenow] {
+      background: rgb(53, 60, 68) !important;
+    }
+    progress.gameload[aria-valuenow]:before  {
+      background: rgb(202, 46, 46);
+    }
+    #info {
+			position: absolute;
+			top: 0px; width: 90%;
+			padding: 5px;
+    }
+    .screen_info  {
+      z-index: 12;
+      opacity: 1;
+      //background-color: #00aa00;
+      -webkit-transition: opacity 1s;
+      -moz-transition: opacity 1s;
+      -o-transition: opacity 1s;
+      -ms-transition: opacity 1s;
+      transition: opacity 1s;
+    }
+    .screen_inner {
+      border: 2px solid rgb(100,100,120);
+      margin: 8px;
+      padding: 5px;
+      height: 80%;
+    }
+    .screen_inner h3 {
+      text-align: center;
+    }
+    .screen_inner .actions {
+      text-align: center;
+      margin: auto;
+    }
+    .btn {
+      -webkit-transition: all 1s;
+      -moz-transition: all 1s;
+      -o-transition: all 1s;
+      -ms-transition: all 1s;
+      transition: all 1s;
+    }
+  </style>
+</head>
+<body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+  <div class="container">
+  <header class="jumbotron subhead" id="overview">
+    <h1>VDrones</h1>
+  </header>
+  <noscript
+    <div class="alert alert-error">
+      Sorry, you need Javascript in order to view this web app.
+      Please enable it in your browser settings.
+    </div>
+  </noscript>
+  <section id="game_area" class="sh">
+    <div id="layers">
+      <div id="layer2D" style="z-index:10">
+      </div>
+      <div id="layerSVG" style="z-index:11">
+      </div>
+      <!--div id="screens" style="z-index:12"-->
+        <div id="screen1" class="screen_info">
+          <div class="screen_inner">
+            <h3>Welcome VDroner,</h3>
+            <div class="actions">
+              <p>Please wait, connecting to VSpace ...</p>
+              <button class="btn" onclick="showScreen('screen2');" disabled="disabled">START</button>
+              <button class="btn" onclick="showScreen('screen2');">START</button>
+            </div>
+          </div>
+        </div>
+        <div id="screen2" class="screen_info">
+          screen 2 ....
+          <a href="javascript:showScreen('screen3');">Next</a>
+        </div>
+        <div id="screen3" class="screen_info">
+          screen 3 ....
+          <a href="javascript:showScreen('screen4');">Next</a>
+        </div>
+        <div id="screen4" class="screen_info">
+          screen 4 ....
+          <a href="javascript:showScreen('screen5');">Next</a>
+        </div>
+        <div id="screen5" class="screen_info">
+          screen 5 ....
+          <a href="javascript:showScreen('screen6');">Next</a>
+        </div>
+        <div id="screen6" class="screen_info">
+          screen 6 ....
+           <a href="javascript:showScreen('screen1');">Next</a>
+        </div>
+        <!--/div-->
+        <div id="alert" class="alert alert-error" style="z-index:100; display:none">
+        </div>
+    </div>
+    <progress max="100" value="60" class="gameload">
+      <span id="progressFallback">60%</span>
+    </progress>
+  </section>
+  </div>
+  <script>
+    //require(['main'], function(main){ main(); });
+    function showScreen(id){
+      var screens = document.getElementsByClassName('screen_info');
+      for(i = screens.length - 1; i > -1; i--) {
+        var screen = screens[i];
+        //screen.style.opacity = (screen.id === id)?1 : 0;
+        screen.style.display = (screen.id === id) ? 'block' : 'none';
+      }
+      return false;
+    }
+    showScreen('screen1');
+  </script>
+</body>
+</html>
