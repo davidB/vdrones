@@ -17,6 +17,7 @@ const State_RUNNING = 10;
 
 class Factory_Entities {
   static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
+  static final transformCT = ComponentTypeManager.getTypeFor(Transform);
 
   World _world;
   AssetManager _assetManager;
@@ -90,10 +91,20 @@ class Factory_Entities {
     Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_out"])
   ]);
 
-  Entity newMobileWall(double x0,double y0, double dx, double dy, double dz, double speedx, double speedy, double duration,  bool inout) => _newEntity([
+  Entity newMobileWall(num x0, num y0, num dx, num dy, num dz, num tx, num ty, num duration,  bool inout) => _newEntity([
     new Transform.w2d(x0, y0, 0),
     Factory_Physics.newMobileWall(dx, dy),
-    Factory_Renderables.newMobileWall(dx, dy, dz)
+    Factory_Renderables.newMobileWall(dx, dy, dz),
+    new Animatable()
+      ..add(new Animation()
+        ..onTick = (e, t, t0) {
+          var trans = e.getComponent(transformCT);
+          var ratio =  (t.toInt() % duration);
+          trans.position3d.x = x0 + tx * ratio;
+          trans.position3d.y = y0 + ty * ratio;
+          return true;
+        }
+      )
   ]);
 
 
@@ -139,7 +150,7 @@ class Factory_Entities {
       cells..add( w)..add(-1)..add(  1)..add(h+2);
       cells..add(-1)..add( h)..add(w+2)..add(  1);
     }
-
+    //print(JSON.stringify(area));
     addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
     var es = new List<Entity>();
     es.add(newCamera());
@@ -154,14 +165,14 @@ class Factory_Entities {
     if (area["zones"]["mobile_walls"] != null) {
       area["zones"]["mobile_walls"].forEach((t) {
         es.add(newMobileWall(
-          t[0] * cellr,
-          t[1] * cellr,
+          (t[0] + t[2]/2) * cellr,
+          (t[1] + t[3]/2) * cellr,
           math.max(1, t[2] * cellr),
           math.max(1, t[3] * cellr),
           math.max(2, cellr /2),
-          t[4] * cellr,
-          t[5] * cellr,
-          t[6],
+          (t[4] * cellr).toDouble() / 1000,
+          (t[5] * cellr).toDouble() / 1000,
+          t[6] * 1000,
           t[7] == 1
         ));
       });

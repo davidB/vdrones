@@ -12,7 +12,7 @@ class Factory_Physics {
     return new PhysicBody(b, [f]);
   }
 
- static PhysicBody newMobileWall(double dx, double dy) {
+ static PhysicBody newMobileWall(num dx, num dy) {
     var b = new b2.BodyDef();
     b.type= b2.BodyType.KINEMATIC;
     //TODO optim replace boxes (polyshape) by segment + thick (=> change the display) if w or h is 0
