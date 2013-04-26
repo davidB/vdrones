@@ -18,5 +18,10 @@
       "name":"gate_out",
       "url":"/../../_images/gate_out.png",
       "type":"img"
+   },
+   "music": {
+     "name":"music",
+     "url":"/../../_songs/s6.ogg",
+     "type":"audioclip"
    }
 }

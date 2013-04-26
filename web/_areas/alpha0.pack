@@ -19,4 +19,9 @@
       "url":"/../../_images/gate_out.png",
       "type":"img"
    }
+   "music":{
+       "name":"music",
+       "url": "/../../_songs/s6.mp3",
+       "type": "audioclip"
+   }
 }

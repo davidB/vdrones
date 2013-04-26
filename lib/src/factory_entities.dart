@@ -2,6 +2,7 @@ part of vdrones;
 
 const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
+const GROUP_AUDIOLISTENER = "audiolistener";
 
 const EntityTypes_WALL    = 0x0001;
 const EntityTypes_DRONE   = 0x0002;
@@ -24,11 +25,15 @@ class Factory_Entities {
 
   Factory_Entities(this._world, this._assetManager);
 
-  Entity _newEntity(List<Component> cs, {String group, String player}) {
+  Entity _newEntity(List<Component> cs, {String group, String player, List<String> groups}) {
     var e = _world.createEntity();
     cs.forEach((c) => e.addComponent(c));
     if (group != null) {
       (_world.getManager(GroupManager) as GroupManager).add(e, group);
+    }
+    if (groups != null) {
+      var gm = (_world.getManager(GroupManager) as GroupManager);
+      groups.forEach((group) => gm.add(e, group));
     }
     if (player != null) {
       (_world.getManager(PlayerManager) as PlayerManager).setPlayer(e, player);
@@ -124,11 +129,12 @@ class Factory_Entities {
       )
   ]);
 
-  Entity newCamera() => _newEntity([
+  Entity newCamera(music) => _newEntity([
     new PlayerFollower(new vec3(0, -25, 30)),
     new Transform.w3d(new vec3(0, -25, 30)).lookAt(new vec3(0,0,0)),
-    Factory_Renderables.newCamera()
-  ], group : GROUP_CAMERA);
+    Factory_Renderables.newCamera(),
+    new AudioDef()..add(music)
+  ], groups : [GROUP_CAMERA, GROUP_AUDIOLISTENER]);
 
   Entity newLight() => _newEntity([
     new Transform.w3d(new vec3(40, 40, 100)).lookAt(new vec3(90, 90, 0)),
@@ -153,7 +159,7 @@ class Factory_Entities {
     //print(JSON.stringify(area));
     addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
     var es = new List<Entity>();
-    es.add(newCamera());
+    es.add(newCamera("${assetpack.name}.music"));
     es.add(newAmbientLight());
     es.add(newLight());
     es.add(newArea(assetpack.name));
@@ -238,7 +244,8 @@ class Factory_Entities {
     new Animatable()..l.add(
       Factory_Animations.newExplodeOut()
         ..onEnd = (e, t ,t0) { e.deleteFromWorld();}
-    )
+    ),
+    new AudioDef()..add("explosion")
   ]);
 }
 

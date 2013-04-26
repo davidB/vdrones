@@ -1,6 +1,5 @@
 library vdrones;
 
-
 import 'package:logging/logging.dart';
 import 'package:box2d/box2d_browser.dart' as b2;
 import 'dart:async';
@@ -18,8 +17,11 @@ import 'package:dartemis_addons/animator.dart';
 import 'package:dartemis_addons/utils.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
+import 'package:simple_audio/simple_audio.dart';
+import 'package:simple_audio/simple_audio_asset_pack.dart';
 
 part 'src/components.dart';
+part 'src/system_audio.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
@@ -60,6 +62,16 @@ class TimeInfo {
   }
 }
 
+String findBaseUrl() {
+  String location = window.location.href;
+  int slashIndex = location.lastIndexOf('/');
+  if (slashIndex < 0) {
+    return '/';
+  } else {
+    return location.substring(0, slashIndex);
+  }
+}
+
 void showScreen(id){
   document.queryAll('.screen_info').forEach((screen) {
     //screen.style.opacity = (screen.id === id)?1 : 0;
@@ -85,17 +97,24 @@ class VDrones {
   var _areaPack = null;
   var _stats = new Stats("u0", clean : false);
   AssetManager _assetManager = null;
+  AudioManager _audioManager = null;
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
-  var masterMute = false;
-  var masterVolume = "0.8";
-  var musicVolume = "0.5";
-  var sourceVolume = "0.9";
+  get masterMute => _audioManager.mute;
+  set masterMute(v) {_audioManager.mute = v; }
+  get masterVolume => _audioManager.masterVolume.toString();
+  set masterVolume(v) { _audioManager.masterVolume = double.parse(v) ; }
+  get musicVolume => _audioManager.musicVolume.toString();
+  set musicVolume(v) { _audioManager.musicVolume = double.parse(v) ; }
+  get sourceVolume => _audioManager.sourceVolume.toString();
+  set sourceVolume(v) { _audioManager.sourceVolume = double.parse(v) ; }
 
   VDrones() {
     var bar = document.query('#gameload');
-    _assetManager = newAssetManager(bar);
+    _assetManager = _newAssetManager(bar);
+    _audioManager = _newAudioManager(findBaseUrl(), _assetManager);
+    _preloadAssets();
 
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
@@ -216,13 +235,14 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
+    _world.addSystem(new System_Audio(_audioManager, _assetManager), passive : false);
     _world.addSystem(_hud);
     _world.addSystem(new System_EntityState());
     _world.initialize();
   }
 
   // TODO add notification of errors
-  AssetManager newAssetManager(Element bar) {
+  static AssetManager _newAssetManager(Element bar) {
     var tracer = new AssetPackTrace();
     var stream = tracer.asStream().asBroadcastStream();
     new ProgressControler(bar).bind(stream);
@@ -233,7 +253,19 @@ class VDrones {
     b.importers['img'] = new NoopImporter();
     return b;
   }
+  static AudioManager _newAudioManager(baseUrl, AssetManager am) {
+    var audioManager = new AudioManager(baseUrl);
+    audioManager.mute = false;
+    audioManager.masterVolume = 1.0;
+    audioManager.musicVolume = 0.5;
+    audioManager.sourceVolume = 0.9;
+    registerSimpleAudioWithAssetManager(audioManager, am);
+    return audioManager;
+  }
 
+  void _preloadAssets() {
+    _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
+  }
   void _loop(num highResTime) {
     if ((_world != null) && (_status == Status.RUNNING)) {
       timeInfo.time = highResTime;

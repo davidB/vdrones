@@ -10,6 +10,9 @@ dependencies:
     git:
       ref: exp_progressbar
       url: git://github.com/davidB/asset_pack.git
+  simple_audio:
+#    git: git://github.com/johnmccutchan/simpleaudio.git
+    path: ../simpleaudio
   lawndart:
     path: ../lawndart
 #  box2d: 0.0.7
