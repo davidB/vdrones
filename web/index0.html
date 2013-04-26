@@ -12,6 +12,7 @@
 
     <link rel="components" href="_widgets/xmodal.html">
     <link rel="components" href="_widgets/xrunresult.html">
+    <link rel="components" href="_widgets/xdropdown.html">
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -29,6 +30,7 @@
   <div class="vbadge">alpha</div>
   <div class="container">
   <header class="jumbotron subhead" id="overview">
+  
   <div class="navbar navbar-inverse">
     <div class="navbar-inner">
       <div class="container" style="width: auto;">
@@ -44,8 +46,18 @@
             <li><a href="#/a/beta0" title="Go to area beta0">β<sub>0</sub></a></li>
           </ul>
           <ul class="nav pull-right">
-            <li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><i class="fontawesome-comments"></i></a></li>
-            <li class="divider"></li>
+            <li class="dropdown" is="x-dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fontawesome-volume-up"></span><b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                 <li><label for="mute"><span class="fontawesome-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
+                 <li><label for="masterVolume"><span class="fontawesome-volume-down" title="master (all)"></span></label><input id="masterVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.masterVolume"/></li>
+                 <li><label for="musicVolume"><span class="fontawesome-music" title="music"></span></label><input id="musicVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.musicVolume"/></li>
+                 <li><label for="sourceVolume"><span class="fontawesome-bell" title="effects"></span></label><input id="sourceVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.sourceVolume"/><li>
+              </ul>
+            </li>
+            <li class="divider-vertical"></li>
+            <li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fontawesome-comments"></span></a></li>
+            <li class="divider-vertical"></li>
             <!-- May be use service of http://sharethis.com/ -->
             <li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fontawesome-twitter"></span></a></li>
             <li><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://vdrones.appspot.com" title="share on googleplus" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'googleplus']);"><span class="fontawesome-google-plus-sign"></span></a></li>
@@ -57,7 +69,7 @@
       </div>
     </div><!-- /navbar-inner -->
   </div><!-- /navbar -->
-
+  
     <h1>VDrones</h1>
   </header>
   <!--[if lt IE 10]>

@@ -88,6 +88,11 @@ class VDrones {
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
+  var masterMute = false;
+  var masterVolume = "0.8";
+  var musicVolume = "0.5";
+  var sourceVolume = "0.9";
+
   VDrones() {
     var bar = document.query('#gameload');
     _assetManager = newAssetManager(bar);

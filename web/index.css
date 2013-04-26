@@ -203,6 +203,9 @@ x-modal {
   padding-bottom: 0;
   line-height: 20px;
 }
+.navbar .divider-vertical {
+  height: 20px;
+}
 .navbar-inverse .navbar-inner {
   background-color: #272b30;
   background-image: -webkit-linear-gradient(#202328,#272b30 70%,#272b30);
@@ -309,4 +312,18 @@ x-modal {
     -webkit-transform: rotate(359deg);
     transform: rotate(359deg);
   }
+}
+.navbar label {
+  display: inline-block;
+  width: 2em;
+  text-align: center;
+}
+.navbar input[type="range"]{
+  -webkit-appearance:none; -moz-apperance:none;
+  width:130px; height:1px
+;}
+.navbar input::-webkit-slider-thumb{
+  -webkit-appearance:none; -moz-apperance:none; width:12px; height:12px;
+  -webkit-border-radius:12px; -moz-border-radius:12px; -ms-border-radius:12px; -o-border-radius:12px; border-radius:12px;
+  background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #fefefe), color-stop(0.49, #dddddd), color-stop(0.51, #d1d1d1), color-stop(1, #a1a1a1) );
 }
