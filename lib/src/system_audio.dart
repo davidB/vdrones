@@ -79,7 +79,7 @@ class System_Audio extends EntityProcessingSystem {
           } else {
             _audioManager.music.stop();
             _audioManager.music.clip = clip;
-            _audioManager.music.play();
+            _audioManager.music.play(loop : false);
           }
         }
         return null;
