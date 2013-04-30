@@ -63,7 +63,7 @@ class TimeInfo {
 }
 
 String findBaseUrl() {
-  String location = window.location.href;
+  String location = window.location.pathname;
   int slashIndex = location.lastIndexOf('/');
   if (slashIndex < 0) {
     return '/';
