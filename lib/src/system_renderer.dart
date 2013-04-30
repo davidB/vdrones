@@ -127,14 +127,13 @@ class System_Render3D extends EntitySystem {
 
   static dynamic _newRenderer(THREE) {
     var renderer = new js.Proxy(THREE.WebGLRenderer, js.map({
-      "clearAlpha": 1,
       "antialias": true
       //#preserveDrawingBuffer: true # to allow screenshot
     }));
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true; // to antialias the shadow;
     renderer.shadowMapType = THREE.PCFShadowMap;
-    renderer.setClearColorHex(0x010109, 1.0);
+    renderer.setClearColor(0x010109, 1.0);
     renderer.autoClear = false;
     //_renderer.sortObjects = false;
     //_renderer.setSize(container.client.width, container.client.height);
