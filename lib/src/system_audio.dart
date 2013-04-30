@@ -67,7 +67,6 @@ class System_Audio extends EntityProcessingSystem {
       _applyTransform(obj, entity);
       var def = _objDefMapper.get(entity);
       def.l.iterateAndUpdate((x) {
-        print("!!!! ask to play ${x}");
         var clip = null;//_audioManager.findClip(x);
         if (clip == null) clip = _assetManager[x];
         if (clip == null) {
