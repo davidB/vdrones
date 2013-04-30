@@ -101,14 +101,14 @@ class VDrones {
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
-  get masterMute => _audioManager.mute;
-  set masterMute(v) {_audioManager.mute = v; }
-  get masterVolume => _audioManager.masterVolume.toString();
-  set masterVolume(v) { _audioManager.masterVolume = double.parse(v) ; }
-  get musicVolume => _audioManager.musicVolume.toString();
-  set musicVolume(v) { _audioManager.musicVolume = double.parse(v) ; }
-  get sourceVolume => _audioManager.sourceVolume.toString();
-  set sourceVolume(v) { _audioManager.sourceVolume = double.parse(v) ; }
+  get masterMute => (_audioManager == null)? true : _audioManager.mute;
+  set masterMute(v) { if(_audioManager == null) return; _audioManager.mute = v; }
+  get masterVolume => (_audioManager == null)? "0" : _audioManager.masterVolume.toString();
+  set masterVolume(v) { if(_audioManager == null) return; _audioManager.masterVolume = double.parse(v) ; }
+  get musicVolume => (_audioManager == null)? "0" : _audioManager.musicVolume.toString();
+  set musicVolume(v) { if(_audioManager == null) return; _audioManager.musicVolume = double.parse(v) ; }
+  get sourceVolume => (_audioManager == null)? "0" : _audioManager.sourceVolume.toString();
+  set sourceVolume(v) { if(_audioManager == null) return; _audioManager.sourceVolume = double.parse(v) ; }
 
   VDrones() {
     var bar = document.query('#gameload');
@@ -235,7 +235,7 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
-    _world.addSystem(new System_Audio(_audioManager, _assetManager), passive : false);
+    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, _assetManager), passive : false);
     _world.addSystem(_hud);
     _world.addSystem(new System_EntityState());
     _world.initialize();
@@ -253,14 +253,19 @@ class VDrones {
     b.importers['img'] = new NoopImporter();
     return b;
   }
-  static AudioManager _newAudioManager(baseUrl, AssetManager am) {
-    var audioManager = new AudioManager(baseUrl);
-    audioManager.mute = false;
-    audioManager.masterVolume = 1.0;
-    audioManager.musicVolume = 0.5;
-    audioManager.sourceVolume = 0.9;
-    registerSimpleAudioWithAssetManager(audioManager, am);
-    return audioManager;
+  AudioManager _newAudioManager(baseUrl, AssetManager am) {
+    try {
+      var audioManager = new AudioManager(baseUrl);
+      audioManager.mute = false;
+      audioManager.masterVolume = 1.0;
+      audioManager.musicVolume = 0.5;
+      audioManager.sourceVolume = 0.9;
+      registerSimpleAudioWithAssetManager(audioManager, am);
+      return audioManager;
+    } catch (e) {
+      handleError(e);
+      return null;
+    }
   }
 
   void _preloadAssets() {
