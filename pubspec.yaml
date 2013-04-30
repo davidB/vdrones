@@ -1,5 +1,5 @@
 name: vdrones
-version: 0.8.0
+version: 0.9.0
 author: david bernard
 description: An arcade game
 homepage: https://vdrones.appspot.com/
@@ -25,10 +25,10 @@ dependencies:
   vector_math: '>=0.9.7'
   widget:
     git: git://github.com/kevmoo/widget.dart.git
-  dartemis:
+  dartemis: '>=0.4.1'
 #    path: ../dartemis
 #    git: git://github.com/davidB/dartemis.git
-    git: git://github.com/denniskaselow/dartemis.git
+#    git: git://github.com/denniskaselow/dartemis.git
   dartemis_addons:
 #    path: ../dartemis_addons
     git: git://github.com/davidB/dartemis_addons.git
