@@ -104,7 +104,16 @@ class Factory_Entities {
       ..add(new Animation()
         ..onTick = (e, t, t0) {
           var trans = e.getComponent(transformCT);
-          var ratio =  (t.toInt() % duration);
+          var ratio =  0;
+          if (inout) {
+            ratio = (t % (2 * duration));
+            if (ratio > duration) {
+              ratio = 2 * duration - ratio;
+            }
+          } else {
+            ratio = (t % duration);
+          }
+          ratio = ratio / duration;
           trans.position3d.x = x0 + tx * ratio;
           trans.position3d.y = y0 + ty * ratio;
           return true;
@@ -148,7 +157,7 @@ class Factory_Entities {
 
   List<Entity> newFullArea(AssetPack assetpack, timeout) {
     var area = assetpack["area"];
-    var cellr = area["cellr"];
+    var cellr = area["cellr"].toDouble();
 
     void addBorderAsCells(num w, num h, List<num>cells) {
       cells..add(-1)..add(-1)..add(w+2)..add(  1);
@@ -176,8 +185,8 @@ class Factory_Entities {
           math.max(1, t[2] * cellr),
           math.max(1, t[3] * cellr),
           math.max(2, cellr /2),
-          (t[4] * cellr).toDouble() / 1000,
-          (t[5] * cellr).toDouble() / 1000,
+          t[4] * cellr,
+          t[5] * cellr,
           t[6] * 1000,
           t[7] == 1
         ));
