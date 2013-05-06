@@ -129,7 +129,7 @@ class System_Render3D extends EntitySystem {
     var renderer = new js.Proxy(THREE.WebGLRenderer, js.map({
       "antialias": true
       //#preserveDrawingBuffer: true # to allow screenshot
-    }));
+    })) as dynamic;
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true; // to antialias the shadow;
     renderer.shadowMapType = THREE.PCFShadowMap;

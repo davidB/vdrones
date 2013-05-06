@@ -12,16 +12,18 @@ import 'package:js/js.dart' as js;
 import 'package:lawndart/lawndart.dart';
 import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
-import 'package:dartemis_addons/entity_state.dart';
-import 'package:dartemis_addons/animator.dart';
+import 'package:dartemis_addons/system_entity_state.dart';
+import 'package:dartemis_addons/system_animator.dart';
+import 'package:dartemis_addons/system_simple_audio.dart';
 import 'package:dartemis_addons/utils.dart';
+import 'package:dartemis_addons/transform.dart';
+import 'package:dartemis_addons/ease.dart' as ease;
 import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
 import 'package:simple_audio/simple_audio.dart';
 import 'package:simple_audio/simple_audio_asset_pack.dart';
 
 part 'src/components.dart';
-part 'src/system_audio.dart';
 part 'src/system_physics.dart';
 part 'src/system_renderer.dart';
 part 'src/system_controller.dart';
@@ -138,8 +140,9 @@ class VDrones {
     _initialize(v);
   }
 
-  void handleError(error) {
+  void handleError(error,[s]) {
     print("ERROR !! ${error}");
+    if (s != null) print(s); //.fullStackTrace); // This should print the full stack trace)
   }
 
 
@@ -147,6 +150,7 @@ class VDrones {
 
   bool play() {
     print("call play : ${_status}");
+    try {
     if  (!playable()){
       print("NOT playable : ${_status}");
       return false;
@@ -158,6 +162,9 @@ class VDrones {
     } else {
       _start();
       return true;
+    }
+    } on Object catch(e, s) {
+      handleError(e, s);
     }
   }
 
@@ -235,7 +242,7 @@ class VDrones {
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
     _world.addSystem(new System_Render3D(container), passive : false);
-    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, _assetManager), passive : false);
+    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
     _world.addSystem(_hud);
     _world.addSystem(new System_EntityState());
     _world.initialize();

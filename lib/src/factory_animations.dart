@@ -18,7 +18,7 @@ class Factory_Animations {
   static Animation newRotateXYEndless() {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
-        var t = e.getComponent(transformCT);
+        var t = e.getComponent(transformCT) as Transform;
         if (t == null) return false;
         t.rotation3d.x += 0.01;
         t.rotation3d.y += 0.02;
@@ -30,14 +30,14 @@ class Factory_Animations {
   static Animation newScaleOut([OnComplete onComplete = onNoop]) {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
-        var transform = e.getComponent(transformCT);
+        var transform = e.getComponent(transformCT) as Transform;
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
         transform.scale3d.setComponents(
-          Easing.easeInQuad(ratio, -1, 1),
-          Easing.easeInQuad(ratio, -1, 1),
-          Easing.easeInQuad(ratio, -1, 1)
+          ease.inQuad(ratio, -1, 1),
+          ease.inQuad(ratio, -1, 1),
+          ease.inQuad(ratio, -1, 1)
         );
         return dt < 300;
       }
@@ -48,14 +48,14 @@ class Factory_Animations {
   static Animation newScaleIn() {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
-        var transform = e.getComponent(transformCT);
+        var transform = e.getComponent(transformCT) as Transform;
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
         transform.scale3d.setComponents(
-          Easing.easeInQuad(ratio, 1, 0),
-          Easing.easeInQuad(ratio, 1, 0),
-          Easing.easeInQuad(ratio, 1, 0)
+          ease.inQuad(ratio, 1, 0),
+          ease.inQuad(ratio, 1, 0),
+          ease.inQuad(ratio, 1, 0)
         );
         return dt < 300;
       }

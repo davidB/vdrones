@@ -5,36 +5,37 @@ description: An arcade game
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
-  asset_pack:
-#    path: ../asset_pack
-    git:
-      ref: exp_progressbar
-      url: git://github.com/davidB/asset_pack.git
-  simple_audio:
-#    git: git://github.com/johnmccutchan/simpleaudio.git
-    path: ../simpleaudio
   lawndart:
     path: ../lawndart
-#  box2d: 0.0.7
+  asset_pack:
+    git: https://github.com/johnmccutchan/asset_pack.git
   box2d:
     path: ../dartbox2d
   js: any
   browser: any
-  logging: any
   web_ui: any
   vector_math: '>=0.9.7'
+  logging: any
+  dartemis_addons:
+    path: ../dartemis_addons
+  dartemis: '>=0.4.1'
   widget:
     git: git://github.com/kevmoo/widget.dart.git
-  dartemis: '>=0.4.1'
-#    path: ../dartemis
-#    git: git://github.com/davidB/dartemis.git
-#    git: git://github.com/denniskaselow/dartemis.git
-  dartemis_addons:
-#    path: ../dartemis_addons
-    git: git://github.com/davidB/dartemis_addons.git
+  simple_audio:
+    git: git://github.com/johnmccutchan/simpleaudio.git
 dev_dependencies:
   unittest: any
 
+#    path: ../asset_pack
+#    git:
+#      ref: exp_progressbar
+#      url: git://github.com/davidB/asset_pack.git
+#    path: ../simpleaudio
+#  box2d: 0.0.7
+#    path: ../dartemis
+#    git: git://github.com/davidB/dartemis.git
+#    git: git://github.com/denniskaselow/dartemis.git
+#    git: git://github.com/davidB/dartemis_addons.git
 #  three:
 #    path: /home/dwayne/dart/three.dart
 #  logging: 0.3.7+6
