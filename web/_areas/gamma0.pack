@@ -1,7 +1,7 @@
 {
    "area":{
       "name":"area",
-      "url":"/../../_areas/beta0.json",
+      "url":"/../../_areas/gamma0.json",
       "type":"json"
    },
    "hud":{
@@ -23,5 +23,5 @@
        "name":"music",
        "url":"/../../_songs/s6.ogg",
        "type": "audioclip"
-   }   
+   }
 }

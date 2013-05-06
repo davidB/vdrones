@@ -21,7 +21,7 @@
    },
    "music":{
        "name":"music",
-       "url": "/../../_songs/s6.mp3",
+       "url":"/../../_songs/s6.ogg",
        "type": "audioclip"
    }
 }

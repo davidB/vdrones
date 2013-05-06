@@ -129,9 +129,9 @@ class Factory_Renderables {
     return js.retain(camera);
   });
 
-  static RenderableDef newAmbientLight() => _newRenderableDef((){
+  static RenderableDef newAmbientLight(color) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
-    return js.retain(new js.Proxy(THREE.AmbientLight, 0x444444));
+    return js.retain(new js.Proxy(THREE.AmbientLight, color));
   });
 
   static RenderableDef newLight() => _newRenderableDef((){

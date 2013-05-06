@@ -2,7 +2,6 @@ part of vdrones;
 
 const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
-const GROUP_AUDIOLISTENER = "audiolistener";
 
 const EntityTypes_WALL    = 0x0001;
 const EntityTypes_DRONE   = 0x0002;
@@ -67,7 +66,7 @@ class Factory_Entities {
   ]);
 
   Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
-    new Transform.w2d(0, 0, 0),
+    new Transform.w2d(0.0, 0.0, 0.0),
     Factory_Physics.cells2boxes2d(cellr, cells, EntityTypes_WALL),
     Factory_Renderables.cells2boxes3d(cellr, cells, width, height)
   ]);
@@ -91,13 +90,13 @@ class Factory_Entities {
   }
 
   Entity newGateOut(num cellr, List<num> cells, AssetPack assetpack) => _newEntity([
-    new Transform.w3d(new vec3(0, 0, 0.2)),
+    new Transform.w3d(new vec3(0.0, 0.0, 0.2)),
     Factory_Physics.cells2circles2d(cellr, cells, 0.3, EntityTypes_GATEOUT),
     Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_out"])
   ]);
 
   Entity newMobileWall(num x0, num y0, num dx, num dy, num dz, num tx, num ty, num duration,  bool inout) => _newEntity([
-    new Transform.w2d(x0, y0, 0),
+    new Transform.w2d(x0, y0, 0.0),
     Factory_Physics.newMobileWall(dx, dy),
     Factory_Renderables.newMobileWall(dx, dy, dz),
     new Animatable()
@@ -142,17 +141,17 @@ class Factory_Entities {
     new PlayerFollower(new vec3(0, -25, 30)),
     new Transform.w3d(new vec3(0, -25, 30)).lookAt(new vec3(0,0,0)),
     Factory_Renderables.newCamera(),
-    new AudioDef()..add(music)
-  ], groups : [GROUP_CAMERA, GROUP_AUDIOLISTENER]);
+    new AudioDef()..add(music)..isAudioListener = true
+  ], group : GROUP_CAMERA);
 
-  Entity newLight() => _newEntity([
-    new Transform.w3d(new vec3(40, 40, 100)).lookAt(new vec3(90, 90, 0)),
+  Entity newLight(vec3 pos, vec3 lookAt) => _newEntity([
+    new Transform.w3d(pos).lookAt(lookAt),
     Factory_Renderables.newLight()
   ]);
 
-  Entity newAmbientLight() => _newEntity([
-    new Transform.w2d(0, 0, 0),
-    Factory_Renderables.newAmbientLight()
+  Entity newAmbientLight(color) => _newEntity([
+    new Transform.w3d(new vec3(0.0, 0.0, 10.0)),
+    Factory_Renderables.newAmbientLight(color)
   ]);
 
   List<Entity> newFullArea(AssetPack assetpack, timeout) {
@@ -166,14 +165,26 @@ class Factory_Entities {
       cells..add(-1)..add( h)..add(w+2)..add(  1);
     }
     //print(JSON.stringify(area));
-    addBorderAsCells(area["width"], area["height"], area["walls"]["cells"]);
+    var walls = new List<int>();
+    if (area["walls"]["cells"] != null) {
+      print("read cells");
+      walls.addAll(area["walls"]["cells"]);
+    }
+    if (area["walls"]["maze"] != null) {
+      walls.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, area["width"], area["height"]));
+    }
+    addBorderAsCells(area["width"], area["height"], walls);
     var es = new List<Entity>();
     es.add(newCamera("${assetpack.name}.music"));
-    es.add(newAmbientLight());
-    es.add(newLight());
+    var v = area["light_ambient"];
+    v = (v == null) ? 0x444444 : v;
+    es.add(newAmbientLight(v));
+    area["lights_spots"].forEach((i) {
+      es.add(newLight(new vec3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new vec3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
+    });
     es.add(newArea(assetpack.name));
     es.add(newChronometer(-60 * 1000, timeout));
-    es.add(newStaticWalls(cellr, area["walls"]["cells"], area["width"], area["height"]));
+    es.add(newStaticWalls(cellr, walls, area["width"], area["height"]));
     es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"], assetpack));
     es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"], assetpack));
     es.add(newCubeGenerator(cellr, area["zones"]["cubes_gen"]["cells"]));
@@ -363,4 +374,63 @@ Future<ImageElement> _loadImage(src) {
   return completer.future;
 }
 
-
+var _randomSplitter = new math.Random();
+_newWallsSplitter0(int w, int h) {
+  if (w < 2 || h < 2) return null;
+  var b = new List<int>(3);
+  // position of wall (split) along w axis
+  b[0] = (w > 2)? 1 + _randomSplitter.nextInt(w - 2) : 1;
+  // position of the passage in the wall (or length of the first wall)
+  b[1] = _randomSplitter.nextInt(h - 1);
+  // length of the passage in the wall
+  var rest = h - b[1];
+  b[2] = (rest > 1) ? 1 + _randomSplitter.nextInt(rest - 1) : 1;
+  return b;
+}
+_newWallsSplitter1(int x, int y, int w, int h) {
+  var b = new List<int>();
+  var wsplit = _newWallsSplitter0(w, h);
+  if (wsplit != null) {
+    if (wsplit[1] > 0) {
+      b..add(x + wsplit[0])..add(y)..add(0)..add(wsplit[1]);
+    }
+    var d = wsplit[1] + wsplit[2];
+    if ( d < h) {
+      b..add(x + wsplit[0])..add(y + d)..add(0)..add(h-d);
+    }
+  }
+  return b;
+}
+_newWallsSplitter(bool splitX, int x, int y, int w, int h) {
+  var b = null;
+  if (splitX) {
+    b = _newWallsSplitter1(x, y, w, h);
+  } else {
+    // swap x/y and w/h, an other alternative : rotate 90deg
+    b = _newWallsSplitter1(y, x, h, w);
+    var tmp = null;
+    for(var i = 0; i < b.length; i = i + 2) {
+      tmp = b[i];
+      b[i] = b[i+1];
+      b[i+1] = tmp;
+    }
+  }
+  return b;
+}
+makeMaze(int maxdepth, bool splitAlt, bool splitX, int x, int y, int w, int h) {
+  if (maxdepth == 0) return [];
+  var b = _newWallsSplitter(splitX, x, y, w, h);
+  if (!b.isEmpty) {
+    var nsplitX = splitAlt ? !splitX : splitX;
+    if (splitX) {
+      var d = b[0] - x;
+      b.addAll(makeMaze((maxdepth - 1), splitAlt, nsplitX, x, y , d, h));
+      b.addAll(makeMaze((maxdepth - 1), splitAlt, nsplitX, b[0], y , w - d, h));
+    } else {
+      var d = b[1] - y;
+      b.addAll(makeMaze((maxdepth - 1), splitAlt, nsplitX, x, y , w, d));
+      b.addAll(makeMaze((maxdepth - 1), splitAlt, nsplitX, x, b[1] , w, h - d));
+    }
+  }
+  return b;
+}
