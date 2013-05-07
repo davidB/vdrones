@@ -1,27 +1,27 @@
 {
    "area":{
       "name":"area",
-      "url":"/../../_areas/gamma0.json",
+      "url":"gamma0.json",
       "type":"json"
    },
    "hud":{
       "name":"hud",
-      "url":"/../../_images/gui.svg",
+      "url":"../_images/gui.svg",
       "type":"svg"
    },
    "gate_in":{
       "name":"gate_in",
-      "url":"/../../_images/gate_in.png",
+      "url":"../_images/gate_in.png",
       "type":"img"
    },
    "gate_out":{
       "name":"gate_out",
-      "url":"/../../_images/gate_out.png",
+      "url":"../_images/gate_out.png",
       "type":"img"
    },
    "music":{
        "name":"music",
-       "url":"/../../_songs/s6.ogg",
+       "url":"../_songs/s6.ogg",
        "type": "audioclip"
    }
 }
