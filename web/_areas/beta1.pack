@@ -19,9 +19,10 @@
       "url":"../_images/gate_out.png",
       "type":"img"
    },
-   "music": {
-     "name":"music",
-     "url":"../_songs/s6.ogg",
-     "type":"audioclip"
+   "music":{
+       "name":"music",
+       "url":"../_songs/chris01.ogg",
+       "type": "audioclip"
    }
+
 }

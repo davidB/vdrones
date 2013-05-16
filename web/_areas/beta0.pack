@@ -21,7 +21,8 @@
    },
    "music":{
        "name":"music",
-       "url":"../../_songs/s6.ogg",
+       "url":"../_songs/chris01.ogg",
        "type": "audioclip"
-   }   
+   }
+   
 }
