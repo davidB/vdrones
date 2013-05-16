@@ -1,7 +1,6 @@
 library vdrones;
 
 import 'package:logging/logging.dart';
-import 'package:box2d/box2d_browser.dart' as b2;
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:json' as JSON;
@@ -22,6 +21,7 @@ import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
 import 'package:simple_audio/simple_audio.dart';
 import 'package:simple_audio/simple_audio_asset_pack.dart';
+import 'package:box2d/box2d_browser.dart' as b2;
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -91,7 +91,7 @@ class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
-  World _world = null;
+  var _world = new World();
   var timeInfo = new TimeInfo();
   Factory_Entities _entitiesFactory;
   System_Hud _hud;
@@ -120,7 +120,6 @@ class VDrones {
 
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
-    _world = new World();
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
     _hud = new System_Hud(container, _player);
     _setupWorld(container);
