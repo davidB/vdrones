@@ -5,24 +5,24 @@ description: An arcade game
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
-  lawndart:
-    path: ../lawndart
   asset_pack:
     git: https://github.com/johnmccutchan/asset_pack.git
   box2d:
     path: ../dartbox2d
-  js: any
   browser: any
-  web_ui: any
-  vector_math: '>=0.9.7'
-  logging: any
-  dartemis_addons:
-    path: ../dartemis_addons
   dartemis: '>=0.4.1'
-  widget:
-    git: git://github.com/kevmoo/widget.dart.git
+  dartemis_toolbox:
+    path: ../dartemis_toolbox
+  js: any
+  lawndart:
+    path: ../lawndart
+  logging: any
   simple_audio:
     git: git://github.com/johnmccutchan/simpleaudio.git
+  vector_math: '>=0.9.7'
+  web_ui: any
+  widget:
+    git: git://github.com/kevmoo/widget.dart.git
 dev_dependencies:
   unittest: any
 
