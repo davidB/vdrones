@@ -11,18 +11,18 @@ dependencies:
     path: ../dartbox2d
   browser: any
   dartemis: '>=0.4.1'
-  dartemis_toolbox:
-    path: ../dartemis_toolbox
+  dartemis_toolbox: any
+      #    path: ../dartemis_toolbox
   js: any
-  lawndart:
-    path: ../lawndart
+  lawndart: any
+      #path: ../lawndart
   logging: any
   simple_audio:
-    git: git://github.com/johnmccutchan/simpleaudio.git
+    git: https://github.com/johnmccutchan/simpleaudio.git
   vector_math: '>=0.9.7'
   web_ui: any
   widget:
-    git: git://github.com/kevmoo/widget.dart.git
+    git: https://github.com/kevmoo/widget.dart.git
 dev_dependencies:
   unittest: any
 
