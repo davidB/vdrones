@@ -45,6 +45,9 @@ void _route(String hash) {
     case '#/a/gamma0' :
       game.area = 'gamma0';
       break;
+    case '#/a/pacman0' :
+      game.area = 'pacman0';
+      break;
     case '#/comments':
       feedbackScreen.show();
       break;
