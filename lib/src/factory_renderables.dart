@@ -51,7 +51,7 @@ class Factory_Renderables {
     return js.retain(o);
   });
 
-  static RenderableDef cells2surface3d(num cellr, List<num> cells, num offz, [ImageElement img]) => _newRenderableDef((){
+  static RenderableDef newSurface3d(List<num> rects, num offz, [ImageElement img]) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry );
     //#material = new js.Proxy(THREE.MeshNormalMaterial, )
@@ -68,13 +68,13 @@ class Factory_Renderables {
       }));
       //material.map.needsUpdate = true;
     }
-    for(var i = 0; i < cells.length; i+=4) {
-      var dx = cells[i+2] * cellr - 2;
-      var dy = cells[i+3] * cellr - 2;
+    for(var i = 0; i < rects.length; i+=4) {
+      var dx = rects[i+2];
+      var dy = rects[i+3];
 
-      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx, dy), material) as dynamic;
-      mesh.position.x = cells[i+0] * cellr + 1 + dx / 2;
-      mesh.position.y = cells[i+1] * cellr + 1 + dy / 2;
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx * 2, dy * 2), material) as dynamic;
+      mesh.position.x = rects[i+0];
+      mesh.position.y = rects[i+1];
       mesh.castShadow = false;
       mesh.receiveShadow = true;
       THREE.GeometryUtils.merge(geometry, mesh);
@@ -87,19 +87,19 @@ class Factory_Renderables {
     return js.retain(obj3d);
   });
 
-  static RenderableDef cells2boxes3d(num cellr, List<num> cells, num width, num height) => _newRenderableDef((){
+  static RenderableDef newBoxes3d(List<num> rects, num dz, num width, num height) => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
     var geometry = new js.Proxy(THREE.Geometry);
     //  #material = new js.Proxy(THREE.MeshNormalMaterial, )
     //var materialW = new js.Proxy(THREE.MeshLambertMaterial, js.map({"color" : 0x8a8265, "transparent": false, "opacity": 1, "vertexColors" : THREE.VertexColors}));
     //var materialW = new js.Proxy(THREE.MeshBasicMaterial, color : 0x8a8265, wireframe : false);
-    for(var i = 0; i < cells.length; i+=4) {
-      var dx = math.max(1, cells[i+2] * cellr);
-      var dy = math.max(1, cells[i+3] * cellr);
-      var dz = math.max(2, cellr / 2);
-      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx, dy, dz), _materialW) as dynamic;
-      mesh.position.x = cells[i+0] * cellr + dx / 2;
-      mesh.position.y = cells[i+1] * cellr + dy / 2;
+    for(var i = 0; i < rects.length; i+=4) {
+      var dx = rects[i+2];
+      var dy = rects[i+3];
+      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.CubeGeometry, dx * 2, dy * 2, dz * 2), _materialW) as dynamic;
+      mesh.position.x = rects[i+0];
+      mesh.position.y = rects[i+1];
+      mesh.position.z = dz;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       THREE.GeometryUtils.merge(geometry, mesh);
@@ -111,9 +111,10 @@ class Factory_Renderables {
     //var materialF = new three.MeshLambertMaterial (color : 0xe1d5a5, transparent: false, opacity: 1, vertexColors : three.VertexColors);
     var materialF = new js.Proxy(THREE.MeshPhongMaterial, js.map({"color" : 0xe1d5a5}));
     //var materialF = new js.Proxy(THREE.MeshBasicMaterial, color : 0xe1d5a5, wireframe : false);
-    var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width * cellr, height * cellr), materialF) as dynamic;
-    floor.position.x = width * cellr /2;
-    floor.position.y = height * cellr /2;
+    var floor = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, width, height), materialF) as dynamic;
+    floor.position.x = width / 2;
+    floor.position.y = height / 2;
+    floor.position.z = 0;
     floor.castShadow = false;
     floor.receiveShadow = true;
 

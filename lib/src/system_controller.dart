@@ -233,7 +233,6 @@ class System_DroneGenerator extends EntityProcessingSystem {
 //-- Cubes --------------------------------------------------------------------
 class System_CubeGenerator extends EntityProcessingSystem {
   static final _random = new math.Random();
-  static num random(min, max) => _random.nextDouble() * (max - min) + min;
 
   ComponentMapper<CubeGenerator> _cubeGeneratorMapper;
   ComponentMapper<Generated> _genMapper;
@@ -277,16 +276,13 @@ class System_CubeGenerator extends EntityProcessingSystem {
 
   vec2 _nextPosition(CubeGenerator gen) {
     var offset = gen.subZoneOffset;
-    gen.subZoneOffset = (gen.subZoneOffset + 4) % gen.cells.length;
+    gen.subZoneOffset = (gen.subZoneOffset + 4) % gen.rects.length;
     //1.0 around for wall
     //0.5 half size of generated cube;
-    var xmin = gen.cells[offset + 0] * gen.cellr + 1 + 0.5;
-    var xmax = xmin + gen.cells[offset + 2] * gen.cellr - 2 - 0.5;
-    var ymin = gen.cells[offset + 1] * gen.cellr + 1 + 0.5;
-    var ymax = ymin + gen.cells[offset + 3] * gen.cellr - 2 - 0.5;
-
-    var x = random(xmin, xmax);
-    var y = random(ymin, ymax);
+    var dx = gen.rects[offset + 2] - 1.5;
+    var dy = gen.rects[offset + 3] - 1.5;
+    var x = gen.rects[offset + 0] + dx * (_random.nextDouble() * 2 - 1);
+    var y = gen.rects[offset + 1] + dy * (_random.nextDouble() * 2 - 1);
     return new vec2(x, y);
   }
 

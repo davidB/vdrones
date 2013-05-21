@@ -60,39 +60,39 @@ class Factory_Entities {
 
   ]);
 
-  Entity newCubeGenerator(num cellr, List<num> cells) => _newEntity([
-    new CubeGenerator(cellr, cells),
+  Entity newCubeGenerator(List<num> rects) => _newEntity([
+    new CubeGenerator(rects),
     new Animatable()
   ]);
 
-  Entity newStaticWalls(num cellr, List<num> cells, num width, num height) => _newEntity([
+  Entity newStaticWalls(List<num> rects, num width, num height) => _newEntity([
     new Transform.w2d(0.0, 0.0, 0.0),
-    Factory_Physics.cells2boxes2d(cellr, cells, EntityTypes_WALL),
-    Factory_Renderables.cells2boxes3d(cellr, cells, width, height)
+    Factory_Physics.newBoxes2d(rects, EntityTypes_WALL),
+    Factory_Renderables.newBoxes3d(rects, 2, width, height)
   ]);
 
-  Entity newGateIn(num cellr, List<num> cells, List<num> rzs, AssetPack assetpack) {
+  Entity newGateIn(List<num> rects, List<num> rzs, AssetPack assetpack) {
     var points = new List<vec3>();
-    for (var i = 0; i < cells.length; i += 4) {
+    for (var i = 0; i < rects.length; i += 4) {
       points.add(new vec3(
-        (cells[i] + cells[i+2] / 2) * cellr,
-        (cells[i+1] + cells[i+3] / 2) * cellr,
+        rects[i],
+        rects[i+1],
         radians(rzs[i~/4])
       ));
     }
     return  _newEntity([
       new Transform.w3d(new vec3(0, 0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_in"]),
+      Factory_Renderables.newSurface3d(rects, 0.5, assetpack["gate_in"]),
       new Animatable(),
       new DroneGenerator(points, [0])
     ]);
   }
 
-  Entity newGateOut(num cellr, List<num> cells, AssetPack assetpack) => _newEntity([
+  Entity newGateOut(List<num> rects, AssetPack assetpack) => _newEntity([
     new Transform.w3d(new vec3(0.0, 0.0, 0.2)),
-    Factory_Physics.cells2circles2d(cellr, cells, 0.3, EntityTypes_GATEOUT),
-    Factory_Renderables.cells2surface3d(cellr, cells, 0.5, assetpack["gate_out"])
+    Factory_Physics.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
+    Factory_Renderables.newSurface3d(rects, 0.5, assetpack["gate_out"])
   ]);
 
   Entity newMobileWall(num x0, num y0, num dx, num dy, num dz, num tx, num ty, num duration,  bool inout) => _newEntity([
@@ -184,10 +184,10 @@ class Factory_Entities {
     });
     es.add(newArea(assetpack.name));
     es.add(newChronometer(-60 * 1000, timeout));
-    es.add(newStaticWalls(cellr, walls, area["width"], area["height"]));
-    es.add(newGateIn(cellr, area["zones"]["gate_in"]["cells"], area["zones"]["gate_in"]["angles"], assetpack));
-    es.add(newGateOut(cellr, area["zones"]["gate_out"]["cells"], assetpack));
-    es.add(newCubeGenerator(cellr, area["zones"]["cubes_gen"]["cells"]));
+    es.add(newStaticWalls(cells_rects(cellr, walls), area["width"] * cellr, area["height"] * cellr));
+    es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"]), area["zones"]["gate_in"]["angles"], assetpack));
+    es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"]), assetpack));
+    es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
     if (area["zones"]["mobile_walls"] != null) {
       area["zones"]["mobile_walls"].forEach((t) {
         es.add(newMobileWall(
@@ -267,6 +267,27 @@ class Factory_Entities {
     ),
     new AudioDef()..add("explosion")
   ]);
+
+  /// convert a list of cells [bottom0, left0, width0, height0, bottom1, left1,...] + cellr into
+  /// [centerx0, centery0, halfdx0, halfdy0, centerx1, centery1, ...] in the final unit (renderable + physics)
+  /// special rules:
+  /// * if width == 0 then halfdx = cellr/20
+  /// * if height == 0 then halfdy = cellr/20
+  /// * if width > 0 then haldx = width * cellr - 2 * cellr
+  /// * if height > 0 then haldy = height * cellr - 2 * cellr
+  static List<num> cells_rects(num cellr, List<num> cells) {
+    var margin = cellr/20;
+    var b = new List<num>(cells.length);
+    for(var i = 0; i < cells.length; i+=4) {
+      var hx = cells[i+2] * cellr / 2;
+      var hy = cells[i+3] * cellr / 2;
+      b[i+0] = cells[i+0] * cellr + hx;
+      b[i+1] = cells[i+1] * cellr + hy;
+      b[i+2] = (hx == 0) ? margin : hx - 2 * margin;
+      b[i+3] = (hy == 0) ? margin : hy - 2 * margin;
+    }
+    return b;
+  }
 }
 
 

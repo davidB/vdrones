@@ -26,12 +26,11 @@ class Generated extends Component {
 }
 
 class CubeGenerator extends Component {
-  num cellr;
-  List<num> cells;
+  List<num> rects;
   int subZoneOffset = 0;
   int nb = 1;
 
-  CubeGenerator(this.cellr, this.cells);
+  CubeGenerator(this.rects);
 }
 
 class DroneGenerator extends Component {
