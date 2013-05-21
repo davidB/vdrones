@@ -49,6 +49,8 @@ class DroneNumbers extends Component {
   double acc = 5500.0;
   double angularv = 210.0;
   int score = 0;
+  int hit = 0;
+  int hitLastTime = 0;
 
   DroneNumbers();
 }

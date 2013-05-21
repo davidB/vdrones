@@ -1,76 +1,83 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg:svg xmlns:osb="http://www.openswatchbook.org/uri/2009/osb" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1120" height="630" id="svg2985" version="1.1" inkscape:version="0.48.4 r9939" sodipodi:docname="gui.svg" inkscape:label="top_left">
-  <svg:defs id="defs2987">
-    <svg:linearGradient inkscape:collect="always" id="linearGradient5327">
-      <svg:stop style="stop-color:#000000;stop-opacity:1;" offset="0" id="stop5329" />
-      <svg:stop style="stop-color:#000000;stop-opacity:0;" offset="1" id="stop5331" />
-    </svg:linearGradient>
-    <svg:linearGradient id="linearGradient3871" osb:paint="gradient">
-      <svg:stop style="stop-color:#000000;stop-opacity:1;" offset="0" id="stop3873" />
-      <svg:stop style="stop-color:#000000;stop-opacity:0;" offset="1" id="stop3875" />
-    </svg:linearGradient>
-    <svg:linearGradient inkscape:collect="always" id="linearGradient3889">
-      <svg:stop style="stop-color:#000000;stop-opacity:1;" offset="0" id="stop3891" />
-      <svg:stop style="stop-color:#000000;stop-opacity:0;" offset="1" id="stop3893" />
-    </svg:linearGradient>
-    <svg:radialGradient inkscape:collect="always" xlink:href="#linearGradient3889" id="radialGradient3905" cx="51.261024" cy="706.66986" fx="51.261024" fy="706.66986" r="48.59745" gradientUnits="userSpaceOnUse" />
-    <svg:filter inkscape:collect="always" id="filter3975" x="-0.44395605" width="1.8879122" y="-0.44395605" height="1.8879122" color-interpolation-filters="sRGB">
-      <svg:feGaussianBlur inkscape:collect="always" stdDeviation="12.360922" id="feGaussianBlur3977" />
-    </svg:filter>
-    <svg:radialGradient inkscape:collect="always" xlink:href="#linearGradient3889-0" id="radialGradient3905-1" cx="51.261024" cy="706.66986" fx="51.261024" fy="706.66986" r="48.59745" gradientUnits="userSpaceOnUse" />
-    <svg:linearGradient inkscape:collect="always" id="linearGradient3889-0">
-      <svg:stop style="stop-color:#000000;stop-opacity:1;" offset="0" id="stop3891-1" />
-      <svg:stop style="stop-color:#000000;stop-opacity:0;" offset="1" id="stop3893-2" />
-    </svg:linearGradient>
-    <svg:filter color-interpolation-filters="sRGB" inkscape:collect="always" id="filter3975-0" x="-0.44395605" width="1.8879122" y="-0.44395605" height="1.8879122">
-      <svg:feGaussianBlur inkscape:collect="always" stdDeviation="12.360922" id="feGaussianBlur3977-6" />
-    </svg:filter>
-    <svg:radialGradient inkscape:collect="always" xlink:href="#linearGradient5327" id="radialGradient5335" cx="97.510902" cy="177.18147" fx="97.510902" fy="177.18147" r="83.359283" gradientTransform="matrix(1,0,0,0.31868267,0,120.71681)" gradientUnits="userSpaceOnUse" />
-    <svg:filter inkscape:collect="always" id="filter4472" x="-0.030826449" width="1.0616529" y="-0.99525392" height="2.9905078">
-      <svg:feGaussianBlur inkscape:collect="always" stdDeviation="5.8056478" id="feGaussianBlur4474" />
-    </svg:filter>
-  </svg:defs>
-  <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="1.3238095" inkscape:cx="560" inkscape:cy="315" inkscape:current-layer="top_left " inkscape:document-units="px" showgrid="true" inkscape:window-width="1680" inkscape:window-height="1038" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="1">
-    <inkscape:grid type="xygrid" id="grid4442" empspacing="5" visible="true" enabled="true" snapvisiblegridlinesonly="true" spacingx="10px" spacingy="10px" />
-  </sodipodi:namedview>
-  <svg:metadata id="metadata2990">
-    <rdf:RDF>
-      <cc:Work rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </svg:metadata>
-  <svg:g id="top_left " inkscape:label="top_left" inkscape:groupmode="layer" transform="translate(0,-138)">
-    <text x="100" y="100">Hello</text>
-    <svg:text id="score" x="1123.5631" y="193.84758" style="font-size:29.46918678px;font-weight:normal;text-anchor:end;fill:#505a63;fill-opacity:1;stroke:#3a4048;stroke-width:0.69999248;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:SciFly" transform="scale(0.97902818,1.0214211)">
-      <svg:tspan style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#505a63;fill-opacity:1;stroke:#3a4048;stroke-width:0.69999248;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:SciFly;-inkscape-font-specification:SciFly" id="tspan3484">Hello333</svg:tspan>
-    </svg:text>
-    <svg:text id="chronometer" x="343.71332" y="272.90186" style="font-size:131.3913269px;font-weight:normal;text-anchor:end;opacity:0.25252524;fill:#ff0000;stroke:none;font-family:SciFly" transform="scale(1.0182904,0.98203809)">
-      <svg:tspan style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:SciFly;-inkscape-font-specification:SciFly" id="tspan3482">00:60</svg:tspan>
-    </svg:text>
-    <svg:flowRoot xml:space="preserve" id="flowRoot3014" style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"><svg:flowRegion id="flowRegion3016"><svg:rect id="rect3018" width="13.730632" height="10.06913" x="180.32896" y="35.699631" /></svg:flowRegion><svg:flowPara id="flowPara3020" /></svg:flowRoot>    <svg:text xml:space="preserve" style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial" x="42.107269" y="703.92371" id="text3024" sodipodi:linespacing="125%"><svg:tspan sodipodi:role="line" id="tspan3026" x="42.107269" y="703.92371" /></svg:text>
-    <svg:g id="g3979" style="opacity:0.08">
-      <svg:g id="g3985">
-        <svg:rect data-bind="attr: { opacity: shieldActive()? 0.9 : 0 }" style="opacity:0.92565056000000001;fill:#550000;fill-opacity:1;fill-rule:nonzero;stroke:url(#radialGradient3905);stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3975)" id="rect3022-8" width="66.822411" height="66.822411" x="17.849821" y="673.25867" ry="2.3711846" />
-      </svg:g>
-      <svg:rect ry="2.3711846" y="674.63171" x="18.307508" height="66.822411" width="66.822411" id="rect3022" style="opacity:0.65000000000000002;fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:none" />
-      <svg:text sodipodi:linespacing="125%" id="text3028" y="688.3623" x="64.991661" style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial" xml:space="preserve"><svg:tspan y="688.3623" x="64.991661" id="tspan3030" sodipodi:role="line">1</svg:tspan></svg:text>
-    </svg:g>
-    <svg:g transform="translate(0.91537439,-88.791448)" id="g3979-6" style="opacity:0.08">
-      <svg:g id="g3985-6">
-        <svg:rect data-bind="attr: { opacity: fireActive()? 0.9 : 0 }" style="opacity:0.92565056000000001;fill:#550000;fill-opacity:1;fill-rule:nonzero;stroke:url(#radialGradient3905-1);stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3975-0)" id="rect3022-8-1" width="66.822411" height="66.822411" x="17.849821" y="673.25867" ry="2.3711846" />
-      </svg:g>
-      <svg:rect ry="2.3711846" y="674.63171" x="18.307508" height="66.822411" width="66.822411" id="rect3022-1" style="opacity:0.65000000000000002;fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:none" />
-      <svg:text sodipodi:linespacing="125%" id="text3028-5" y="688.3623" x="64.991661" style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial" xml:space="preserve"><svg:tspan y="688.3623" x="64.991661" id="tspan3030-5" sodipodi:role="line">2</svg:tspan></svg:text>
-    </svg:g>
-    <svg:g id="g4478">
-      <svg:rect ry="3.0178714" y="153.9696" x="652.60968" height="14" width="452" id="rect2993-8" style="opacity:1;fill:#505a63;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter4472)" />
-      <svg:rect style="opacity:1;fill:#505a63;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;" id="rect4476" width="452" height="14" x="652.60968" y="153.9696" ry="3.0178714" />
-      <svg:rect id="energyBar" ry="2.3711846" y="154.82234" x="653.28607" height="11" width="449" style="opacity:1;fill:#d6d6d6;fill-opacity:1;fill-rule:nonzero;stroke:none" />
-    </svg:g>
-  </svg:g>
-</svg:svg>
+<svg id="svg2985" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 1120 630" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:osb="http://www.openswatchbook.org/uri/2009/osb">
+<defs id="defs2987">
+<linearGradient id="linearGradient3826">
+<stop id="stop3828" style="stop-color:#ff0000;stop-opacity:0;" offset="0"/>
+<stop id="stop3830" style="stop-color:#ff0000;stop-opacity:0.22307692;" offset="0.8125"/>
+<stop id="stop3832" style="stop-color:#ff0000;" offset="1"/>
+</linearGradient>
+<linearGradient id="linearGradient3889">
+<stop id="stop3891" style="stop-color:#000000;" offset="0"/>
+<stop id="stop3893" style="stop-color:#000000;stop-opacity:0;" offset="1"/>
+</linearGradient>
+<radialGradient id="radialGradient3905" cx="51.261" gradientUnits="userSpaceOnUse" cy="706.67" xlink:href="#linearGradient3889" r="48.597"/>
+<filter id="filter3975" color-interpolation-filters="sRGB" width="1.8879122" y="-0.44395605" x="-0.44395605" height="1.8879122">
+<feGaussianBlur id="feGaussianBlur3977" stdDeviation="12.360922"/>
+</filter>
+<radialGradient id="radialGradient3905-1" cx="51.261" gradientUnits="userSpaceOnUse" cy="706.67" xlink:href="#linearGradient3889-0" r="48.597"/>
+<linearGradient id="linearGradient3889-0">
+<stop id="stop3891-1" style="stop-color:#000000;stop-opacity:0;" offset="0"/>
+<stop id="stop3894" style="stop-color:#000000;stop-opacity:0.25384617;" offset="0.5"/>
+<stop id="stop3893-2" style="stop-color:#000000;" offset="1"/>
+</linearGradient>
+<filter id="filter3975-0" height="1.8879122" width="1.8879122" y="-0.44395605" x="-0.44395605" color-interpolation-filters="sRGB">
+<feGaussianBlur id="feGaussianBlur3977-6" stdDeviation="12.360922"/>
+</filter>
+<filter id="filter4472" y="-0.99525392" width="1.0616529" x="-0.030826449" height="2.9905078">
+<feGaussianBlur id="feGaussianBlur4474" stdDeviation="5.8056478"/>
+</filter>
+<radialGradient id="radialGradient3824" cx="546.07" gradientUnits="userSpaceOnUse" cy="268.09" xlink:href="#linearGradient3826" gradientTransform="matrix(1.1071429,0,-2.4122165e-8,0.60714287,-54.576927,285.23013)" r="560"/>
+</defs>
+<metadata id="metadata2990">
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<g id="top_left " transform="translate(0,-138)">
+<text y="100" x="100">Hello</text>
+<rect id="view_dark" style="fill-opacity:0;" transform="translate(0,138)" height="630" width="1120" y="0" x="0"/>
+<text id="chronometer" y="272.90186" x="343.71332" style="opacity:0.25252524;font-size:131.3913269px;font-family:SciFly;text-anchor:end;font-weight:normal;fill:#ff0000;" transform="scale(1.0182904,0.98203809)">
+<tspan id="tspan3482" style="font-family:SciFly;font-stretch:normal;font-variant:normal;font-weight:normal;font-style:normal;">00:60</tspan>
+</text>
+<rect id="view_red" style="fill-rule:nonzero;fill-opacity:0.5;fill:url(#radialGradient3824);" height="630" width="1120" y="138" x="0"/>
+<text id="score" y="193.84758" x="1123.5631" style="stroke-linejoin:round;font-size:29.46918678px;stroke-width:0.69999248;text-anchor:end;stroke:#3a4048;stroke-linecap:round;stroke-miterlimit:4;font-family:SciFly;stroke-dasharray:none;font-weight:normal;fill:#505a63;" transform="scale(0.97902818,1.0214211)">
+<tspan id="tspan3484" style="stroke-linejoin:round;stroke-width:0.69999248;stroke-linecap:round;stroke:#3a4048;font-stretch:normal;stroke-miterlimit:4;font-family:SciFly;font-variant:normal;stroke-dasharray:none;font-weight:normal;font-style:normal;fill:#505a63;">Hello333</tspan>
+</text>
+<flowRoot id="flowRoot3014" style="font-size:10px;font-family:Arial;letter-spacing:0px;font-style:normal;word-spacing:0px;font-stretch:normal;font-variant:normal;font-weight:normal;line-height:125%;fill:#000000;" space="preserve">
+<flowRegion id="flowRegion3016">
+<rect id="rect3018" y="35.7" width="13.731" height="10.069" x="180.33"/>
+</flowRegion>
+<flowPara id="flowPara3020"/>
+</flowRoot>
+<text id="text3024" y="703.92371" x="42.107269" style="font-size:10px;font-family:Arial;letter-spacing:0px;font-style:normal;word-spacing:0px;font-stretch:normal;font-variant:normal;font-weight:normal;line-height:125%;fill:#000000;" space="preserve">
+<tspan id="tspan3026" y="703.92371" x="42.107269"/>
+</text>
+<g id="g3979" style="opacity:0.08;">
+<g id="g3985">
+<rect id="rect3022-8" data-bind="attr: { opacity: shieldActive()? 0.9 : 0 }" style="opacity:0.92565056000000001;stroke-linejoin:round;fill-rule:nonzero;filter:url(#filter3975);stroke:url(#radialGradient3905);stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-width:10;fill:#550000;" ry="2.3712" height="66.822" width="66.822" y="673.26" x="17.85"/>
+</g>
+<rect id="rect3022" style="opacity:0.65000000000000002;fill-rule:nonzero;fill:#ff0000;" ry="2.3712" height="66.822" width="66.822" y="674.63" x="18.308"/>
+<text id="text3028" y="688.3623" x="64.991661" style="font-size:10px;font-family:Arial;letter-spacing:0px;font-style:normal;word-spacing:0px;font-stretch:normal;font-variant:normal;font-weight:normal;line-height:125%;fill:#000000;" space="preserve">
+<tspan id="tspan3030" y="688.3623" x="64.991661">1</tspan>
+</text>
+</g>
+<g id="g3979-6" style="opacity:0.08;" transform="translate(0.91537439,-88.791448)">
+<g id="g3985-6">
+<rect id="rect3022-8-1" data-bind="attr: { opacity: fireActive()? 0.9 : 0 }" style="opacity:0.92565056000000001;stroke-linejoin:round;fill-rule:nonzero;filter:url(#filter3975-0);stroke:url(#radialGradient3905-1);stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-width:10;fill:#550000;" ry="2.3712" height="66.822" width="66.822" y="673.26" x="17.85"/>
+</g>
+<rect id="rect3022-1" style="opacity:0.65000000000000002;fill-rule:nonzero;fill:#ff0000;" ry="2.3712" height="66.822" width="66.822" y="674.63" x="18.308"/>
+<text id="text3028-5" y="688.3623" x="64.991661" style="font-size:10px;font-family:Arial;letter-spacing:0px;font-style:normal;word-spacing:0px;font-stretch:normal;font-variant:normal;font-weight:normal;line-height:125%;fill:#000000;" space="preserve">
+<tspan id="tspan3030-5" y="688.3623" x="64.991661">2</tspan>
+</text>
+</g>
+<g id="g4478">
+<rect id="rect2993-8" style="fill-rule:nonzero;filter:url(#filter4472);fill:#505a63;" ry="3.0179" height="14" width="452" y="153.97" x="652.61"/>
+<rect id="rect4476" style="fill-rule:nonzero;fill:#505a63;" ry="3.0179" height="14" width="452" y="153.97" x="652.61"/>
+<rect id="energyBar" style="fill-rule:nonzero;fill:#d6d6d6;" ry="2.3712" height="11" width="449" y="154.82" x="653.29"/>
+</g>
+</g>
+</svg>

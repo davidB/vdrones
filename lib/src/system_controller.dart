@@ -107,17 +107,26 @@ class System_DroneHandler extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var esc = _statesMapper.getSafe(entity);
     var collisions = _collisionsMapper.get(entity);
+    var numbers = _droneNumbersMapper.get(entity);
     collisions.colliders.iterateAndUpdate((collider){
       switch(collider.group) {
-        case EntityTypes_WALL : _crash(entity); break;
+        case EntityTypes_WALL :
+          if (numbers.hitLastTime < 1) {
+            numbers.hit += 34;
+            numbers.hitLastTime = 75;
+            if (numbers.hit >= 100) {
+              _crash(entity);
+            }
+          }
+          break;
         case EntityTypes_ITEM : _grabCube(entity, collider.e); break;
         case EntityTypes_GATEOUT : _exiting(entity); break;
       }
       return collider;
     });
     if (esc.state == State_DRIVING) {
-      var numbers = _droneNumbersMapper.get(entity);
       var ctrl = _droneControlMapper.get(entity);
+      numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
       _updateEnergy(numbers, ctrl);
       var m = _motionMapper.get(entity);
       m.acceleration = ctrl.forward * numbers.acc;
@@ -194,7 +203,9 @@ class System_DroneGenerator extends EntityProcessingSystem {
       var p = gen.points[pointsIdx];
       var e = _efactory.newDrone(_player, p.x, p.y, p.z);
       e.addComponent(new Generated(entity));
-      _droneNumbersMapper.get(e).score = score;
+      var numbers = _droneNumbersMapper.get(e);
+      numbers.score = score;
+      numbers.hit = 0;
       world.addEntity(e);
       return true;
     });

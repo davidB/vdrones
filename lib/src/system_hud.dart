@@ -10,6 +10,7 @@ class System_Hud extends IntervalEntitySystem {
   Element _scoreEl;
   Element _chronometerEl;
   Element _energyBarEl;
+  Element _viewRedEl;
 
   System_Hud(this._container, this.playerToFollow):super(1000.0/15, Aspect.getAspectForOneOf([DroneNumbers, Chronometer]));
 
@@ -40,6 +41,7 @@ class System_Hud extends IntervalEntitySystem {
       }
 
       _energyBarEl = _container.query("#energyBar");
+      _viewRedEl = _container.query("#view_red");
     }
   }
 
@@ -67,6 +69,9 @@ class System_Hud extends IntervalEntitySystem {
               int r = (numbers.energy * 449) ~/ max;
               _energyBarEl.attributes["width"] = r.toString();
             }
+          }
+          if (_viewRedEl != null) {
+            _viewRedEl.style.opacity = (numbers.hit / 100.0).toString();
           }
         }
       } else {
