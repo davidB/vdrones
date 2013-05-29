@@ -158,22 +158,27 @@ class Factory_Entities {
     var area = assetpack["area"];
     var cellr = area["cellr"].toDouble();
 
-    void addBorderAsCells(num w, num h, List<num>cells) {
+    makeBorderAsCells(num w, num h) {
+      var cells = new List();
       cells..add(-1)..add(-1)..add(w+2)..add(  1);
       cells..add(-1)..add(-1)..add(  1)..add(h+2);
       cells..add( w)..add(-1)..add(  1)..add(h+2);
       cells..add(-1)..add( h)..add(w+2)..add(  1);
+      return cells;
     }
     //print(JSON.stringify(area));
-    var walls = new List<int>();
+    var walls0 = new List<int>();
     if (area["walls"]["cells"] != null) {
       print("read cells");
-      walls.addAll(area["walls"]["cells"]);
+      walls0.addAll(area["walls"]["cells"]);
     }
     if (area["walls"]["maze"] != null) {
-      walls.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, area["width"], area["height"]));
+      walls0.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, area["width"], area["height"]));
     }
-    addBorderAsCells(area["width"], area["height"], walls);
+    var walls = new List<double>();
+    walls.addAll(cells_rects(cellr, makeBorderAsCells(area["width"], area["height"]), 0));
+    walls.addAll(cells_rects(cellr, walls0));
+
     var es = new List<Entity>();
     es.add(newCamera("${assetpack.name}.music"));
     var v = area["light_ambient"];
@@ -184,7 +189,7 @@ class Factory_Entities {
     });
     es.add(newArea(assetpack.name));
     es.add(newChronometer(-60 * 1000, timeout));
-    es.add(newStaticWalls(cells_rects(cellr, walls), area["width"] * cellr, area["height"] * cellr));
+    es.add(newStaticWalls(walls, area["width"] * cellr, area["height"] * cellr));
     es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"]), area["zones"]["gate_in"]["angles"], assetpack));
     es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"]), assetpack));
     es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
@@ -275,8 +280,8 @@ class Factory_Entities {
   /// * if height == 0 then halfdy = cellr/20
   /// * if width > 0 then haldx = width * cellr - 2 * cellr
   /// * if height > 0 then haldy = height * cellr - 2 * cellr
-  static List<num> cells_rects(num cellr, List<num> cells) {
-    var margin = cellr/20;
+  static List<num> cells_rects(num cellr, List<num> cells, [margin = -1]) {
+    margin = (margin < 0) ? cellr/20 : margin;
     var b = new List<num>(cells.length);
     for(var i = 0; i < cells.length; i+=4) {
       var hx = cells[i+2] * cellr / 2;
