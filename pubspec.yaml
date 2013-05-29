@@ -8,14 +8,15 @@ dependencies:
   asset_pack:
     git: https://github.com/johnmccutchan/asset_pack.git
   box2d:
-    path: ../dartbox2d
+    git:
+      ref: davidB
+      url: https://github.com/davidB/dartbox2d.git
   browser: any
   dartemis: '>=0.4.1'
   dartemis_toolbox: any
-      #    path: ../dartemis_toolbox
   js: any
-  lawndart: any
-      #path: ../lawndart
+  lawndart:
+    git: https://github.com/davidB/lawndart.git
   logging: any
   simple_audio:
     git: https://github.com/johnmccutchan/simpleaudio.git
@@ -25,18 +26,3 @@ dependencies:
     git: https://github.com/kevmoo/widget.dart.git
 dev_dependencies:
   unittest: any
-
-#    path: ../asset_pack
-#    git:
-#      ref: exp_progressbar
-#      url: git://github.com/davidB/asset_pack.git
-#    path: ../simpleaudio
-#  box2d: 0.0.7
-#    path: ../dartemis
-#    git: git://github.com/davidB/dartemis.git
-#    git: git://github.com/denniskaselow/dartemis.git
-#    git: git://github.com/davidB/dartemis_addons.git
-#  three:
-#    path: /home/dwayne/dart/three.dart
-#  logging: 0.3.7+6
-#  lawndart: 0.4.1

@@ -54,10 +54,7 @@ class Stats{
   Future<Store> _loadStatistics(String userId, bool clean) {
     var dbStore = userId;
 
-    Store db = IndexedDbStore.supported ? new IndexedDbStore(dbName, dbStore):
-      WebSqlStore.supported ?  new WebSqlStore(dbName, dbStore) :
-      new LocalStorageStore()
-      ;
+    var db = new Store(dbName, dbStore);
     var dbf = db.open();
     if (clean) {
       dbf = dbf.then((_) => db.nuke());
