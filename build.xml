@@ -18,6 +18,7 @@
   <property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
   <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
   <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
+  <property name="dartanalyzer" value="${dart.sdk.dir}/bin/dartanalyzer" />
   <property name="pub" value="${dart.sdk.dir}/bin/pub" />
   <property name="target" location="${basedir}/target"/>
 
@@ -35,8 +36,11 @@
   </target>
 
   <target name="check" depends="-init">
-    <exec executable="${dart_analyzer}" failonerror="true">
-      <arg line="--work target/dart-work --package-root=packages/ --error_format machine --enable_type_checks --dart-sdk '${dart.sdk.dir}' web/index.dart"/>
+    <!-- exec executable="${dart_analyzer}" failonerror="true">
+      <arg line="-x-work target/dart-work -x-package-root=packages/ -x-error_format machine -x-enable_type_checks -x-dart-sdk '${dart.sdk.dir}' web/index.dart"/>
+    </exec-->
+    <exec executable="${dartanalyzer}" failonerror="true">
+      <arg line="--package-root=packages/ --dart-sdk '${dart.sdk.dir}' --machine web/index.dart"/>
     </exec>
   </target>
 
@@ -61,7 +65,7 @@
 
   <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
-      <arg line="--package-root=packages/ _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
+      <arg line="--package-root=packages/ --trust-type-annotations _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
     </exec>
     <copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/>
 	<replace file="${target}/web/index.html">
