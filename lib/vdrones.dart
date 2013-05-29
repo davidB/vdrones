@@ -261,13 +261,14 @@ class VDrones {
   }
   AudioManager _newAudioManager(baseUrl, AssetManager am) {
     try {
-      var audioManager = new AudioManager(baseUrl);
-      audioManager.mute = false;
-      audioManager.masterVolume = 1.0;
-      audioManager.musicVolume = 0.5;
-      audioManager.sourceVolume = 0.9;
-      registerSimpleAudioWithAssetManager(audioManager, am);
-      return audioManager;
+//      var audioManager = new AudioManager(baseUrl);
+//      audioManager.mute = false;
+//      audioManager.masterVolume = 1.0;
+//      audioManager.musicVolume = 0.5;
+//      audioManager.sourceVolume = 0.9;
+//      registerSimpleAudioWithAssetManager(audioManager, am);
+//      return audioManager;
+      return null;
     } catch (e) {
       handleError(e);
       return null;
