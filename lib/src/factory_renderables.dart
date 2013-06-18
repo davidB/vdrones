@@ -126,7 +126,8 @@ class Factory_Renderables {
 
   static RenderableDef newCamera() => _newRenderableDef((){
     final THREE = (js.context as dynamic).THREE;
-    var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
+    //var camera = new js.Proxy.withArgList(THREE.OrthographicCamera, [10,10,10,10, 1, FAR]);
+    var camera = new js.Proxy.withArgList(THREE.PerspectiveCamera, [35,800 / 640, 1, FAR]);
     return js.retain(camera);
   });
 

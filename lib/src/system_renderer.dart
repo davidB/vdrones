@@ -49,7 +49,7 @@ class System_Render3D extends EntitySystem {
       _renderer.setSize(w, h);
       //TODO support enable/change of camera,...
       if (_camera != null) {
-        //_camera.aspect = w /  h;
+        _camera.aspect = w /  h;
         _camera.left = w / -2 * unitperpixel;
         _camera.right = w / 2 * unitperpixel;
         _camera.top = h /2 * unitperpixel;
