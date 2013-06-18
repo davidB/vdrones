@@ -37,7 +37,7 @@ class DroneGenerator extends Component {
   /// score of drone to generate
   List<int> scores;
   int nextPointsIdx = 0;
-  List<vec3> points;
+  List<Vector3> points;
 
   DroneGenerator(this.points, this.scores);
 }
@@ -73,8 +73,8 @@ class Cube implements Component {
 }
 */
 class PlayerFollower extends Component {
-  vec3 targetTranslation;
-
-  PlayerFollower(this.targetTranslation);
+  final Vector3 targetTranslation = new Vector3.zero();
+  bool rotate = false;
+  int reqMode = 0;
 }
 

@@ -8,19 +8,21 @@ dependencies:
   asset_pack:
     git: https://github.com/johnmccutchan/asset_pack.git
   box2d:
-    git:
-      ref: davidB
-      url: https://github.com/davidB/dartbox2d.git
+    git: https://github.com/dart-lang/dart-box2d.git
+#    git:
+#      ref: davidB
+#      url: https://github.com/davidB/dartbox2d.git
   browser: any
   dartemis: '>=0.4.1'
-  dartemis_toolbox: any
+  dartemis_toolbox:
+    path: ../dartemis_toolbox
   js: any
   lawndart:
     git: https://github.com/davidB/lawndart.git
   logging: any
   simple_audio:
     git: https://github.com/johnmccutchan/simpleaudio.git
-  vector_math: '>=0.9.7'
+  vector_math: '>=1.3.0'
   web_ui: any
   widget:
     git: https://github.com/kevmoo/widget.dart.git

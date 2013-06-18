@@ -34,7 +34,7 @@ class Factory_Animations {
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
-        transform.scale3d.setComponents(
+        transform.scale3d.setValues(
           ease.inQuad(ratio, -1, 1),
           ease.inQuad(ratio, -1, 1),
           ease.inQuad(ratio, -1, 1)
@@ -52,7 +52,7 @@ class Factory_Animations {
         if (transform == null) return false;
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
-        transform.scale3d.setComponents(
+        transform.scale3d.setValues(
           ease.inQuad(ratio, 1, 0),
           ease.inQuad(ratio, 1, 0),
           ease.inQuad(ratio, 1, 0)
