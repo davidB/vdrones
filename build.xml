@@ -40,7 +40,7 @@
       <arg line="-x-work target/dart-work -x-package-root=packages/ -x-error_format machine -x-enable_type_checks -x-dart-sdk '${dart.sdk.dir}' web/index.dart"/>
     </exec-->
     <exec executable="${dartanalyzer}" failonerror="true">
-      <arg line="--package-root=packages/ --dart-sdk '${dart.sdk.dir}' --machine web/index.dart"/>
+      <arg line="--package-root=packages/ --machine web/index.dart"/>
     </exec>
   </target>
 
