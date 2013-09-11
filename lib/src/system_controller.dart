@@ -3,20 +3,20 @@ part of vdrones;
 final vecZ = new Vector3(0.0, 0.0, 1.0);
 final vecY = new Vector3(0.0, 1.0, 0.0);
 
-class System_PlayerFollower extends EntityProcessingSystem {
-  ComponentMapper<Transform> _transformMapper;
-  ComponentMapper<PlayerFollower> _followerMapper;
+class System_CameraFollower extends EntityProcessingSystem {
+  ComponentMapper<Particles> _particlesMapper;
+  ComponentMapper<CameraFollower> _followerMapper;
   PlayerManager _playerManager;
   GroupManager _groupManager;
-  Transform _targetTransform = null;
+  Particles _targetParticles = null;
   bool _targetUpdated = true;
   String playerToFollow;
 
-  System_PlayerFollower() : super(Aspect.getAspectForAllOf([Transform, PlayerFollower]));
+  System_CameraFollower() : super(Aspect.getAspectForAllOf([CameraFollower]));
 
   void initialize(){
-    _transformMapper = new ComponentMapper<Transform>(Transform, world);
-    _followerMapper = new ComponentMapper<PlayerFollower>(PlayerFollower, world);
+    _followerMapper = new ComponentMapper<CameraFollower>(CameraFollower, world);
+    _particlesMapper = new ComponentMapper<Particles>(Particles, world);
     _playerManager = world.getManager(PlayerManager) as PlayerManager;
     _groupManager = world.getManager(GroupManager) as GroupManager;
   }
@@ -27,9 +27,9 @@ class System_PlayerFollower extends EntityProcessingSystem {
     _targetUpdated = false;
     _playerManager.getEntitiesOfPlayer(playerToFollow).forEach((entity){
       if (_groupManager.isInGroup(entity, GROUP_DRONE)) {
-        var t = _transformMapper.getSafe(entity);
+        var t = _particlesMapper.getSafe(entity);
         if (t != null) {
-          _targetTransform = t;
+          _targetParticles = t;
           _targetUpdated = true;
         }
       }
@@ -39,37 +39,67 @@ class System_PlayerFollower extends EntityProcessingSystem {
 
   void processEntity(Entity entity) {
     var follower = _followerMapper.get(entity);
-    var t = _transformMapper.get(entity);
-    var _targetPosition = _targetTransform.position3d;
+    if (follower.info == null) return;
+    var _targetPosition = _targetParticles.position3d[DRONE_PCENTER];
+    var camera = follower.info;
     if (follower.rotate) {
-      t.angle = _targetTransform.angle;
+      var ux = (_targetParticles.position3d[DRONE_PFRONT].x - _targetParticles.position3d[DRONE_PCENTER].x);
+      var uy = (_targetParticles.position3d[DRONE_PFRONT].y - _targetParticles.position3d[DRONE_PCENTER].y);
+      var l = math.sqrt(ux * ux + uy * uy);//2.0;
+      ux = ux / l;
+      uy = uy / l;
+      var tmp0 = new Vector3(ux, uy, 1.0);
+      var tmp1 = new Vector3(0.0, 0.0, 0.0);
+      tmp0.crossInto(vecZ, tmp1);
+
+//      t.angle = _targetTransform.angle;
       //print("----------");
       //var m4 = new Matrix4.zero().translate(_targetPosition);
-      var m4 = new Matrix4.translationValues(_targetPosition.x, _targetPosition.y, _targetPosition.z);
-      m4.rotateZ(_targetTransform.angle);
+
+      var m4 = new Matrix4(
+        ux, uy, 0.0, 0.0,
+        tmp1.x, tmp1.y, tmp1.z, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        _targetPosition.x, _targetPosition.y, _targetPosition.z, 1.0
+      );
+//      m4.rotateZ(_targetTransform.angle);
+      //TODO use follower by a distance + vector unit (direction should become (head - center) particle)
       var target = m4.transformed3(follower.targetTranslation);
+//      var target = new Vector3.copy(_targetPosition).add(follower.targetTranslation);
 
       //var target = new Vector3(_targetPosition);
       //target.add()
       var damp = world.delta / (1000.0 * 0.25);
-      t.position3d.x = approachMulti(target.x, t.position3d.x, damp);
-      t.position3d.y = approachMulti(target.y, t.position3d.y, damp);
-      t.position3d.z = approachMulti(target.z, t.position3d.z, damp);
+      camera.position.x = approachMulti(target.x, follower.info.position.x, damp);
+      camera.position.y = approachMulti(target.y, follower.info.position.y, damp);
+      camera.position.z = approachMulti(target.z, follower.info.position.z, damp);
       //.getTranslation());//, follower.targetTranslation.y, follower.targetTranslation.z).getTranslation());
       //print(t.position3d);
       //var r3 = new Vector3.copy(t.rotation3d);
-      t.lookAt(_targetPosition, vecZ);
+      camera.upDirection.setFrom(vecZ);
+      camera.focusPosition.setValues(_targetPosition.x + 4 * ux, _targetPosition.y + 4 * uy, 3.0);
       //t.rotation3d.x = approachMulti(t.rotation3d.x, r3.x, 0.03);
       //t.rotation3d.y = approachMulti(t.rotation3d.y, r3.y, 0.03);
       //t.rotation3d.z = approachMulti(t.rotation3d.z, r3.z, 0.03);
       //t.angle = approachMulti(_targetTransform.angle, t.angle, 0.3);
+      camera.near = 0.001;
+      camera.far = 200.0;//(follower.focusAabb.max - follower.focusAabb.min).length;
     } else {
+      print("wrong");
       var target = new Vector3.copy(_targetPosition).add(follower.targetTranslation);
-      t.position3d.x = approachMulti(target.x, t.position3d.x, 0.2);
-      t.position3d.y = approachMulti(target.y, t.position3d.y, 0.2);
-      t.position3d.z = approachMulti(target.z, t.position3d.z, 0.3);
-      t.lookAt(_targetPosition, vecY);
+      var position = camera.position;
+      position.x = approachMulti(target.x, position.x, 0.2);
+      position.y = approachMulti(target.y, position.y, 0.2);
+      position.z = approachMulti(target.z, position.z, 0.3);
+      camera.upDirection.setFrom(vecY);
+      camera.focusPosition.setFrom(_targetPosition);
     }
+    //print("${follower.info.position} .. ${follower.info.focusPosition} .. ${follower.info.upDirection}");
+    //follower.info.updateProjectionMatrix();
+    //camera.adjustNearFar(follower.focusAabb, 0.001, 0.1);
+    camera.updateViewMatrix();
+    //camera.near = camera.near *0.5;
+    //print("${follower.focusAabb.min} .. ${follower.focusAabb.max}, ${camera.near}, ${camera.far}");
 
   }
   double approachAdd(double target, double current, double step) {
@@ -83,38 +113,6 @@ class System_PlayerFollower extends EntityProcessingSystem {
   }
 }
 
-class System_CameraController extends EntityProcessingSystem {
-  ComponentMapper<PlayerFollower> _followerMapper;
-  GroupManager _groupManager;
-
-  System_CameraController() : super(Aspect.getAspectForAllOf([Transform, PlayerFollower]));
-
-  void initialize(){
-    _followerMapper = new ComponentMapper<PlayerFollower>(PlayerFollower, world);
-    _groupManager = world.getManager(GroupManager) as GroupManager;
-  }
-
-  void processEntity(Entity entity) {
-    if (_groupManager.isInGroup(entity, GROUP_CAMERA)) {
-      var follower = _followerMapper.get(entity);
-      switch(follower.reqMode) {
-        case 1 :
-          follower.rotate = false;
-          follower.targetTranslation.setValues(0.0, -25.0, 30.0);
-          break;
-        case 2 :
-          follower.rotate = true;
-          follower.targetTranslation.setValues(-10.0, 0.0, 2.0);
-          break;
-        case 3 :
-          follower.rotate = true;
-          follower.targetTranslation.setValues(-0.01, 0.0, 0.0);
-          break;
-      }
-      follower.reqMode = 0;
-    }
-  }
-}
 class System_DroneController extends EntityProcessingSystem {
   ComponentMapper<DroneControl> _droneControlMapper;
   DroneControl _state;
@@ -155,32 +153,33 @@ class System_DroneController extends EntityProcessingSystem {
 }
 
 class System_DroneHandler extends EntityProcessingSystem {
-  ComponentMapper<PhysicMotion> _motionMapper;
+  //ComponentMapper<PhysicMotion> _motionMapper;
+  ComponentMapper<Particles> _particlesMapper;
   ComponentMapper<DroneControl> _droneControlMapper;
-  ComponentMapper<PhysicCollisions> _collisionsMapper;
+  ComponentMapper<Collisions> _collisionsMapper;
   ComponentMapper<EntityStateComponent> _statesMapper;
   ComponentMapper<Generated> _genMapper;
   ComponentMapper<DroneGenerator> _droneGenMapper;
   ComponentMapper<DroneNumbers> _droneNumbersMapper;
-  ComponentMapper<Transform> _transformMapper;
   Factory_Entities _efactory;
   VDrones _game;
 
-  System_DroneHandler(this._efactory, this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, PhysicMotion, PhysicCollisions, EntityStateComponent]));
+  System_DroneHandler(this._efactory, this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, Particles/*PhysicMotion, PhysicCollisions*/, EntityStateComponent]));
 
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
     _droneNumbersMapper = new ComponentMapper<DroneNumbers>(DroneNumbers, world);
-    _motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
-    _collisionsMapper = new ComponentMapper<PhysicCollisions>(PhysicCollisions, world);
+    //_motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
+    _collisionsMapper = new ComponentMapper<Collisions>(Collisions, world);
+    _particlesMapper = new ComponentMapper<Particles>(Particles, world);
     _statesMapper = new ComponentMapper<EntityStateComponent>(EntityStateComponent, world);
-    _transformMapper = new ComponentMapper<Transform>(Transform, world);
   }
 
   void processEntity(Entity entity) {
     var esc = _statesMapper.getSafe(entity);
     var collisions = _collisionsMapper.get(entity);
     var numbers = _droneNumbersMapper.get(entity);
+    var stop = false;
     collisions.colliders.iterateAndUpdate((collider){
       switch(collider.group) {
         case EntityTypes_WALL :
@@ -191,27 +190,73 @@ class System_DroneHandler extends EntityProcessingSystem {
               _crash(entity);
             }
           }
+          stop = true;
           break;
         case EntityTypes_ITEM : _grabCube(entity, collider.e); break;
         case EntityTypes_GATEOUT : _exiting(entity); break;
       }
-      return collider;
+      return null;
     });
     if (esc.state == State_DRIVING) {
       var ctrl = _droneControlMapper.get(entity);
-      numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
-      _updateEnergy(numbers, ctrl);
-      var m = _motionMapper.get(entity);
-      m.acceleration = ctrl.forward * numbers.acc;
-      m.angularVelocity = radians(ctrl.turn * numbers.angularv);
+      //var m = _motionMapper.get(entity);
+      //m.acceleration = ctrl.forward * numbers.acc;
+      //m.angularVelocity = radians(ctrl.turn * numbers.angularv);
+      //ctrl.forward * numbers.acc;
+      var ps = _particlesMapper.get(entity);
+      if (stop) {
+        //ctrl.forward = 0.0;
+        //ctrl.turn = 0.0;
+        var v = new Vector3.zero();
+        for (var i = 0; i < ps.length; ++i) {
+          v.setFrom(ps.position3dPrevious[i]);
+          ps.position3dPrevious[i].setFrom(ps.position3d[i]);
+          ps.position3d[i].setFrom(v);
+        }
+      } else {
+        _updateEnergy(numbers, ctrl);
+        numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
+        //ps.accForces[DRONE_PFRONT].setValues(3.0, 0.0, 3.0);
+        // component of normal of PBACKs  (2.0 is the BACK LR)
+  //      var ux = (ps.position3d[DRONE_PBACKR].y - ps.position3d[DRONE_PBACKL].y);
+  //      var uy = -(ps.position3d[DRONE_PBACKR].x - ps.position3d[DRONE_PBACKL].x);
+  //      var l = math.sqrt(ux * ux + uy * uy);//2.0;
+        var ux = (ps.position3d[DRONE_PFRONT].x - ps.position3d[DRONE_PCENTER].x);
+        var uy = (ps.position3d[DRONE_PFRONT].y - ps.position3d[DRONE_PCENTER].y);
+        var l = math.sqrt(ux * ux + uy * uy);//2.0;
+
+        ux = ux / l;
+        uy = uy / l;
+        // force is perpendicular to BACK LR
+        // forward with the back particles
+        var forward = ctrl.forward * numbers.accf;
+        var fx = ux * forward;
+        var fy = uy * forward;
+        var turn = ctrl.turn * numbers.accl;//* numbers.angularv;
+        var tx = - uy * turn;
+        var ty = ux * turn;
+        var accz = 10.0;
+        ps.acc[DRONE_PFRONT].setValues(fx + tx, fy + ty, (0.8 - ps.position3d[DRONE_PFRONT].z) * accz);
+        ps.acc[DRONE_PCENTER].setValues(fx, fy, (2.0 - ps.position3d[DRONE_PCENTER].z) * accz);
+        ps.acc[DRONE_PBACKL].setValues(fx - tx, fy - ty, (1.0 - ps.position3d[DRONE_PBACKL].z) * accz);
+        ps.acc[DRONE_PBACKR].setValues(fx - tx, fy - ty, (1.0 - ps.position3d[DRONE_PBACKR].z) * accz);
+  //      var transform = _transformMapper.get(entity);
+  //      if (transform != null) {
+  //        transform.position3d.setFrom(ps.position3d[DRONE_PCENTER]);
+  //      }
+      }
     }
   }
 
   void _crash(Entity entity) {
-    var transform = _transformMapper.get(entity);
-    if (transform != null) world.addEntity( _efactory.newExplosion(transform));
+//    var transform = _transformMapper.get(entity);
+//    if (transform != null) world.addEntity( _efactory.newExplosion(transform));
     entity.deleteFromWorld();
-    // esc.state = State_CRASHING;
+//    // esc.state = State_CRASHING;
+  }
+
+  void _goPrevious(Entity entity) {
+    entity.deleteFromWorld();
   }
 
   void _exiting(Entity drone) {
@@ -220,8 +265,7 @@ class System_DroneHandler extends EntityProcessingSystem {
   }
 
   void _updateEnergy(numbers, ctrl) {
-    if (numbers.energy <= (numbers.energyMax * 0.05)) {
-      print("no enough energy");
+    if (numbers.energy <= (numbers.energyMax * 0.05).toInt()) {
       ctrl.forward = 0.0;
       ctrl.turn = 0.0;
     }
@@ -236,7 +280,7 @@ class System_DroneHandler extends EntityProcessingSystem {
 //      unit -= 10;
 //    }
     if (unit == 0) {
-      unit += 3;
+      unit = 3;
     }
     numbers.energy = math.max(0, math.min(numbers.energy + unit, numbers.energyMax));
   }
@@ -274,7 +318,8 @@ class System_DroneGenerator extends EntityProcessingSystem {
     gen.scores.removeWhere((score) {
       var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.points.length) : gen.nextPointsIdx % gen.points.length;
       var p = gen.points[pointsIdx];
-      var e = _efactory.newDrone(_player, p.x, p.y, p.z);
+      var e = _efactory.newDrone(_player);
+      _move(e, p.x, p.y, 0.5);
       e.addComponent(new Generated(entity));
       var numbers = _droneNumbersMapper.get(e);
       numbers.score = score;
@@ -282,6 +327,14 @@ class System_DroneGenerator extends EntityProcessingSystem {
       world.addEntity(e);
       return true;
     });
+  }
+
+  _move(Entity e, double x, double y, double z) {
+    var tf = new Matrix4.identity();
+    tf.translate(x, y, z);
+    var ps = e.getComponent(Particles.CT);
+    ps.position3d.forEach((p) => tf.transform3(p));
+    ps.copyPosition3dIntoPrevious();
   }
 
   void deleted(Entity e) {
@@ -324,7 +377,8 @@ class System_CubeGenerator extends EntityProcessingSystem {
     var gen = _cubeGeneratorMapper.get(entity);
     for(var i = gen.nb; i > 0; i--) {
       var p = _nextPosition(gen);
-      var e = _efactory.newCube(p.x, p.y);
+      var e = _efactory.newCube();
+      _move(e, p.x, p.y, 1.0);
       e.addComponent(new Generated(entity));
       world.addEntity(e);
     }
@@ -345,6 +399,14 @@ class System_CubeGenerator extends EntityProcessingSystem {
         );
       }
     }
+  }
+
+  _move(Entity e, double x, double y, double z) {
+    var tf = new Matrix4.identity();
+    tf.translate(x, y, z);
+    var ps = e.getComponent(Particles.CT);
+    ps.position3d.forEach((p) => tf.transform3(p));
+    ps.copyPosition3dIntoPrevious();
   }
 
   Vector2 _nextPosition(CubeGenerator gen) {

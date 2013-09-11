@@ -1,6 +1,5 @@
 part of vdrones;
 
-const GROUP_CAMERA = "camera";
 const GROUP_DRONE = "drone";
 
 const EntityTypes_WALL    = 0x0001;
@@ -15,18 +14,37 @@ const State_CRASHING = 3;
 const State_EXITING = 4;
 const State_RUNNING = 10;
 
+var foregroundcolor = 0xe3e3f8ff;
+var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
+var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hsv) => irgba_rgbaString(hsv_irgba(hsv))).toList(); //monochromatique
+
 class Factory_Entities {
   static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
-  static final transformCT = ComponentTypeManager.getTypeFor(Transform);
+  final physicFact = new Factory_Physics();
+  final renderFact = new Factory_Renderables();
 
   World _world;
   AssetManager _assetManager;
 
   Factory_Entities(this._world, this._assetManager);
 
+  var defaultDraw = proto.drawComponentType([
+    new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
+    new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
+  ]);
+
   Entity _newEntity(List<Component> cs, {String group, String player, List<String> groups}) {
+    addComponents(cs, e) {
+      cs.forEach((c){
+        if (c is List) addComponents(c, e);
+        else {
+          if (c is Particles && c.extradata is ColliderInfo) c.extradata.e = e;
+          e.addComponent(c);
+        }
+      });
+    }
     var e = _world.createEntity();
-    cs.forEach((c) => e.addComponent(c));
+    addComponents(cs, e);
     if (group != null) {
       (_world.getManager(GroupManager) as GroupManager).add(e, group);
     }
@@ -44,10 +62,10 @@ class Factory_Entities {
 //      anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
-  Entity newCube(x, y) => _newEntity([
-    new Transform.w3d(new vec3(x, y, 1)),
-    Factory_Physics.newCube(),
-    Factory_Renderables.newCube(),
+  Entity newCube() => _newEntity([
+    new proto.Drawable(defaultDraw),
+    physicFact.newCube(),
+    renderFact.newCube(_assetManager['0.cube_material']),
     new Animatable()
       ..add(Factory_Animations.newScaleIn()
         ..next = Factory_Animations.newRotateXYEndless()
@@ -57,7 +75,6 @@ class Factory_Entities {
           ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
         )
       )
-
   ]);
 
   Entity newCubeGenerator(List<num> rects) => _newEntity([
@@ -65,44 +82,45 @@ class Factory_Entities {
     new Animatable()
   ]);
 
-  Entity newStaticWalls(List<num> rects, num width, num height) => _newEntity([
+  Entity newStaticWalls(List<num> rects, num width, num height, AssetPack assetpack) => _newEntity([
+    new proto.Drawable(defaultDraw),
     new Transform.w2d(0.0, 0.0, 0.0),
-    Factory_Physics.newBoxes2d(rects, EntityTypes_WALL),
-    Factory_Renderables.newBoxes3d(rects, 2, width, height)
+    physicFact.newBoxes2d(rects, EntityTypes_WALL),
+    renderFact.newBoxes3d(rects, 2.0, width, height, assetpack["wall_material"])
   ]);
 
   Entity newGateIn(List<num> rects, List<num> rzs, AssetPack assetpack) {
-    var points = new List<vec3>();
+    var points = new List<Vector3>();
     for (var i = 0; i < rects.length; i += 4) {
-      points.add(new vec3(
+      points.add(new Vector3(
         rects[i],
         rects[i+1],
         radians(rzs[i~/4])
       ));
     }
     return  _newEntity([
-      new Transform.w3d(new vec3(0, 0, 0.2)),
+      new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      Factory_Renderables.newSurface3d(rects, 0.5, assetpack["gate_in"]),
+      renderFact.newSurface3d(rects, 0.5, assetpack["gate_in"]),
       new Animatable(),
       new DroneGenerator(points, [0])
     ]);
   }
 
   Entity newGateOut(List<num> rects, AssetPack assetpack) => _newEntity([
-    new Transform.w3d(new vec3(0.0, 0.0, 0.2)),
-    Factory_Physics.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
-    Factory_Renderables.newSurface3d(rects, 0.5, assetpack["gate_out"])
+    new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
+    physicFact.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
+    renderFact.newSurface3d(rects, 0.5, assetpack["gate_out"])
   ]);
 
   Entity newMobileWall(num x0, num y0, num dx, num dy, num dz, num tx, num ty, num duration,  bool inout) => _newEntity([
     new Transform.w2d(x0, y0, 0.0),
-    Factory_Physics.newMobileWall(dx, dy),
-    Factory_Renderables.newMobileWall(dx, dy, dz),
+    physicFact.newMobileWall(dx, dy),
+    renderFact.newMobileWall(dx, dy, dz),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
-          var trans = e.getComponent(transformCT);
+          var trans = e.getComponent(Transform.CT);
           var ratio =  0;
           if (inout) {
             ratio = (t % (2 * duration));
@@ -137,29 +155,29 @@ class Factory_Entities {
       )
   ]);
 
-  Entity newCamera(music) => _newEntity([
-    new PlayerFollower(new vec3(0, -25, 30)),
-    new Transform.w3d(new vec3(0, -25, 30)).lookAt(new vec3(0,0,0)),
-    Factory_Renderables.newCamera(),
+  Entity newCamera(music, sceneAabb) => _newEntity([
+    renderFact.newCamera(sceneAabb),
     new AudioDef()..add(music)..isAudioListener = true
-  ], group : GROUP_CAMERA);
+  ]);
 
-  Entity newLight(vec3 pos, vec3 lookAt) => _newEntity([
+  Entity newLight(Vector3 pos, Vector3 lookAt) => _newEntity([
     new Transform.w3d(pos).lookAt(lookAt),
-    Factory_Renderables.newLight()
+    renderFact.newLight()
   ]);
 
   Entity newAmbientLight(color) => _newEntity([
-    new Transform.w3d(new vec3(0.0, 0.0, 10.0)),
-    Factory_Renderables.newAmbientLight(color)
+    new Transform.w3d(new Vector3(0.0, 0.0, 10.0)),
+    renderFact.newAmbientLight(color)
   ]);
 
   List<Entity> newFullArea(AssetPack assetpack, timeout) {
-    var area = assetpack["area"];
-    var cellr = area["cellr"].toDouble();
+    var area = assetpack['area'];
+    var cellr = area['cellr'].toDouble();
+    var width = area['width'];
+    var height = area['height'];
 
     makeBorderAsCells(num w, num h) {
-      var cells = new List();
+      var cells = new List<num>();
       cells..add(-1)..add(-1)..add(w+2)..add(  1);
       cells..add(-1)..add(-1)..add(  1)..add(h+2);
       cells..add( w)..add(-1)..add(  1)..add(h+2);
@@ -173,23 +191,23 @@ class Factory_Entities {
       walls0.addAll(area["walls"]["cells"]);
     }
     if (area["walls"]["maze"] != null) {
-      walls0.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, area["width"], area["height"]));
+      walls0.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, width, height));
     }
     var walls = new List<double>();
-    walls.addAll(cells_rects(cellr, makeBorderAsCells(area["width"], area["height"]), 0));
+    walls.addAll(cells_rects(cellr, makeBorderAsCells(width, height), 0));
     walls.addAll(cells_rects(cellr, walls0));
 
     var es = new List<Entity>();
-    es.add(newCamera("${assetpack.name}.music"));
+    es.add(newCamera("${assetpack.name}.music", new Aabb3.minmax(new Vector3(-0.1, -0.1, -0.1), new Vector3(width * cellr + 0.1, height * cellr + 0.1, 2.0 * cellr +0.1))));
     var v = area["light_ambient"];
     v = (v == null) ? 0x444444 : v;
     es.add(newAmbientLight(v));
     area["lights_spots"].forEach((i) {
-      es.add(newLight(new vec3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new vec3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
+      es.add(newLight(new Vector3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new Vector3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
     });
     es.add(newArea(assetpack.name));
     es.add(newChronometer(-60 * 1000, timeout));
-    es.add(newStaticWalls(walls, area["width"] * cellr, area["height"] * cellr));
+    es.add(newStaticWalls(walls, width * cellr, height * cellr, assetpack));
     es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"]), area["zones"]["gate_in"]["angles"], assetpack));
     es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"]), assetpack));
     es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
@@ -212,28 +230,34 @@ class Factory_Entities {
     return es;
   }
 
-  Entity newDrone(String player, double x0, double y0, double rz0) {
-    var rd = Factory_Renderables.makeModel(_assetManager.root["drone01"], '_models');
+  Entity newDrone(String player) {
+    var l0 = physicFact.newDrone();
+    //var rd = renderFact.makeModel(_assetManager.root["drone01"], '_models');
+    //var rd = renderFact.newParticlesDebug(l0[0], "_images/disc.png");
+    var rd = renderFact.newDrone(_assetManager['0.default_material'], _assetManager['0.dissolve_map']);
     return _newEntity([
-        new Transform.w3d(new vec3(x0, y0, 0.3)),
+        new proto.Drawable(defaultDraw),
         new DroneNumbers(),
         new EntityStateComponent(State_CREATING, _droneStates(rd))
-      ], group : GROUP_DRONE, player : player)
-    ;
+      ]..addAll(l0)
+      , group : GROUP_DRONE
+      , player : player
+    );
   }
 
   _droneStates(RenderableDef c){
     var renderable = new ComponentProvider(RenderableDef, (e) => c);
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
-    var pbody = new ComponentProvider(PhysicBody, (e) => Factory_Physics.newDrone());
-    var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
-    var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
+    //var pbody = new ComponentProvider(PhysicBody, (e) => factPhysics.newDrone());
+    //var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
+    //var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
     var animatable = new ComponentProvider(Animatable, (e) => new Animatable());
     var animatableCreating = new ComponentModifier<Animatable>(Animatable, (a){
       a.add(Factory_Animations.newScaleIn()
         ..onEnd = (e, t, t0) {
           var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
           esc.state = State_DRIVING;
+          print("end scale animation");
         }
       )
       ;
@@ -246,9 +270,9 @@ class Factory_Entities {
       )
       ..[State_DRIVING] = (new EntityState()
         ..add(renderable)
-        ..add(pbody)
-        ..add(pmotion)
-        ..add(pcollisions)
+        //..add(pbody)
+        //..add(pmotion)
+        //..add(pcollisions)
         ..add(control)
         ..add(animatable)
       )
@@ -264,8 +288,8 @@ class Factory_Entities {
   }
 
   Entity newExplosion(Transform t) => _newEntity([
-    new Transform.w3d(t.position3d, t.rotation3d), // no need to clone the vec3 of transform
-    Factory_Renderables.newExplode(),
+    new Transform.w3d(t.position3d, t.rotation3d), // no need to clone the Vector3 of transform
+    renderFact.newExplode(),
     new Animatable()..l.add(
       Factory_Animations.newExplodeOut()
         ..onEnd = (e, t ,t0) { e.deleteFromWorld();}
@@ -280,9 +304,9 @@ class Factory_Entities {
   /// * if height == 0 then halfdy = cellr/20
   /// * if width > 0 then haldx = width * cellr - 2 * cellr
   /// * if height > 0 then haldy = height * cellr - 2 * cellr
-  static List<num> cells_rects(num cellr, List<num> cells, [margin = -1]) {
+  static List<double> cells_rects(num cellr, List<num> cells, [margin = -1]) {
     margin = (margin < 0) ? cellr/20 : margin;
-    var b = new List<num>(cells.length);
+    var b = new List<double>(cells.length);
     for(var i = 0; i < cells.length; i+=4) {
       var hx = cells[i+2] * cellr / 2;
       var hy = cells[i+3] * cellr / 2;

@@ -1,0 +1,18 @@
+{
+   "hud":{
+      "url":"../../_images/gui.svg",
+      "type":"svg"
+   },
+   "default_material":{
+       "url":"mat0",
+       "type": "shaderProgram"
+   },
+   "cube_material":{
+       "url":"../../packages/glf/shaders/normal",
+       "type": "shaderProgram"
+   },
+   "dissolve_map":{
+       "url":"burnMap.png",
+       "type": "tex2d"
+   }
+}

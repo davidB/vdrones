@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
-import 'package:web_ui/web_ui.dart';
+//import 'package:web_ui/web_ui.dart';
 
 var game = new vdrones.VDrones();
 var feedbackScreen = null;
@@ -10,18 +10,21 @@ var feedbackScreen = null;
 void main() {
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
-    _setupLog();
+    //_setupLog();
     _setupRoutes();
   });
 }
 
 void _setupRoutes() {
-  feedbackScreen = query('#feedback_dialog').xtag;
-  feedbackScreen.onToggle.listen((e){
-    if (!feedbackScreen.isShown) {
-      window.location.hash = '/a/${game.area}';
-    }
-  });
+  var el = query('#feedback_dialog');
+  if (el != null) {
+    feedbackScreen = el.xtag;
+    feedbackScreen.onToggle.listen((e){
+      if (!feedbackScreen.isShown) {
+        window.location.hash = '/a/${game.area}';
+      }
+    });
+  }
 
 
   Window.hashChangeEvent.forTarget(window).listen((e) {
@@ -66,7 +69,7 @@ void _setupLog() {
     } else if (r.level == Level.INFO) {
       window.console.log(r);
     } else {
-      window.console.debug(r);
+//      window.console.debug(r);
     }
   });
   var _logger = new Logger("test");

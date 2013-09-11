@@ -45,8 +45,10 @@ class DroneGenerator extends Component {
 class DroneNumbers extends Component {
   int energy = 500;
   int energyMax = 1000;
-  double acc = 5500.0;
-  double angularv = 210.0;
+  ///forward acceleration
+  double accf = 100.0;
+  ///lateral (turn) acceleration
+  double accl = 50.0;
   int score = 0;
   int hit = 0;
   int hitLastTime = 0;
@@ -72,9 +74,30 @@ class Cube implements Component {
   }
 }
 */
-class PlayerFollower extends Component {
+
+class CameraFollower extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(CameraFollower);
+  glf.CameraInfo info;
+  Aabb3 focusAabb;
   final Vector3 targetTranslation = new Vector3.zero();
   bool rotate = false;
-  int reqMode = 0;
-}
 
+  setup(int reqMode) {
+    var follower = this;
+    switch(reqMode) {
+      case 1 :
+        follower.rotate = false;
+        follower.targetTranslation.setValues(0.0, 0.0, 80.0);
+        break;
+      case 2 :
+        follower.rotate = true;
+        follower.targetTranslation.setValues(-10.0, 0.0, 2.0);
+        break;
+      case 3 :
+        follower.rotate = true;
+        follower.targetTranslation.setValues(-0.01, 0.0, 0.0);
+        break;
+    }
+  }
+
+}

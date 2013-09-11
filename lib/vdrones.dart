@@ -1,13 +1,13 @@
 library vdrones;
 
-import 'package:logging/logging.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:json' as JSON;
 import 'dart:html';
 import 'dart:svg' as svg;
 import 'dart:collection';
-import 'package:js/js.dart' as js;
+import 'dart:web_gl' as WebGL;
+import 'dart:typed_data';
 import 'package:lawndart/lawndart.dart';
 import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
@@ -15,13 +15,22 @@ import 'package:dartemis_toolbox/system_entity_state.dart';
 import 'package:dartemis_toolbox/system_animator.dart';
 import 'package:dartemis_toolbox/system_simple_audio.dart';
 import 'package:dartemis_toolbox/system_transform.dart';
+import 'package:dartemis_toolbox/system_verlet.dart';
+import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:dartemis_toolbox/utils.dart';
 import 'package:dartemis_toolbox/ease.dart' as ease;
+import 'package:dartemis_toolbox/collisions.dart' as collisions;
+import 'package:dartemis_toolbox/system_proto2d.dart' as proto;
+import 'package:dartemis_toolbox/colors.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
 import 'package:simple_audio/simple_audio.dart';
 import 'package:simple_audio/simple_audio_asset_pack.dart';
-import 'package:box2d/box2d_browser.dart' as b2;
+import 'package:glf/glf.dart' as glf;
+import 'package:glf/glf_asset_pack.dart';
+import 'package:glf/glf_renderera.dart';
+
+//import 'package:box2d/box2d_browser.dart' as b2;
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -47,6 +56,7 @@ class TimeInfo {
   double _time;
   double _previousTime;
   double _delta;
+  double deltaMax = 1000.0 / 30;
 
   TimeInfo(){ reset(); }
 
@@ -55,7 +65,7 @@ class TimeInfo {
   set time(double v) {
     _previousTime = (_previousTime < 0.0) ? v : _time;
     _time = v;
-    _delta = _time - _previousTime;
+    _delta = math.min(deltaMax, _time - _previousTime);
   }
 
   void reset() {
@@ -100,6 +110,7 @@ class VDrones {
   var _stats = new Stats("u0", clean : false);
   AssetManager _assetManager = null;
   AudioManager _audioManager = null;
+  WebGL.RenderingContext _gl = null;
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
@@ -114,11 +125,13 @@ class VDrones {
 
   VDrones() {
     var bar = document.query('#gameload');
+    var container = document.query('#layers');
+
     _assetManager = _newAssetManager(bar);
     _audioManager = _newAudioManager(findBaseUrl(), _assetManager);
+    _gl = _newRenderingContext(container.queryAll("canvas")[0], _assetManager);
     _preloadAssets();
 
-    var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
     _hud = new System_Hud(container, _player);
@@ -218,29 +231,48 @@ class VDrones {
     var fpack = (_assetManager[areaId] == null) ?
         _assetManager.loadPack(areaId, '_areas/${areaId}.pack')
         : new Future.value(_assetManager[areaId]);
-    var fdrones = (_assetManager['drone01'] == null) ?
-        _assetManager.loadAndRegisterAsset('drone01', 'json', '_models/drone01.js', null, null)
-        : new Future.value(_assetManager['drone01']);
-    return Future.wait([fpack, fdrones]).then((l) => l[0]);
+//    var fdrones = (_assetManager['drone01'] == null) ?
+//        _assetManager.loadAndRegisterAsset('drone01', 'json', '_models/drone01.js', null, null)
+//        : new Future.value(_assetManager['drone01']);
+    var f0 = (_assetManager['0'] == null) ?
+        _assetManager.loadPack('0', '_packs/0/_.pack')
+        : new Future.value(_assetManager['0']);
+//        _assetManager.loadAndRegisterAsset('drone01', 'shaderProgram', 'packages/glf/shaders/default', null, null)
+//        : new Future.value(_assetManager['drone01']);
+    return Future.wait([fpack, f0]).then((l) => l[0]);
   }
 
   void _setupWorld(Element container) {
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
-    _world.addSystem(new System_Physics(false), passive : false);
-    _world.addSystem(
-      new System_PlayerFollower()
-        ..playerToFollow = _player
-      , passive : false
-    );
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler(_entitiesFactory, this));
+    //_world.addSystem(new System_Physics(false), passive : false);
+    _world.addSystem(new System_Simulator()
+      ..globalAccs.setValues(0.0, 0.0, 0.0)
+      ..steps = 3
+      //..collSpace = new collisions.Space_Noop()
+      //..collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)))
+      ..collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5))
+    );
+    _world.addSystem(
+        new System_CameraFollower()
+        ..playerToFollow = _player
+    );
     _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_Animator());
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
-    _world.addSystem(new System_Render3D(container), passive : false);
+    _world.addSystem(new System_Render3D(_gl, _assetManager), passive : false);
+    var canvases = container.queryAll("canvas");
+    if (canvases.length > 1) {
+      _world.addSystem(new proto.System_Renderer(canvases[1])
+        ..scale = 2.0
+        ..translateX = 10
+        ..translateY = 50
+      );
+    }
     if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
     _world.addSystem(_hud);
     _world.addSystem(new System_EntityState());
@@ -275,17 +307,23 @@ class VDrones {
     }
   }
 
+  WebGL.RenderingContext _newRenderingContext(CanvasElement canvas, AssetManager am) {
+    var gl = canvas.getContext3d(alpha: false, depth: true);
+    registerGlfWithAssetManager(gl, am);
+    return gl;
+  }
+
   void _preloadAssets() {
     _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
   }
   void _loop(num highResTime) {
     if ((_world != null) && (_status == Status.RUNNING)) {
+      window.animationFrame.then(_loop);
       timeInfo.time = highResTime;
       var world = _world;
       world.delta = timeInfo.delta;
       world.process();
       //_worldRenderSystem.process();
-      window.animationFrame.then(_loop);
     } else {
       timeInfo.reset();
     }

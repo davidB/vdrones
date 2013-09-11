@@ -9,13 +9,12 @@ dependencies:
     git: https://github.com/johnmccutchan/asset_pack.git
   box2d:
     git: https://github.com/dart-lang/dart-box2d.git
-#    git:
-#      ref: davidB
-#      url: https://github.com/davidB/dartbox2d.git
   browser: any
   dartemis: '>=0.4.1'
   dartemis_toolbox:
     path: ../dartemis_toolbox
+  glf:
+    path: ../glf
   js: any
   lawndart:
     git: https://github.com/davidB/lawndart.git
@@ -25,6 +24,10 @@ dependencies:
   vector_math: '>=1.3.0'
   web_ui: any
   widget:
-    git: https://github.com/kevmoo/widget.dart.git
+    git: https://github.com/dart-lang/widget.dart
 dev_dependencies:
   unittest: any
+
+#    git:
+#      ref: davidB
+#      url: https://github.com/davidB/dartbox2d.git
