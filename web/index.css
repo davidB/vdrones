@@ -43,6 +43,48 @@ body {
   width: 100%;
   height: 100%;
 }
+#pauseOverlay {
+  margin: auto;
+  opacity: 0.8;
+  background: #A0A0A0;
+
+  /* flexbox, por favor */
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+
+  display: -moz-box;
+  -moz-box-orient: horizontal;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+
+  display: box;
+  box-orient: horizontal;
+  box-pack: center;
+  box-align: center;
+}
+#pauseOverlay >div {
+  font-size: 30pt;
+  font-weight: bolder;
+  background: #000000;
+  color: #FFFFFF;
+  line-height: normal;
+  text-align: center;
+  vertical-align: middle;
+  display: block;
+  width: 100%;
+}
+.fontawesome-pauseplay:before {
+  content: "\f04c";
+}
+.fontawesome-pauseplay:hover:before {
+  content: "\f04b";
+}
+#pauseOverlay a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
 /* see http://www.useragentman.com/blog/2012/01/03/cross-browser-html5-progress-bars-in-depth/ */
 #gameload {
   position: absolute;

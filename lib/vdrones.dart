@@ -112,7 +112,7 @@ class VDrones {
 
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
     _setupWorld(container);
-    _gameLoop = _newGameLoop(container, _world);
+    _gameLoop = _newGameLoop(container);
 
     container.tabIndex = -1;
   }
@@ -299,20 +299,43 @@ class VDrones {
     _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
   }
 
-  _newGameLoop(element, world){
+  _newGameLoop(element){
     var gameLoop = new GameLoopHtml(element);
     gameLoop.pointerLock.lockOnClick = false;
-    gameLoop.onUpdate = ((gameLoop) {
-      world.delta = gameLoop.dt * 1000.0;
-      world.process();
-    });
-    gameLoop.onRender = ((gameLoop) {
+    gameLoop.onVisibilityChange = (gameLoop){
+      if (!gameLoop.isVisible) pause();
+    };
+    gameLoop.onUpdate = (gameLoop){
+      _world.delta = gameLoop.dt * 1000.0;
+      _world.process();
+    };
+    gameLoop.onRender = (gameLoop){
       // Draw game into canvasElement using WebGL or CanvasRenderingContext here.
       // The interpolation factor can be used to draw correct inter-frame
       //print('Interpolation factor: ${gameLoop.renderInterpolationFactor}');
       _renderSystem.process();
-    });
+    };
     return gameLoop;
+  }
+
+  pause() {
+    _audioManager.pauseAll();
+    _gameLoop.stop();
+
+    var pauseOverlay = query("#pauseOverlay");
+    if (pauseOverlay != null) {
+      pauseOverlay.style.visibility = "visible";
+      pauseOverlay.onClick.first.then((_){
+        pauseOverlay.style.visibility = "hidden";
+        resume();
+      });
+    }
+  }
+
+  resume() {
+    _gameLoop.start();
+    _audioManager.resumeAll();
+
   }
 }
 
