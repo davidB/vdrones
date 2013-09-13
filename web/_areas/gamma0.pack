@@ -23,6 +23,9 @@
        "name":"music",
        "url":"../_songs/chris01.ogg",
        "type": "audioclip"
+   },
+   "wall_material": {
+     "url": "../_packs/0/mat0",
+     "type": "shaderProgram"
    }
-
 }
