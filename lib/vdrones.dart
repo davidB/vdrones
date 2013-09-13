@@ -29,6 +29,7 @@ import 'package:simple_audio/simple_audio_asset_pack.dart';
 import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
+import 'package:game_loop/game_loop_html.dart';
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -48,28 +49,6 @@ class Status {
   static const RUNNING = 3;
   static const STOPPING = 4;
   static const STOPPED = 5;
-}
-
-class TimeInfo {
-  double _time;
-  double _previousTime;
-  double _delta;
-  double deltaMax = 1000.0 / 30;
-
-  TimeInfo(){ reset(); }
-
-  get delta => _delta;
-  get time => _time;
-  set time(double v) {
-    _previousTime = (_previousTime < 0.0) ? v : _time;
-    _time = v;
-    _delta = math.min(deltaMax, _time - _previousTime);
-  }
-
-  void reset() {
-    _previousTime = -1.0;
-    _delta = 0.0;
-  }
 }
 
 String findBaseUrl() {
@@ -100,7 +79,6 @@ class VDrones {
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
   var _world = new World();
-  var timeInfo = new TimeInfo();
   Factory_Entities _entitiesFactory;
   System_Hud _hud;
   var _player = "u0";
@@ -109,6 +87,7 @@ class VDrones {
   AssetManager _assetManager = null;
   AudioManager _audioManager = null;
   WebGL.RenderingContext _gl = null;
+  GameLoopHtml _gameLoop = null;
   //var _worldRenderSystem;
   //var _hudRenderSystem;
 
@@ -124,15 +103,17 @@ class VDrones {
   VDrones() {
     var bar = document.query('#gameload');
     var container = document.query('#layers');
-    _assetManager = _newAssetManager(bar);
+    _gl = _newRenderingContext(container.queryAll("canvas")[0]);
+
+    _assetManager = _newAssetManager(bar, _gl);
     _audioManager = _newAudioManager(findBaseUrl(), _assetManager);
-    _gl = _newRenderingContext(container.queryAll("canvas")[0], _assetManager);
     _preloadAssets();
 
     if (container == null) throw new StateError("#layers not found");
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
     _hud = new System_Hud(container, _player);
     _setupWorld(container);
+    _gameLoop = _newGameLoop(container, _world);
 
     container.tabIndex = -1;
   }
@@ -188,12 +169,14 @@ class VDrones {
     });
     //HACK screen should be converted into WebComponent
     showScreen('none');
-    window.animationFrame.then(_loop);
+
+    _gameLoop.start();
   }
 
   bool _stop(bool viaExit, int cubesGrabbed) {
     if (_status == Status.RUNNING) {
       _updateStatus(Status.STOPPING);
+      _gameLoop.stop();
     }
     _stats
       .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
@@ -263,7 +246,7 @@ class VDrones {
     _world.addSystem(new System_Animator());
     // Dart is single Threaded, and System doesn't run in // => component aren't
     // modified concurrently => Render3D.process like other System
-    _world.addSystem(new System_Render3D(_gl, _assetManager), passive : false);
+    _world.addSystem(new System_Render3D(_gl, _assetManager), passive : true);
     var canvases = container.queryAll("canvas");
     if (canvases.length > 1) {
       _world.addSystem(new proto2d.System_Renderer(canvases[1])
@@ -279,7 +262,7 @@ class VDrones {
   }
 
   // TODO add notification of errors
-  static AssetManager _newAssetManager(Element bar) {
+  static AssetManager _newAssetManager(Element bar, gl) {
     var tracer = new AssetPackTrace();
     var stream = tracer.asStream().asBroadcastStream();
     new ProgressControler(bar).bind(stream);
@@ -288,8 +271,11 @@ class VDrones {
     var b = new AssetManager(tracer);
     b.loaders['img'] = new ImageLoader();
     b.importers['img'] = new NoopImporter();
+
+    registerGlfWithAssetManager(gl, b);
     return b;
   }
+
   AudioManager _newAudioManager(baseUrl, AssetManager am) {
     try {
 //      var audioManager = new AudioManager(baseUrl);
@@ -306,28 +292,32 @@ class VDrones {
     }
   }
 
-  WebGL.RenderingContext _newRenderingContext(CanvasElement canvas, AssetManager am) {
-    var gl = canvas.getContext3d(alpha: false, depth: true, antialias:false);
-    registerGlfWithAssetManager(gl, am);
-    return gl;
+  WebGL.RenderingContext _newRenderingContext(CanvasElement canvas) {
+    return canvas.getContext3d(alpha: false, depth: true, antialias:false);
   }
 
   void _preloadAssets() {
     _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
   }
-  void _loop(num highResTime) {
-    if ((_world != null) && (_status == Status.RUNNING)) {
-      window.animationFrame.then(_loop);
-      timeInfo.time = highResTime;
-      var world = _world;
-      world.delta = timeInfo.delta;
-      world.process();
-      //_worldRenderSystem.process();
-    } else {
-      timeInfo.reset();
-    }
-  }
 
+  _newGameLoop(element, world){
+    var gameLoop = new GameLoopHtml(element);
+    gameLoop.pointerLock.lockOnClick = false;
+    gameLoop.onUpdate = ((gameLoop) {
+      // Update game logic here.
+      //print('${gameLoop.frame}: ${gameLoop.gameTime} [dt = ${gameLoop.dt}].');
+      world.delta = gameLoop.dt * 1000.0;
+      world.process();
+    });
+    var renderSystem = world.getSystem(System_Render3D);
+    gameLoop.onRender = ((gameLoop) {
+      // Draw game into canvasElement using WebGL or CanvasRenderingContext here.
+      // The interpolation factor can be used to draw correct inter-frame
+      //print('Interpolation factor: ${gameLoop.renderInterpolationFactor}');
+      renderSystem.process();
+    });
+    return gameLoop;
+  }
 }
 
 class EventsPrintControler {
