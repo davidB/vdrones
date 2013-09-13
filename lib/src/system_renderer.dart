@@ -181,7 +181,9 @@ class System_Render3D extends EntitySystem {
     var fboN = _initRendererPreDeferred0(_renderer.cameraViewport, _am['shader_deferred_normals'], TexNormalsL, TexNormalsN);
     var fboV = _initRendererPreDeferred0(_renderer.cameraViewport, _am['shader_deferred_vertices'], TexVerticesL, TexVerticesN);
     _renderer.debugView = fboN.texture;
-    _initSSAO(fboN.texture, fboV.texture, _am['texNormalsRandom']);
+    var filter0 = _makeSSAOFilter(fboN.texture, fboV.texture, _am['texNormalsRandom']);
+    //var filter0 = _am['filter2d_identity'];
+    _renderer.filters2d.insert(0, filter0);
   }
 
   _initRendererPreDeferred0(vp, ctx, texName, texNum) {
@@ -208,18 +210,16 @@ class System_Render3D extends EntitySystem {
     return fbo;
   }
 
-  _initSSAO(WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
-    var ssao = new glf.Filter2D.copy(_am['filter2d_blend_ssao'])
+  _makeSSAOFilter(WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
+    return new glf.Filter2D.copy(_am['filter2d_blend_ssao'])
     ..cfg = (ctx) {
-      ctx.gl.uniform2f(ctx.getUniformLocation('_Attenuation'), 1.0, 5.0); // (0,0) -> (2, 10) def (1.0, 5.0)
-      ctx.gl.uniform1f(ctx.getUniformLocation('_SamplingRadius'), 15.0); // 0 -> 40
-      ctx.gl.uniform1f(ctx.getUniformLocation('_OccluderBias'), 0.05); // 0.0 -> 0.2, def 0.05
+      ctx.gl.uniform2f(ctx.getUniformLocation('_Attenuation'), 2.0, 10.0); // (0,0) -> (2, 10) def (1.0, 5.0)
+      ctx.gl.uniform1f(ctx.getUniformLocation('_SamplingRadius'), 2.0); // 0 -> 40
+      ctx.gl.uniform1f(ctx.getUniformLocation('_OccluderBias'), 0.1); // 0.0 -> 0.2, def 0.05
       glf.injectTexture(ctx, texNormals, TexNormalsN, TexNormalsL);
       glf.injectTexture(ctx, texVertices, TexVerticesN, TexVerticesL);
       glf.injectTexture(ctx, texNormalsRandom, TexNormalsRandomN, TexNormalsRandomL);
     };
-//    var ssao = _am['filter2d_identity'];
-    _renderer.filters2d.insert(0, ssao);
   }
 
 }
