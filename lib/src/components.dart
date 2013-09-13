@@ -77,25 +77,27 @@ class Cube implements Component {
 
 class CameraFollower extends Component {
   static final CT = ComponentTypeManager.getTypeFor(CameraFollower);
+  static const TOP = 0;
+  static const TPS = 1;
+  static const FPS = 2;
   glf.CameraInfo info;
   Aabb3 focusAabb;
   final Vector3 targetTranslation = new Vector3.zero();
-  bool rotate = false;
-
-  setup(int reqMode) {
-    var follower = this;
-    switch(reqMode) {
-      case 1 :
-        follower.rotate = false;
-        follower.targetTranslation.setValues(0.0, 0.0, 80.0);
+  int _mode;
+  get mode => _mode;
+  set mode(int v) {
+    switch(v) {
+      case TOP :
+        _mode = 0;
+        targetTranslation.setValues(0.0, 0.0, 80.0);
         break;
-      case 2 :
-        follower.rotate = true;
-        follower.targetTranslation.setValues(-10.0, 0.0, 2.0);
+      case TPS :
+        _mode = 1;
+        targetTranslation.setValues(-10.0, 0.0, 2.0);
         break;
-      case 3 :
-        follower.rotate = true;
-        follower.targetTranslation.setValues(-0.01, 0.0, 0.0);
+      case FPS :
+        _mode = 2;
+        targetTranslation.setValues(-0.01, 0.0, 0.0);
         break;
     }
   }

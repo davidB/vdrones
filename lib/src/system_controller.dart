@@ -11,7 +11,23 @@ class System_CameraFollower extends EntityProcessingSystem {
   Particles _targetParticles = null;
   bool _targetUpdated = true;
   String playerToFollow;
+  Coll.Space collSpace;
+  final _int = new Math2.IntersectionFinderXY();
+  final Vector4 _scol = new Vector4.zero();
 
+  double _findFirstIntersection(Vector3 v0, Vector3 v1){
+    var b = -1.0;
+    collSpace.scanNear(v0, v1, (s) {
+      if (s.ps == _targetParticles) return;
+      if (_int.segment_segment(v0, v1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], _scol)) {
+        var b0 = _scol.w;
+        if (b0 >= 0.0 && b0 <= 1.0 && (b == -1.0 || b0 < b)) {
+          b = b0;
+        }
+      }
+    });
+    return b;
+  }
   System_CameraFollower() : super(Aspect.getAspectForAllOf([CameraFollower]));
 
   void initialize(){
@@ -37,77 +53,59 @@ class System_CameraFollower extends EntityProcessingSystem {
     return _targetUpdated;
   }
 
+  void processEntities(ReadOnlyBag<Entity> entities) => entities.forEach((entity) => processEntity(entity));
+
   void processEntity(Entity entity) {
     var follower = _followerMapper.get(entity);
     if (follower.info == null) return;
     var _targetPosition = _targetParticles.position3d[DRONE_PCENTER];
     var camera = follower.info;
-    if (follower.rotate) {
-      var ux = (_targetParticles.position3d[DRONE_PFRONT].x - _targetParticles.position3d[DRONE_PCENTER].x);
-      var uy = (_targetParticles.position3d[DRONE_PFRONT].y - _targetParticles.position3d[DRONE_PCENTER].y);
-      var l = math.sqrt(ux * ux + uy * uy);//2.0;
-      ux = ux / l;
-      uy = uy / l;
-      var tmp0 = new Vector3(ux, uy, 1.0);
-      var tmp1 = new Vector3(0.0, 0.0, 0.0);
-      tmp0.crossInto(vecZ, tmp1);
-
-//      t.angle = _targetTransform.angle;
-      //print("----------");
-      //var m4 = new Matrix4.zero().translate(_targetPosition);
-
-      var m4 = new Matrix4(
-        ux, uy, 0.0, 0.0,
-        tmp1.x, tmp1.y, tmp1.z, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        _targetPosition.x, _targetPosition.y, _targetPosition.z, 1.0
-      );
-//      m4.rotateZ(_targetTransform.angle);
-      //TODO use follower by a distance + vector unit (direction should become (head - center) particle)
-      var target = m4.transformed3(follower.targetTranslation);
-//      var target = new Vector3.copy(_targetPosition).add(follower.targetTranslation);
-
-      //var target = new Vector3(_targetPosition);
-      //target.add()
-      var damp = world.delta / (1000.0 * 0.25);
-      camera.position.x = approachMulti(target.x, follower.info.position.x, damp);
-      camera.position.y = approachMulti(target.y, follower.info.position.y, damp);
-      camera.position.z = approachMulti(target.z, follower.info.position.z, damp);
-      //.getTranslation());//, follower.targetTranslation.y, follower.targetTranslation.z).getTranslation());
-      //print(t.position3d);
-      //var r3 = new Vector3.copy(t.rotation3d);
-      camera.upDirection.setFrom(vecZ);
-      camera.focusPosition.setValues(_targetPosition.x + 4 * ux, _targetPosition.y + 4 * uy, 3.0);
-      //t.rotation3d.x = approachMulti(t.rotation3d.x, r3.x, 0.03);
-      //t.rotation3d.y = approachMulti(t.rotation3d.y, r3.y, 0.03);
-      //t.rotation3d.z = approachMulti(t.rotation3d.z, r3.z, 0.03);
-      //t.angle = approachMulti(_targetTransform.angle, t.angle, 0.3);
-      camera.near = 0.001;
-      camera.far = 200.0;//(follower.focusAabb.max - follower.focusAabb.min).length;
-    } else {
-      print("wrong");
-      var target = new Vector3.copy(_targetPosition).add(follower.targetTranslation);
+    if (follower.mode == CameraFollower.TOP) {
+      var next = new Vector3.copy(_targetPosition).add(follower.targetTranslation);
       var position = camera.position;
-      position.x = approachMulti(target.x, position.x, 0.2);
-      position.y = approachMulti(target.y, position.y, 0.2);
-      position.z = approachMulti(target.z, position.z, 0.3);
+      position.x = approachMulti(next.x, position.x, 0.2);
+      position.y = approachMulti(next.y, position.y, 0.2);
+      position.z = approachMulti(next.z, position.z, 0.3);
       camera.upDirection.setFrom(vecY);
       camera.focusPosition.setFrom(_targetPosition);
+    } else {
+      var _targetDirection = _targetParticles.position3d[DRONE_PFRONT] - _targetParticles.position3d[DRONE_PCENTER];
+      _targetDirection.z = 0.0;
+      _targetDirection.normalize();
+      var next = new Vector3.copy(_targetDirection).scale(follower.targetTranslation.x).add(_targetPosition);
+      var d = _findFirstIntersection(_targetPosition, next);
+      if (d >= 0.0 && d <= 1.0) {
+        // next = _targetPosition + d * displacement
+        next.setFrom(_targetDirection).scale(follower.targetTranslation.x * d).add(_targetPosition);
+        next.z = _targetPosition.z + follower.targetTranslation.z * d;
+      } else {
+        next.z = _targetPosition.z + follower.targetTranslation.z;
+      }
+      var damp = world.delta / 250.0; //100 ms to reach 1.0
+      var position = camera.position;
+      position.x = approachMulti(next.x, position.x, damp);
+      position.y = approachMulti(next.y, position.y, damp);
+      position.z = approachMulti(next.z, position.z, damp);
+      position = camera.focusPosition;
+      position.x = approachMulti(_targetPosition.x + 4 * _targetDirection.x, position.x, damp);
+      position.y = approachMulti(_targetPosition.y + 4 * _targetDirection.y, position.y, damp);
+      //TODO optimize could be done once when mode change
+      position.z = 3.0;
+      camera.upDirection.setFrom(vecZ);
+      camera.near = 0.001;
+      camera.far = 200.0;//(follower.focusAabb.max - follower.focusAabb.min).length;
     }
-    //print("${follower.info.position} .. ${follower.info.focusPosition} .. ${follower.info.upDirection}");
     //follower.info.updateProjectionMatrix();
     //camera.adjustNearFar(follower.focusAabb, 0.001, 0.1);
     camera.updateViewMatrix();
-    //camera.near = camera.near *0.5;
-    //print("${follower.focusAabb.min} .. ${follower.focusAabb.max}, ${camera.near}, ${camera.far}");
-
   }
+
   double approachAdd(double target, double current, double step) {
     var mstep = target - current;
     return current + math.min(step, mstep);
   }
 
-  double approachMulti(target, current, step) {
+  double approachMulti(double target, double current, double step) {
     var mstep = target - current;
     return current + step * mstep;
   }
@@ -169,7 +167,6 @@ class System_DroneHandler extends EntityProcessingSystem {
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
     _droneNumbersMapper = new ComponentMapper<DroneNumbers>(DroneNumbers, world);
-    //_motionMapper = new ComponentMapper<PhysicMotion>(PhysicMotion, world);
     _collisionsMapper = new ComponentMapper<Collisions>(Collisions, world);
     _particlesMapper = new ComponentMapper<Particles>(Particles, world);
     _statesMapper = new ComponentMapper<EntityStateComponent>(EntityStateComponent, world);

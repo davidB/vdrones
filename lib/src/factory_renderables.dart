@@ -176,7 +176,7 @@ class Factory_Renderables {
   Iterable<Component> newCamera(Aabb3 focusAabb){
     var c = new CameraFollower()
     ..focusAabb = focusAabb
-    ..setup(2)
+    ..mode = CameraFollower.TPS
     ;
 
     var r = new RenderableDef()
