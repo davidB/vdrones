@@ -5,6 +5,7 @@ pubspec.lock
 package
 packages
 off
+out
 target
 .buildlog
 web/out
