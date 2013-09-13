@@ -78,17 +78,18 @@ class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
   var _status = Status.NONE;
-  var _world = new World();
-  Factory_Entities _entitiesFactory;
+  var _world;
+  var _entitiesFactory;
   var _hudSystem;
   var _renderSystem;
+  var _proto2dSystem;
   var _player = "u0";
-  var _areaPack = null;
+  var _areaPack;
   var _stats = new Stats("u0", clean : false);
-  AssetManager _assetManager = null;
-  AudioManager _audioManager = null;
-  WebGL.RenderingContext _gl = null;
-  GameLoopHtml _gameLoop = null;
+  var _assetManager;
+  var _audioManager;
+  var _gl;
+  var _gameLoop;
 
   get masterMute => (_audioManager == null)? true : _audioManager.mute;
   set masterMute(v) { if(_audioManager == null) return; _audioManager.mute = v; }
@@ -103,6 +104,9 @@ class VDrones {
     var container = document.query('#layers');
     if (container == null) throw new StateError("#layers not found");
 
+    _world = new World();
+    _gameLoop = new GameLoopHtml(container);
+
     _gl = _newRenderingContext(container.queryAll("canvas")[0]);
     _audioManager = _newAudioManager(findBaseUrl());
 
@@ -112,7 +116,7 @@ class VDrones {
 
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
     _setupWorld(container);
-    _gameLoop = _newGameLoop(container);
+    _setupGameLoop(container);
 
     container.tabIndex = -1;
   }
@@ -227,6 +231,7 @@ class VDrones {
     _renderSystem = new System_Render3D(_gl, _assetManager);
     _hudSystem = new System_Hud(container, _player);
 
+
     //var collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5));
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
@@ -246,17 +251,18 @@ class VDrones {
     );
     _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_Animator());
-    _world.addSystem(_renderSystem, passive : true);
+    _world.addSystem(_renderSystem, passive: true);
     var canvases = container.queryAll("canvas");
     if (canvases.length > 1) {
-      _world.addSystem(new proto2d.System_Renderer(canvases[1])
-        ..scale = 2.0
-        ..translateX = 10
-        ..translateY = 50
-      );
+      _proto2dSystem = new proto2d.System_Renderer(canvases[1])
+      ..scale = 2.0
+      ..translateX = 10
+      ..translateY = 50
+      ;
+      _world.addSystem(_proto2dSystem, passive:true);
     }
     if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
-    _world.addSystem(_hudSystem);
+    _world.addSystem(_hudSystem, passive: true);
     _world.addSystem(new System_EntityState());
     _world.initialize();
   }
@@ -299,23 +305,21 @@ class VDrones {
     _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
   }
 
-  _newGameLoop(element){
-    var gameLoop = new GameLoopHtml(element);
-    gameLoop.pointerLock.lockOnClick = false;
-    gameLoop.onVisibilityChange = (gameLoop){
+  _setupGameLoop(element){
+    _gameLoop.pointerLock.lockOnClick = false;
+    _gameLoop.onVisibilityChange = (gameLoop){
       if (!gameLoop.isVisible) pause();
     };
-    gameLoop.onUpdate = (gameLoop){
+    _gameLoop.onUpdate = (gameLoop){
       _world.delta = gameLoop.dt * 1000.0;
       _world.process();
     };
-    gameLoop.onRender = (gameLoop){
-      // Draw game into canvasElement using WebGL or CanvasRenderingContext here.
-      // The interpolation factor can be used to draw correct inter-frame
-      //print('Interpolation factor: ${gameLoop.renderInterpolationFactor}');
+    _gameLoop.onRender = (gameLoop){
       _renderSystem.process();
+      _hudSystem.process();
+      if (_proto2dSystem != null) _proto2dSystem.process();
     };
-    return gameLoop;
+    return _gameLoop;
   }
 
   pause() {
