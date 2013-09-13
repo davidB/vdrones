@@ -11,7 +11,7 @@ class System_CameraFollower extends EntityProcessingSystem {
   Particles _targetParticles = null;
   bool _targetUpdated = true;
   String playerToFollow;
-  Coll.Space collSpace;
+  collisions.Space collSpace;
   final _int = new Math2.IntersectionFinderXY();
   final Vector4 _scol = new Vector4.zero();
 

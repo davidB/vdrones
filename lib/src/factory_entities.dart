@@ -28,9 +28,9 @@ class Factory_Entities {
 
   Factory_Entities(this._world, this._assetManager);
 
-  var defaultDraw = proto.drawComponentType([
-    new proto.DrawComponentType(Particles.CT, proto.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-    new proto.DrawComponentType(Constraints.CT, proto.constraints(distanceStyleCollide : "#e20000"))
+  var defaultDraw = proto2d.drawComponentType([
+    new proto2d.DrawComponentType(Particles.CT, proto2d.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
+    new proto2d.DrawComponentType(Constraints.CT, proto2d.constraints(distanceStyleCollide : "#e20000"))
   ]);
 
   Entity _newEntity(List<Component> cs, {String group, String player, List<String> groups}) {
@@ -63,7 +63,7 @@ class Factory_Entities {
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
   Entity newCube() => _newEntity([
-    new proto.Drawable(defaultDraw),
+    new proto2d.Drawable(defaultDraw),
     physicFact.newCube(),
     renderFact.newCube(_assetManager['0.cube_material']),
     new Animatable()
@@ -83,7 +83,7 @@ class Factory_Entities {
   ]);
 
   Entity newStaticWalls(List<num> rects, num width, num height, AssetPack assetpack) => _newEntity([
-    new proto.Drawable(defaultDraw),
+    new proto2d.Drawable(defaultDraw),
     new Transform.w2d(0.0, 0.0, 0.0),
     physicFact.newBoxes2d(rects, EntityTypes_WALL),
     renderFact.newBoxes3d(rects, 2.0, width, height, assetpack["wall_material"])
@@ -236,7 +236,7 @@ class Factory_Entities {
     //var rd = renderFact.newParticlesDebug(l0[0], "_images/disc.png");
     var rd = renderFact.newDrone(_assetManager['0.default_material'], _assetManager['0.dissolve_map']);
     return _newEntity([
-        new proto.Drawable(defaultDraw),
+        new proto2d.Drawable(defaultDraw),
         new DroneNumbers(),
         new EntityStateComponent(State_CREATING, _droneStates(rd))
       ]..addAll(l0)

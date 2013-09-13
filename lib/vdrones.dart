@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:json' as JSON;
 import 'dart:html';
-import 'dart:svg' as svg;
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
 import 'dart:typed_data';
@@ -18,9 +17,10 @@ import 'package:dartemis_toolbox/system_transform.dart';
 import 'package:dartemis_toolbox/system_verlet.dart';
 import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:dartemis_toolbox/utils.dart';
+import 'package:dartemis_toolbox/utils_math.dart' as Math2;
 import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'package:dartemis_toolbox/collisions.dart' as collisions;
-import 'package:dartemis_toolbox/system_proto2d.dart' as proto;
+import 'package:dartemis_toolbox/system_proto2d.dart' as proto2d;
 import 'package:dartemis_toolbox/colors.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
@@ -29,8 +29,6 @@ import 'package:simple_audio/simple_audio_asset_pack.dart';
 import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
-
-//import 'package:box2d/box2d_browser.dart' as b2;
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -126,7 +124,6 @@ class VDrones {
   VDrones() {
     var bar = document.query('#gameload');
     var container = document.query('#layers');
-
     _assetManager = _newAssetManager(bar);
     _audioManager = _newAudioManager(findBaseUrl(), _assetManager);
     _gl = _newRenderingContext(container.queryAll("canvas")[0], _assetManager);
@@ -243,6 +240,9 @@ class VDrones {
   }
 
   void _setupWorld(Element container) {
+    //var collSpace = new Coll.Space_Noop();
+    var collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)));
+    //var collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5));
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
@@ -252,13 +252,12 @@ class VDrones {
     _world.addSystem(new System_Simulator()
       ..globalAccs.setValues(0.0, 0.0, 0.0)
       ..steps = 3
-      //..collSpace = new collisions.Space_Noop()
-      //..collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)))
-      ..collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5))
+      ..collSpace = collSpace
     );
     _world.addSystem(
         new System_CameraFollower()
         ..playerToFollow = _player
+        ..collSpace = collSpace
     );
     _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_Animator());
@@ -267,7 +266,7 @@ class VDrones {
     _world.addSystem(new System_Render3D(_gl, _assetManager), passive : false);
     var canvases = container.queryAll("canvas");
     if (canvases.length > 1) {
-      _world.addSystem(new proto.System_Renderer(canvases[1])
+      _world.addSystem(new proto2d.System_Renderer(canvases[1])
         ..scale = 2.0
         ..translateX = 10
         ..translateY = 50
@@ -308,7 +307,7 @@ class VDrones {
   }
 
   WebGL.RenderingContext _newRenderingContext(CanvasElement canvas, AssetManager am) {
-    var gl = canvas.getContext3d(alpha: false, depth: true);
+    var gl = canvas.getContext3d(alpha: false, depth: true, antialias:false);
     registerGlfWithAssetManager(gl, am);
     return gl;
   }
