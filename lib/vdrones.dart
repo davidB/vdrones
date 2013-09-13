@@ -80,7 +80,8 @@ class VDrones {
   var _status = Status.NONE;
   var _world = new World();
   Factory_Entities _entitiesFactory;
-  System_Hud _hud;
+  var _hudSystem;
+  var _renderSystem;
   var _player = "u0";
   var _areaPack = null;
   var _stats = new Stats("u0", clean : false);
@@ -88,8 +89,6 @@ class VDrones {
   AudioManager _audioManager = null;
   WebGL.RenderingContext _gl = null;
   GameLoopHtml _gameLoop = null;
-  //var _worldRenderSystem;
-  //var _hudRenderSystem;
 
   get masterMute => (_audioManager == null)? true : _audioManager.mute;
   set masterMute(v) { if(_audioManager == null) return; _audioManager.mute = v; }
@@ -101,17 +100,17 @@ class VDrones {
   set sourceVolume(v) { if(_audioManager == null) return; _audioManager.sourceVolume = double.parse(v) ; }
 
   VDrones() {
-    var bar = document.query('#gameload');
     var container = document.query('#layers');
-    _gl = _newRenderingContext(container.queryAll("canvas")[0]);
+    if (container == null) throw new StateError("#layers not found");
 
-    _assetManager = _newAssetManager(bar, _gl);
-    _audioManager = _newAudioManager(findBaseUrl(), _assetManager);
+    _gl = _newRenderingContext(container.queryAll("canvas")[0]);
+    _audioManager = _newAudioManager(findBaseUrl());
+
+    var bar = document.query('#gameload');
+    _assetManager = _newAssetManager(bar, _gl, _audioManager);
     _preloadAssets();
 
-    if (container == null) throw new StateError("#layers not found");
     _entitiesFactory = new Factory_Entities(_world, _assetManager);
-    _hud = new System_Hud(container, _player);
     _setupWorld(container);
     _gameLoop = _newGameLoop(container, _world);
 
@@ -197,7 +196,7 @@ class VDrones {
     }
     _updateStatus(Status.INITIALIZING);
     showScreen('screenInit');
-    _hud.reset();
+    _hudSystem.reset();
     _world.deleteAllEntities();
     //_newWorld();
     return _loadArea(areaId).then((pack){
@@ -225,6 +224,9 @@ class VDrones {
   void _setupWorld(Element container) {
     //var collSpace = new Coll.Space_Noop();
     var collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)));
+    _renderSystem = new System_Render3D(_gl, _assetManager);
+    _hudSystem = new System_Hud(container, _player);
+
     //var collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5));
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
@@ -244,9 +246,7 @@ class VDrones {
     );
     _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_Animator());
-    // Dart is single Threaded, and System doesn't run in // => component aren't
-    // modified concurrently => Render3D.process like other System
-    _world.addSystem(new System_Render3D(_gl, _assetManager), passive : true);
+    _world.addSystem(_renderSystem, passive : true);
     var canvases = container.queryAll("canvas");
     if (canvases.length > 1) {
       _world.addSystem(new proto2d.System_Renderer(canvases[1])
@@ -256,13 +256,13 @@ class VDrones {
       );
     }
     if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
-    _world.addSystem(_hud);
+    _world.addSystem(_hudSystem);
     _world.addSystem(new System_EntityState());
     _world.initialize();
   }
 
   // TODO add notification of errors
-  static AssetManager _newAssetManager(Element bar, gl) {
+  static AssetManager _newAssetManager(Element bar, gl, audioManager) {
     var tracer = new AssetPackTrace();
     var stream = tracer.asStream().asBroadcastStream();
     new ProgressControler(bar).bind(stream);
@@ -272,20 +272,19 @@ class VDrones {
     b.loaders['img'] = new ImageLoader();
     b.importers['img'] = new NoopImporter();
 
-    registerGlfWithAssetManager(gl, b);
+    if (gl != null) registerGlfWithAssetManager(gl, b);
+    if (audioManager != null) registerSimpleAudioWithAssetManager(audioManager, b);
     return b;
   }
 
-  AudioManager _newAudioManager(baseUrl, AssetManager am) {
+  AudioManager _newAudioManager(baseUrl) {
     try {
-//      var audioManager = new AudioManager(baseUrl);
-//      audioManager.mute = false;
-//      audioManager.masterVolume = 1.0;
-//      audioManager.musicVolume = 0.5;
-//      audioManager.sourceVolume = 0.9;
-//      registerSimpleAudioWithAssetManager(audioManager, am);
-//      return audioManager;
-      return null;
+      var audioManager = new AudioManager(baseUrl);
+      audioManager.mute = false;
+      audioManager.masterVolume = 1.0;
+      audioManager.musicVolume = 0.5;
+      audioManager.sourceVolume = 0.9;
+      return audioManager;
     } catch (e) {
       handleError(e);
       return null;
@@ -304,17 +303,14 @@ class VDrones {
     var gameLoop = new GameLoopHtml(element);
     gameLoop.pointerLock.lockOnClick = false;
     gameLoop.onUpdate = ((gameLoop) {
-      // Update game logic here.
-      //print('${gameLoop.frame}: ${gameLoop.gameTime} [dt = ${gameLoop.dt}].');
       world.delta = gameLoop.dt * 1000.0;
       world.process();
     });
-    var renderSystem = world.getSystem(System_Render3D);
     gameLoop.onRender = ((gameLoop) {
       // Draw game into canvasElement using WebGL or CanvasRenderingContext here.
       // The interpolation factor can be used to draw correct inter-frame
       //print('Interpolation factor: ${gameLoop.renderInterpolationFactor}');
-      renderSystem.process();
+      _renderSystem.process();
     });
     return gameLoop;
   }
