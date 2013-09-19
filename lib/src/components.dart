@@ -35,7 +35,6 @@ class CubeGenerator extends Component {
 
 class Attraction extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Attraction);
-  bool active = false;
   Vector3 attractor;
 }
 

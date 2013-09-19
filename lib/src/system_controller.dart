@@ -278,17 +278,13 @@ class System_DroneHandler extends EntityProcessingSystem {
     numbers.energy = math.max(0, math.min(numbers.energy + unit, numbers.energyMax));
   }
   void _grabCube(Entity drone, Entity cube) {
-//     _entities.find('message').then((x){
-//       evt.ObjPop.dispatch(["msg/"+objId, dronePos, x]);
-//     });
-    print("grab ${this._game._gameLoop.frame} ${world.frame} ${cube.id}");
-    //cube.deleteFromWorld();
     EntityStateComponent.change(cube, State_GRABBING);
     var att = cube.getComponent(Attraction.CT);
     if (att != null) {
       var ps = _particlesMapper.get(drone);
       att.attractor = ps.position3d[DRONE_PCENTER];
     }
+
     var numbers = _droneNumbersMapper.get(drone);
     var emax = numbers.energyMax;
     numbers.energy = math.max(numbers.energy + emax / 2, emax).toInt();

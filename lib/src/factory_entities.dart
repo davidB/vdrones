@@ -102,6 +102,7 @@ class Factory_Entities {
      ..[State_GRABBING] = (new EntityState()
        ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
          a.extradata = null; // no more collisions
+         a.collide[0] = 0;
        }))
        ..modifiers.add(setAnimations([
          Factory_Animations.newCubeAttraction()

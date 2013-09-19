@@ -238,19 +238,25 @@ class VDrones {
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler(_entitiesFactory, this));
-    //_world.addSystem(new System_Physics(false), passive : false);
+    _world.addSystem(new System_CubeGenerator(_entitiesFactory));
+    _world.addSystem(new System_EntityState());
+    _world.addSystem(new System_Animator());
+
+    // Simulator should run after entityState or any system thta can modify physics property (collision, positions, ...)
+    // else some action could run twice (print frame to debug)
     _world.addSystem(new System_Simulator()
       ..globalAccs.setValues(0.0, 0.0, 0.0)
       ..steps = 3
       ..collSpace = collSpace
     );
+
+    // Audio + Video display
     _world.addSystem(
         new System_CameraFollower()
         ..playerToFollow = _player
         ..collSpace = collSpace
     );
-    _world.addSystem(new System_CubeGenerator(_entitiesFactory));
-    _world.addSystem(new System_Animator());
+
     _world.addSystem(_renderSystem, passive: true);
     var canvases = container.queryAll("canvas");
     if (canvases.length > 1) {
@@ -263,7 +269,6 @@ class VDrones {
     }
     if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
     _world.addSystem(_hudSystem, passive: true);
-    _world.addSystem(new System_EntityState());
     _world.initialize();
   }
 

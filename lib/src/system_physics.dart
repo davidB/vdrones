@@ -198,7 +198,7 @@ class _EntityContactListener extends collisions.Resolver {
   }
 
   void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll){
-    notifyCollision(psB.extradata, psB.extradata);
+    notifyCollision(psA.extradata, psB.extradata);
   }
 
   void notifyCollision(ColliderInfo cA, ColliderInfo cB) {
@@ -216,7 +216,9 @@ class _EntityContactListener extends collisions.Resolver {
         if (x.e == cB.e) already = true;
         return x;
       });
-      if (!already) collisionsA.colliders.add(cB);
+      if (!already){
+        collisionsA.colliders.add(cB);
+      }
     }
   }
 }
