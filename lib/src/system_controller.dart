@@ -206,7 +206,8 @@ class System_DroneHandler extends EntityProcessingSystem {
         //ctrl.turn = 0.0;
         var v = new Vector3.zero();
         for (var i = 0; i < ps.length; ++i) {
-          v.setFrom(ps.position3dPrevious[i]);
+          v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]);
+          v.scale(3.0).add(ps.position3d[i]);
           ps.position3dPrevious[i].setFrom(ps.position3d[i]);
           ps.position3d[i].setFrom(v);
         }
