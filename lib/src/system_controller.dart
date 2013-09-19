@@ -252,10 +252,6 @@ class System_DroneHandler extends EntityProcessingSystem {
 //    // esc.state = State_CRASHING;
   }
 
-  void _goPrevious(Entity entity) {
-    entity.deleteFromWorld();
-  }
-
   void _exiting(Entity drone) {
     var numbers = _droneNumbersMapper.get(drone);
     _game._stop(true, numbers.score);
@@ -285,7 +281,14 @@ class System_DroneHandler extends EntityProcessingSystem {
 //     _entities.find('message').then((x){
 //       evt.ObjPop.dispatch(["msg/"+objId, dronePos, x]);
 //     });
-    cube.deleteFromWorld();
+    print("grab ${this._game._gameLoop.frame} ${world.frame} ${cube.id}");
+    //cube.deleteFromWorld();
+    EntityStateComponent.change(cube, State_GRABBING);
+    var att = cube.getComponent(Attraction.CT);
+    if (att != null) {
+      var ps = _particlesMapper.get(drone);
+      att.attractor = ps.position3d[DRONE_PCENTER];
+    }
     var numbers = _droneNumbersMapper.get(drone);
     var emax = numbers.energyMax;
     numbers.energy = math.max(numbers.energy + emax / 2, emax).toInt();

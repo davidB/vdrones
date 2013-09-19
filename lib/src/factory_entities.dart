@@ -12,11 +12,14 @@ const State_CREATING = 1;
 const State_DRIVING = 2;
 const State_CRASHING = 3;
 const State_EXITING = 4;
+const State_WAITING = 5;
+const State_GRABBING = 6;
 const State_RUNNING = 10;
 
 var foregroundcolor = 0xe3e3f8ff;
 var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
 var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hsv) => irgba_rgbaString(hsv_irgba(hsv))).toList(); //monochromatique
+
 
 class Factory_Entities {
   static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
@@ -66,16 +69,47 @@ class Factory_Entities {
     new proto2d.Drawable(defaultDraw),
     physicFact.newCube(),
     renderFact.newCube(_assetManager['0.cube_material']),
-    new Animatable()
-      ..add(Factory_Animations.newScaleIn()
-        ..next = Factory_Animations.newRotateXYEndless()
-      )
-      ..add(Factory_Animations.newDelay(5 * 1000)
-        ..next = (Factory_Animations.newScaleOut()
-          ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
-        )
-      )
+    new Attraction(),
+    new Animatable(),
+    new EntityStateComponent(State_CREATING, _cubeStates())
   ]);
+
+  _cubeStates(){
+    var setAnimations = (l) => new ComponentModifier<Animatable>(Animatable, (e, a){
+      a.cleanUp();
+      a.addAll(l);
+    });
+    return new Map<int, EntityState>()
+      ..[State_CREATING] = (new EntityState()
+        ..modifiers.add(setAnimations([
+          Factory_Animations.newScaleIn()
+            ..onEnd = ((e,t, t0) => EntityStateComponent.change(e, State_WAITING))
+        ]))
+      )
+      ..[State_WAITING] = (new EntityState()
+        ..modifiers.add(setAnimations([
+          Factory_Animations.newRotateXYEndless(),
+          Factory_Animations.newDelay(5 * 1000)
+            ..onEnd = (e,t, t0) => EntityStateComponent.change(e, State_EXITING)
+        ]))
+      )
+     ..[State_EXITING] = (new EntityState()
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newScaleOut()
+         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+       ]))
+     )
+     ..[State_GRABBING] = (new EntityState()
+       ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
+         a.extradata = null; // no more collisions
+       }))
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newCubeAttraction()
+         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+       ]))
+     )
+     ;
+  }
 
   Entity newCubeGenerator(List<num> rects) => _newEntity([
     new CubeGenerator(rects),
@@ -252,7 +286,7 @@ class Factory_Entities {
     //var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
     //var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
     var animatable = new ComponentProvider(Animatable, (e) => new Animatable());
-    var animatableCreating = new ComponentModifier<Animatable>(Animatable, (a){
+    var animatableCreating = new ComponentModifier<Animatable>(Animatable, (e, a){
       a.add(Factory_Animations.newScaleIn()
         ..onEnd = (e, t, t0) {
           var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;

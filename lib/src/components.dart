@@ -33,6 +33,12 @@ class CubeGenerator extends Component {
   CubeGenerator(this.rects);
 }
 
+class Attraction extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(Attraction);
+  bool active = false;
+  Vector3 attractor;
+}
+
 class DroneGenerator extends Component {
   /// score of drone to generate
   List<int> scores;

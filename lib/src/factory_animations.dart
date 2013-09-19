@@ -48,6 +48,38 @@ class Factory_Animations {
       ;
   }
 
+  static Animation newCubeAttraction([OnComplete onComplete = onNoop]) {
+    return new Animation()
+      ..onTick = (Entity e, double t, double t0){
+        var r = e.getComponent(RenderableCache.CT);
+        if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
+        var transform = r.v.geometry.transforms;
+        r.v.geometry.normalMatrixNeedUpdate = true;
+        var dt = math.min(300, t - t0);
+        var ratio = dt/300;
+        //transform.setIdentity();
+        transform.scale(
+          ease.inQuad(ratio, -1, 1),
+          ease.inQuad(ratio, -1, 1),
+          ease.inQuad(ratio, -1, 1)
+        );
+        var att = e.getComponent(Attraction.CT);
+        if (att != null && att.attractor != null) {
+          var attv = att.attractor;
+          var v3 = transform.getTranslation();
+          transform.setTranslationRaw(
+              ease.inQuad(ratio, attv.x - v3.x, v3.x),
+              ease.inQuad(ratio, attv.y - v3.y, v3.y ),
+              ease.inQuad(ratio, attv.z - v3.z, v3.z)
+          );
+        }
+
+        return dt < 300;
+      }
+      ..onEnd = onComplete
+      ;
+  }
+
   static Animation newScaleIn() {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
