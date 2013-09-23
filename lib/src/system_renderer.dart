@@ -58,7 +58,7 @@ class System_Render3D extends EntitySystem {
     _objDefMapper = new ComponentMapper<RenderableDef>(RenderableDef, world);
     _objCacheMapper = new ComponentMapper<RenderableCache>(RenderableCache, world);
     _groupManager = world.getManager(GroupManager) as GroupManager;
-
+    _renderer.clearColor.setValues(0.9, 0.9, 1.0, 1.0);
     _renderer.init();
     _assets = _loadAssets();
   }
