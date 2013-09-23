@@ -1,7 +1,6 @@
 precision mediump float;
 
-//#define SHADOW_VSM 1
-//#define DISSOLVE
+//#define SHADOW_VSM
 //#define RIMLIGHT
   
 const float PI = 3.14159265358979323846264;
@@ -148,14 +147,13 @@ vec3 rimLight(vec3 viewPos, vec3 normal, vec3 position) {
   return (rimColor * rim);
 }
 
-uniform float time;
+uniform float _DissolveRatio;
 
 varying vec2 vTexCoord0;
 uniform sampler2D _DissolveMap0;
-uniform sampler2D _DissolveMap1;
-uniform sampler2D _DissolveMap2;
 
 float dissolve(float threshold, vec2 uv, sampler2D dissolveMap) {
+  if (threshold <= 0.0) return 1.0;
   float v = texture2D(dissolveMap, uv).r;
   if (v < threshold) discard;
   return v;
@@ -176,12 +174,11 @@ void main(){
     //attenuation(lPosition) *
     shadowOf(lPosition)
   );
+
   float r = 0.0;
-#ifdef DISSOLVE
-  r = mod(time,1000.0)/1000.0;
-  float v = dissolve(r, vTexCoord0, _DissolveMap0);
+  float v = dissolve(_DissolveRatio, vTexCoord0, _DissolveMap0);
   r = ((v - r) < 0.05)? r : 0.0;
-#endif  
+  
   vec3 excident = (
     skyLight(normal) +
 #ifdef RIMLIGHT    

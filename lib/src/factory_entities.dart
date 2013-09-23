@@ -65,6 +65,11 @@ class Factory_Entities {
 //      anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
 //      anims["despawnPre"] = Animations.scaleOut;
 //      anims["none"] = Animations.noop;
+  var setAnimations = (l) => new ComponentModifier<Animatable>(Animatable, (e, a){
+    a.cleanUp();
+    a.addAll(l);
+  });
+
   Entity newCube() => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newCube(),
@@ -75,10 +80,6 @@ class Factory_Entities {
   ]);
 
   _cubeStates(){
-    var setAnimations = (l) => new ComponentModifier<Animatable>(Animatable, (e, a){
-      a.cleanUp();
-      a.addAll(l);
-    });
     return new Map<int, EntityState>()
       ..[State_CREATING] = (new EntityState()
         ..modifiers.add(setAnimations([
@@ -269,56 +270,53 @@ class Factory_Entities {
     var l0 = physicFact.newDrone();
     //var rd = renderFact.makeModel(_assetManager.root["drone01"], '_models');
     //var rd = renderFact.newParticlesDebug(l0[0], "_images/disc.png");
-    var rd = renderFact.newDrone(_assetManager['0.default_material'], _assetManager['0.dissolve_map']);
     return _newEntity([
         new proto2d.Drawable(defaultDraw),
         new DroneNumbers(),
-        new EntityStateComponent(State_CREATING, _droneStates(rd))
+        renderFact.newDrone(_assetManager['0.default_material'], _assetManager['0.dissolve_map']),
+        new Animatable(),
+        new EntityStateComponent(State_CREATING, _droneStates())
       ]..addAll(l0)
       , group : GROUP_DRONE
       , player : player
     );
   }
 
-  _droneStates(RenderableDef c){
-    var renderable = new ComponentProvider(RenderableDef, (e) => c);
+  _droneStates(){
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
     //var pbody = new ComponentProvider(PhysicBody, (e) => factPhysics.newDrone());
     //var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
     //var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
-    var animatable = new ComponentProvider(Animatable, (e) => new Animatable());
-    var animatableCreating = new ComponentModifier<Animatable>(Animatable, (e, a){
-      a.add(Factory_Animations.newScaleIn()
-        ..onEnd = (e, t, t0) {
-          var esc = e.getComponentByClass(EntityStateComponent) as EntityStateComponent;
-          esc.state = State_DRIVING;
-          print("end scale animation");
-        }
-      )
-      ;
-    });
     return new Map<int, EntityState>()
       ..[State_CREATING] = (new EntityState()
-        ..add(renderable)
-        ..add(animatable)
-        ..modifiers.add(animatableCreating)
+        ..modifiers.add(setAnimations([
+          Factory_Animations.newScaleIn()
+          ..onEnd = (e,t, t0) => EntityStateComponent.change(e, State_DRIVING)
+        ]))
       )
       ..[State_DRIVING] = (new EntityState()
-        ..add(renderable)
         //..add(pbody)
         //..add(pmotion)
         //..add(pcollisions)
         ..add(control)
-        ..add(animatable)
       )
 //      ..[State_CRASHING] = (new EntityState()
 //        ..add(renderable)
 //        ..add(animatable)
 //      )
-//      ..[State_EXITING] = (new EntityState()
-//        ..add(renderable)
-//        ..add(animatable)
-//      )
+     ..[State_CRASHING] = (new EntityState()
+       ..add(new ComponentProvider(Dissolvable, (e) => new Dissolvable()))
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newDissolve()
+         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+       ]))
+     )
+     ..[State_EXITING] = (new EntityState()
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newScaleOut()
+         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+       ]))
+     )
       ;
   }
 

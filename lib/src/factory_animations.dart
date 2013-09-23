@@ -27,6 +27,18 @@ class Factory_Animations {
       ;
   }
 
+  static Animation newDissolve() {
+    return new Animation()
+      ..onTick = (Entity e, num t, num t0){
+        var dis = e.getComponent(Dissolvable.CT);
+        if (dis == null) return false;
+        var dt = math.min(800, t - t0);
+        dis.ratio = ease.inCubic(dt/800, 1.0, 0.0);
+        return dt < 800;
+      }
+      ;
+  }
+
   static Animation newScaleOut([OnComplete onComplete = onNoop]) {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){

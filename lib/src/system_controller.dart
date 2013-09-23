@@ -194,7 +194,7 @@ class System_DroneHandler extends EntityProcessingSystem {
       }
       return null;
     });
-    if (esc.state == State_DRIVING) {
+    if (esc.currentState == State_DRIVING) {
       var ctrl = _droneControlMapper.get(entity);
       //var m = _motionMapper.get(entity);
       //m.acceleration = ctrl.forward * numbers.acc;
@@ -247,10 +247,7 @@ class System_DroneHandler extends EntityProcessingSystem {
   }
 
   void _crash(Entity entity) {
-//    var transform = _transformMapper.get(entity);
-//    if (transform != null) world.addEntity( _efactory.newExplosion(transform));
-    entity.deleteFromWorld();
-//    // esc.state = State_CRASHING;
+    EntityStateComponent.change(entity, State_CRASHING);
   }
 
   void _exiting(Entity drone) {

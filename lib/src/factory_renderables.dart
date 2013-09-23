@@ -2,7 +2,7 @@ part of vdrones;
 
 class Factory_Renderables {
   static const _devMode = false;
-
+  static const TEX_DISSOLVEMAP = 3;
   RenderableDef _newRenderableDef(f) => new RenderableDef()..onInsert = ((gl, e) => null);
 
   RenderableDef newCube(glf.ProgramContext ctx){
@@ -207,12 +207,31 @@ class Factory_Renderables {
       ]));
       var pos = new Float32List(ps.length * 3);
       geometry.mesh.vertices.setData(ctx.gl, pos);
+      var uv = new Float32List(ps.length * 2);
+      uv[DRONE_PFRONT * 2 + 0] = 0.5;
+      uv[DRONE_PFRONT * 2 + 1] = 0.0;
+      uv[DRONE_PCENTER * 2 + 0] = 0.5;
+      uv[DRONE_PCENTER * 2 + 1] = 0.75;
+      uv[DRONE_PBACKR * 2 + 0] = 1.0;
+      uv[DRONE_PBACKR * 2 + 1] = 1.0;
+      uv[DRONE_PBACKL * 2 + 0] = 0.0;
+      uv[DRONE_PBACKL * 2 + 1] = 1.0;
+      geometry.mesh.texCoords.setData(ctx.gl, uv);
+
       return new Renderable()
       ..geometry = geometry
       ..material = (new Material()
         ..ctx = ctx
         ..cfg = (ctx) {
+          var dis = entity.getComponent(Dissolvable.CT);
+          if (dis != null){
+            ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), dis.ratio);
+            glf.injectTexture(ctx, dissolveMap, TEX_DISSOLVEMAP, '_DissolveMap0');
+          } else {
+            ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
+          }
           ctx.gl.uniform3f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.2, 0.1, 0.5);
+
         }
       )
       ..prepare = (new glf.RequestRunOn()
@@ -230,12 +249,12 @@ class Factory_Renderables {
 
         }
       )
-      ..main = (new glf.RequestRunOn()
-        ..afterAll = (gl) {
-        //print(ps.position3dBuff);
-        //print(geometry.transforms);
-        }
-      )
+//      ..main = (new glf.RequestRunOn()
+//        ..afterAll = (gl) {
+//        //print(ps.position3dBuff);
+//        //print(geometry.transforms);
+//        }
+//      )
       ;
     };
   }

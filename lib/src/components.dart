@@ -37,6 +37,10 @@ class Attraction extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Attraction);
   Vector3 attractor;
 }
+class Dissolvable extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(Dissolvable);
+  double ratio;
+}
 
 class DroneGenerator extends Component {
   /// score of drone to generate
