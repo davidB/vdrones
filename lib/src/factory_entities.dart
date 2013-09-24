@@ -7,6 +7,7 @@ const EntityTypes_DRONE   = 0x0002;
 const EntityTypes_GATEOUT = 0x0004;
 const EntityTypes_SHIELD  = 0x0008;
 const EntityTypes_ITEM    = 0x0010;
+const EntityTypes_MWALL    = 0x0011;
 
 const State_CREATING = 1;
 const State_DRIVING = 2;
@@ -149,14 +150,14 @@ class Factory_Entities {
     renderFact.newSurface3d(rects, 0.5, assetpack["gate_out"])
   ]);
 
-  Entity newMobileWall(num x0, num y0, num dx, num dy, num dz, num tx, num ty, num duration,  bool inout) => _newEntity([
-    new Transform.w2d(x0, y0, 0.0),
-    physicFact.newMobileWall(dx, dy),
-    renderFact.newMobileWall(dx, dy, dz),
+  Entity newMobileWall(double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, AssetPack assetpack) => _newEntity([
+    //new Transform.w2d(x0, y0, 0.0),
+        new proto2d.Drawable(defaultDraw),
+    physicFact.newMobileWall(x0, y0, dx, dy, EntityTypes_MWALL),
+    renderFact.newMobileWall(dx, dy, dz, assetpack["wall_material"]),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
-          var trans = e.getComponent(Transform.CT);
           var ratio =  0;
           if (inout) {
             ratio = (t % (2 * duration));
@@ -167,8 +168,19 @@ class Factory_Entities {
             ratio = (t % duration);
           }
           ratio = ratio / duration;
-          trans.position3d.x = x0 + tx * ratio;
-          trans.position3d.y = y0 + ty * ratio;
+//          var trans = e.getComponent(Transform.CT);
+//          trans.position3d.x = x0 + tx * ratio;
+//          trans.position3d.y = y0 + ty * ratio;
+          var x = x0 + tx * ratio;
+          var y = y0 + ty * ratio;
+          //print("$t => $x $y");
+          var ps = e.getComponent(Particles.CT);
+//          ps.copyPosition3dIntoPrevious();
+          ps.position3d[0].setValues(x, y, 0.0);
+          ps.position3d[1].setValues(x-dx, y-dy, 0.0);
+          ps.position3d[2].setValues(x+dx, y-dy, 0.0);
+          ps.position3d[3].setValues(x+dx, y+dy, 0.0);
+          ps.position3d[4].setValues(x-dx, y+dy, 0.0);
           return true;
         }
       )
@@ -250,15 +262,16 @@ class Factory_Entities {
     if (area["zones"]["mobile_walls"] != null) {
       area["zones"]["mobile_walls"].forEach((t) {
         es.add(newMobileWall(
-          (t[0] + t[2]/2) * cellr,
-          (t[1] + t[3]/2) * cellr,
-          math.max(1, t[2] * cellr),
-          math.max(1, t[3] * cellr),
-          math.max(2, cellr /2),
+          (t[0] + t[2] * 0.5) * cellr,
+          (t[1] + t[3] * 0.5) * cellr,
+          math.max(1.0, t[2] * 0.5 * cellr),
+          math.max(1.0, t[3] * 0.5 * cellr),
+          math.max(2.0, 1.0  * 0.3  * cellr),
           t[4] * cellr,
           t[5] * cellr,
           t[6] * 1000,
-          t[7] == 1
+          t[7] == 1,
+          assetpack
         ));
       });
     }

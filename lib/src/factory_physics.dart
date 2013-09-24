@@ -31,14 +31,16 @@ class Factory_Physics {
     return [p];
   }
 
-  Iterable<Component> newMobileWall(num dx, num dy) {
-    var ps = new Particles(5, radius0: 0.0, inertia0: 0);
-    ps.position3d[0].setValues(0.0, 0.0, 0.0);
-    ps.position3d[1].setValues(dx, dy, 0.0);
-    ps.position3d[2].setValues(dx, -dy, 0.0);
-    ps.position3d[3].setValues(-dx, -dy, 0.0);
-    ps.position3d[4].setValues(-dx, dy, 0.0);
+  Iterable<Component> newMobileWall(double x, double y, double dx, double dy, groupIndex) {
+    var collide = 1;
+    var ps = new Particles(5, radius0: 0.0, inertia0: 0, withCollides: true, collide0: collide);
+    ps.position3d[0].setValues(x, y, 0.0);
+    ps.position3d[1].setValues(x-dx, y-dy, 0.0);
+    ps.position3d[2].setValues(x+dx, y-dy, 0.0);
+    ps.position3d[3].setValues(x+dx, y+dy, 0.0);
+    ps.position3d[4].setValues(x-dx, y+dy, 0.0);
     ps.copyPosition3dIntoPrevious();
+    ps.extradata = new ColliderInfo()..group = groupIndex;
     var cs = new Constraints();
     // inner axes
     for(var i=1; i < 5; i++) {
@@ -46,8 +48,9 @@ class Factory_Physics {
     }
     // extern shape
     for(var i=0; i < 4; i++) {
-      cs.l.add(new Constraint_Distance(new Segment(ps, 1+i, 1+ ((i+1) % 4), 1), 1.0));
+      cs.l.add(new Constraint_Distance(new Segment(ps, 1+i, 1+ ((i+1) % 4), collide), 1.0));
     }
+    print("mobile wall : $x $y $dx $dy");
     return [ps, cs];
   }
 

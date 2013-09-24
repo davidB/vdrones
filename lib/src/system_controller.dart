@@ -189,6 +189,7 @@ class System_DroneHandler extends EntityProcessingSystem {
           }
           stop = true;
           break;
+        case EntityTypes_MWALL : _crash(entity); break;
         case EntityTypes_ITEM : _grabCube(entity, collider.e); break;
         case EntityTypes_GATEOUT : _exiting(entity); break;
       }
