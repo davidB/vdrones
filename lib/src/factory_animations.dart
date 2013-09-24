@@ -18,10 +18,9 @@ class Factory_Animations {
         if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
         var transform = r.v.geometry.transforms;
         r.v.geometry.normalMatrixNeedUpdate = true;
-        //transform.setIdentity();
-        var rot = (t-t0)/3000 * 2 * math.PI;
-        transform.rotateX(rot);
-        transform.rotateY(2 * rot);
+        var rot = (t % 4000.0)/2000.0 * math.PI;
+        transform.setRotationX(rot);
+        transform.rotateY(rot* 0.5);
         return true;
       }
       ;

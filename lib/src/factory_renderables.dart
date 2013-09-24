@@ -19,14 +19,12 @@ class Factory_Renderables {
       ..material = (new Material()
         ..ctx = ctx
         ..cfg = (ctx){
-          //print("tr2 ${geometry.transforms}");
           ctx.gl.uniform3f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.0, 0.8, 0.0);
         }
       )
       ..main = (new glf.RequestRunOn()
         ..afterAll = (gl) {
-          geometry.transforms.setIdentity();
-          geometry.transforms.translate(ps.position3d[0]);
+          geometry.transforms.setTranslation(ps.position3d[0]);
           geometry.normalMatrixNeedUpdate = true;
         }
       )
