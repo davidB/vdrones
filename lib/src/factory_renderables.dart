@@ -2,8 +2,10 @@ part of vdrones;
 
 class Factory_Renderables {
   static const _devMode = false;
+  static const TEX_DIFFUSE = 1;
   static const TEX_DISSOLVEMAP = 3;
   RenderableDef _newRenderableDef(f) => new RenderableDef()..onInsert = ((gl, e) => null);
+  static final _mdt = new glf.MeshDefTools();
 
   RenderableDef newCube(glf.ProgramContext ctx){
     return new RenderableDef()
@@ -11,7 +13,7 @@ class Factory_Renderables {
       var ps = entity.getComponent(Particles.CT);
       var r = ps.radius[0];
       var geometry = new Geometry()
-      ..meshDef = glf.makeMeshDef_box24Vertices(dx: r, dy: r, dz: r)
+      ..meshDef = _mdt.makeBox24Vertices(dx: r, dy: r, dz: r)
       ..transforms.translate(ps.position3d[0])
       ;
       return new Renderable()
@@ -37,25 +39,43 @@ class Factory_Renderables {
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
       var ps = entity.getComponent(Particles.CT);
+      var extrusion = new Vector3(0.0, 0.0, dz);
+      var vertices = new Float32List(4 * 3);
+      updateVertices() {
+        for(var i = 0; i < 4; i++) {
+          var v = ps.position3d[i + 1];
+          vertices[i * 3 + 0] = v.x;
+          vertices[i * 3 + 1] = v.y;
+          vertices[i * 3 + 2] = v.z;
+        }
+      }
+      updateVertices();
       var geometry = new Geometry()
-      ..meshDef = mw_makeMeshDef()
+      ..meshDef = _mdt.makeExtrude(vertices, extrusion)
       ..transforms.setIdentity()
       ;
+
       //mw_setPositions(geometry.meshDef, ps.position3d[1], ps.position3d[2], ps.position3d[3], ps.position3d[4], dz);
       //mw_setPositions(geometry.meshDef, new Vector3(-dx, -dy, 0.0), new Vector3(-dx, dy, 0.0), new Vector3(dx, dy, 0.0), new Vector3(dx, -dy, 0.0), dz);
       return new Renderable()
       ..geometry = geometry
       ..material = (new Material()
         ..ctx = ctx
+        ..transparent = true
         ..cfg = (ctx) {
           //ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
-          ctx.gl.uniform3f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.9, 0.8, 0.8);
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.1, 0.1, 0.7);
         }
       )
       ..prepare = (new glf.RequestRunOn()
         ..beforeAll = (gl) {
-          mw_setPositions(geometry.meshDef, ps.position3d[1], ps.position3d[2], ps.position3d[3], ps.position3d[4], dz);
-          geometry.verticesNeedUpdate = true;
+          // TODO optimize to reduce number of copy (position3d => Float32List => buffer)
+          //updateVertices();
+          //_mdt.extrudeInto(vertices, extrusion, geometry.meshDef);
+          //geometry.verticesNeedUpdate = true;
+          var vp0 = ps.position3d[1];
+          var vm = geometry.meshDef.vertices;
+          geometry..transforms.setTranslationRaw(vp0.x - vm[0], vp0.y - vm[1], vp0.z - vm[2]);
         }
       );
     };
@@ -69,61 +89,22 @@ class Factory_Renderables {
 //    return js.retain(o);
   });
 
-  RenderableDef newSurface3d(List<num> rects, num offz, [ImageElement img]) => _newRenderableDef((){
-//    final THREE = (js.context as dynamic).THREE;
-//    var geometry = new js.Proxy(THREE.Geometry );
-//    //#material = new js.Proxy(THREE.MeshNormalMaterial, )
-//    var material0 = new js.Proxy(THREE.MeshBasicMaterial, js.map({"color" : 0x000065, "wireframe" : false}));
-//    var material = material0;
-//    if (?img) {
-//      var texture = new js.Proxy(THREE.Texture, img) as dynamic;
-//      texture.needsUpdate = true;
-//      material = new js.Proxy(THREE.MeshBasicMaterial, js.map({
-//        "map" : texture,
-//        //"blending" : THREE.AdditiveBlending,
-//        //"color": 0xffffff,
-//        "transparent": true
-//      }));
-//      //material.map.needsUpdate = true;
-//    }
-//    for(var i = 0; i < rects.length; i+=4) {
-//      var dx = rects[i+2];
-//      var dy = rects[i+3];
-//
-//      var mesh = new js.Proxy(THREE.Mesh, new js.Proxy(THREE.PlaneGeometry, dx * 2, dy * 2), material) as dynamic;
-//      mesh.position.x = rects[i+0];
-//      mesh.position.y = rects[i+1];
-//      mesh.castShadow = false;
-//      mesh.receiveShadow = true;
-//      THREE.GeometryUtils.merge(geometry, mesh);
-//    }
-//    var obj3d = new js.Proxy(THREE.Mesh, geometry, material) as dynamic;
-//    obj3d.position.z = offz;
-//    obj3d.castShadow = false;
-//    obj3d.receiveShadow = true;
-//
-//    return js.retain(obj3d);
-  });
-
-  RenderableDef newBoxes3d(List<num> rects, double dz, num width, num height, glf.ProgramContext ctx) {
+  RenderableDef newSurface3d(List<num> rects, num offz, glf.ProgramContext ctx, [WebGL.Texture img]){
     var mdAll = null;
     var tfs = new Matrix4.identity();
     for(var i = 0; i < rects.length; i+=4) {
       var dx = rects[i+2];
       var dy = rects[i+3];
       //var md = glf.makeMeshDef_cube8Vertices(dx: 1.0, dy: 1.0, dz: 0.5);
-      var md = glf.makeMeshDef_box24Vertices(dx: dx, dy: dy, dz: dz);
+      var md = _mdt.makePlane(dx: dx * 2, dy: dy * 2);
       //TODO optim remove the ground face (never used/seen)
       tfs.setIdentity();
-      tfs.translate(rects[i+0], rects[i+1], dz);
-      md.transform(tfs);
-      mdAll = (mdAll == null) ? md : mdAll..merge(md);
+      tfs.translate(rects[i+0], rects[i+1], offz);
+      _mdt.transform(md, tfs);
+      mdAll = (mdAll == null) ? md : _mdt.merge(mdAll, md);
     }
-    var floor = glf.makeMeshDef_plane(dx: width * 0.5, dy: height * 0.5);
-    tfs.setIdentity();
-    tfs.translate(width * 0.5, height * 0.5, 0.0);
-    floor.transform(tfs);
-    mdAll..merge(floor);
+//      mesh.castShadow = false;
+//      mesh.receiveShadow = true;
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
       return new Renderable()
@@ -132,8 +113,51 @@ class Factory_Renderables {
       )
       ..material = (new Material()
         ..ctx = ctx
+        ..transparent = true
+        ..pre = false //no shadow, no SSAO
         ..cfg = (ctx) {
-          ctx.gl.uniform3f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8);
+//        "map" : texture,
+//        //"blending" : THREE.AdditiveBlending,
+//        //"color": 0xffffff,
+//        "transparent": true
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8, 1.0);
+          glf.injectTexture(ctx, img);
+        }
+      )
+      ;
+    };
+  }
+
+  RenderableDef newBoxes3d(List<num> rects, double dz, num width, num height, glf.ProgramContext ctx) {
+    var mdAll = null;
+    var tfs = new Matrix4.identity();
+    tfs.setIdentity();
+    for(var i = 0; i < rects.length; i+=4) {
+      var dx = rects[i+2];
+      var dy = rects[i+3];
+      //var md = glf.makeMeshDef_cube8Vertices(dx: 1.0, dy: 1.0, dz: 0.5);
+      var md = _mdt.makeBox24Vertices(dx: dx, dy: dy, dz: dz);
+      //TODO optim remove the ground face (never used/seen)
+      var iscw = _mdt.isClockwise(md.vertices, md.normals, md.triangles);
+      tfs.setTranslationRaw(rects[i+0], rects[i+1], dz);
+      _mdt.transform(md, tfs);
+      mdAll = (mdAll == null) ? md : _mdt.merge(mdAll, md);
+    }
+    var floor = _mdt.makePlane(dx: width * 0.5, dy: height * 0.5);
+    tfs.setTranslationRaw(width * 0.5, height * 0.5, 0.0);
+    _mdt.transform(floor, tfs);
+    _mdt.merge(mdAll, floor);
+    return new RenderableDef()
+    ..onInsert = (gl, Entity entity) {
+      return new Renderable()
+      ..geometry = (new Geometry()
+        ..meshDef = mdAll
+      )
+      ..material = (new Material()
+        ..ctx = ctx
+        ..transparent = false
+        ..cfg = (ctx) {
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.9, 0.9, 0.95, 1.0);
         }
       )
       ;
@@ -167,8 +191,8 @@ class Factory_Renderables {
       var ps = entity.getComponent(Particles.CT);
       var geometry = new Geometry()
       ..mesh.triangles.setData(gl, new Uint16List.fromList([
-        DRONE_PFRONT, DRONE_PBACKL,  DRONE_PBACKR,
-        DRONE_PCENTER, DRONE_PBACKR,  DRONE_PBACKL,
+        DRONE_PFRONT, DRONE_PBACKR,  DRONE_PBACKL,
+        DRONE_PCENTER, DRONE_PBACKL,  DRONE_PBACKR,
         DRONE_PCENTER, DRONE_PBACKR,  DRONE_PFRONT,
         DRONE_PCENTER, DRONE_PFRONT,  DRONE_PBACKL
       ]));
@@ -197,7 +221,7 @@ class Factory_Renderables {
           } else {
             ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
           }
-          ctx.gl.uniform3f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.2, 0.1, 0.5);
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.2, 0.1, 0.5, 1.0);
 
         }
       )
@@ -497,6 +521,7 @@ class Factory_Renderables {
 //  }
 //}
 
+/*
 mw_setPositions(glf.MeshDef md, Vector3 c0, Vector3 c1, Vector3 c2, Vector3 c3, double dz) {
   var v = md.vertices;
   p(int i, Vector3 c, double z) {
@@ -506,17 +531,6 @@ mw_setPositions(glf.MeshDef md, Vector3 c0, Vector3 c1, Vector3 c2, Vector3 c3, 
   }
   var z1 = dz;
   var z0 = 0.0;
-  // Front face
-  p(0, c0, z1); //-dx, -dy,  dz,
-  p(3, c1, z1); // dx, -dy,  dz,
-  p(6, c2, z1); // dx,  dy,  dz,
-  p(9, c3, z1); //-dx,  dy,  dz,
-
-  // Back face
-  p(12, c0, z0); //-dx, -dy, -dz
-  p(15, c3, z0); //-dx,  dy, -dz,
-  p(18, c2, z0); // dx,  dy, -dz,
-  p(21, c1, z0); // dx, -dy, -dz,
 
   // Top
   p(24, c3, z0); //-dx,  dy, -dz,
@@ -528,6 +542,16 @@ mw_setPositions(glf.MeshDef md, Vector3 c0, Vector3 c1, Vector3 c2, Vector3 c3, 
   p(39, c1, z0); // dx, -dy, -dz,
   p(42, c1, z1); // dx, -dy,  dz,
   p(45, c0, z1); //-dx, -dy,  dz,
+  // Front face
+  p(0, c0, z1); //-dx, -dy,  dz,
+  p(3, c1, z1); // dx, -dy,  dz,
+  p(6, c2, z1); // dx,  dy,  dz,
+  p(9, c3, z1); //-dx,  dy,  dz,
+  // Back face
+  p(12, c0, z0); //-dx, -dy, -dz
+  p(15, c3, z0); //-dx,  dy, -dz,
+  p(18, c2, z0); // dx,  dy, -dz,
+  p(21, c1, z0); // dx, -dy, -dz,
   // Right
   p(48, c1, z0); // dx, -dy, -dz,
   p(51, c2, z0); // dx,  dy, -dz,
@@ -587,12 +611,18 @@ mw_makeMeshDef() {
        -1.0,  0.0,  0.0,
     ])
     ..triangles = new Uint16List.fromList([
-      0, 1, 2,      0, 2, 3,    // Front face
-      4, 5, 6,      4, 6, 7,    // Back face
-      8, 9, 10,     8, 10, 11,  // Top face
-      12, 13, 14,   12, 14, 15, // Bottom face
-      16, 17, 18,   16, 18, 19, // Right face
-      20, 21, 22,   20, 22, 23  // Left face
+//      2, 0, 3,      0, 2, 1,    // Front face
+//      6, 4, 5,      4, 6, 7,    // Back face
+//      10, 8, 9,     8, 10, 11,  // Top face
+//      14, 12, 13,   12, 14, 15, // Bottom face
+//      18, 16, 17,   16, 18, 19, // Right face
+//      22, 20, 21,   20, 22, 23  // Left face
+        2, 0, 3,      0, 2, 1,    // Front face
+        6, 4, 5,      4, 6, 7,    // Back face
+        10, 8, 9,     8, 10, 11,  // Top face
+        14, 12, 13,   12, 14, 15, // Bottom face
+        18, 16, 17,   16, 18, 19, // Right face
+        22, 20, 21,   20, 22, 23  // Left face
     ])
     ..texCoords = new Float32List.fromList([
        // Front face
@@ -633,3 +663,4 @@ mw_makeMeshDef() {
     ])
   ;
 }
+*/

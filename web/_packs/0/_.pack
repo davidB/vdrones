@@ -14,5 +14,13 @@
    "dissolve_map":{
        "url":"burnMap.png",
        "type": "tex2d"
+   },
+   "gate_out_material":{
+       "url":"img0",
+       "type": "shaderProgram"
+   },
+   "gate_out_map":{
+       "url":"../../_images/gate_out.png",
+       "type": "tex2d"
    }
 }

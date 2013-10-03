@@ -50,7 +50,6 @@ class Factory_Physics {
     for(var i=0; i < 4; i++) {
       cs.l.add(new Constraint_Distance(new Segment(ps, 1+i, 1+ ((i+1) % 4), collide), 1.0));
     }
-    print("mobile wall : $x $y $dx $dy");
     return [ps, cs];
   }
 
@@ -88,9 +87,10 @@ class Factory_Physics {
     for(var i = 0; i < rects.length; i+=4) {
       var ip = i ~/ 4;
       ps.radius[ip] = radiusRatio * math.min(rects[i+2], rects[i+3]);
-      ps.position3d[ip].setValues(rects[0], rects[1], 0.0);
+      ps.position3d[ip].setValues(rects[i+0], rects[i+1], 0.0);
     }
     ps.copyPosition3dIntoPrevious();
+    ps.extradata = new ColliderInfo()..group = groupIndex;
     return [ps];
   }
 

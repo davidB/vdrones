@@ -138,23 +138,23 @@ class Factory_Entities {
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      renderFact.newSurface3d(rects, 0.5, assetpack["gate_in"]),
+      //renderFact.newSurface3d(rects, 0.5, assetpack["gate_in"]),
       new Animatable(),
       new DroneGenerator(points, [0])
     ]);
   }
 
   Entity newGateOut(List<num> rects, AssetPack assetpack) => _newEntity([
-    new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
+    new proto2d.Drawable(defaultDraw),
     physicFact.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
-    renderFact.newSurface3d(rects, 0.5, assetpack["gate_out"])
+    renderFact.newSurface3d(rects, 0.1, _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
   ]);
 
   Entity newMobileWall(double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, AssetPack assetpack) => _newEntity([
     //new Transform.w2d(x0, y0, 0.0),
         new proto2d.Drawable(defaultDraw),
     physicFact.newMobileWall(x0, y0, dx, dy, EntityTypes_MWALL),
-    renderFact.newMobileWall(dx, dy, dz, assetpack["wall_material"]),
+    renderFact.newMobileWall(dx, dy, dz, assetpack["mwall_material"]),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
@@ -257,7 +257,7 @@ class Factory_Entities {
     es.add(newChronometer(-60 * 1000, timeout));
     es.add(newStaticWalls(walls, width * cellr, height * cellr, assetpack));
     es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"]), area["zones"]["gate_in"]["angles"], assetpack));
-    es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"]), assetpack));
+    es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"], 1.0), assetpack));
     es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
     if (area["zones"]["mobile_walls"] != null) {
       area["zones"]["mobile_walls"].forEach((t) {
@@ -350,7 +350,7 @@ class Factory_Entities {
   /// * if height == 0 then halfdy = cellr/20
   /// * if width > 0 then haldx = width * cellr - 2 * cellr
   /// * if height > 0 then haldy = height * cellr - 2 * cellr
-  static List<double> cells_rects(num cellr, List<num> cells, [margin = -1]) {
+  static List<double> cells_rects(num cellr, List<num> cells, [margin = -1.0]) {
     margin = (margin < 0) ? cellr/20 : margin;
     var b = new List<double>(cells.length);
     for(var i = 0; i < cells.length; i+=4) {
