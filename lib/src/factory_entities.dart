@@ -138,7 +138,7 @@ class Factory_Entities {
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      //renderFact.newSurface3d(rects, 0.5, assetpack["gate_in"]),
+      renderFact.newSurface3d(rects, 0.5, _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
       new Animatable(),
       new DroneGenerator(points, [0])
     ]);
@@ -256,7 +256,7 @@ class Factory_Entities {
     es.add(newArea(assetpack.name));
     es.add(newChronometer(-60 * 1000, timeout));
     es.add(newStaticWalls(walls, width * cellr, height * cellr, assetpack));
-    es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"]), area["zones"]["gate_in"]["angles"], assetpack));
+    es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"], 2.0), area["zones"]["gate_in"]["angles"], assetpack));
     es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"], 1.0), assetpack));
     es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
     if (area["zones"]["mobile_walls"] != null) {
