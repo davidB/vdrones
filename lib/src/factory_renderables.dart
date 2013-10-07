@@ -173,7 +173,7 @@ class Factory_Renderables {
     var r = new RenderableDef()
     ..onInsert = (gl, Entity entity) {
       var vp = new glf.ViewportCamera.defaultSettings(gl.canvas)
-      ..camera.position.setValues(0.0, 0.0, 0.0)
+      ..camera.position.setValues(0.0, 0.0, 1000.0)
       ..camera.focusPosition.setValues(1.0, 1.0, 0.0)
       ..camera.adjustNearFar(focusAabb, 0.1, 0.1)
       ;
