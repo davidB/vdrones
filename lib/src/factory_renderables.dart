@@ -10,7 +10,7 @@ class Factory_Renderables {
   RenderableDef newCube(glf.ProgramContext ctx){
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      var ps = entity.getComponent(Particles.CT);
+      var ps = entity.getComponent(Particles.CT) as Particles;
       var r = ps.radius[0];
       var geometry = new Geometry()
       ..meshDef = _mdt.makeBox24Vertices(dx: r, dy: r, dz: r)
@@ -38,7 +38,7 @@ class Factory_Renderables {
   RenderableDef newMobileWall(num dx, num dy, num dz, glf.ProgramContext ctx) {
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      var ps = entity.getComponent(Particles.CT);
+      var ps = entity.getComponent(Particles.CT) as Particles;
       var extrusion = new Vector3(0.0, 0.0, dz);
       var vertices = new Float32List(4 * 3);
       updateVertices() {
@@ -188,7 +188,7 @@ class Factory_Renderables {
   RenderableDef newDrone(glf.ProgramContext ctx, WebGL.Texture dissolveMap){
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      var ps = entity.getComponent(Particles.CT);
+      var ps = entity.getComponent(Particles.CT) as Particles;
       var geometry = new Geometry()
       ..mesh.triangles.setData(gl, new Uint16List.fromList([
         DRONE_PFRONT, DRONE_PBACKR,  DRONE_PBACKL,
@@ -214,7 +214,7 @@ class Factory_Renderables {
       ..material = (new Material()
         ..ctx = ctx
         ..cfg = (ctx) {
-          var dis = entity.getComponent(Dissolvable.CT);
+          var dis = entity.getComponent(Dissolvable.CT) as Dissolvable;
           if (dis != null){
             ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), dis.ratio);
             glf.injectTexture(ctx, dissolveMap, TEX_DISSOLVEMAP, '_DissolveMap0');
@@ -267,28 +267,6 @@ class Factory_Renderables {
 //    light.shadowMapWidth = 2048;
 //    light.shadowMapHeight = 2048;
 //    return js.retain(light);
-  });
-
-  RenderableDef makeModel(json, texturePath) => _newRenderableDef((){
-//    final THREE = (js.context as dynamic).THREE;
-//    var loader = new js.Proxy(THREE.JSONLoader) as dynamic;
-//    //texturePath = loader.extractUrlBase( d.src )
-//    var r = loader.parse(js.map(json), texturePath);
-//    //var material0 = new js.Proxy(THREE.MeshNormalMaterial);
-//    //var material = new js.Proxy(THREE.MeshNormalMaterial,  { shading: three.SmoothShading } );
-//    //geometry.materials[ 0 ].shading = three.FlatShading;
-//    //var material = new js.Proxy(THREE.MeshFaceMaterial, );
-//    //var material0 = geometry.materials[0];
-//    var material0 = r.materials[0];
-//    //material.transparent = true
-//    //material = new js.Proxy(THREE.MeshFaceMaterial, materials)
-//    //TODO should create a new object or at least change the timestamp
-//    //var material0 = new three.MeshLambertMaterial (color : 0xe7bf90, transparent: false, opacity: 1, vertexColors : three.VertexColors);
-//    var obj3d = new js.Proxy(THREE.Mesh, r.geometry, material0) as dynamic;
-//    obj3d.castShadow = true;
-//    obj3d.receiveShadow = false;
-//    //obj3d = fixOrientation(obj3d);
-//    return js.retain(obj3d);
   });
 
   RenderableDef newParticlesDebug(Particles ps, texturePath) => _newRenderableDef((){
@@ -521,146 +499,3 @@ class Factory_Renderables {
 //  }
 //}
 
-/*
-mw_setPositions(glf.MeshDef md, Vector3 c0, Vector3 c1, Vector3 c2, Vector3 c3, double dz) {
-  var v = md.vertices;
-  p(int i, Vector3 c, double z) {
-    v[i+0] = c.x;
-    v[i+1] = c.y;
-    v[i+2] = z;
-  }
-  var z1 = dz;
-  var z0 = 0.0;
-
-  // Top
-  p(24, c3, z0); //-dx,  dy, -dz,
-  p(27, c3, z1); //-dx,  dy,  dz,
-  p(30, c2, z1); // dx,  dy,  dz,
-  p(33, c2, z0); // dx,  dy, -dz,
-  // Bottom
-  p(36, c0, z0); //-dx, -dy, -dz,
-  p(39, c1, z0); // dx, -dy, -dz,
-  p(42, c1, z1); // dx, -dy,  dz,
-  p(45, c0, z1); //-dx, -dy,  dz,
-  // Front face
-  p(0, c0, z1); //-dx, -dy,  dz,
-  p(3, c1, z1); // dx, -dy,  dz,
-  p(6, c2, z1); // dx,  dy,  dz,
-  p(9, c3, z1); //-dx,  dy,  dz,
-  // Back face
-  p(12, c0, z0); //-dx, -dy, -dz
-  p(15, c3, z0); //-dx,  dy, -dz,
-  p(18, c2, z0); // dx,  dy, -dz,
-  p(21, c1, z0); // dx, -dy, -dz,
-  // Right
-  p(48, c1, z0); // dx, -dy, -dz,
-  p(51, c2, z0); // dx,  dy, -dz,
-  p(54, c2, z1); // dx,  dy,  dz,
-  p(57, c1, z1); // dx, -dy,  dz,
-  // Left
-  p(60, c0, z0); //-dx, -dy, -dz,
-  p(63, c0, z1); //-dx, -dy,  dz,
-  p(66, c3, z0); //-dx,  dy,  dz,
-  p(69, c3, z1); //-dx,  dy, -dz
-  //print("${v[69]} ${v[70]} ${v[71]}");
-  //print("${v[66]} ${v[67]} ${v[68]}");
-}
-
-mw_makeMeshDef() {
-  double tx = 1.0;
-  double ty = 1.0;
-  double tz = 1.0;
-
-  return new glf.MeshDef()
-    ..vertices = new Float32List(8*3*3) //8 points * 3 coords * 3 faces
-    ..normals = new Float32List.fromList([
-       // Front face
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-       0.0,  0.0,  1.0,
-
-       // Back face
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-       0.0,  0.0, -1.0,
-
-       // Top face
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-       0.0,  1.0,  0.0,
-
-       // Bottom face
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-       0.0, -1.0,  0.0,
-
-       // Right face
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-       1.0,  0.0,  0.0,
-
-       // Left face
-       -1.0,  0.0,  0.0,
-       -1.0,  0.0,  0.0,
-       -1.0,  0.0,  0.0,
-       -1.0,  0.0,  0.0,
-    ])
-    ..triangles = new Uint16List.fromList([
-//      2, 0, 3,      0, 2, 1,    // Front face
-//      6, 4, 5,      4, 6, 7,    // Back face
-//      10, 8, 9,     8, 10, 11,  // Top face
-//      14, 12, 13,   12, 14, 15, // Bottom face
-//      18, 16, 17,   16, 18, 19, // Right face
-//      22, 20, 21,   20, 22, 23  // Left face
-        2, 0, 3,      0, 2, 1,    // Front face
-        6, 4, 5,      4, 6, 7,    // Back face
-        10, 8, 9,     8, 10, 11,  // Top face
-        14, 12, 13,   12, 14, 15, // Bottom face
-        18, 16, 17,   16, 18, 19, // Right face
-        22, 20, 21,   20, 22, 23  // Left face
-    ])
-    ..texCoords = new Float32List.fromList([
-       // Front face
-       0.0, 0.0,
-        tx, 0.0,
-        tx,  ty,
-       0.0,  ty,
-
-       // Back face
-        tx, 0.0,
-        tx,  ty,
-       0.0,  ty,
-       0.0, 0.0,
-
-       // Top face
-       0.0,  tz,
-       0.0, 0.0,
-        tx, 0.0,
-        tx,  tz,
-
-       // Bottom face
-        tx,  tz,
-       0.0,  tz,
-       0.0, 0.0,
-        tx, 0.0,
-
-       // Right face
-        tz, 0.0,
-        tz,  ty,
-       0.0,  ty,
-       0.0, 0.0,
-
-       // Left face
-       0.0, 0.0,
-        tz, 0.0,
-        tz,  ty,
-       0.0,  ty,
-    ])
-  ;
-}
-*/

@@ -62,10 +62,6 @@ class Factory_Entities {
     return e;
   }
 
-//  Entity newCube() {
-//      anims["spawn"] = (Animator animator, dynamic obj3d) => Animations.scaleIn(animator, obj3d).then((obj3d) => Animations.rotateXYEndless(animator, obj3d));
-//      anims["despawnPre"] = Animations.scaleOut;
-//      anims["none"] = Animations.noop;
   var setAnimations = (l) => new ComponentModifier<Animatable>(Animatable, (e, a){
     a.cleanUp();
     a.addAll(l);
@@ -232,7 +228,6 @@ class Factory_Entities {
       cells..add(-1)..add( h)..add(w+2)..add(  1);
       return cells;
     }
-    //print(JSON.stringify(area));
     var walls0 = new List<int>();
     if (area["walls"]["cells"] != null) {
       print("read cells");
@@ -281,8 +276,6 @@ class Factory_Entities {
 
   Entity newDrone(String player) {
     var l0 = physicFact.newDrone();
-    //var rd = renderFact.makeModel(_assetManager.root["drone01"], '_models');
-    //var rd = renderFact.newParticlesDebug(l0[0], "_images/disc.png");
     return _newEntity([
         new proto2d.Drawable(defaultDraw),
         new DroneNumbers(),
@@ -297,9 +290,6 @@ class Factory_Entities {
 
   _droneStates(){
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
-    //var pbody = new ComponentProvider(PhysicBody, (e) => factPhysics.newDrone());
-    //var pmotion = new ComponentProvider(PhysicMotion, (e) => new PhysicMotion(0.0, 0.0));
-    //var pcollisions = new ComponentProvider(PhysicCollisions, (e) => new PhysicCollisions());
     return new Map<int, EntityState>()
       ..[State_CREATING] = (new EntityState()
         ..modifiers.add(setAnimations([
@@ -308,15 +298,8 @@ class Factory_Entities {
         ]))
       )
       ..[State_DRIVING] = (new EntityState()
-        //..add(pbody)
-        //..add(pmotion)
-        //..add(pcollisions)
         ..add(control)
       )
-//      ..[State_CRASHING] = (new EntityState()
-//        ..add(renderable)
-//        ..add(animatable)
-//      )
      ..[State_CRASHING] = (new EntityState()
        ..add(new ComponentProvider(Dissolvable, (e) => new Dissolvable()))
        ..modifiers.add(setAnimations([
@@ -332,16 +315,6 @@ class Factory_Entities {
      )
       ;
   }
-
-  Entity newExplosion(Transform t) => _newEntity([
-    new Transform.w3d(t.position3d, t.rotation3d), // no need to clone the Vector3 of transform
-    renderFact.newExplode(),
-    new Animatable()..l.add(
-      Factory_Animations.newExplodeOut()
-        ..onEnd = (e, t ,t0) { e.deleteFromWorld();}
-    ),
-    new AudioDef()..add("explosion")
-  ]);
 
   /// convert a list of cells [bottom0, left0, width0, height0, bottom1, left1,...] + cellr into
   /// [centerx0, centery0, halfdx0, halfdy0, centerx1, centery1, ...] in the final unit (renderable + physics)
@@ -366,44 +339,6 @@ class Factory_Entities {
 }
 
 
-/*
-class EntityProvider4Message extends EntityProvider {
-  dynamic obj3dF(){
-    //return js.scoped((){
-      final THREE = js.context.THREE;
-//      var x = js.context.document.createElement("canvas");
-//      x.width = 300;
-//      x.height = 15;
-//      //var x = new CanvasElement(width: 300, height: 15);
-//      var xc = x.getContext("2d");
-//      xc.fillStyle = "#ffaa00";
-//      xc.font = "bold 15px sans-serif";
-//      xc.textBaseline = "top";
-//      //xc.textAlign = "middle";
-//      xc.fillText("+1 azertyui", 0, 0);
-      var tx = THREE.ImageUtils.loadTexture("_images/one.png");
-      var sm = new js.Proxy(THREE.SpriteMaterial, js.map({
-        'map': tx, //new js.Proxy(THREE.Texture, x),
-        'useScreenCoordinates': false
-        //transparent: true
-      }));
-      sm.map.needsUpdate = true;
-      var o = new js.Proxy(THREE.Sprite, sm);
-      //o.position.set(50, 10, 50);
-      o.scale.set( 23, 18, 1 );
-      o.castShadow = false;
-      o.receiveShadow = false;
-      return js.retain(o);
-    //});
-  }
-  EntityProvider4Message() {
-    //anims["spawn"] = Animations.rotateXYEndless;
-    anims["despawn"] = Animations.up;
-  }
-}
-*/
-
-
 Node makeHud(Document d){
   // I tried a lot to read SVG as text and then create svfelement but without success
   //(I also tried like https://github.com/IntersoftDev/dart-squid/blob/master/lib/svg_defs.dart)
@@ -416,35 +351,6 @@ Node makeHud(Document d){
 //  return b;
   return d.documentElement.clone(true);
 }
-
-//
-//  makeSprite = (d) ->
-//    deferred = Q.defer()
-//    try
-//      texture = new js.Proxy(THREE.Texture,  d.result )
-//      texture.needsUpdate = true
-//      texture.sourceFile = d.src
-//      material = new js.Proxy(THREE.SpriteMaterial,  { map: texture, alignment: three.SpriteAlignment.topLeft, opacity: 1, transparent : true} )
-//      obj3d = new js.Proxy(THREE.Sprite, material)
-//      obj3d.scale.set( t.image.width, t.image.height, 1 )
-//      obj3d.computeBoundingBox()
-//      obj2d = { box : [obj3d.boundingBox.max.x, obj3d.boundingBox.max.y] }
-//      r = {obj3d : obj3d, obj2d : obj2d}
-//      deferred.resolve(r)
-//    catch exc
-//      deferred.reject(exc)
-//
-//  makeBox = (rx, ry, rz, color) ->
-//    geometry = new js.Proxy(THREE.CubeGeometry, rx, ry, rz || 1)
-//    material = new js.Proxy(THREE.MeshBasicMaterial, {
-//      color: color || 0xff0000
-//      wireframe: false
-//    })
-//    {
-//      obj3d : new js.Proxy(THREE.Mesh, geometry, material)
-//      obj2d : { box : [rx, ry] }
-//    }
-//
 
 Future<String> _loadTxt(src) {
   return HttpRequest.request(src, responseType : 'text').then((httpRequest) => httpRequest.responseText);

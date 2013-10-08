@@ -278,7 +278,7 @@ class System_DroneHandler extends EntityProcessingSystem {
   }
   void _grabCube(Entity drone, Entity cube) {
     EntityStateComponent.change(cube, State_GRABBING);
-    var att = cube.getComponent(Attraction.CT);
+    var att = cube.getComponent(Attraction.CT) as Attraction;
     if (att != null) {
       var ps = _particlesMapper.get(drone);
       att.attractor = ps.position3d[DRONE_PCENTER];
@@ -327,7 +327,7 @@ class System_DroneGenerator extends EntityProcessingSystem {
   _move(Entity e, double x, double y, double z) {
     var tf = new Matrix4.identity();
     tf.translate(x, y, z);
-    var ps = e.getComponent(Particles.CT);
+    var ps = e.getComponent(Particles.CT) as Particles;
     ps.position3d.forEach((p) => tf.transform3(p));
     ps.copyPosition3dIntoPrevious();
   }
@@ -399,7 +399,7 @@ class System_CubeGenerator extends EntityProcessingSystem {
   _move(Entity e, double x, double y, double z) {
     var tf = new Matrix4.identity();
     tf.translate(x, y, z);
-    var ps = e.getComponent(Particles.CT);
+    var ps = e.getComponent(Particles.CT) as Particles;
     ps.position3d.forEach((p) => tf.transform3(p));
     ps.copyPosition3dIntoPrevious();
   }

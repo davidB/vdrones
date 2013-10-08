@@ -14,7 +14,7 @@ class Factory_Animations {
   static Animation newRotateXYEndless() {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
-        var r = e.getComponent(RenderableCache.CT);
+        var r = e.getComponent(RenderableCache.CT) as RenderableCache;
         if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
         var transform = r.v.geometry.transforms;
         r.v.geometry.normalMatrixNeedUpdate = true;
@@ -29,7 +29,7 @@ class Factory_Animations {
   static Animation newDissolve() {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
-        var dis = e.getComponent(Dissolvable.CT);
+        var dis = e.getComponent(Dissolvable.CT) as Dissolvable;
         if (dis == null) return false;
         var dt = math.min(800, t - t0);
         dis.ratio = ease.inCubic(dt/800, 1.0, 0.0);
@@ -41,7 +41,7 @@ class Factory_Animations {
   static Animation newScaleOut([OnComplete onComplete = onNoop]) {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
-        var r = e.getComponent(RenderableCache.CT);
+        var r = e.getComponent(RenderableCache.CT) as RenderableCache;
         if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
         var transform = r.v.geometry.transforms;
         r.v.geometry.normalMatrixNeedUpdate = true;
@@ -62,7 +62,7 @@ class Factory_Animations {
   static Animation newCubeAttraction([OnComplete onComplete = onNoop]) {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
-        var r = e.getComponent(RenderableCache.CT);
+        var r = e.getComponent(RenderableCache.CT) as RenderableCache;
         if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
         var transform = r.v.geometry.transforms;
         r.v.geometry.normalMatrixNeedUpdate = true;
@@ -74,7 +74,7 @@ class Factory_Animations {
           ease.inQuad(ratio, -1, 1),
           ease.inQuad(ratio, -1, 1)
         );
-        var att = e.getComponent(Attraction.CT);
+        var att = e.getComponent(Attraction.CT) as Attraction;
         if (att != null && att.attractor != null) {
           var attv = att.attractor;
           var v3 = transform.getTranslation();
@@ -94,7 +94,7 @@ class Factory_Animations {
   static Animation newScaleIn() {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
-        var r = e.getComponent(RenderableCache.CT);
+        var r = e.getComponent(RenderableCache.CT) as RenderableCache;
         if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
         var transform = r.v.geometry.transforms;
         r.v.geometry.normalMatrixNeedUpdate = true;
@@ -109,39 +109,6 @@ class Factory_Animations {
         return dt < 300;
       }
       ;
-  }
-/*
-  static Future<dynamic> up(Animator animator,  dynamic obj3d) {
-    var r= new Completer();
-    var u = (num t, num t0){
-      var dt = math.min(1500, t - t0);
-      js.scoped((){
-        //obj3d.position.add(obj3d.up);
-      });
-      return dt < 1500;
-    };
-    var c = (num t, num t0){ r.complete(obj3d); };
-    animator.start(u, onComplete : c);
-    return r.future;
-  }
-*/
-
-//  static var explode = null;
-
-  static Animation newExplodeOut() {
-    return new Animation()
-//      ..onTick = (Entity e, double t, double t0){
-//        var cont = (t - t0) < 2000;
-//        if (cont) js.scoped((){
-//          var runningTime = (t - t0)/1000;
-//          runningTime = runningTime - (runningTime/6.0).floor() *6.0;
-//          var r3d = (e.getComponent(renderableCacheCT) as RenderableCache);
-//          assert(r3d != null);
-//          if (r3d != null) r3d.obj.material.uniforms["time"].value = runningTime;
-//        });
-//        return cont;
-//      }
-    ;
   }
 }
 

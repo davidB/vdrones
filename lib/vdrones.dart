@@ -214,14 +214,9 @@ class VDrones {
     var fpack = (_assetManager[areaId] == null) ?
         _assetManager.loadPack(areaId, '_areas/${areaId}.pack')
         : new Future.value(_assetManager[areaId]);
-//    var fdrones = (_assetManager['drone01'] == null) ?
-//        _assetManager.loadAndRegisterAsset('drone01', 'json', '_models/drone01.js', null, null)
-//        : new Future.value(_assetManager['drone01']);
     var f0 = (_assetManager['0'] == null) ?
         _assetManager.loadPack('0', '_packs/0/_.pack')
         : new Future.value(_assetManager['0']);
-//        _assetManager.loadAndRegisterAsset('drone01', 'shaderProgram', 'packages/glf/shaders/default', null, null)
-//        : new Future.value(_assetManager['drone01']);
     return Future.wait([fpack, f0]).then((l) => l[0]);
   }
 
