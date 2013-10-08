@@ -3,6 +3,11 @@ part of vdrones;
 final vecZ = new Vector3(0.0, 0.0, 1.0);
 final vecY = new Vector3(0.0, 1.0, 0.0);
 
+var _keysForward = [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ];
+var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
+var _keysTurnRight = [KeyCode.RIGHT, KeyCode.D];
+var _keysCameraMode = [KeyCode.M];
+
 class System_CameraFollower extends EntityProcessingSystem {
   ComponentMapper<Particles> _particlesMapper;
   ComponentMapper<CameraFollower> _followerMapper;
@@ -14,20 +19,8 @@ class System_CameraFollower extends EntityProcessingSystem {
   collisions.Space collSpace;
   final _int = new Math2.IntersectionFinderXY();
   final Vector4 _scol = new Vector4.zero();
+  var _toggleMode = false;
 
-  double _findFirstIntersection(Vector3 v0, Vector3 v1){
-    var b = -1.0;
-    collSpace.scanNear(v0, v1, (s) {
-      if (s.ps == _targetParticles) return;
-      if (_int.segment_segment(v0, v1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], _scol)) {
-        var b0 = _scol.w;
-        if (b0 >= 0.0 && b0 <= 1.0 && (b == -1.0 || b0 < b)) {
-          b = b0;
-        }
-      }
-    });
-    return b;
-  }
   System_CameraFollower() : super(Aspect.getAspectForAllOf([CameraFollower]));
 
   void initialize(){
@@ -35,6 +28,7 @@ class System_CameraFollower extends EntityProcessingSystem {
     _particlesMapper = new ComponentMapper<Particles>(Particles, world);
     _playerManager = world.getManager(PlayerManager) as PlayerManager;
     _groupManager = world.getManager(GroupManager) as GroupManager;
+    _bindKeyboardControl();
   }
 
   bool checkProcessing() {
@@ -58,6 +52,10 @@ class System_CameraFollower extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var follower = _followerMapper.get(entity);
     if (follower.info == null) return;
+    if (_toggleMode) {
+      _toggleMode = false;
+      follower.mode = (follower.mode == CameraFollower.TOP) ? CameraFollower.TPS : CameraFollower.TOP;
+    }
     var _targetPosition = _targetParticles.position3d[DRONE_PCENTER];
     var camera = follower.info;
     if (follower.mode == CameraFollower.TOP) {
@@ -109,6 +107,32 @@ class System_CameraFollower extends EntityProcessingSystem {
     var mstep = target - current;
     return current + step * mstep;
   }
+
+  double _findFirstIntersection(Vector3 v0, Vector3 v1){
+    var b = -1.0;
+    collSpace.scanNear(v0, v1, (s) {
+      if (s.ps == _targetParticles) return;
+      if (_int.segment_segment(v0, v1, s.ps.position3d[s.i1], s.ps.position3d[s.i2], _scol)) {
+        var b0 = _scol.w;
+        if (b0 >= 0.0 && b0 <= 1.0 && (b == -1.0 || b0 < b)) {
+          b = b0;
+        }
+      }
+    });
+    return b;
+  }
+
+  void _bindKeyboardControl(){
+    document.onKeyUp.listen((KeyboardEvent e) {
+      if (_keysCameraMode.contains(e.keyCode)) _toggleMode = true;
+    });
+    var btn = query("#toggleCameraMode");
+    if (btn != null) {
+      btn.onClick.listen((e){
+        _toggleMode = true;
+      });
+    }
+  }
 }
 
 class System_DroneController extends EntityProcessingSystem {
@@ -131,7 +155,7 @@ class System_DroneController extends EntityProcessingSystem {
   }
 
   void _bindKeyboardControl(){
-    _subDown = document.onKeyDown.listen((KeyboardEvent e) {
+   _subDown = document.onKeyDown.listen((KeyboardEvent e) {
       if (_keysForward.contains(e.keyCode)) _state.forward = 1.0;
       else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 1.0;
       else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -1.0;
@@ -140,14 +164,9 @@ class System_DroneController extends EntityProcessingSystem {
       if (_keysForward.contains(e.keyCode)) _state.forward = 0.0;
       else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 0.0;
       else if (_keysTurnRight.contains(e.keyCode)) _state.turn = 0.0;
+      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = 0.0;
     });
   }
-
-  var _keysForward = [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ];
-  var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
-  var _keysTurnRight = [KeyCode.RIGHT, KeyCode.D];
-  //var _keysShoot = [KeyCode.SPACE];
-
 }
 
 class System_DroneHandler extends EntityProcessingSystem {
