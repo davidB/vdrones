@@ -15,6 +15,14 @@
        "url":"burnMap.png",
        "type": "tex2d"
    },
+   "gate_in_material":{
+       "url":"img0",
+       "type": "shaderProgram"
+   },
+   "gate_in_map":{
+       "url":"../../_images/gate_in.png",
+       "type": "tex2d"
+   },
    "gate_out_material":{
        "url":"img0",
        "type": "shaderProgram"

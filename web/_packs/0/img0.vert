@@ -2,6 +2,7 @@ attribute vec3 _Vertex;
 attribute vec2 _TexCoord0;
 
 uniform mat4 _ProjectionViewMatrix;
+uniform mat4 _ModelMatrix;
   
 varying vec2 vTexCoord0;
   
