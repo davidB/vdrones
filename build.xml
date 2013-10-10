@@ -89,19 +89,22 @@
   </body>]]></replacevalue>
     </replace>
   </target>
-  <target name="remove_packages" depends="js">
-    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
-      <fileset dir="${target}/web" includes="**/packages" followsymlinks="false"/>
+
+  <target name="remove_packages">
+    <delete includeemptydirs="true" removeNotFollowedSymlinks="true">
+      <fileset dir="${target}/web/packages" includes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="false"/>
+      <fileset dir="${target}/web" includes="**/packages/**" followsymlinks="false"/>
       <!--fileset dir="${target}/web/packages" followsymlinks="false"/-->
     </delete>
-	<delete includeemptydirs="true">
+    <delete includeemptydirs="true">
       <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
     </delete>
     <!-- keep browser/dart.js : required by js-interop -->
-	<mkdir dir="${target}/web/packages"/>
-    <copy todir="${target}/web/packages/browser">
-	  <fileset dir="packages/browser"/>
+    <mkdir dir="${target}/web/packages"/>
+    <copy todir="${target}/web/packages" includeEmptyDirs="false">
+      <fileset dir="${basedir}/packages" excludes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="true"/>
     </copy>
+    <deleteEmptyFolders dir="${target}/web/packages"/>
   </target>
 
   <target name="deploy0" depends="js, insert_ga, remove_packages"/>
@@ -110,4 +113,19 @@
       <arg line="--use_java7 update target/web"/>
     </exec>
   </target>
+
+  <!-- Find and delete empty folders under dir -->
+  <macrodef name="deleteEmptyFolders">
+    <attribute name="dir"/>
+    <sequential>
+        <delete includeemptydirs="true">
+            <fileset dir="@{dir}"  >
+                <and>
+                    <size value="0"/>
+                    <type type="dir"/>
+                </and>
+            </fileset>
+        </delete>
+    </sequential>
+  </macrodef>
 </project>

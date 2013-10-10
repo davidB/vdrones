@@ -9,14 +9,14 @@
 
 # THANKS
 
-                            
+
 # SITE
 
 	Last update: 2013/04/24
 	Language: English
 	Standards: HTML5, CSS3, Dart
 	Doctype:HTML5
-	Components: Three.js, asset_pack, dartemis, dartbox2d, bootwatch 
-	Software: DartEditor, Vim, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant
+	Components: Three.js, asset_pack, dartemis, dartbox2d, bootwatch
+	Software: DartEditor, Vim, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github
 	Fonts: SciFly, Font-Awesome, Fontello, Zocial, weloveiconfonts.com
 	Host: Google App Engine
