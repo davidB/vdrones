@@ -25,14 +25,17 @@ class RenderableCache extends Component {
   RenderableCache(this.v);
 }
 
-
-class System_Render3D extends EntitySystem {
+class Const3D {
   static const TexNormalsRandomL = "_TexNormalsRandom";
   static const TexNormalsRandomN = 28;
   static const TexVerticesL = "_TexVertices";
   static const TexVerticesN = 29;
   static const TexNormalsL = "_TexNormals";
   static const TexNormalsN = 30;
+}
+
+class System_Render3D extends EntitySystem {
+
 
   ComponentMapper<RenderableDef> _objDefMapper;
   ComponentMapper<RenderableCache> _objCacheMapper;
@@ -42,6 +45,7 @@ class System_Render3D extends EntitySystem {
   AssetManager _am;
   Future<AssetManager> _assets;
   bool _hasCamera = false;
+  var _passes = null;
   var _sceneAabb;
 
   System_Render3D(WebGL.RenderingContext gl, this._am): super(Aspect.getAspectForAllOf([RenderableDef])) {
@@ -59,6 +63,8 @@ class System_Render3D extends EntitySystem {
     _renderer.clearColor.setValues(0.9, 0.9, 1.0, 1.0);
     _renderer.init();
     _assets = _loadAssets();
+    _renderer.debugView = null;
+
   }
 
   bool checkProcessing() => _hasCamera;
@@ -79,7 +85,8 @@ class System_Render3D extends EntitySystem {
           _renderer.cameraViewport = v.viewportCamera;
           _sceneAabb = (entity.getComponent(CameraFollower.CT) as CameraFollower).focusAabb;
           _assets.then((_){
-            _initRendererPre();
+            _passes = _makePasses(_renderer, _am, _sceneAabb);
+            _passes.add();
             _hasCamera = true;
           });
         }
@@ -99,6 +106,11 @@ class System_Render3D extends EntitySystem {
       var v = cache.v;
       if (v != null) {
         //TODO if (v.viewportCamera != null) _renderer.cameraViewport = v.viewportCamera;
+        if (v.viewportCamera != null){
+          if (_passes != null) _passes.remove();
+          _renderer.cameraViewport = null;
+          _hasCamera = false;
+        }
         if( v.geometry != null ) _renderer.removeSolid(v.geometry);
         if( v.filters != null ) v.filters.forEach((e) => _renderer.filters2d.remove(e));
         if( v.prepare != null ) _renderer.removePrepare(v.prepare);
@@ -121,12 +133,8 @@ class System_Render3D extends EntitySystem {
     ]).then((l) => _am);
   }
 
-  _initRendererPre() {
-    _initRendererPreLight();
-    _initRendererPreDeferred();
-    _renderer.debugView = null;
-  }
-  _initRendererPreLight() {
+
+  _makeLightPass(renderer, am, sceneAabb) {
     var light = new glf.ViewportCamera()
       ..viewWidth = 1024
       ..viewHeight = 1024
@@ -139,11 +147,11 @@ class System_Render3D extends EntitySystem {
       ..camera.bottom = -50.0 * 1.2
       ..camera.position.setValues(10.0, 10.0, 80.0)
       //..camera.focusPosition.setValues(50.0, 50.0, 0.0)
-      ..camera.focusPosition.setFrom(_sceneAabb.center)
-      ..camera.adjustNearFar(_sceneAabb, 0.1, 0.1)
+      ..camera.focusPosition.setFrom(sceneAabb.center)
+      ..camera.adjustNearFar(sceneAabb, 0.1, 0.1)
       ;
-    var lightFbo = new glf.FBO(_renderer.gl)..make(width : light.viewWidth, height : light.viewHeight);
-    var lightCtx = _am['shader_depth_light'];
+    var lightFbo = new glf.FBO(renderer.gl)..make(width : light.viewWidth, height : light.viewHeight);
+    var lightCtx = am['shader_depth_light'];
     var lightR = light.makeRequestRunOn()
       ..ctx = lightCtx
       ..setup = light.setup
@@ -169,23 +177,91 @@ class System_Render3D extends EntitySystem {
         //..["lightVertex"] = ((ctx) => ctx.gl.uniform1fv(ctx.getUniformLocation('lightVertex'), light.camera.position.storage))
       )
       ;
-    _renderer.add(r);
-    _renderer.addPrepare(r);
-    _renderer.addPrepare(lightR);
-    //_renderer.debugView = lightFbo.texture;
+    return new _RendererPass()
+    ..data = lightFbo
+    ..add  = () {
+      renderer.add(r);
+      renderer.addPrepare(r);
+      renderer.addPrepare(lightR);
+    }
+    ..remove = () {
+      renderer.remove(r);
+      renderer.removePrepare(r);
+      renderer.removePrepare(lightR);
+    }
+    ;
   }
 
-  _initRendererPreDeferred() {
-    var fboN = _initRendererPreDeferred0(_renderer.cameraViewport, _am['shader_deferred_normals'], TexNormalsL, TexNormalsN);
-    var fboV = _initRendererPreDeferred0(_renderer.cameraViewport, _am['shader_deferred_vertices'], TexVerticesL, TexVerticesN);
-    _renderer.debugView = fboN.texture;
-    var filter0 = _makeSSAOFilter(fboN.texture, fboV.texture, _am['texNormalsRandom']);
+  _makePasses(renderer, AssetManager am, sceneAabb) {
+    var deferred = _makeDeferredPass(renderer, am);
+    var texVertices = deferred.data[0].texture;
+    var texNormals = deferred.data[1].texture;
+    var ssao = _makeSSAOPass(renderer, am, texNormals, texVertices, _am['texNormalsRandom']);
+    var light = _makeLightPass(renderer, am, sceneAabb);
+    var pass = new _RendererPass()
+    ..data = deferred.data
+    ..add = () {
+      light.add();
+      deferred.add();
+      ssao.add();
+    }
+    ..remove = (){
+      ssao.remove();
+      deferred.remove();
+      light.remove();
+    }
+    ;
+    return pass;
+  }
+
+  _makeSSAOPass(renderer, am, WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
+    var filter0 = _makeSSAOFilter(am, texNormals, texVertices, texNormalsRandom);
     //var filter0 = _am['filter2d_identity'];
-    _renderer.filters2d.insert(0, filter0);
+    var pass = new _RendererPass()
+    ..data = filter0
+    ..add = () {
+      print(">>>>>>>>> ADD SSAO");
+      renderer.filters2d.insert(0, filter0);
+    }
+    ..remove = (){
+      renderer.filters2d.remove(filter0);
+    }
+    ;
+    return pass;
   }
 
-  _initRendererPreDeferred0(vp, ctx, texName, texNum) {
-    var fbo = new glf.FBO(_renderer.gl)..make(width : vp.viewWidth, height : vp.viewHeight, type: WebGL.FLOAT);
+  _makeSSAOFilter(am, WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
+    return new glf.Filter2D.copy(am['filter2d_blend_ssao'])
+    ..cfg = (ctx) {
+      ctx.gl.uniform2f(ctx.getUniformLocation('_Attenuation'), 2.0, 10.0); // (0,0) -> (2, 10) def (1.0, 5.0)
+      ctx.gl.uniform1f(ctx.getUniformLocation('_SamplingRadius'), 2.0); // 0 -> 40
+      ctx.gl.uniform1f(ctx.getUniformLocation('_OccluderBias'), 0.1); // 0.0 -> 0.2, def 0.05
+      glf.injectTexture(ctx, texNormals, Const3D.TexNormalsN, Const3D.TexNormalsL);
+      glf.injectTexture(ctx, texVertices, Const3D.TexVerticesN, Const3D.TexVerticesL);
+      glf.injectTexture(ctx, texNormalsRandom, Const3D.TexNormalsRandomN, Const3D.TexNormalsRandomL);
+    };
+  }
+
+  _makeDeferredPass(renderer, AssetManager am) {
+    var n = _makePrePass(renderer, am['shader_deferred_normals'], Const3D.TexNormalsL, Const3D.TexNormalsN);
+    var v = _makePrePass(renderer, am['shader_deferred_vertices'], Const3D.TexVerticesL, Const3D.TexVerticesN);
+    var pass = new _RendererPass()
+    ..data = [v.data, n.data]
+    ..add = () {
+      v.add();
+      n.add();
+    }
+    ..remove = () {
+      n.remove();
+      v.remove();
+    }
+    ;
+    return pass;
+  }
+
+  _makePrePass(renderer, ctx, texName, texNum) {
+    var vp = renderer.cameraViewport;
+    var fbo = new glf.FBO(renderer.gl)..make(width : vp.viewWidth, height : vp.viewHeight, type: WebGL.FLOAT);
     var pre = new glf.RequestRunOn()
       ..ctx = ctx
       ..before =(ctx) {
@@ -202,22 +278,28 @@ class System_Render3D extends EntitySystem {
         ..[texName] = ((ctx) => glf.injectTexture(ctx, fbo.texture, texNum, texName))
       )
       ;
-    _renderer.add(r);
-    _renderer.addPrepare(r);
-    _renderer.addPrepare(pre);
-    return fbo;
+
+    var pass = new _RendererPass()
+    ..data = fbo
+    ..add = () {
+      renderer.add(r);
+      renderer.addPrepare(r);
+      renderer.addPrepare(pre);
+    }
+    ..remove = () {
+      renderer.remove(r);
+      renderer.removePrepare(r);
+      renderer.removePrepare(pre);
+      fbo.dispose();
+    }
+    ;
+    return pass;
   }
 
-  _makeSSAOFilter(WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
-    return new glf.Filter2D.copy(_am['filter2d_blend_ssao'])
-    ..cfg = (ctx) {
-      ctx.gl.uniform2f(ctx.getUniformLocation('_Attenuation'), 2.0, 10.0); // (0,0) -> (2, 10) def (1.0, 5.0)
-      ctx.gl.uniform1f(ctx.getUniformLocation('_SamplingRadius'), 2.0); // 0 -> 40
-      ctx.gl.uniform1f(ctx.getUniformLocation('_OccluderBias'), 0.1); // 0.0 -> 0.2, def 0.05
-      glf.injectTexture(ctx, texNormals, TexNormalsN, TexNormalsL);
-      glf.injectTexture(ctx, texVertices, TexVerticesN, TexVerticesL);
-      glf.injectTexture(ctx, texNormalsRandom, TexNormalsRandomN, TexNormalsRandomL);
-    };
-  }
+}
 
+class _RendererPass {
+  var data;
+  Function add;
+  Function remove;
 }
