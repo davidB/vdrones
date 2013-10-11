@@ -1,0 +1,18 @@
+#see https://developers.google.com/appengine/docs/java/configyaml/appconfig_yaml
+#see https://developers.google.com/appengine/docs/python/config/appconfig
+#
+application: vdrones
+version: 0-12-2
+runtime: java
+#api_version: 1
+threadsafe: true
+default_expiration: "5d"
+
+welcome_files:
+  - index.html
+
+static_files:
+  - include: /**.*
+#  - exclude: /data/**.png
+
+handlers:
