@@ -63,7 +63,7 @@ class Factory_Renderables {
         ..ctx = ctx
         ..transparent = true
         ..cfg = (ctx) {
-          //ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
+          ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
           ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.1, 0.1, 0.7);
         }
       )
@@ -120,7 +120,8 @@ class Factory_Renderables {
 //        //"blending" : THREE.AdditiveBlending,
 //        //"color": 0xffffff,
 //        "transparent": true
-          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8, 1.0);
+        ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
+        ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8, 1.0);
           glf.injectTexture(ctx, img);
         }
       )
@@ -157,6 +158,7 @@ class Factory_Renderables {
         ..ctx = ctx
         ..transparent = false
         ..cfg = (ctx) {
+          ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
           ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.9, 0.9, 0.95, 1.0);
         }
       )
