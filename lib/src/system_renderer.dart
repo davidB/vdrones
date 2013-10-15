@@ -71,6 +71,9 @@ class System_Render3D extends EntitySystem {
 
   void processEntities(ReadOnlyBag<Entity> entities) {
     _renderer.run();
+    //call gl.finish() doesn't prevente frame "tearing" (when you rotate vdrones)
+    //see http://www.opengl.org/wiki/Swap_Interval
+    //_renderer.gl.finish();
   }
 
   void inserted(Entity entity){
@@ -220,7 +223,6 @@ class System_Render3D extends EntitySystem {
     var pass = new _RendererPass()
     ..data = filter0
     ..add = () {
-      print(">>>>>>>>> ADD SSAO");
       renderer.filters2d.insert(0, filter0);
     }
     ..remove = (){
