@@ -5,10 +5,8 @@ description: An arcade game
 homepage: https://vdrones.appspot.com/
 documentation: https://github.com/davidB/vdrones
 dependencies:
-  asset_pack: any
-#    git: https://github.com/johnmccutchan/asset_pack.git
-  box2d:
-    git: https://github.com/dart-lang/dart-box2d.git
+  asset_pack:
+    git: https://github.com/johnmccutchan/asset_pack.git
   browser: any
   dartemis: '>=0.4.1'
   dartemis_toolbox:
@@ -16,8 +14,8 @@ dependencies:
   glf:
     path: ../glf
   js: any
-  lawndart:
-    git: https://github.com/davidB/lawndart.git
+  lawndart: any
+#    git: https://github.com/davidB/lawndart.git
   logging: any
   simple_audio:
     git: https://github.com/johnmccutchan/simpleaudio.git
