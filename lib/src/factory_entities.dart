@@ -148,7 +148,7 @@ class Factory_Entities {
   Entity newGateOut(List<num> rects, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
-    renderFact.newSurface3d(rects, 0.1, _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
+    renderFact.newSurface3d(rects, 0.4, _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
   ]);
 
   Entity newMobileWall(double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, AssetPack assetpack) => _newEntity([
