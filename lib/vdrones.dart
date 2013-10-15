@@ -88,6 +88,7 @@ class VDrones {
   var _stats = new Stats("u0", clean : false);
   var _assetManager;
   var _audioManager;
+  var _textures;
   var _gl;
   var _gameLoop;
 
@@ -114,7 +115,8 @@ class VDrones {
     _assetManager = _newAssetManager(bar, _gl, _audioManager);
     _preloadAssets();
 
-    _entitiesFactory = new Factory_Entities(_world, _assetManager);
+    _textures = new glf.TextureUnitCache(_gl);
+    _entitiesFactory = new Factory_Entities(_world, _assetManager, new Factory_Physics(), new Factory_Renderables(new glf.MeshDefTools(), _textures));
     _setupWorld(container);
     _setupGameLoop(container);
 
@@ -224,7 +226,7 @@ class VDrones {
   void _setupWorld(Element container) {
     //var collSpace = new Coll.Space_Noop();
     var collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)));
-    _renderSystem = new System_Render3D(_gl, _assetManager);
+    _renderSystem = new System_Render3D(_gl, _assetManager, _textures);
     _hudSystem = new System_Hud(container, _player);
 
 
@@ -303,7 +305,7 @@ class VDrones {
   }
 
   void _preloadAssets() {
-    _assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
+    //_assetManager.loadAndRegisterAsset('explosion', 'audioclip', 'sfxr:3,,0.2847,0.7976,0.88,0.0197,,0.1616,,,,,,,,0.5151,,,1,,,,,0.72', null, null);
   }
 
   _setupGameLoop(element){

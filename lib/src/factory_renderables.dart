@@ -5,7 +5,10 @@ class Factory_Renderables {
   static const TEX_DIFFUSE = 1;
   static const TEX_DISSOLVEMAP = 3;
   RenderableDef _newRenderableDef(f) => new RenderableDef()..onInsert = ((gl, e) => null);
-  static final _mdt = new glf.MeshDefTools();
+  final glf.TextureUnitCache _textures;
+  final glf.MeshDefTools _mdt;
+
+  Factory_Renderables(this._mdt, this._textures);
 
   RenderableDef newCube(glf.ProgramContext ctx){
     return new RenderableDef()
@@ -120,9 +123,9 @@ class Factory_Renderables {
 //        //"blending" : THREE.AdditiveBlending,
 //        //"color": 0xffffff,
 //        "transparent": true
-        ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
-        ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8, 1.0);
-          glf.injectTexture(ctx, img);
+          ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.8, 0.8, 1.0);
+          _textures.inject(ctx, img, '_Tex0');
         }
       )
       ;
@@ -219,7 +222,7 @@ class Factory_Renderables {
           var dis = entity.getComponent(Dissolvable.CT) as Dissolvable;
           if (dis != null){
             ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), dis.ratio);
-            glf.injectTexture(ctx, dissolveMap, TEX_DISSOLVEMAP, '_DissolveMap0');
+            _textures.inject(ctx, dissolveMap, '_DissolveMap0');
           } else {
             ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
           }

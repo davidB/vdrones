@@ -24,13 +24,18 @@ var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hs
 
 class Factory_Entities {
   static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
-  final physicFact = new Factory_Physics();
-  final renderFact = new Factory_Renderables();
+  final Factory_Physics physicFact;
+  final Factory_Renderables renderFact;
 
   World _world;
   AssetManager _assetManager;
 
-  Factory_Entities(this._world, this._assetManager);
+  Factory_Entities(
+    this._world,
+    this._assetManager,
+    this.physicFact,
+    this.renderFact
+  );
 
   var defaultDraw = proto2d.drawComponentType([
     new proto2d.DrawComponentType(Particles.CT, proto2d.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),

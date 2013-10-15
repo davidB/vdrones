@@ -27,11 +27,8 @@ class RenderableCache extends Component {
 
 class Const3D {
   static const TexNormalsRandomL = "_TexNormalsRandom";
-  static const TexNormalsRandomN = 28;
   static const TexVerticesL = "_TexVertices";
-  static const TexVerticesN = 29;
   static const TexNormalsL = "_TexNormals";
-  static const TexNormalsN = 30;
 }
 
 class System_Render3D extends EntitySystem {
@@ -41,20 +38,26 @@ class System_Render3D extends EntitySystem {
   ComponentMapper<RenderableCache> _objCacheMapper;
   GroupManager _groupManager;
 
-  RendererA _renderer;
+  final RendererA _renderer;
   AssetManager _am;
   Future<AssetManager> _assets;
   bool _hasCamera = false;
   var _passes = null;
   var _sceneAabb;
+  final glf.TextureUnitCache _textures;
 
-  System_Render3D(WebGL.RenderingContext gl, this._am): super(Aspect.getAspectForAllOf([RenderableDef])) {
+  factory System_Render3D(WebGL.RenderingContext gl, AssetManager am, glf.TextureUnitCache textures)  {
     //TODO better feedback
     if (gl == null) {
       throw new Exception("webgl not supported");
     }
-    _renderer = new RendererA(gl);
+    return new System_Render3D._(gl, am, textures);
   }
+
+  System_Render3D._(gl, this._am, this._textures) :
+    super(Aspect.getAspectForAllOf([RenderableDef])),
+    _renderer = new RendererA(gl)
+  ;
 
   void initialize(){
     _objDefMapper = new ComponentMapper<RenderableDef>(RenderableDef, world);
@@ -169,7 +172,7 @@ class System_Render3D extends EntitySystem {
 
     var r = new glf.RequestRunOn()
       ..autoData = (new Map()
-        ..["sLightDepth"] = ((ctx) => glf.injectTexture(ctx, lightFbo.texture, 31, "sLightDepth"))
+        ..["sLightDepth"] = ((ctx) => _textures.inject(ctx, lightFbo.texture, "sLightDepth"))
         ..["lightFar"] = ((ctx) => ctx.gl.uniform1f(ctx.getUniformLocation('lightFar'), light.camera.far))
         ..["lightNear"] = ((ctx) => ctx.gl.uniform1f(ctx.getUniformLocation('lightNear'), light.camera.near))
         ..["lightConeAngle"] = ((ctx) => ctx.gl.uniform1f(ctx.getUniformLocation('lightConeAngle'), light.camera.fovRadians * radians2degrees))
@@ -238,15 +241,15 @@ class System_Render3D extends EntitySystem {
       ctx.gl.uniform2f(ctx.getUniformLocation('_Attenuation'), 2.0, 10.0); // (0,0) -> (2, 10) def (1.0, 5.0)
       ctx.gl.uniform1f(ctx.getUniformLocation('_SamplingRadius'), 2.0); // 0 -> 40
       ctx.gl.uniform1f(ctx.getUniformLocation('_OccluderBias'), 0.1); // 0.0 -> 0.2, def 0.05
-      glf.injectTexture(ctx, texNormals, Const3D.TexNormalsN, Const3D.TexNormalsL);
-      glf.injectTexture(ctx, texVertices, Const3D.TexVerticesN, Const3D.TexVerticesL);
-      glf.injectTexture(ctx, texNormalsRandom, Const3D.TexNormalsRandomN, Const3D.TexNormalsRandomL);
+      _textures.inject(ctx, texNormals, Const3D.TexNormalsL);
+      _textures.inject(ctx, texVertices, Const3D.TexVerticesL);
+      _textures.inject(ctx, texNormalsRandom, Const3D.TexNormalsRandomL);
     };
   }
 
   _makeDeferredPass(renderer, AssetManager am) {
-    var n = _makePrePass(renderer, am['shader_deferred_normals'], Const3D.TexNormalsL, Const3D.TexNormalsN);
-    var v = _makePrePass(renderer, am['shader_deferred_vertices'], Const3D.TexVerticesL, Const3D.TexVerticesN);
+    var n = _makePrePass(renderer, am['shader_deferred_normals'], Const3D.TexNormalsL);
+    var v = _makePrePass(renderer, am['shader_deferred_vertices'], Const3D.TexVerticesL);
     var pass = new _RendererPass()
     ..data = [v.data, n.data]
     ..add = () {
@@ -261,7 +264,7 @@ class System_Render3D extends EntitySystem {
     return pass;
   }
 
-  _makePrePass(renderer, ctx, texName, texNum) {
+  _makePrePass(renderer, ctx, texName) {
     var vp = renderer.cameraViewport;
     var fbo = new glf.FBO(renderer.gl)..make(width : vp.viewWidth, height : vp.viewHeight, type: WebGL.FLOAT);
     var pre = new glf.RequestRunOn()
@@ -277,7 +280,7 @@ class System_Render3D extends EntitySystem {
 
     var r = new glf.RequestRunOn()
       ..autoData = (new Map()
-        ..[texName] = ((ctx) => glf.injectTexture(ctx, fbo.texture, texNum, texName))
+        ..[texName] = ((ctx) => _textures.inject(ctx, fbo.texture, texName))
       )
       ;
 
