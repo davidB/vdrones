@@ -2,11 +2,10 @@ part of vdrones;
 
 class Stats{
   static const STATS_KEY = "stats";
-  static const MONEY_CURRENT_V = r'money/current/v';
-  static const MONEY_CUMUL_V = r'money/cumul/v';
-  static const MONEY_LAST_V = r'money/last/v';
+  static const FORMAT_V = r'format';
+  static const CUBES_TOTAL_V = r'cubes/total/v';
   static const AREA_CUBES_MAX_V = r'/cubes/max/v';
-  static const AREA_CUBES_TOTAL_V = r'/cubes/total/v';
+  static const AREA_CUBES_LAST_GAIN = r'/cubes/last/gain';
   static const AREA_CUBES_LAST_V = r'/cubes/last/v';
 
   final String dbName = "vdrones0";
@@ -23,18 +22,13 @@ class Stats{
   }
 
   void _updateCubesLastMem(String areaId, int v) {
-    num update(String k, Function f) {
-      _statistics[k] = f(this[k]);
-    }
-
     var cubesMax = this[areaId + AREA_CUBES_MAX_V];
-    var gain = math.max(0, math.min(v, cubesMax)) * 0.25 + math.max(0, v - cubesMax) * 1;
-    update(MONEY_CURRENT_V, (x) => x + gain);
-    update(MONEY_CUMUL_V, (x) => x + gain);
-    update(MONEY_LAST_V, (x) => gain);
-    update(areaId + AREA_CUBES_MAX_V, (x) => (x < v) ? v : x);
-    update(areaId + AREA_CUBES_TOTAL_V, (x) => x + v);
-    update(areaId + AREA_CUBES_LAST_V, (x) => v);
+    var gain = math.max(0, v - cubesMax);
+    _statistics[areaId + AREA_CUBES_MAX_V] = cubesMax + gain;
+    _statistics[areaId + AREA_CUBES_LAST_GAIN] = gain;
+    _statistics[areaId + AREA_CUBES_LAST_V] = v;
+    //Total  = sum(AREA_CUBES_MAX_V) - sum(purchase)
+    _statistics[CUBES_TOTAL_V] = this[CUBES_TOTAL_V] + gain;
   }
 
   Future updateCubesLast(String areaId, int v) {
@@ -46,7 +40,7 @@ class Stats{
 
   Future _saveStatistics() {
     return store.then((db){
-      db.save(JSON.stringify(_statistics), STATS_KEY);
+      db.save(JSON.encode(_statistics), STATS_KEY);
       return _statistics;
     });
   }
@@ -60,7 +54,15 @@ class Stats{
       dbf = dbf.then((_) => db.nuke());
     }
     return dbf.then((_) => db.getByKey(STATS_KEY).then((x) {
-      if (x != null) _statistics.addAll(JSON.parse(x) as Map);
+      if (x != null) {
+        var data = JSON.decode(x) as Map;
+        if (data[FORMAT_V] == 2) {
+          _statistics.addAll(data);
+        } else {
+          //reset data
+          _statistics[FORMAT_V] == 2;
+        }
+      }
       return db;
     }));
   }

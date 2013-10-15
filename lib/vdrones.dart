@@ -2,7 +2,7 @@ library vdrones;
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:json' as JSON;
+import 'dart:convert';
 import 'dart:html';
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
@@ -187,8 +187,9 @@ class VDrones {
         var runresult = query('#runresult').xtag;
         runresult.areaId = area;
         runresult.cubesLast = stats[area + Stats.AREA_CUBES_LAST_V];
+        runresult.cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN];
         runresult.cubesMax = stats[area + Stats.AREA_CUBES_MAX_V];
-        runresult.cubesTotal = stats[area + Stats.AREA_CUBES_TOTAL_V];
+        runresult.cubesTotal = stats[Stats.CUBES_TOTAL_V];
         query('#runresult_dialog').xtag.show();
       });
   }
