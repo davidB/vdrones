@@ -39,6 +39,7 @@ class Stats{
   }
 
   Future _saveStatistics() {
+    _statistics[FORMAT_V] = 2;
     return store.then((db){
       db.save(JSON.encode(_statistics), STATS_KEY);
       return _statistics;
@@ -55,12 +56,10 @@ class Stats{
     }
     return dbf.then((_) => db.getByKey(STATS_KEY).then((x) {
       if (x != null) {
+        _statistics.clear();
         var data = JSON.decode(x) as Map;
         if (data[FORMAT_V] == 2) {
           _statistics.addAll(data);
-        } else {
-          //reset data
-          _statistics[FORMAT_V] == 2;
         }
       }
       return db;
