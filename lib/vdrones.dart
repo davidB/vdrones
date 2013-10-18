@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:convert';
 import 'dart:html';
+import 'dart:svg' as svg;
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
 import 'dart:typed_data';
@@ -41,6 +42,7 @@ part 'src/factory_entities.dart';
 part 'src/factory_animations.dart';
 part 'src/factory_renderables.dart';
 part 'src/stats.dart';
+part 'src/areadef.dart';
 
 class Status {
   static const NONE = 0;

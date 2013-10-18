@@ -330,10 +330,10 @@ class System_DroneGenerator extends EntityProcessingSystem {
   void processEntity(Entity entity) {
     var gen = _droneGeneratorMapper.get(entity);
     gen.scores.removeWhere((score) {
-      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.points.length) : gen.nextPointsIdx % gen.points.length;
-      var p = gen.points[pointsIdx];
+      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.gateIns.length) : gen.nextPointsIdx % gen.gateIns.length;
+      var p = gen.gateIns[pointsIdx].ellipse.position;
       var e = _efactory.newDrone(_player);
-      _move(e, p.x, p.y, 0.5);
+      _move(e, p.x, p.y, p.z + 0.5);
       e.addComponent(new Generated(entity));
       var numbers = _droneNumbersMapper.get(e);
       numbers.score = score;

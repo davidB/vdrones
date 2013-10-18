@@ -92,20 +92,16 @@ class Factory_Renderables {
 //    return js.retain(o);
   });
 
-  RenderableDef newSurface3d(List<num> rects, num offz, glf.ProgramContext ctx, [WebGL.Texture img]){
-    var mdAll = null;
+  RenderableDef newEllipses3d(Iterable<Ellipse> ellipses, glf.ProgramContext ctx, [WebGL.Texture img]){
     var tfs = new Matrix4.identity();
-    for(var i = 0; i < rects.length; i+=4) {
-      var dx = rects[i+2];
-      var dy = rects[i+3];
-      //var md = glf.makeMeshDef_cube8Vertices(dx: 1.0, dy: 1.0, dz: 0.5);
-      var md = _mdt.makePlane(dx: dx * 2, dy: dy * 2);
+    var mdAll = ellipses.fold(null, (acc, e){
+      var md = _mdt.makePlane(dx: e.rx, dy: e.ry);
       //TODO optim remove the ground face (never used/seen)
       tfs.setIdentity();
-      tfs.translate(rects[i+0], rects[i+1], offz);
+      tfs.translate(e.position);
       _mdt.transform(md, tfs);
-      mdAll = (mdAll == null) ? md : _mdt.merge(mdAll, md);
-    }
+      return (acc == null) ? md : _mdt.merge(acc, md);
+    });
 //      mesh.castShadow = false;
 //      mesh.receiveShadow = true;
     return new RenderableDef()
@@ -132,42 +128,114 @@ class Factory_Renderables {
     };
   }
 
-  RenderableDef newBoxes3d(List<num> rects, double dz, num width, num height, glf.ProgramContext ctx) {
-    var mdAll = null;
-    var tfs = new Matrix4.identity();
-    tfs.setIdentity();
-    for(var i = 0; i < rects.length; i+=4) {
-      var dx = rects[i+2];
-      var dy = rects[i+3];
-      //var md = glf.makeMeshDef_cube8Vertices(dx: 1.0, dy: 1.0, dz: 0.5);
-      var md = _mdt.makeBox24Vertices(dx: dx, dy: dy, dz: dz);
-      //TODO optim remove the ground face (never used/seen)
-      var iscw = _mdt.isClockwise(md.vertices, md.normals, md.triangles);
-      tfs.setTranslationRaw(rects[i+0], rects[i+1], dz);
-      _mdt.transform(md, tfs);
-      mdAll = (mdAll == null) ? md : _mdt.merge(mdAll, md);
-    }
-    var floor = _mdt.makePlane(dx: width * 0.5, dy: height * 0.5);
-    tfs.setTranslationRaw(width * 0.5, height * 0.5, 0.0);
-    _mdt.transform(floor, tfs);
-    _mdt.merge(mdAll, floor);
+  RenderableDef newPolygonesExtrudesZ(Iterable<Polygone> shapes, num dz, glf.ProgramContext ctx, Vector4 color, {isMobile : false, includeFloor : false}) {
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      return new Renderable()
-      ..geometry = (new Geometry()
-        ..meshDef = mdAll
-      )
+      var extrusion = new Vector3(0.0, 0.0, dz);
+      shapeToMeshDef(shape) {
+        var points = shape.points;
+        var vertices = new Float32List(points.length * 3);
+        for(var i = 0; i < points.length; i++) {
+          var v = points[i];
+          vertices[i * 3 + 0] = v.x;
+          vertices[i * 3 + 1] = v.y;
+          vertices[i * 3 + 2] = v.z;
+        }
+        return _mdt.makeExtrude(vertices, extrusion);
+      }
+      var mdAll = shapes.fold(null, (acc, x){
+        var md = shapeToMeshDef(x);
+        return (acc == null) ? md : _mdt.merge(acc, md);
+      });
+      if (includeFloor) {
+        var tmp = new Aabb3();
+        var aabb = shapes.fold(null, (acc, x){
+          var t0 = Math2.extractAabbPoly(x.points, tmp);
+          return (acc == null) ? new Aabb3.copy(t0) : acc..hull(t0);
+        });
+        var center = new Vector3.zero();
+        var halfExtents = new Vector3.zero();
+        aabb.copyCenterAndHalfExtents(center, halfExtents);
+        var floor = _mdt.makePlane(dx: halfExtents.x, dy: halfExtents.y);
+        //HACK until makeExtrude set TexCoords
+        floor.texCoords = null;
+        var tfs = new Matrix4.identity();
+        tfs.setTranslationRaw(center.x, center.y, 0.0);
+        _mdt.transform(floor, tfs);
+        _mdt.merge(mdAll, floor);
+      }
+      var geometry = new Geometry()
+      ..meshDef = mdAll
+      ..transforms.setIdentity()
+      ;
+
+      //mw_setPositions(geometry.meshDef, ps.position3d[1], ps.position3d[2], ps.position3d[3], ps.position3d[4], dz);
+      //mw_setPositions(geometry.meshDef, new Vector3(-dx, -dy, 0.0), new Vector3(-dx, dy, 0.0), new Vector3(dx, dy, 0.0), new Vector3(dx, -dy, 0.0), dz);
+      var out = new Renderable()
+      ..geometry = geometry
       ..material = (new Material()
         ..ctx = ctx
-        ..transparent = false
+        ..transparent = true
         ..cfg = (ctx) {
           ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
-          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.9, 0.9, 0.95, 1.0);
+          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), color.r, color.g, color.b, color.a);
         }
       )
       ;
+      if (isMobile) {
+        var ps = entity.getComponent(Particles.CT) as Particles;
+        out.prepare = (new glf.RequestRunOn()
+          ..beforeAll = (gl) {
+            // TODO optimize to reduce number of copy (position3d => Float32List => buffer)
+            //updateVertices();
+            //_mdt.extrudeInto(vertices, extrusion, geometry.meshDef);
+            //geometry.verticesNeedUpdate = true;
+            var vp0 = ps.position3d[1];
+            var vm = geometry.meshDef.vertices;
+            geometry..transforms.setTranslationRaw(vp0.x - vm[0], vp0.y - vm[1], vp0.z - vm[2]);
+          }
+        );
+      }
+      return out;
     };
   }
+
+//  RenderableDef newBoxes3d(List<num> rects, double dz, num width, num height, glf.ProgramContext ctx) {
+//    var mdAll = null;
+//    var tfs = new Matrix4.identity();
+//    tfs.setIdentity();
+//    for(var i = 0; i < rects.length; i+=4) {
+//      var dx = rects[i+2];
+//      var dy = rects[i+3];
+//      //var md = glf.makeMeshDef_cube8Vertices(dx: 1.0, dy: 1.0, dz: 0.5);
+//      var md = _mdt.makeBox24Vertices(dx: dx, dy: dy, dz: dz);
+//      //TODO optim remove the ground face (never used/seen)
+//      var iscw = _mdt.isClockwise(md.vertices, md.normals, md.triangles);
+//      tfs.setTranslationRaw(rects[i+0], rects[i+1], dz);
+//      _mdt.transform(md, tfs);
+//      mdAll = (mdAll == null) ? md : _mdt.merge(mdAll, md);
+//    }
+//    var floor = _mdt.makePlane(dx: width * 0.5, dy: height * 0.5);
+//    tfs.setTranslationRaw(width * 0.5, height * 0.5, 0.0);
+//    _mdt.transform(floor, tfs);
+//    _mdt.merge(mdAll, floor);
+//    return new RenderableDef()
+//    ..onInsert = (gl, Entity entity) {
+//      return new Renderable()
+//      ..geometry = (new Geometry()
+//        ..meshDef = mdAll
+//      )
+//      ..material = (new Material()
+//        ..ctx = ctx
+//        ..transparent = false
+//        ..cfg = (ctx) {
+//          ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
+//          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.9, 0.9, 0.95, 1.0);
+//        }
+//      )
+//      ;
+//    };
+//  }
 
   Iterable<Component> newCamera(Aabb3 focusAabb){
     var c = new CameraFollower()

@@ -23,7 +23,6 @@ var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hs
 
 
 class Factory_Entities {
-  static final chronometerCT = ComponentTypeManager.getTypeFor(Chronometer);
   final Factory_Physics physicFact;
   final Factory_Renderables renderFact;
 
@@ -120,71 +119,65 @@ class Factory_Entities {
     new Animatable()
   ]);
 
-  Entity newStaticWalls(List<num> rects, num width, num height, AssetPack assetpack) => _newEntity([
+  Entity newStaticWalls(StaticWall x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
-    new Transform.w2d(0.0, 0.0, 0.0),
-    physicFact.newBoxes2d(rects, EntityTypes_WALL),
-    renderFact.newBoxes3d(rects, 2.0, width, height, assetpack["wall_material"])
+    //new Transform.w2d(0.0, 0.0, 0.0),
+    physicFact.newPolygones(x.shapes, EntityTypes_WALL),
+    renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
   ]);
 
-  Entity newGateIn(List<num> rects, List<num> rzs, AssetPack assetpack) {
-    var points = new List<Vector3>();
-    for (var i = 0; i < rects.length; i += 4) {
-      points.add(new Vector3(
-        rects[i],
-        rects[i+1],
-        radians(rzs[i~/4])
-      ));
-    }
+  Entity newGateIns(List<GateIn> x, AssetPack assetpack) {
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      renderFact.newSurface3d(rects, 0.5, _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
+      renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
       new Animatable(),
-      new DroneGenerator(points, [0])
+      new DroneGenerator(x, [0])
     ]);
   }
 
-  Entity newGateOut(List<num> rects, AssetPack assetpack) => _newEntity([
+  Entity newGateOuts(List<GateOut> x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
-    physicFact.newCircles2d(rects, 0.3, EntityTypes_GATEOUT),
-    renderFact.newSurface3d(rects, 0.4, _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
+    physicFact.newCircles2d(x.map((x) => x.ellipse), 0.3, EntityTypes_GATEOUT),
+    renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
   ]);
 
-  Entity newMobileWall(double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, AssetPack assetpack) => _newEntity([
+  Entity newMobileWall(MobileWall x,/* double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, */AssetPack assetpack) => _newEntity([
     //new Transform.w2d(x0, y0, 0.0),
         new proto2d.Drawable(defaultDraw),
-    physicFact.newMobileWall(x0, y0, dx, dy, EntityTypes_MWALL),
-    renderFact.newMobileWall(dx, dy, dz, assetpack["mwall_material"]),
-    new Animatable()
-      ..add(new Animation()
-        ..onTick = (e, t, t0) {
-          var ratio =  0;
-          if (inout) {
-            ratio = (t % (2 * duration));
-            if (ratio > duration) {
-              ratio = 2 * duration - ratio;
-            }
-          } else {
-            ratio = (t % duration);
-          }
-          ratio = ratio / duration;
-//          var trans = e.getComponent(Transform.CT);
-//          trans.position3d.x = x0 + tx * ratio;
-//          trans.position3d.y = y0 + ty * ratio;
-          var x = x0 + tx * ratio;
-          var y = y0 + ty * ratio;
-          //print("$t => $x $y");
-          var ps = e.getComponent(Particles.CT);
-//          ps.copyPosition3dIntoPrevious();
-          ps.position3d[0].setValues(x, y, 0.0);
-          ps.position3d[1].setValues(x-dx, y-dy, 0.0);
-          ps.position3d[2].setValues(x+dx, y-dy, 0.0);
-          ps.position3d[3].setValues(x+dx, y+dy, 0.0);
-          ps.position3d[4].setValues(x-dx, y+dy, 0.0);
-          return true;
-        }
-      )
+        physicFact.newPolygones(x.shapes, EntityTypes_WALL),
+        renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
+//    physicFact.newMobileWall(x0, y0, dx, dy, EntityTypes_MWALL),
+//    renderFact.newMobileWall(dx, dy, dz, assetpack["mwall_material"]),
+//    new Animatable()
+//      ..add(new Animation()
+//        ..onTick = (e, t, t0) {
+//          var ratio =  0;
+//          if (inout) {
+//            ratio = (t % (2 * duration));
+//            if (ratio > duration) {
+//              ratio = 2 * duration - ratio;
+//            }
+//          } else {
+//            ratio = (t % duration);
+//          }
+//          ratio = ratio / duration;
+////          var trans = e.getComponent(Transform.CT);
+////          trans.position3d.x = x0 + tx * ratio;
+////          trans.position3d.y = y0 + ty * ratio;
+//          var x = x0 + tx * ratio;
+//          var y = y0 + ty * ratio;
+//          //print("$t => $x $y");
+//          var ps = e.getComponent(Particles.CT);
+////          ps.copyPosition3dIntoPrevious();
+//          ps.position3d[0].setValues(x, y, 0.0);
+//          ps.position3d[1].setValues(x-dx, y-dy, 0.0);
+//          ps.position3d[2].setValues(x+dx, y-dy, 0.0);
+//          ps.position3d[3].setValues(x+dx, y+dy, 0.0);
+//          ps.position3d[4].setValues(x-dx, y+dy, 0.0);
+//          return true;
+//        }
+//      )
   ]);
 
 
@@ -197,8 +190,8 @@ class Factory_Entities {
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
-          e.getComponent(chronometerCT).millis = millis + (t - t0).toInt();
-          return (millis >= 0) || (e.getComponent(chronometerCT).millis <= 0);
+          e.getComponent(Chronometer.CT).millis = millis + (t - t0).toInt();
+          return (millis >= 0) || (e.getComponent(Chronometer.CT).millis <= 0);
         }
         ..onEnd = timeout
       )
@@ -220,61 +213,39 @@ class Factory_Entities {
   ]);
 
   List<Entity> newFullArea(AssetPack assetpack, timeout) {
-    var area = assetpack['area'];
-    var cellr = area['cellr'].toDouble();
-    var width = area['width'];
-    var height = area['height'];
-
-    makeBorderAsCells(num w, num h) {
-      var cells = new List<num>();
-      cells..add(-1)..add(-1)..add(w+2)..add(  1);
-      cells..add(-1)..add(-1)..add(  1)..add(h+2);
-      cells..add( w)..add(-1)..add(  1)..add(h+2);
-      cells..add(-1)..add( h)..add(w+2)..add(  1);
-      return cells;
-    }
-    var walls0 = new List<int>();
-    if (area["walls"]["cells"] != null) {
-      print("read cells");
-      walls0.addAll(area["walls"]["cells"]);
-    }
-    if (area["walls"]["maze"] != null) {
-      walls0.addAll(makeMaze(area["walls"]["maze"][1], area["walls"]["maze"][2], area["walls"]["maze"][3], 0, 0, width, height));
-    }
-    var walls = new List<double>();
-    walls.addAll(cells_rects(cellr, makeBorderAsCells(width, height), 0));
-    walls.addAll(cells_rects(cellr, walls0));
+    var json = assetpack['area'];
+    var reader = new AreaReader4Json1();
+    var areadef = reader.area(json);
 
     var es = new List<Entity>();
-    es.add(newCamera("${assetpack.name}.music", new Aabb3.minmax(new Vector3(-0.1, -0.1, -0.1), new Vector3(width * cellr + 0.1, height * cellr + 0.1, 2.0 * cellr +0.1))));
-    var v = area["light_ambient"];
-    v = (v == null) ? 0x444444 : v;
-    es.add(newAmbientLight(v));
-    area["lights_spots"].forEach((i) {
-      es.add(newLight(new Vector3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new Vector3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
-    });
+    es.add(newCamera("${assetpack.name}.music", areadef.aabb3));
+    es.add(newAmbientLight(areadef.ambient));
+//    area["lights_spots"].forEach((i) {
+//      es.add(newLight(new Vector3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new Vector3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
+//    });
     es.add(newArea(assetpack.name));
-    es.add(newChronometer(-60 * 1000, timeout));
-    es.add(newStaticWalls(walls, width * cellr, height * cellr, assetpack));
-    es.add(newGateIn(cells_rects(cellr, area["zones"]["gate_in"]["cells"], 2.0), area["zones"]["gate_in"]["angles"], assetpack));
-    es.add(newGateOut(cells_rects(cellr, area["zones"]["gate_out"]["cells"], 1.0), assetpack));
-    es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
-    if (area["zones"]["mobile_walls"] != null) {
-      area["zones"]["mobile_walls"].forEach((t) {
-        es.add(newMobileWall(
-          (t[0] + t[2] * 0.5) * cellr,
-          (t[1] + t[3] * 0.5) * cellr,
-          math.max(1.0, t[2] * 0.5 * cellr),
-          math.max(1.0, t[3] * 0.5 * cellr),
-          math.max(2.0, 1.0  * 0.3  * cellr),
-          t[4] * cellr,
-          t[5] * cellr,
-          t[6] * 1000,
-          t[7] == 1,
-          assetpack
-        ));
-      });
-    }
+    es.add(newChronometer(areadef.chronometer, timeout));
+    es.add(newGateIns(areadef.gateIns, assetpack));
+    es.add(newGateOuts(areadef.gateOuts, assetpack));
+    es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
+    es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
+    //es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
+//    if (area["zones"]["mobile_walls"] != null) {
+//      area["zones"]["mobile_walls"].forEach((t) {
+//        es.add(newMobileWall(
+//          (t[0] + t[2] * 0.5) * cellr,
+//          (t[1] + t[3] * 0.5) * cellr,
+//          math.max(1.0, t[2] * 0.5 * cellr),
+//          math.max(1.0, t[3] * 0.5 * cellr),
+//          math.max(2.0, 1.0  * 0.3  * cellr),
+//          t[4] * cellr,
+//          t[5] * cellr,
+//          t[6] * 1000,
+//          t[7] == 1,
+//          assetpack
+//        ));
+//      });
+//    }
     print("nb entities for area : ${es.length}");
     return es;
   }

@@ -8,6 +8,7 @@ class Area extends Component {
 }
 
 class Chronometer extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(Chronometer);
   int millis;
 
   Chronometer(int start) : this.millis = start;
@@ -46,9 +47,9 @@ class DroneGenerator extends Component {
   /// score of drone to generate
   List<int> scores;
   int nextPointsIdx = 0;
-  List<Vector3> points;
+  List<GateIn> gateIns;
 
-  DroneGenerator(this.points, this.scores);
+  DroneGenerator(this.gateIns, this.scores);
 }
 
 class DroneNumbers extends Component {
