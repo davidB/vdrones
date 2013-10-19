@@ -53,15 +53,14 @@ class Factory_Physics {
 //    return [ps, cs];
 //  }
 
-  Iterable<Component> newPolygones(List<Polygone> shapes, groupIndex) {
+  Iterable<Component> newPolygones(Iterable<Polygone> shapes, groupIndex) {
     var collide = 1;
     var nbPoints = shapes.fold(0,(acc, x) => acc + x.points.length);
     var ps = new Particles(nbPoints, radius0: 0.0, inertia0: 0, withCollides: true, collide0: collide);
     var cs = new Constraints();
 
     var p0 = 0;
-    for(var i = 0; i < shapes.length; ++i) {
-      var shape = shapes[i];
+    shapes.forEach((shape){
       for(var j = 0; j < shape.points.length; ++j) {
         ps.position3d[p0+j].setFrom(shape.points[j]);
       }
@@ -71,7 +70,7 @@ class Factory_Physics {
         // TODO inner axes ? (need tessellation)
       }
       p0 += shape.points.length;
-    }
+    });
     ps.copyPosition3dIntoPrevious();
     ps.extradata = new ColliderInfo()..group = groupIndex;
     return [ps, cs];

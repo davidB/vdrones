@@ -424,15 +424,17 @@ class System_CubeGenerator extends EntityProcessingSystem {
   }
 
   Vector2 _nextPosition(CubeGenerator gen) {
-    var offset = gen.subZoneOffset;
-    gen.subZoneOffset = (gen.subZoneOffset + 4) % gen.rects.length;
-    //1.0 around for wall
-    //0.5 half size of generated cube;
-    var dx = gen.rects[offset + 2] - 1.5;
-    var dy = gen.rects[offset + 3] - 1.5;
-    var x = gen.rects[offset + 0] + dx * (_random.nextDouble() * 2 - 1);
-    var y = gen.rects[offset + 1] + dy * (_random.nextDouble() * 2 - 1);
-    return new Vector2(x, y);
+    gen.subZoneOffset = (gen.subZoneOffset + 1) % gen.subZones.length;
+    var subZone = gen.subZones[gen.subZoneOffset];
+    var v0 = subZone.points[0];
+    var r0 = _random.nextDouble();
+    var p0 = new Vector3.copy(subZone.points[1]).sub(v0).scale(r0).add(v0);
+    var v2 = subZone.points[2];
+    var p2 = new Vector3.copy(subZone.points[3]).sub(v2).scale(r0).add(v2);
+    p2.sub(p0).scale(_random.nextDouble()).add(p0);
+    var out = new Vector2(p2.x, p2.y);
+    //print("$out , ${subZone.points[0]}, ${subZone.points[1]}, ${subZone.points[2]}, ${subZone.points[3]}");
+    return out;
   }
 
 }

@@ -121,7 +121,7 @@ class AreaReader4Json1 {
     ..gateOuts = gateOuts(json["zones"]["gate_out"], cellr)
     ..staticWalls = staticWalls(json, cellr)
     ..mobileWalls = mobileWalls(json["zones"]["mobile_walls"], cellr)
-    ..cubeGens = cubeGens(json["zones"]["cubes_gen"], cellr)
+    ..cubeGenerators = cubeGenerators(json["zones"]["cubes_gen"], cellr)
     ;
 
   }
@@ -205,11 +205,54 @@ class AreaReader4Json1 {
 
   //newMobileWall(double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout
   mobileWalls(json, cellr) {
-    return [];
+    return (json == null) ? [] : json.map((t) {
+      var x = (t[0] + t[2] * 0.5) * cellr;
+      var y = (t[1] + t[3] * 0.5) * cellr;
+      var dx = math.max(1.0, t[2] * 0.5 * cellr);
+      var dy = math.max(1.0, t[3] * 0.5 * cellr);
+      //var dz = math.max(2.0, 1.0  * 0.3  * cellr);
+      return new MobileWall()
+      ..shapes = [
+        new Polygone()
+        ..points = [
+          new Vector3(x - dx, y - dy, 0.0),
+          new Vector3(x - dx, y + dy, 0.0),
+          new Vector3(x + dx, y + dy, 0.0),
+          new Vector3(x + dx, y - dy, 0.0)
+        ]
+      ]
+      ..animation = (new AnimationMvt()
+        ..deplacement = new Vector3(t[4] * cellr, t[5] * cellr, 0.0)
+        ..duration = t[6] * 1000
+        ..pingpong = t[7] == 1
+      )
+      ;
+    });
   }
 
-  cubeGens(json, cellr) {
-    return [];
+  cubeGenerators(json, cellr) {
+    var rects = cells_rects(cellr, json["cells"]);
+    var l = new List<Polygone>();
+    for(var i = 0; i < rects.length; i += 4) {
+      //1.0 around for wall
+      //0.5 half size of generated cube;
+      var dx = rects[i + 2] - 1.5;
+      var dy = rects[i + 3] - 1.5;
+      var x = rects[i + 0];
+      var y = rects[i + 1];
+      l.add(new Polygone()
+        ..points = [
+          new Vector3(x - dx, y - dy, 0.0),
+          new Vector3(x - dx, y + dy, 0.0),
+          new Vector3(x + dx, y + dy, 0.0),
+          new Vector3(x + dx, y - dy, 0.0)
+        ]
+      );
+    }
+    var out = new CubeGen()
+    ..subZones = l
+    ;
+    return [out];
   }
   /// convert a list of cells [bottom0, left0, width0, height0, bottom1, left1,...] + cellr into
   /// [centerx0, centery0, halfdx0, halfdy0, centerx1, centery1, ...] in the final unit (renderable + physics)
@@ -234,11 +277,11 @@ class AreaReader4Json1 {
 }
 
 class AreaDef {
-  List<GateIn> gateIns;
-  List<GateOut> gateOuts;
-  List<MobileWall> mobileWalls;
-  List<StaticWall> staticWalls;
-  List<CubeGen> cubeGens;
+  Iterable<GateIn> gateIns;
+  Iterable<GateOut> gateOuts;
+  Iterable<MobileWall> mobileWalls;
+  Iterable<StaticWall> staticWalls;
+  Iterable<CubeGen> cubeGenerators;
   var chronometer = -60 * 1000; //millis
   var aabb3 = new Aabb3();
   var ambient = 0x444444;
@@ -262,7 +305,8 @@ class StaticWall {
 class AnimationMvt {
   double ratioInit = 0.0;
   Vector3 deplacement = new Vector3.zero();
-  String easeName = "linear";
+  num duration;
+  //String easeName = "linear";
   bool loop = true;
   bool pingpong = false;
 }
@@ -282,5 +326,5 @@ class GateOut {
   Ellipse ellipse;
 }
 class CubeGen {
-  List<Polygone> areas;
+  List<Polygone> subZones;
 }

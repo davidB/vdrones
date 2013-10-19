@@ -27,11 +27,11 @@ class Generated extends Component {
 }
 
 class CubeGenerator extends Component {
-  List<num> rects;
+  List<Polygone> subZones;
   int subZoneOffset = 0;
   int nb = 1;
 
-  CubeGenerator(this.rects);
+  CubeGenerator(this.subZones);
 }
 
 class Attraction extends Component {

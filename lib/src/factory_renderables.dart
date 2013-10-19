@@ -190,7 +190,7 @@ class Factory_Renderables {
             //updateVertices();
             //_mdt.extrudeInto(vertices, extrusion, geometry.meshDef);
             //geometry.verticesNeedUpdate = true;
-            var vp0 = ps.position3d[1];
+            var vp0 = ps.position3d[0];
             var vm = geometry.meshDef.vertices;
             geometry..transforms.setTranslationRaw(vp0.x - vm[0], vp0.y - vm[1], vp0.z - vm[2]);
           }

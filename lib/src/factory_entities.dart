@@ -114,8 +114,8 @@ class Factory_Entities {
      ;
   }
 
-  Entity newCubeGenerator(List<num> rects) => _newEntity([
-    new CubeGenerator(rects),
+  Entity newCubeGenerator(CubeGen x) => _newEntity([
+    new CubeGenerator(x.subZones),
     new Animatable()
   ]);
 
@@ -142,42 +142,39 @@ class Factory_Entities {
     renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
   ]);
 
-  Entity newMobileWall(MobileWall x,/* double x0, double y0, double dx, double dy, double dz, num tx, num ty, num duration,  bool inout, */AssetPack assetpack) => _newEntity([
-    //new Transform.w2d(x0, y0, 0.0),
-        new proto2d.Drawable(defaultDraw),
-        physicFact.newPolygones(x.shapes, EntityTypes_WALL),
-        renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
-//    physicFact.newMobileWall(x0, y0, dx, dy, EntityTypes_MWALL),
-//    renderFact.newMobileWall(dx, dy, dz, assetpack["mwall_material"]),
-//    new Animatable()
-//      ..add(new Animation()
-//        ..onTick = (e, t, t0) {
-//          var ratio =  0;
-//          if (inout) {
-//            ratio = (t % (2 * duration));
-//            if (ratio > duration) {
-//              ratio = 2 * duration - ratio;
-//            }
-//          } else {
-//            ratio = (t % duration);
-//          }
-//          ratio = ratio / duration;
-////          var trans = e.getComponent(Transform.CT);
-////          trans.position3d.x = x0 + tx * ratio;
-////          trans.position3d.y = y0 + ty * ratio;
-//          var x = x0 + tx * ratio;
-//          var y = y0 + ty * ratio;
-//          //print("$t => $x $y");
-//          var ps = e.getComponent(Particles.CT);
-////          ps.copyPosition3dIntoPrevious();
-//          ps.position3d[0].setValues(x, y, 0.0);
-//          ps.position3d[1].setValues(x-dx, y-dy, 0.0);
-//          ps.position3d[2].setValues(x+dx, y-dy, 0.0);
-//          ps.position3d[3].setValues(x+dx, y+dy, 0.0);
-//          ps.position3d[4].setValues(x-dx, y+dy, 0.0);
-//          return true;
-//        }
-//      )
+  Entity newMobileWall(MobileWall x, AssetPack assetpack) => _newEntity([
+    new proto2d.Drawable(defaultDraw),
+    physicFact.newPolygones(x.shapes, EntityTypes_WALL),
+    renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
+    new Animatable()
+      ..add(new Animation()
+        ..onTick = (e, t, t0) {
+          var anim = x.animation;
+          var ratio =  0;
+          if (anim.pingpong) {
+            ratio = (t % (2 * anim.duration));
+            if (ratio > anim.duration) {
+              ratio = 2 * anim.duration - ratio;
+            }
+          } else {
+            ratio = (t % anim.duration);
+          }
+          ratio = ratio / anim.duration;
+          var ps = e.getComponent(Particles.CT);
+          var p0 = x.shapes[0].points[0];
+          var pc = ps.position3d[0];
+          var d = new Vector3(
+            (p0.x - pc.x) + anim.deplacement.x * ratio,
+            (p0.y - pc.y) + anim.deplacement.y * ratio,
+            0.0//(pc.y - p0.z) + anim.deplacement.z * ratio
+          );
+          for (var i = 0; i < ps.length; i++) {
+            ps.position3d[i].add(d);
+          }
+//          ps.copyPosition3dIntoPrevious();
+          return true;
+        }
+      )
   ]);
 
 
@@ -229,23 +226,7 @@ class Factory_Entities {
     es.add(newGateOuts(areadef.gateOuts, assetpack));
     es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
     es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
-    //es.add(newCubeGenerator(cells_rects(cellr, area["zones"]["cubes_gen"]["cells"])));
-//    if (area["zones"]["mobile_walls"] != null) {
-//      area["zones"]["mobile_walls"].forEach((t) {
-//        es.add(newMobileWall(
-//          (t[0] + t[2] * 0.5) * cellr,
-//          (t[1] + t[3] * 0.5) * cellr,
-//          math.max(1.0, t[2] * 0.5 * cellr),
-//          math.max(1.0, t[3] * 0.5 * cellr),
-//          math.max(2.0, 1.0  * 0.3  * cellr),
-//          t[4] * cellr,
-//          t[5] * cellr,
-//          t[6] * 1000,
-//          t[7] == 1,
-//          assetpack
-//        ));
-//      });
-//    }
+    es.addAll(areadef.cubeGenerators.map((x) => newCubeGenerator(x)));
     print("nb entities for area : ${es.length}");
     return es;
   }
