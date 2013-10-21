@@ -215,6 +215,7 @@ class System_DroneHandler extends EntityProcessingSystem {
       return null;
     });
     if (esc.currentState == State_DRIVING) {
+      numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
       var ctrl = _droneControlMapper.get(entity);
       //var m = _motionMapper.get(entity);
       //m.acceleration = ctrl.forward * numbers.acc;
@@ -224,16 +225,15 @@ class System_DroneHandler extends EntityProcessingSystem {
       if (stop) {
         //ctrl.forward = 0.0;
         //ctrl.turn = 0.0;
+        //TODO find a better impluse formula
         var v = new Vector3.zero();
         for (var i = 0; i < ps.length; ++i) {
-          v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]);
-          v.scale(3.0).add(ps.position3d[i]);
+          v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0).add(ps.position3d[i]);
           ps.position3dPrevious[i].setFrom(ps.position3d[i]);
           ps.position3d[i].setFrom(v);
         }
       } else {
         _updateEnergy(numbers, ctrl);
-        numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
         //ps.accForces[DRONE_PFRONT].setValues(3.0, 0.0, 3.0);
         // component of normal of PBACKs  (2.0 is the BACK LR)
   //      var ux = (ps.position3d[DRONE_PBACKR].y - ps.position3d[DRONE_PBACKL].y);
@@ -250,7 +250,7 @@ class System_DroneHandler extends EntityProcessingSystem {
         var forward = ctrl.forward * numbers.accf;
         var fx = ux * forward;
         var fy = uy * forward;
-        var turn = ctrl.turn * numbers.accl;//* numbers.angularv;
+        var turn = ctrl.turn * numbers.accl;// * numbers.angularv;
         var tx = - uy * turn;
         var ty = ux * turn;
         var accz = 10.0;
