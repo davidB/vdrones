@@ -3,46 +3,62 @@ part of vdrones;
 class AreaReader4Svg {
   area(svg.SvgElement e) {
     var cache = new Map<svg.GraphicsElement, Matrix4>();
-    return new AreaDef()
-    ..gateIns = e.queryAll(".gate_in path").map((x) => gateIn(x, cache)).toList(growable: false)
-    ..gateOuts = e.queryAll(".gate_out path").map((x) => gateOut(x, cache)).toList(growable: false)
-    ..staticWalls = e.queryAll(".static_wall").map((x) => staticWall(x, cache)).toList(growable: false)
-    ..mobileWalls = e.queryAll(".mobile_wall").map((x) => mobileWall(x, cache)).toList(growable: false)
+    //e.children.removeWhere((e) => e.classes.contains("ignore"));
+    var out = new AreaDef()
+    ..gateIns = e.queryAll(".gate_in circle").map((x) => gateIn(x, cache))
+    ..gateOuts = e.queryAll(".gate_out circle").map((x) => gateOut(x, cache))
+    ..staticWalls = e.queryAll(".static_wall").map((x) => staticWall(x, cache))
+    ..mobileWalls = e.queryAll(".mobile_wall").map((x) => mobileWall(x, cache))
+    ..cubeGenerators = e.queryAll(".cube_generator").map((x) => cubeGenerator(x, cache))
     ;
+    out.aabb3 = out.staticWalls.fold(out.aabb3, (acc, v){
+      return v.shapes.fold(acc, (acc1, v1){
+        return Math2.updateAabbPoly(v1.points, acc1);
+      });
+    });
+    return out;
   }
 
-  gateIn(svg.GraphicsElement geom, Map<svg.GraphicsElement, Matrix4> cache) {
+  gateIn(svg.CircleElement geom, Map<svg.GraphicsElement, Matrix4> cache) {
     var t = findTransform(geom, cache);
     return new GateIn()
     ..ellipse = (new Ellipse()
-      ..position = t.transform3(new Vector3(toDouble(geom, 'sodipodi:cx'), toDouble(geom, 'sodipodi:cy'), 2.0))
-      ..rx = toDouble(geom, 'sodipodi:rx')
-      ..ry = toDouble(geom, 'sodipodi:ry')
+      ..position = t.transform3(new Vector3(geom.cx.baseVal.value, geom.cy.baseVal.value, 0.5))
+      ..rx = geom.r.baseVal.value
+      ..ry = geom.r.baseVal.value
     )
     ;
   }
 
-  gateOut(svg.GraphicsElement geom, Map<svg.GraphicsElement, Matrix4> cache) {
+  gateOut(svg.CircleElement geom, Map<svg.GraphicsElement, Matrix4> cache) {
     Matrix4 t = findTransform(geom, cache);
     return new GateOut()
     ..ellipse = (new Ellipse()
-      ..position = t.transform3(new Vector3(toDouble(geom, 'sodipodi:cx'), toDouble(geom, 'sodipodi:cy'), 0.0))
-      ..rx = toDouble(geom, 'sodipodi:rx')
-      ..ry = toDouble(geom, 'sodipodi:ry')
+      ..position = t.transform3(new Vector3(geom.cx.baseVal.value, geom.cy.baseVal.value, 0.5))
+      ..rx = geom.r.baseVal.value
+      ..ry = geom.r.baseVal.value
     )
     ;
   }
 
   staticWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
     return new StaticWall()
-    ..shapes = e.queryAll("rect").map((x) => rectToShape(x, cache))
+    ..shapes = e.queryAll("rect").map((x) => rectToShape(x, 0.0, cache))
     ;
   }
 
   mobileWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
+    print("${e.id}");
+    print(e.query('path'));
     return new MobileWall()
-    ..shapes = e.queryAll("rect").map((x) => rectToShape(x, cache))
-    ..animation = new AnimationMvt()
+    ..shapes = e.queryAll('rect').map((x) => rectToShape(x, 0.1, cache))
+    ..animation = pathToAnimationMvt(e.query('path'), cache)
+    ;
+  }
+
+  cubeGenerator(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
+    return new CubeGen()
+    ..subZones = e.queryAll('rect').map((x) => rectToShape(x, 0.0, cache))
     ;
   }
 
@@ -54,21 +70,47 @@ class AreaReader4Svg {
       out = ts.isEmpty ? parentM : toMatrix4(ts.first.matrix).multiply(parentM);
       cache[e] = out;
     }
-    print("$out $e");
     return out;
   }
 
-  rectToShape(svg.RectElement e, Map<svg.GraphicsElement, Matrix4> cache) {
+  rectToShape(svg.RectElement e, double z, Map<svg.GraphicsElement, Matrix4> cache) {
     Matrix4 t = findTransform(e, cache);
     var x = e.x.baseVal.value;
     var y = e.y.baseVal.value;
     var w = e.width.baseVal.value;
     var h = e.height.baseVal.value;
     return new Polygone()
-    ..points = [new Vector3(x, y, 0.0), new Vector3(x+w, y, 0.0), new Vector3(x+w, y+h, 0.0), new Vector3(x, y+h, 0.0)].map(t.transform3)
+    ..points = [new Vector3(x, y, z), new Vector3(x+w, y, z), new Vector3(x+w, y+h, z), new Vector3(x, y+h, z)].map(t.transform3).toList(growable:false)
     ;
   }
-  toDouble(svg.GraphicsElement e, String k) => double.parse(e.attributes[k]);
+
+  pathToAnimationMvt(svg.PathElement e, Map<svg.GraphicsElement, Matrix4> cache) {
+    Matrix4 t = findTransform(e, cache);
+    var p = (e.normalizedPathSegList != null) ?
+        e.normalizedPathSegList
+          : e.pathSegList;
+    var v;
+    if (p.first.pathSegType == svg.PathSeg.PATHSEG_MOVETO_ABS) {
+      var p0 = p.first as svg.PathSegMovetoAbs;
+      var p1 = p.last as svg.PathSegLinetoAbs;
+      v = t.transform3(new Vector3(p1.x - p0.x, p1.y - p0.y, 0.0));
+    } else if (p.first.pathSegType == svg.PathSeg.PATHSEG_MOVETO_REL) {
+      var p1 = p.last as svg.PathSegLinetoRel;
+      v = new Vector3(p1.x, p1.y, 0.0);
+    }
+    return new AnimationMvt()
+    ..duration = toDouble(e, 'x-duration')
+    ..loop = e.attributes['x-loop'] == "true"
+    ..pingpong = e.attributes['x-pingpong'] == "true"
+    ..ratioInit = 0.0
+    ..deplacement = v
+    ;
+  }
+  toDouble(svg.GraphicsElement e, String k) {
+    var v = e.attributes[k];
+    if (v == null) throw new Exception("attribute '$k' not found in element <${e.tagName} id='${e.id}' ...>");
+    return double.parse(v);
+  }
 
   toMatrix4(svg.Matrix m) {
     return new Matrix4.identity()
@@ -80,50 +122,20 @@ class AreaReader4Svg {
 
 class AreaReader4Json1 {
   area(Map json) {
-
-//    return new AreaDef()
-//    ..gateIns = e.queryAll(".gate_in path").map((x) => gateIn(x, cache)).toList(growable: false)
-//    ..gateOuts = e.queryAll(".gate_out path").map((x) => gateOut(x, cache)).toList(growable: false)
-//    ..staticWalls = e.queryAll(".static_wall").map((x) => staticWall(x, cache)).toList(growable: false)
-//    ..mobileWalls = e.queryAll(".mobile_wall").map((x) => mobileWall(x, cache)).toList(growable: false)
-//    ;
     var cellr = json['cellr'].toDouble();
-
-//    var es = new List<Entity>();
-//    es.add(newCamera("${assetpack.name}.music", new Aabb3.minmax(new Vector3(-0.1, -0.1, -0.1), new Vector3(width * cellr + 0.1, height * cellr + 0.1, 2.0 * cellr +0.1))));
-//    var v = json["light_ambient"];
-//    v = (v == null) ? 0x444444 : v;
-//    es.add(newAmbientLight(v));
-//    json["lights_spots"].forEach((i) {
-//      es.add(newLight(new Vector3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new Vector3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
-//    });
-//    es.add(newArea(assetpack.name));
-//    es.add(newChronometer(-60 * 1000, timeout));
-//    es.add(newCubeGenerator(cells_rects(cellr, json["zones"]["cubes_gen"]["cells"])));
-//    if (json["zones"]["mobile_walls"] != null) {
-//      json["zones"]["mobile_walls"].forEach((t) {
-//        es.add(newMobileWall(
-//          (t[0] + t[2] * 0.5) * cellr,
-//          (t[1] + t[3] * 0.5) * cellr,
-//          math.max(1.0, t[2] * 0.5 * cellr),
-//          math.max(1.0, t[3] * 0.5 * cellr),
-//          math.max(2.0, 1.0  * 0.3  * cellr),
-//          t[4] * cellr,
-//          t[5] * cellr,
-//          t[6] * 1000,
-//          t[7] == 1,
-//          assetpack
-//        ));
-//      });
-//    }
-    return new AreaDef()
+    var out = new AreaDef()
     ..gateIns = gateIns(json["zones"]["gate_in"], cellr)
     ..gateOuts = gateOuts(json["zones"]["gate_out"], cellr)
     ..staticWalls = staticWalls(json, cellr)
     ..mobileWalls = mobileWalls(json["zones"]["mobile_walls"], cellr)
     ..cubeGenerators = cubeGenerators(json["zones"]["cubes_gen"], cellr)
     ;
-
+    out.aabb3 = out.staticWalls.fold(out.aabb3, (acc, v){
+      return v.shapes.fold(acc, (acc1, v1){
+        return Math2.updateAabbPoly(v1.points, acc1);
+      });
+    });
+    return out;
   }
 
   gateIns(json, cellr){
@@ -182,8 +194,7 @@ class AreaReader4Json1 {
     var walls = new List<double>();
     walls.addAll(cells_rects(cellr, makeBorderAsCells(width, height), 0));
     walls.addAll(cells_rects(cellr, walls0));
-    var out = new StaticWall()
-    ..shapes = new List<Polygone>()
+    var shapes = new List<Polygone>()
     ;
     for(var i = 0; i < walls.length; i+=4) {
       var x = walls[i + 0];
@@ -198,8 +209,11 @@ class AreaReader4Json1 {
          new Vector3(x + dx, y - dy, 0.0)
       ]
       ;
-      out.shapes.add(shape);
+      shapes.add(shape);
     }
+    var out = new StaticWall()
+    ..shapes = shapes
+    ;
     return [out];
   }
 
@@ -298,7 +312,7 @@ class Ellipse {
 }
 
 class StaticWall {
-  List<Polygone> shapes;
+  Iterable<Polygone> shapes;
   Vector4 color = new Vector4(0.9, 0.9, 0.95, 1.0);
 }
 
@@ -312,7 +326,7 @@ class AnimationMvt {
 }
 
 class MobileWall {
-  List<Polygone> shapes;
+  Iterable<Polygone> shapes;
   AnimationMvt animation;
   Vector4 color = new Vector4(0.8, 0.1, 0.1, 0.7);
 }
@@ -326,5 +340,5 @@ class GateOut {
   Ellipse ellipse;
 }
 class CubeGen {
-  List<Polygone> subZones;
+  Iterable<Polygone> subZones;
 }

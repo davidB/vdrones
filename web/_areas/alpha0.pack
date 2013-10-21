@@ -1,7 +1,7 @@
 {
    "area":{
       "url":"alpha0.json",
-      "type":"json"
+      "type":"area_json"
    },
    "hud":{
       "url":"../_images/gui.svg",

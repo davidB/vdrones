@@ -61,15 +61,16 @@ class Factory_Physics {
 
     var p0 = 0;
     shapes.forEach((shape){
-      for(var j = 0; j < shape.points.length; ++j) {
-        ps.position3d[p0+j].setFrom(shape.points[j]);
+      var points = shape.points.toList(growable: false);
+      for(var j = 0; j < points.length; ++j) {
+        ps.position3d[p0+j].setFrom(points[j]);
       }
-      for(var j = 0; j < shape.points.length; ++j) {
+      for(var j = 0; j < points.length; ++j) {
         // extern shape
-        cs.l.add(new Constraint_Distance(new Segment(ps, p0+j, p0 + ((j+1) % shape.points.length), collide), 1.0));
+        cs.l.add(new Constraint_Distance(new Segment(ps, p0+j, p0 + ((j+1) % points.length), collide), 1.0));
         // TODO inner axes ? (need tessellation)
       }
-      p0 += shape.points.length;
+      p0 += points.length;
     });
     ps.copyPosition3dIntoPrevious();
     ps.extradata = new ColliderInfo()..group = groupIndex;

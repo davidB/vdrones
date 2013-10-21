@@ -2,7 +2,7 @@
    "area":{
       "name":"area",
       "url":"beta1.json",
-      "type":"json"
+      "type":"area_json"
    },
    "hud":{
       "name":"hud",

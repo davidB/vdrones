@@ -126,7 +126,7 @@ class Factory_Entities {
     renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
   ]);
 
-  Entity newGateIns(List<GateIn> x, AssetPack assetpack) {
+  Entity newGateIns(Iterable<GateIn> x, AssetPack assetpack) {
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
@@ -136,7 +136,7 @@ class Factory_Entities {
     ]);
   }
 
-  Entity newGateOuts(List<GateOut> x, AssetPack assetpack) => _newEntity([
+  Entity newGateOuts(Iterable<GateOut> x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newCircles2d(x.map((x) => x.ellipse), 0.3, EntityTypes_GATEOUT),
     renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
@@ -161,7 +161,7 @@ class Factory_Entities {
           }
           ratio = ratio / anim.duration;
           var ps = e.getComponent(Particles.CT);
-          var p0 = x.shapes[0].points[0];
+          var p0 = x.shapes.first.points.first;
           var pc = ps.position3d[0];
           var d = new Vector3(
             (p0.x - pc.x) + anim.deplacement.x * ratio,
@@ -210,9 +210,7 @@ class Factory_Entities {
   ]);
 
   List<Entity> newFullArea(AssetPack assetpack, timeout) {
-    var json = assetpack['area'];
-    var reader = new AreaReader4Json1();
-    var areadef = reader.area(json);
+    var areadef = assetpack['area'];
 
     var es = new List<Entity>();
     es.add(newCamera("${assetpack.name}.music", areadef.aabb3));
@@ -227,6 +225,7 @@ class Factory_Entities {
     es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
     es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
     es.addAll(areadef.cubeGenerators.map((x) => newCubeGenerator(x)));
+    print("areadef.mobileWalls : ${areadef.mobileWalls.length}");
     print("nb entities for area : ${es.length}");
     return es;
   }

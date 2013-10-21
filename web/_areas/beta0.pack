@@ -1,8 +1,7 @@
 {
    "area":{
-      "name":"area",
-      "url":"beta0.json",
-      "type":"json"
+     "url":"map0.svg",
+     "type":"area_svg"
    },
    "hud":{
       "name":"hud",
@@ -24,6 +23,10 @@
        "url":"../_songs/chris01.ogg",
        "type": "audioclip"
    },
+   "mwall_material": {
+     "url": "../_packs/0/mat0",
+     "type": "shaderProgram"
+   },   
    "wall_material": {
      "url": "../_packs/0/mat0",
      "type": "shaderProgram"

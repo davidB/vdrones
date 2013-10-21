@@ -43,6 +43,7 @@ part 'src/factory_animations.dart';
 part 'src/factory_renderables.dart';
 part 'src/stats.dart';
 part 'src/areadef.dart';
+part 'src/asset_loaders.dart';
 
 class Status {
   static const NONE = 0;
@@ -263,7 +264,7 @@ class VDrones {
       _proto2dSystem = new proto2d.System_Renderer(canvases[1])
       ..scale = 2.0
       ..translateX = 10
-      ..translateY = 50
+      ..translateY = 500
       ;
       _world.addSystem(_proto2dSystem, passive:true);
     }
@@ -282,6 +283,12 @@ class VDrones {
     var b = new AssetManager(tracer);
     b.loaders['img'] = new ImageLoader();
     b.importers['img'] = new NoopImporter();
+    b.loaders['svg'] = new XmlLoader();
+    b.importers['svg'] = new SvgImporter();
+    b.loaders['area_svg'] = new XmlLoader();
+    b.importers['area_svg'] = new AreaSvgImporter();
+    b.loaders['area_json'] = new TextLoader();
+    b.importers['area_json'] = new AreaJsonImporter();
 
     if (gl != null) registerGlfWithAssetManager(gl, b);
     if (audioManager != null) registerSimpleAudioWithAssetManager(audioManager, b);

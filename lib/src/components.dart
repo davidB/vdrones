@@ -31,7 +31,7 @@ class CubeGenerator extends Component {
   int subZoneOffset = 0;
   int nb = 1;
 
-  CubeGenerator(this.subZones);
+  CubeGenerator(subZones0) : subZones = subZones0.toList(growable:false);
 }
 
 class Attraction extends Component {
@@ -49,7 +49,7 @@ class DroneGenerator extends Component {
   int nextPointsIdx = 0;
   List<GateIn> gateIns;
 
-  DroneGenerator(this.gateIns, this.scores);
+  DroneGenerator(gateIns, this.scores) : this.gateIns = gateIns.toList(growable: false);
 }
 
 class DroneNumbers extends Component {

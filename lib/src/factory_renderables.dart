@@ -133,7 +133,7 @@ class Factory_Renderables {
     ..onInsert = (gl, Entity entity) {
       var extrusion = new Vector3(0.0, 0.0, dz);
       shapeToMeshDef(shape) {
-        var points = shape.points;
+        var points = shape.points.toList();
         var vertices = new Float32List(points.length * 3);
         for(var i = 0; i < points.length; i++) {
           var v = points[i];
@@ -150,7 +150,7 @@ class Factory_Renderables {
       if (includeFloor) {
         var tmp = new Aabb3();
         var aabb = shapes.fold(null, (acc, x){
-          var t0 = Math2.extractAabbPoly(x.points, tmp);
+          var t0 = Math2.extractAabbPoly(x.points.toList(), tmp);
           return (acc == null) ? new Aabb3.copy(t0) : acc..hull(t0);
         });
         var center = new Vector3.zero();

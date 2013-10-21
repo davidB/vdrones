@@ -2,7 +2,7 @@
    "area":{
       "name":"area",
       "url":"pacman0.json",
-      "type":"json"
+      "type":"area_json"
    },
    "hud":{
       "name":"hud",
