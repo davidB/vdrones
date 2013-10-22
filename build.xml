@@ -107,10 +107,18 @@
     <deleteEmptyFolders dir="${target}/web/packages"/>
   </target>
 
-  <target name="deploy0" depends="js, insert_ga, remove_packages"/>
+  <target name="deploy0" depends="js, insert_ga, remove_packages">
+    <deleteEmptyFolders dir="${target}/packages"/>
+    <mkdir dir="${target}/api"/>
+    <copy todir="${target}/api">
+      <fileset dir="src/go"/>
+    </copy>
+    <copy file="src/cfg/app.yaml" tofile="${target}/app.yaml">
+  </target>
+
   <target name="deploy" depends="deploy0">
-    <exec executable="appcfg.sh">
-      <arg line="--use_java7 update target/web"/>
+    <exec executable="python2">
+      <arg line="$HOME/bin/soft-golang/google_appengine/appcfg.py update ${target}"/>
     </exec>
   </target>
 

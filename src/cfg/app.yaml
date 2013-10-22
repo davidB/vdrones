@@ -2,17 +2,18 @@
 #see https://developers.google.com/appengine/docs/python/config/appconfig
 #
 application: vdrones
-version: 0-12-2
-runtime: java
-#api_version: 1
+version: 0-13-0
+runtime: go
+api_version: go1
 threadsafe: true
 default_expiration: "5d"
 
-welcome_files:
-  - index.html
-
-static_files:
-  - include: /**.*
-#  - exclude: /data/**.png
-
 handlers:
+- url: /api/.*
+  script: _go_app
+- url: /
+  static_files: web/index.html
+  upload: web/index.html
+- url: /(.*)
+  static_files: web/\1
+  upload: web/(.*)
