@@ -1,5 +1,6 @@
 part of vdrones;
 
+// TODO document conversion (API or blog, md)
 class AreaReader4Svg {
   area(svg.SvgElement e) {
     var cache = new Map<svg.GraphicsElement, Matrix4>();
@@ -42,14 +43,15 @@ class AreaReader4Svg {
   }
 
   staticWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
+    var shapes = new List();
+    e.queryAll("rect").fold(shapes, (acc, x) => acc..add(rectToShape(x, 0.0, cache)));
+    e.queryAll("path").fold(shapes, (acc, x) => acc..addAll(pathToShapes(x, 0.0, cache)));
     return new StaticWall()
-    ..shapes = e.queryAll("rect").map((x) => rectToShape(x, 0.0, cache))
+    ..shapes = shapes
     ;
   }
 
   mobileWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
-    print("${e.id}");
-    print(e.query('path'));
     return new MobileWall()
     ..shapes = e.queryAll('rect').map((x) => rectToShape(x, 0.1, cache))
     ..animation = pathToAnimationMvt(e.query('path'), cache)
@@ -84,6 +86,67 @@ class AreaReader4Svg {
     ;
   }
 
+  //TODO : support relative, closed (=> convex polygone)
+  // the stroke calculation at linejoin is wrong
+  pathToShapes(svg.PathElement e, double z, Map<svg.GraphicsElement, Matrix4> cache) {
+    Matrix4 t = findTransform(e, cache);
+    var p = (e.normalizedPathSegList != null) ?
+        e.normalizedPathSegList
+          : e.pathSegList;
+    var l = p.length;
+    var points = new List<Vector3>(l * 2);
+    var r = styleToDouble(e, 'stroke-width');
+    var strokesV = new List<Vector3>(l);
+    var symI = (i) => 2 * l -1 -i;
+    // points in absolute position
+    for (var i = 0; i < l; ++i) {
+      switch(p[i].pathSegType){
+        case svg.PathSeg.PATHSEG_LINETO_ABS :
+          var pi = p[i] as svg.PathSegLinetoAbs;
+          points[i] = new Vector3(pi.x, pi.y, z);
+          break;
+        case svg.PathSeg.PATHSEG_MOVETO_ABS :
+          var pi = p[i] as svg.PathSegMovetoAbs;
+          points[i] = new Vector3(pi.x, pi.y, z);
+          break;
+        case svg.PathSeg.PATHSEG_LINETO_REL:
+          var pi = p[i] as svg.PathSegLinetoRel;
+          points[i] = new Vector3(points[i - 1].x + pi.x, points[i - 1].y + pi.y, z);
+          break;
+        default:
+          print("Unsupported path element : ${p[i].pathSegType} in ${e}");
+          points[i] = new Vector3.zero();
+      }
+      points[symI(i)] = new Vector3.copy(points[i]);
+    }
+    // stroke of frag
+    for (var i = 0; i < l; ++i) {
+      if (i == (l - 1)) {
+        strokesV[i] = strokesV[i - 1];
+      } else {
+        strokesV[i] = Math2.rot90V2(new Vector3.copy(points[i + 1]).sub(points[i])).normalize().scale(r);
+      }
+    }
+    // stroke of points (join stroke of frag)
+    for (var i = l-2; i > 0; --i) {
+      strokesV[i].add(strokesV[i-1]).normalize().scale(r);
+    }
+    // move points to stroke
+    for (var i = 0; i < l; ++i) {
+      points[i].add(strokesV[i]);
+      points[symI(i)].sub(strokesV[i]);
+    }
+    // create a list of quad (no concave polygone)
+    var quads = new List<Polygone>();
+    for (var i = 1; i < l; ++i) {
+      quads.add(new Polygone()
+        ..points = [points[i-1], points[i], points[symI(i)], points[symI(i - 1)]]//.map(t.transform3).toList(growable:false)
+      )
+      ;
+    }
+    return quads;
+  }
+
   pathToAnimationMvt(svg.PathElement e, Map<svg.GraphicsElement, Matrix4> cache) {
     Matrix4 t = findTransform(e, cache);
     var p = (e.normalizedPathSegList != null) ?
@@ -110,6 +173,13 @@ class AreaReader4Svg {
     var v = e.attributes[k];
     if (v == null) throw new Exception("attribute '$k' not found in element <${e.tagName} id='${e.id}' ...>");
     return double.parse(v);
+  }
+
+  styleToDouble(svg.GraphicsElement e, String k) {
+    var v = e.style.getPropertyValue(k);
+    if (v == null || v.length == 0) throw new Exception("style '$k' not found in element <${e.tagName} id='${e.id}' ...>");
+    if (!v.endsWith('px')) throw new Exception("style not in 'px' in element <${e.tagName} id='${e.id}' style='$k:$v;...' ...>");
+    return double.parse(v.substring(0, v.length - 2));
   }
 
   toMatrix4(svg.Matrix m) {
@@ -185,7 +255,6 @@ class AreaReader4Json1 {
     }
     var walls0 = new List<int>();
     if (json["walls"]["cells"] != null) {
-      print("read cells");
       walls0.addAll(json["walls"]["cells"]);
     }
     if (json["walls"]["maze"] != null) {

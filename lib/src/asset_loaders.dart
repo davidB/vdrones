@@ -48,6 +48,9 @@ class AreaJsonImporter extends AssetImporter {
         tracer.assetImportError(asset, "A raw asset was not a String.");
       }
       return new Future.value(asset);
+    } catch(e, st) {
+      print(st);
+      tracer.assetImportError(asset, "failed to import : $e");
     } finally {
       tracer.assetImportEnd(asset);
     }
@@ -66,16 +69,15 @@ class AreaSvgImporter extends AssetImporter {
     tracer.assetImportStart(asset);
     try {
       if (payload is Document) {
-        try {
-          var reader = new AreaReader4Svg();
-          asset.imported = reader.area(payload.documentElement);
-        } on FormatException catch (e) {
-          tracer.assetImportError(asset, e.message);
-        }
+        var reader = new AreaReader4Svg();
+        asset.imported = reader.area(payload.documentElement);
       } else {
         tracer.assetImportError(asset, "A raw asset was not a Document.");
       }
       return new Future.value(asset);
+    } catch(e, st) {
+      print(st);
+      tracer.assetImportError(asset, "failed to import : ${e}");
     } finally {
       tracer.assetImportEnd(asset);
     }
