@@ -228,7 +228,10 @@ class VDrones {
 
   void _setupWorld(Element container) {
     //var collSpace = new Coll.Space_Noop();
-    var collSpace = new collisions.Space_XY0(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)));
+    var collChecker = new collisions.Checker_MvtAsPoly4()
+    ..printCollidePS = false
+    ;
+    var collSpace = new collisions.Space_XY0(collChecker, new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)));
     _renderSystem = new System_Render3D(_gl, _assetManager, _textures);
     _hudSystem = new System_Hud(container, _player);
 
