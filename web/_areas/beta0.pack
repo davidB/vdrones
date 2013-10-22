@@ -1,7 +1,7 @@
 {
    "area":{
-     "url":"map0.svg",
-     "type":"area_svg"
+     "url":"beta0.json",
+     "type":"area_json"
    },
    "hud":{
       "name":"hud",
