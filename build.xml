@@ -113,7 +113,7 @@
     <copy todir="${target}/api">
       <fileset dir="src/go"/>
     </copy>
-    <copy file="src/cfg/app.yaml" tofile="${target}/app.yaml">
+    <copy file="src/cfg/app.yaml" tofile="${target}/app.yaml"/>
   </target>
 
   <target name="deploy" depends="deploy0">
