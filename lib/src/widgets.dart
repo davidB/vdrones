@@ -151,3 +151,58 @@ class UiDropdown {
     print("action : $action $e $headerElement $contentDiv");
   }
 }
+
+class UiScreenInit {
+  Element el;
+  var onPlayEnabled = false;
+  Function onPlay;
+  
+  update(){
+    if (el == null) return;
+    el.querySelector("#msgConnecting").style.opacity = onPlayEnabled ? "0" : "1";
+    var btn = el.querySelector(".play");
+    (btn as ButtonElement).disabled = !onPlayEnabled;
+    btn.onClick.first.then((evt){
+      if (onPlay != null) onPlay();
+    });
+  }
+  
+  _update0(k, v) {
+    var el0 = el.querySelector("[data-text=$k]");
+    if (el0 != null) {
+      el0.text = v.toString();
+    }
+  }
+}
+
+class UiScreenRunResult {
+  Element el;
+  String areaId = "";
+  num cubesLast = 0;
+  num cubesMax = 0;
+  num cubesGain = 0;
+  num cubesTotal = 0;
+  var onPlayEnabled = false;
+  Function onPlay;
+  
+  update(){
+    if (el == null) return;
+    _update0("areaId", areaId);
+    _update0("cubesLast", cubesLast);
+    _update0("cubesMax", cubesMax);
+    _update0("cubesGain", cubesGain);
+    _update0("cubesTotal", cubesTotal);
+    var btn = el.querySelector(".play");
+    (btn as ButtonElement).disabled = !onPlayEnabled;
+    btn.onClick.first.then((evt){
+      if (onPlay != null) onPlay();
+    });
+  }
+  
+  _update0(k, v) {
+    var el0 = el.querySelector("[data-text=$k]");
+    if (el0 != null) {
+      el0.text = v.toString();
+    }
+  }
+}

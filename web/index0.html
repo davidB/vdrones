@@ -9,10 +9,6 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <link rel="shortcut icon" href="favicon.ico" >
-    <link rel="import" href="packages/vdrones/widgets/xmodal.html">
-    <link rel="import" href="packages/vdrones/widgets/xrunresult.html">
-<!--
--->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -97,6 +93,36 @@
       <div id="pauseOverlay" style="z-index:11; visibility: hidden">
         <div><a class="fontawesome-pauseplay" title="play"></a></div>
       </div>
+      <div id="screenRunResult" class="screen_info hidden">
+        <div class="screen_inner">
+              <div style="margin: auto; width: 12em; text-align: center;">
+                <table class="stats">
+                  <tbody>
+                    <tr>
+                      <th>area</th>
+                      <td data-text="areaId"></td>
+                    </tr>
+                    <tr>
+                      <th>cubes</th>
+                      <td data-text="cubesLast"></td>
+                    </tr>
+                    <tr>
+                      <th>gain</th>
+                      <td>+ <span data-text="cubesGain"></span></td>
+                    </tr>
+                    <tr>
+                      <th>total</th>
+                      <td data-text="cubesTotal"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
+              </div>
+          <div class="actions">
+            <button class="btn btn-primary play" disabled="disabled" tabindex="0"><i class="icon-repeat"></i> Replay</button>
+          </div>
+        </div>
+      </div>
       <div id="screenInit" class="screen_info">
         <div class="screen_inner">
           <h3>Welcome VDroner,</h3>
@@ -126,8 +152,8 @@
             </table>
           </div>
           <div class="actions">
-            <div id="msgConnecting" style="opacity: {{game.status != vdrones.Status.INITIALIZED ? 1 : 0}}"><span class="fontelico-spin1 animate-spin"></span> Please wait, connecting to VSpace ...</div>
-            <button on-click="game.play()" class="btn btn-primary" disabled="{{game.status != vdrones.Status.INITIALIZED}}">START</button>
+            <div id="msgConnecting" style="opacity: 1"><span class="fontelico-spin1 animate-spin"></span> Please wait, connecting to VSpace ...</div>
+            <button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
           </div>
         </div>
       </div>
@@ -147,16 +173,7 @@
         <a href="humans.txt"  onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img  src="humanstxt-transparent-1ink.png" border="0"/></a>
       </div>
     </footer>
-
   </div>
-  <x-modal id="runresult_dialog">
-    <div class="modal-body">
-      <x-runresult id="runresult"></x-runresult>
-    </div>
-    <div class="modal-footer">
-      <button on-click="game.play()" class="btn btn-primary" data-dismiss="modal" tabindex="0"><i class="icon-repeat"></i> Replay</button>
-    </div>
-  </x-modal>
   <!--
   <x-modal id="feedback_dialog">
     <div class="modal-header">

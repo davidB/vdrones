@@ -98,11 +98,20 @@ class VDrones {
   var _gameLoop;
 
   get audioManager => _audioManager;
+  final uiScreenInit = new UiScreenInit();
+  final uiScreenRunResult = new UiScreenRunResult();
 
   VDrones() {
     var container = document.querySelector('#layers');
     if (container == null) throw new StateError("#layers not found");
-
+    uiScreenInit
+    ..el = container.querySelector("#screenInit")
+    ..onPlay = play
+    ;
+    uiScreenRunResult
+    ..el = querySelector('#screenRunResult')
+    ..onPlay = play
+    ;
     _world = new World();
     _gameLoop = new GameLoopHtml(container);
 
@@ -124,7 +133,9 @@ class VDrones {
   get status => _status;
   void _updateStatus(int v) {
     _status = v;
-    watchers.dispatch();
+    uiScreenInit.onPlayEnabled = playable();
+    uiScreenInit.update();
+    uiScreenRunResult.onPlayEnabled = playable();
   }
 
   get area => (_areaPack == null) ? null : _areaPack.name;
@@ -184,13 +195,15 @@ class VDrones {
     _stats
       .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
       .then((stats){
-        var runresult = querySelector('#runresult').xtag;
-        runresult.areaId = area;
-        runresult.cubesLast = stats[area + Stats.AREA_CUBES_LAST_V];
-        runresult.cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN];
-        runresult.cubesMax = stats[area + Stats.AREA_CUBES_MAX_V];
-        runresult.cubesTotal = stats[Stats.CUBES_TOTAL_V];
-        querySelector('#runresult_dialog').xtag.show();
+        uiScreenRunResult
+        ..areaId = area
+        ..cubesLast = stats[area + Stats.AREA_CUBES_LAST_V]
+        ..cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN]
+        ..cubesMax = stats[area + Stats.AREA_CUBES_MAX_V]
+        ..cubesTotal = stats[Stats.CUBES_TOTAL_V]
+        ..update()
+        ;
+        showScreen(uiScreenRunResult.el.id);
       });
   }
 
@@ -200,7 +213,7 @@ class VDrones {
       return new Future.error("already initializing an area");
     }
     _updateStatus(Status.INITIALIZING);
-    showScreen('screenInit');
+    showScreen(uiScreenInit.el.id);
     _hudSystem.reset();
     _world.deleteAllEntities();
     //_newWorld();
