@@ -18,7 +18,8 @@ dependencies:
 #    git: https://github.com/davidB/lawndart.git
   logging: any
   simple_audio:
-    git: https://github.com/johnmccutchan/simpleaudio.git
+     path: ../simpleaudio
+#    git: https://github.com/johnmccutchan/simpleaudio.git
   vector_math: '>=1.3.0'
   web_ui: any
   widget:
@@ -26,6 +27,7 @@ dependencies:
   game_loop:
     path: ../game_loop
 #    git: https://github.com/johnmccutchan/game_loop.git
+  google_games_v1_api: '>=0.4.1'
 dev_dependencies:
   unittest: any
 

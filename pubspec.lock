@@ -4,11 +4,11 @@ packages:
   analyzer_experimental:
     description: analyzer_experimental
     source: hosted
-    version: "0.8.1+2"
+    version: "0.8.6"
   args:
     description: args
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   asset_pack:
     description:
       ref: null
@@ -16,10 +16,6 @@ packages:
       url: "https://github.com/johnmccutchan/asset_pack.git"
     source: git
     version: "0.6.2"
-  barback:
-    description: barback
-    source: hosted
-    version: "0.8.1"
   bot:
     description: bot
     source: hosted
@@ -27,7 +23,7 @@ packages:
   bot_io:
     description: bot_io
     source: hosted
-    version: "0.23.2"
+    version: "0.23.3"
   bot_web:
     description: bot_web
     source: hosted
@@ -35,11 +31,11 @@ packages:
   browser:
     description: browser
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   crypto:
     description: crypto
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   csslib:
     description: csslib
     source: hosted
@@ -47,29 +43,37 @@ packages:
   custom_element:
     description: custom_element
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   dartemis:
     description: dartemis
     source: hosted
     version: "0.4.2"
   dartemis_toolbox:
     description:
-      path: "/home/dwayne/dart/vdrones/../dartemis_toolbox"
+      path: "/home/dwayne/work/dart/vdrones/../dartemis_toolbox"
       relative: true
     source: path
     version: "0.5.0-dev"
   game_loop:
     description:
-      path: "/home/dwayne/dart/vdrones/../game_loop"
+      path: "/home/dwayne/work/dart/vdrones/../game_loop"
       relative: true
     source: path
     version: "0.9.0"
   glf:
     description:
-      path: "/home/dwayne/dart/vdrones/../glf"
+      path: "/home/dwayne/work/dart/vdrones/../glf"
       relative: true
     source: path
     version: "0.1.0"
+  google_games_v1_api:
+    description: google_games_v1_api
+    source: hosted
+    version: "0.4.1"
+  google_oauth2_client:
+    description: google_oauth2_client
+    source: hosted
+    version: "0.3.1"
   hop:
     description: hop
     source: hosted
@@ -78,65 +82,64 @@ packages:
     description: html5lib
     source: hosted
     version: "0.4.4"
+  http:
+    description: http
+    source: hosted
+    version: "0.8.7"
   js:
     description: js
     source: hosted
-    version: "0.0.25"
+    version: "0.0.26"
   lawndart:
     description: lawndart
     source: hosted
-    version: "0.6.1"
+    version: "0.6.4"
   logging:
     description: logging
     source: hosted
-    version: "0.8.1"
-  mdv:
-    description: mdv
-    source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   meta:
     description: meta
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   mutation_observer:
     description: mutation_observer
     source: hosted
-    version: "0.8.1"
-  observe:
-    description: observe
+    version: "0.8.7"
+  oauth2:
+    description: oauth2
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   path:
     description: path
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   pathos:
     description: pathos
     source: hosted
     version: "0.6.3+1"
   simple_audio:
     description:
-      ref: null
-      resolved-ref: a00e27966117c99ca7e6d70d733ad4a806521b1a
-      url: "https://github.com/johnmccutchan/simpleaudio.git"
-    source: git
+      path: "/home/dwayne/work/dart/vdrones/../simpleaudio"
+      relative: true
+    source: path
     version: "0.9.0"
   source_maps:
     description: source_maps
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   stack_trace:
     description: stack_trace
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   unittest:
     description: unittest
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   unmodifiable_collection:
     description: unmodifiable_collection
     source: hosted
-    version: "0.8.1"
+    version: "0.8.7"
   vector_math:
     description: vector_math
     source: hosted
@@ -144,11 +147,11 @@ packages:
   web_ui:
     description: web_ui
     source: hosted
-    version: "0.4.22"
+    version: "0.4.24"
   widget:
     description:
       ref: null
-      resolved-ref: "027e4c61335a088354d3c4e7c0c26b710056cd1e"
+      resolved-ref: fe17671fa00f720f7ce10657951b7569bf2b54ad
       url: "https://github.com/dart-lang/widget.dart"
     source: git
     version: "0.2.7"
