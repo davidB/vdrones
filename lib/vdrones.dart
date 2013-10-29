@@ -65,7 +65,7 @@ String findBaseUrl() {
 }
 
 void showScreen(id){
-  document.queryAll('.screen_info').forEach((screen) {
+  document.querySelectorAll('.screen_info').forEach((screen) {
     //screen.style.opacity = (screen.id === id)?1 : 0;
     if (screen.id == id) {
       screen.classes.remove('hidden');
@@ -105,16 +105,16 @@ class VDrones {
   set sourceVolume(v) { if(_audioManager == null) return; _audioManager.sourceVolume = double.parse(v) ; }
 
   VDrones() {
-    var container = document.query('#layers');
+    var container = document.querySelector('#layers');
     if (container == null) throw new StateError("#layers not found");
 
     _world = new World();
     _gameLoop = new GameLoopHtml(container);
 
-    _gl = _newRenderingContext(container.queryAll("canvas")[0]);
-    _audioManager = _newAudioManager(findBaseUrl());
+    _gl = _newRenderingContext(container.querySelectorAll("canvas")[0]);
+    //_audioManager = _newAudioManager(findBaseUrl());
 
-    var bar = document.query('#gameload');
+    var bar = document.querySelector('#gameload');
     _assetManager = _newAssetManager(bar, _gl, _audioManager);
     _preloadAssets();
 
@@ -189,13 +189,13 @@ class VDrones {
     _stats
       .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
       .then((stats){
-        var runresult = query('#runresult').xtag;
+        var runresult = querySelector('#runresult').xtag;
         runresult.areaId = area;
         runresult.cubesLast = stats[area + Stats.AREA_CUBES_LAST_V];
         runresult.cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN];
         runresult.cubesMax = stats[area + Stats.AREA_CUBES_MAX_V];
         runresult.cubesTotal = stats[Stats.CUBES_TOTAL_V];
-        query('#runresult_dialog').xtag.show();
+        querySelector('#runresult_dialog').xtag.show();
       });
   }
 
@@ -262,7 +262,7 @@ class VDrones {
     );
 
     _world.addSystem(_renderSystem, passive: true);
-    var canvases = container.queryAll("canvas");
+    var canvases = container.querySelectorAll("canvas");
     if (canvases.length > 1) {
       _proto2dSystem = new proto2d.System_Renderer(canvases[1])
       ..scale = 2.0
@@ -341,7 +341,7 @@ class VDrones {
     _audioManager.pauseAll();
     _gameLoop.stop();
 
-    var pauseOverlay = query("#pauseOverlay");
+    var pauseOverlay = querySelector("#pauseOverlay");
     if (pauseOverlay != null) {
       pauseOverlay.style.visibility = "visible";
       pauseOverlay.onClick.first.then((_){

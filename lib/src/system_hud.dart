@@ -29,19 +29,19 @@ class System_Hud extends IntervalEntitySystem {
 
   void _initializeDom(domElem) {
     if (domElem != null) {
-      document.query("#hud").nodes.add(domElem);
+      document.querySelector("#hud").nodes.add(domElem);
 
-      _scoreEl = _container.query("#score");
+      _scoreEl = _container.querySelector("#score");
       if (_scoreEl != null) _scoreEl.text = "0";
 
-      _chronometerEl = _container.query("#chronometer");
+      _chronometerEl = _container.querySelector("#chronometer");
       if (_chronometerEl != null) {
         _chronometerEl.classes.remove("blinking5s");
         _updateChronometer(0);
       }
 
-      _energyBarEl = _container.query("#energyBar");
-      _viewRedEl = _container.query("#view_red");
+      _energyBarEl = _container.querySelector("#energyBar");
+      _viewRedEl = _container.querySelector("#view_red");
     }
   }
 
@@ -84,6 +84,6 @@ class System_Hud extends IntervalEntitySystem {
   }
 
   void reset() {
-    _initializeDom(query("#hud_area"));
+    _initializeDom(querySelector("#hud_area"));
   }
 }

@@ -75,12 +75,12 @@ class XModal extends WebComponent implements ShowHideComponent {
     }
   }
 
-  Element _getModalElement() => this.query('.modal');
+  Element _getModalElement() => this.querySelector('.modal');
 
   void _onKeyUp(KeyboardEvent event) {
     //print("_onKeyUp ${event}");
     if (new KeyEvent(event).keyCode == KeyCode.ENTER) {
-      var e = this.query('.btn-primary');
+      var e = this.querySelector('.btn-primary');
       if (e != null) e.click();
     }
   }

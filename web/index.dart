@@ -16,7 +16,7 @@ void main() {
 }
 
 void _setupRoutes() {
-  var el = query('#feedback_dialog');
+  var el = querySelector('#feedback_dialog');
   if (el != null) {
     feedbackScreen = el.xtag;
     feedbackScreen.onToggle.listen((e){

@@ -126,7 +126,7 @@ class System_CameraFollower extends EntityProcessingSystem {
     document.onKeyUp.listen((KeyboardEvent e) {
       if (_keysCameraMode.contains(e.keyCode)) _toggleMode = true;
     });
-    var btn = query("#toggleCameraMode");
+    var btn = querySelector("#toggleCameraMode");
     if (btn != null) {
       btn.onClick.listen((e){
         _toggleMode = true;

@@ -6,11 +6,11 @@ class AreaReader4Svg {
     var cache = new Map<svg.GraphicsElement, Matrix4>();
     //e.children.removeWhere((e) => e.classes.contains("ignore"));
     var out = new AreaDef()
-    ..gateIns = e.queryAll(".gate_in circle").map((x) => gateIn(x, cache))
-    ..gateOuts = e.queryAll(".gate_out circle").map((x) => gateOut(x, cache))
-    ..staticWalls = e.queryAll(".static_wall").map((x) => staticWall(x, cache))
-    ..mobileWalls = e.queryAll(".mobile_wall").map((x) => mobileWall(x, cache))
-    ..cubeGenerators = e.queryAll(".cube_generator").map((x) => cubeGenerator(x, cache))
+    ..gateIns = e.querySelectorAll(".gate_in circle").map((x) => gateIn(x, cache))
+    ..gateOuts = e.querySelectorAll(".gate_out circle").map((x) => gateOut(x, cache))
+    ..staticWalls = e.querySelectorAll(".static_wall").map((x) => staticWall(x, cache))
+    ..mobileWalls = e.querySelectorAll(".mobile_wall").map((x) => mobileWall(x, cache))
+    ..cubeGenerators = e.querySelectorAll(".cube_generator").map((x) => cubeGenerator(x, cache))
     ;
     out.aabb3 = out.staticWalls.fold(out.aabb3, (acc, v){
       return v.shapes.fold(acc, (acc1, v1){
@@ -44,8 +44,8 @@ class AreaReader4Svg {
 
   staticWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
     var shapes = new List();
-    e.queryAll("rect").fold(shapes, (acc, x) => acc..add(rectToShape(x, 0.0, cache)));
-    e.queryAll("path").fold(shapes, (acc, x) => acc..addAll(pathToShapes(x, 0.0, cache)));
+    e.querySelectorAll("rect").fold(shapes, (acc, x) => acc..add(rectToShape(x, 0.0, cache)));
+    e.querySelectorAll("path").fold(shapes, (acc, x) => acc..addAll(pathToShapes(x, 0.0, cache)));
     return new StaticWall()
     ..shapes = shapes
     ;
@@ -53,14 +53,14 @@ class AreaReader4Svg {
 
   mobileWall(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
     return new MobileWall()
-    ..shapes = e.queryAll('rect').map((x) => rectToShape(x, 0.1, cache))
-    ..animation = pathToAnimationMvt(e.query('path'), cache)
+    ..shapes = e.querySelectorAll('rect').map((x) => rectToShape(x, 0.1, cache))
+    ..animation = pathToAnimationMvt(e.querySelector('path'), cache)
     ;
   }
 
   cubeGenerator(svg.GElement e, Map<svg.GraphicsElement, Matrix4> cache) {
     return new CubeGen()
-    ..subZones = e.queryAll('rect').map((x) => rectToShape(x, 0.0, cache))
+    ..subZones = e.querySelectorAll('rect').map((x) => rectToShape(x, 0.0, cache))
     ;
   }
 
