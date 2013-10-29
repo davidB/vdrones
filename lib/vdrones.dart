@@ -9,7 +9,6 @@ import 'dart:collection';
 import 'dart:web_gl' as WebGL;
 import 'dart:typed_data';
 import 'package:lawndart/lawndart.dart';
-import 'package:web_ui/watcher.dart' as watchers;
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_toolbox/system_entity_state.dart';
 import 'package:dartemis_toolbox/system_animator.dart';

@@ -51,23 +51,12 @@
 	<exec executable="rsync">
       <arg line="-av --delete --links web target"/>
     </exec>
-    <exec executable="${dart}" dir="${target}/web">
-      <arg line="--package-root=packages/ packages/web_ui/dwc.dart index0.html"/>
-    </exec>
-	<delete file="${target}/web/index0.html"/>
-	<move file="${target}/web/_index0.html.html" tofile="${target}/web/index0.html"/>
-	<!--#HACK for web_ui that remove disabled attribute-->
-    <replace file="${target}/web/index0.html">
-      <replacetoken><![CDATA[<button class="btn btn-primary" id="_]]></replacetoken>
-      <replacevalue><![CDATA[<button class="btn btn-primary" disabled id="_]]></replacevalue>
-    </replace>
   </target>
 
   <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
-      <arg line="--package-root=packages/ --trust-type-annotations _index0.html_bootstrap.dart -o_index0.html_bootstrap.dart.js"/>
+      <arg line="--package-root=packages/ --trust-type-annotations index.dart -oindex.dart.js"/>
     </exec>
-    <copy file="${target}/web/index0.html" tofile="${target}/web/index.html"/>
 	<replace file="${target}/web/index.html">
       <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
       <replacefilter token='.dart' value='.dart.js'/>
@@ -94,7 +83,7 @@
     <delete includeemptydirs="true" removeNotFollowedSymlinks="true">
       <fileset dir="${target}/web/packages" includes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="false"/>
       <fileset dir="${target}/web" includes="**/packages/**" followsymlinks="false"/>
-      <!--fileset dir="${target}/web/packages" followsymlinks="false"/-->
+      <fileset dir="${target}" includes="packages" followsymlinks="false"/>
     </delete>
     <delete includeemptydirs="true">
       <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
@@ -108,7 +97,6 @@
   </target>
 
   <target name="deploy0" depends="js, insert_ga, remove_packages">
-    <deleteEmptyFolders dir="${target}/packages"/>
     <mkdir dir="${target}/api"/>
     <copy todir="${target}/api">
       <fileset dir="src/go"/>
