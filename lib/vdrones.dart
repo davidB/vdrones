@@ -31,6 +31,7 @@ import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
 import 'package:game_loop/game_loop_html.dart';
+import 'package:widget/effects.dart';
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -44,6 +45,7 @@ part 'src/factory_renderables.dart';
 part 'src/stats.dart';
 part 'src/areadef.dart';
 part 'src/asset_loaders.dart';
+part 'src/widgets.dart';
 
 class Status {
   static const NONE = 0;
@@ -95,14 +97,7 @@ class VDrones {
   var _gl;
   var _gameLoop;
 
-  get masterMute => (_audioManager == null)? true : _audioManager.mute;
-  set masterMute(v) { if(_audioManager == null) return; _audioManager.mute = v; }
-  get masterVolume => (_audioManager == null)? "0" : _audioManager.masterVolume.toString();
-  set masterVolume(v) { if(_audioManager == null) return; _audioManager.masterVolume = double.parse(v) ; }
-  get musicVolume => (_audioManager == null)? "0" : _audioManager.musicVolume.toString();
-  set musicVolume(v) { if(_audioManager == null) return; _audioManager.musicVolume = double.parse(v) ; }
-  get sourceVolume => (_audioManager == null)? "0" : _audioManager.sourceVolume.toString();
-  set sourceVolume(v) { if(_audioManager == null) return; _audioManager.sourceVolume = double.parse(v) ; }
+  get audioManager => _audioManager;
 
   VDrones() {
     var container = document.querySelector('#layers');
@@ -112,7 +107,7 @@ class VDrones {
     _gameLoop = new GameLoopHtml(container);
 
     _gl = _newRenderingContext(container.querySelectorAll("canvas")[0]);
-    //_audioManager = _newAudioManager(findBaseUrl());
+    _audioManager = _newAudioManager(findBaseUrl());
 
     var bar = document.querySelector('#gameload');
     _assetManager = _newAssetManager(bar, _gl, _audioManager);

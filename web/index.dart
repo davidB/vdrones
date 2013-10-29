@@ -12,6 +12,11 @@ void main() {
   new Timer(const Duration(), () {
     //_setupLog();
     _setupRoutes();
+    new vdrones.UiAudioVolume()
+    ..element = querySelector("#audioVolume")
+    ..audioManager = game.audioManager
+    ;
+    vdrones.UiDropdown.bind(document.body);
   });
 }
 

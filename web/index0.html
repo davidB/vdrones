@@ -11,7 +11,6 @@
     <link rel="shortcut icon" href="favicon.ico" >
     <link rel="import" href="packages/vdrones/widgets/xmodal.html">
     <link rel="import" href="packages/vdrones/widgets/xrunresult.html">
-    <link rel="import" href="packages/vdrones/widgets/xdropdown.html">
 <!--
 -->
     <!--[if lt IE 9]>
@@ -51,7 +50,7 @@
           </ul>
           <ul class="nav pull-right">
             <li><a href="javascript:void" id="toggleCameraMode" title="toggle Camera View [M]">M</a></li>
-            <li class="dropdown" is="x-dropdown">
+            <li class="dropdown" is="x-dropdown" id="audioVolume">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fontawesome-volume-up"></span><b class="caret"></b></a>
               <ul class="dropdown-menu">
                  <li><label for="mute"><span class="fontawesome-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
