@@ -31,6 +31,9 @@ import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
 import 'package:game_loop/game_loop_html.dart';
 import 'package:widget/effects.dart';
+import 'package:crypto/crypto.dart';
+
+import 'vdrone_info.pb.dart';
 
 part 'src/components.dart';
 part 'src/system_physics.dart';
@@ -45,6 +48,7 @@ part 'src/stats.dart';
 part 'src/areadef.dart';
 part 'src/asset_loaders.dart';
 part 'src/widgets.dart';
+part 'src/storage.dart';
 
 class Status {
   static const NONE = 0;

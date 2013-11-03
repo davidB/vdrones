@@ -53,6 +53,12 @@
     </exec>
   </target>
 
+  <target name="protoc">
+    <exec executable="protoc">
+      <arg line="--dart_out=${basedir}/lib -I${basedir}/src/protos --plugin=protoc-gen-dart=${basedir}/tools/protoc-gen-dart ${basedir}/src/protos/vdrone_info.proto"/>
+    </exec>
+  </target>
+
   <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
       <arg line="--package-root=packages/ --trust-type-annotations index.dart -oindex.dart.js"/>

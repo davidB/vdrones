@@ -1,0 +1,55 @@
+syntax = "proto2";
+
+message AreaBook {
+  repeated AreaStat areaStats = 1;
+}
+
+message AreaStat {
+  required string id = 1;
+  required int32 runCount = 2;
+  required int32 crashCount = 3;
+  required int32 exitingCount = 4;
+  optional RunReport cubeBestRun = 5;
+  optional int64 lastStartTime = 6;
+}
+
+message RunReport {
+  required bool	exiting = 1;
+  required int32 cubeCount = 2;
+  required int32 crashCount = 3;
+  required int32 timeLeft = 4;
+  required int64 startTime = 5;
+  required int64 endTime = 6;
+  // frameduration avg,min,max
+  // max speed of the drone
+}
+
+message Inventory {
+  repeated Item items = 1;
+}
+
+message Item {
+  required string id = 1;
+  required int32 qty = 2;
+  required int32 used = 3;
+  repeated Source sources = 4; 
+}
+
+message Source {
+  required int64 at = 1;
+  required int32 price = 2;
+  optional From from = 3;
+}
+
+enum From {
+  SHOP = 0;
+  GIFT = 1;
+  AREA = 2;
+}
+
+message AudioSettings {
+  required bool mute = 1;
+  required int32 masterVolume = 2 [default = 90 ];
+  required int32 musicVolume = 3 [default = 50 ];
+  required int32 soundVolume = 4 [default = 70 ];
+}
