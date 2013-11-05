@@ -4,7 +4,7 @@ packages:
   args:
     description: args
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   asset_pack:
     description:
       ref: null
@@ -19,40 +19,43 @@ packages:
   bot_io:
     description: bot_io
     source: hosted
-    version: "0.23.3"
+    version: "0.24.0"
   browser:
     description: browser
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   crypto:
     description: crypto
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   dartemis:
     description: dartemis
     source: hosted
     version: "0.4.2"
   dartemis_toolbox:
     description:
-      path: "/home/dwayne/work/dart/vdrones/../dartemis_toolbox"
-      relative: true
-    source: path
+      ref: null
+      resolved-ref: "1c36bc77cdc5d8b2be5225ca4b82ab83ef21ffbf"
+      url: "https://github.com/davidB/dartemis_toolbox.git"
+    source: git
     version: "0.5.0-dev"
   fixnum:
     description: fixnum
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   game_loop:
     description:
-      path: "/home/dwayne/work/dart/vdrones/../game_loop"
-      relative: true
-    source: path
+      ref: davidB
+      resolved-ref: "985899a1e0de19954c7e1efccce70b37e8db6247"
+      url: "https://github.com/davidB/game_loop.git"
+    source: git
     version: "0.9.2"
   glf:
     description:
-      path: "/home/dwayne/work/dart/vdrones/../glf"
-      relative: true
-    source: path
+      ref: null
+      resolved-ref: "580acc7012141df8759ae558da5d21c246bd7189"
+      url: "https://github.com/davidB/glf.git"
+    source: git
     version: "0.1.0"
   google_games_v1_api:
     description: google_games_v1_api
@@ -65,15 +68,15 @@ packages:
   hop:
     description: hop
     source: hosted
-    version: "0.26.0"
+    version: "0.27.0"
   html5lib:
     description: html5lib
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   http:
     description: http
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   js:
     description: js
     source: hosted
@@ -85,51 +88,53 @@ packages:
   logging:
     description: logging
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   meta:
     description: meta
     source: hosted
-    version: "0.8.7"
+    version: "0.8.8"
   oauth2:
     description: oauth2
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   path:
     description: path
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   protobuf:
     description:
-      path: "/home/dwayne/work/dart/vdrones/../dart-protobuf"
-      relative: true
-    source: path
+      ref: null
+      resolved-ref: ffae11268570030e52bed459995ecc1bb12d9b40
+      url: "https://github.com/dart-lang/dart-protobuf.git"
+    source: git
     version: "0.3.0"
   simple_audio:
     description:
-      path: "/home/dwayne/work/dart/vdrones/../simpleaudio"
-      relative: true
-    source: path
+      ref: davidB
+      resolved-ref: "095d90c79a82902978702e5a99690b8fe6909a22"
+      url: "https://github.com/davidB/simpleaudio.git"
+    source: git
     version: "0.9.0"
   source_maps:
     description: source_maps
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   stack_trace:
     description: stack_trace
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   unittest:
     description: unittest
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   unmodifiable_collection:
     description: unmodifiable_collection
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   utf:
     description: utf
     source: hosted
-    version: "0.8.7"
+    version: "0.8.10+3"
   vector_math:
     description: vector_math
     source: hosted
