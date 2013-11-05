@@ -21,9 +21,6 @@ dependencies:
      path: ../simpleaudio
 #    git: https://github.com/johnmccutchan/simpleaudio.git
   vector_math: '>=1.3.0'
-#  web_ui: any
-  widget:
-    git: https://github.com/dart-lang/widget.dart
   game_loop:
     path: ../game_loop
 #    git: https://github.com/johnmccutchan/game_loop.git
