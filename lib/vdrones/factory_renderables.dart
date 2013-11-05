@@ -245,10 +245,32 @@ class Factory_Renderables {
 
     var r = new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      var vp = new glf.ViewportCamera.defaultSettings(gl.canvas)
-      ..camera.position.setValues(0.0, 0.0, 1000.0)
-      ..camera.focusPosition.setValues(1.0, 1.0, 0.0)
-      ..camera.adjustNearFar(focusAabb, 0.1, 0.1)
+      var dpr = window.devicePixelRatio;     // retina
+      //var dpr = 1;
+      //var viewWidth = (dpr * canvas.clientWidth).round();//parseInt(canvas.style.width);
+      //var viewHeight = (dpr * canvas.clientHeight).round(); //parseInt(canvas.style.height);
+
+      var vp = new glf.ViewportCamera()
+      ..x = 0
+      ..y = 0
+      ..viewWidth = (1120 * 1.0).toInt()
+      ..viewHeight = (630 * 1.0).toInt()
+      ;
+      
+      vp.camera
+      ..fovRadians = degrees2radians * 45.0
+      ..near = 1.0
+      ..far = 100.0
+      ..left = vp.x.toDouble()
+      ..right = vp.x.toDouble() + vp.viewWidth.toDouble()
+      ..top = vp.y.toDouble()
+      ..bottom = vp.y.toDouble() + vp.viewHeight.toDouble()
+      ..isOrthographic = false
+      ..aspectRatio = vp.viewWidth.toDouble() / vp.viewHeight.toDouble()
+      ..position.setValues(0.0, 0.0, 1000.0)
+      ..focusPosition.setValues(1.0, 1.0, 0.0)
+      ..adjustNearFar(focusAabb, 0.1, 0.1)
+      ..updateProjectionMatrix()
       ;
       c.info = vp.camera;
       return new Renderable()

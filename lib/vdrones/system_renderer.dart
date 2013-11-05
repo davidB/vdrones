@@ -203,16 +203,19 @@ class System_Render3D extends EntitySystem {
     var texVertices = deferred.data[0].texture;
     var texNormals = deferred.data[1].texture;
     var ssao = _makeSSAOPass(renderer, am, texNormals, texVertices, _am['texNormalsRandom']);
+    var identity = _makeIndentityPass(renderer, am);
     var light = _makeLightPass(renderer, am, sceneAabb);
     var pass = new _RendererPass()
     ..data = deferred.data
     ..add = () {
       light.add();
       deferred.add();
+      //identity.add();
       ssao.add();
     }
     ..remove = (){
       ssao.remove();
+      //identity.remove();
       deferred.remove();
       light.remove();
     }
@@ -220,6 +223,20 @@ class System_Render3D extends EntitySystem {
     return pass;
   }
 
+  _makeIndentityPass(renderer, am) {
+    var filter0 = am['filter2d_identity'];
+    var pass = new _RendererPass()
+    ..data = filter0
+    ..add = () {
+      renderer.filters2d.insert(0, filter0);
+    }
+    ..remove = (){
+      renderer.filters2d.remove(filter0);
+    }
+    ;
+    return pass;
+  }
+  
   _makeSSAOPass(renderer, am, WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
     var filter0 = _makeSSAOFilter(am, texNormals, texVertices, texNormalsRandom);
     //var filter0 = _am['filter2d_identity'];

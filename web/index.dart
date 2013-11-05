@@ -54,7 +54,6 @@ void _route(String hash) {
   }
 }
 
-var _currentScreenId = '';
 void _showScreen(id){
   var previousScreenId = _currentScreenId;
   var previousScreenTransition = _findTransition(previousScreenId);
@@ -62,12 +61,13 @@ void _showScreen(id){
   var currentScreenTransition = _findTransition(_currentScreenId);
   Swapper.swap(document.querySelector('#layers'), document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
 }
+var _currentScreenId = '';
 
-final transitionsDefault = new ScaleEffect();
-//final transitionsFromTop = new ScaleEffect();
 _findTransition(id) {
-  return transitionsDefault;
+  return _transitionsDefault;
 }
+final _transitionsDefault = new ScaleEffect();
+//final _transitionsFromTop = new ScaleEffect();
 
 void _setupLog() {
   Logger.root.level = Level.FINE;
