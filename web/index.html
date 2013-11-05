@@ -15,11 +15,8 @@
     <!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
     <link rel="stylesheet" href="_vendors/normalize-2.0.1/normalize.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css"/>
-    <!--link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet"-->
-    <!--link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet"-->
-    <!--link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.0.2/css/font-awesome.min.css" rel="stylesheet"-->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
     <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=fontawesome|fontelico">
   </head>
 <body>
   <noscript>Drive your <a href="http://vdrones.appspot.com/">VDrone</a> to grab all the cubes.</noscript>
@@ -47,23 +44,23 @@
           <ul class="nav pull-right">
             <li><a href="javascript:void" id="toggleCameraMode" title="toggle Camera View [M]">M</a></li>
             <li class="dropdown" is="x-dropdown" id="audioVolume">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fontawesome-volume-up"></span><b class="caret"></b></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-volume-up"></span><b class="caret"></b></a>
               <ul class="dropdown-menu">
-                 <li><label for="mute"><span class="fontawesome-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
-                 <li><label for="masterVolume"><span class="fontawesome-volume-down" title="master (all)"></span></label><input id="masterVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.masterVolume"/></li>
-                 <li><label for="musicVolume"><span class="fontawesome-music" title="music"></span></label><input id="musicVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.musicVolume"/></li>
-                 <li><label for="sourceVolume"><span class="fontawesome-bell" title="effects"></span></label><input id="sourceVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.sourceVolume"/><li>
+                 <li><label for="mute"><span class="fa fa-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
+                 <li><label for="masterVolume"><span class="fa fa-volume-down" title="master (all)"></span></label><input id="masterVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.masterVolume"/></li>
+                 <li><label for="musicVolume"><span class="fa fa-music" title="music"></span></label><input id="musicVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.musicVolume"/></li>
+                 <li><label for="sourceVolume"><span class="fa fa-bell" title="effects"></span></label><input id="sourceVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.sourceVolume"/><li>
               </ul>
             </li>
             <li class="divider-vertical"></li>
-            <li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fontawesome-comments"></span></a></li>
+            <li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fa fa-comments"></span></a></li>
             <li class="divider-vertical"></li>
             <!-- May be use service of http://sharethis.com/ -->
-            <li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fontawesome-twitter"></span></a></li>
-            <li><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://vdrones.appspot.com" title="share on googleplus" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'googleplus']);"><span class="fontawesome-google-plus-sign"></span></a></li>
-            <li><a href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on facebook" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'facebook']);"><span class="fontawesome-facebook"></span></a></li>
-            <li><a href="mailto:?Subject=VDrones" title="share via email" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'email']);"><span class="fontawesome-envelope"></span></a></li>
-            <li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);"><span class="fontawesome-github" ></span></a></li>
+            <li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fa fa-twitter"></span></a></li>
+            <li><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://vdrones.appspot.com" title="share on googleplus" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'googleplus']);"><span class="fa fa-google-plus"></span></a></li>
+            <li><a href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on facebook" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'facebook']);"><span class="fa fa-facebook"></span></a></li>
+            <li><a href="mailto:?Subject=VDrones" title="share via email" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'email']);"><span class="fa fa-envelope"></span></a></li>
+            <li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);"><span class="fa fa-github" ></span></a></li>
         </ul>
         </div><!-- /.nav-collapse -->
       </div>
@@ -91,7 +88,7 @@
       <!--canvas id="2d_debug" style="z-index:1"></canvas-->
       <div id="hud" style="z-index:10"></div>
       <div id="pauseOverlay" style="z-index:11; visibility: hidden">
-        <div><a class="fontawesome-pauseplay" title="play"></a></div>
+        <div><a class="fa fa-pauseplay" title="play"></a></div>
       </div>
       <div id="screenRunResult" class="screen_info hidden">
         <div class="screen_inner">
@@ -152,20 +149,20 @@
             </table>
           </div>
           <div class="actions">
-            <div id="msgConnecting" style="opacity: 1"><span class="fontelico-spin1 animate-spin"></span> Please wait, connecting to VSpace ...</div>
-            <button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
+            <div id="msgConnecting" style="opacity: 1"><span class="fa fa-spinner fa-spin"></span> Please wait, connecting to VSpace ...</div>
+              <button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
+            </div>
           </div>
         </div>
+        <!--div id="screenLast" class="screen_info">
+          <div class="screen_inner">... Waiting ...</div>
+        </div-->
+        <div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
+        </div>
       </div>
-      <!--div id="screenLast" class="screen_info">
-        <div class="screen_inner">... Waiting ...</div>
-      </div-->
-      <div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
-      </div>
-    </div>
-    <progress id="gameload" max="100" value="0">
-      <!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
-    </progress>
+      <progress id="gameload" max="100" value="0">
+        <!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
+      </progress>
     </section>
     <footer>
       <div style="float:left">version: 0.13.0 (updates every week)</div>

@@ -75,10 +75,10 @@ body {
   display: block;
   width: 100%;
 }
-.fontawesome-pauseplay:before {
+.fa-pauseplay:before {
   content: "\f04c";
 }
-.fontawesome-pauseplay:hover:before {
+.fa-pauseplay:hover:before {
   content: "\f04b";
 }
 #pauseOverlay a:hover {
@@ -135,24 +135,6 @@ body {
   width: 600px;
   top: 60px;
   left: 260px;
-}
-.show {
-  visibility:visible;
-  opacity:1;
-  -webkit-transition-delay: 0s;
-  -moz-transition-delay: 0s;
-  -o-transition-delay: 0s;
-  -ms-transition-delay: 0s;
-  transition-delay:0s;
-}
-.hidden {
-  visibility:hidden;
-  opacity:0;
-  -webkit-transition:visibility 0s linear 0.5s,opacity 0.5s linear;
-  -moz-transition:visibility 0s linear 0.5s,opacity 0.5s linear;
-  -o-transition:visibility 0s linear 0.5s,opacity 0.5s linear;
-  -ms-transition:visibility 0s linear 0.5s,opacity 0.5s linear;
-  transition:visibility 0s linear 0.5s,opacity 0.5s linear;
 }
 .screen_inner {
   border: 2px solid rgb(100,100,120);
@@ -228,11 +210,6 @@ table.stats th {
 table.stats td {
   text-align: right;
 }
-
-/* HACK to hide modal during loading of the page, and code */
-x-modal {
-  display: none;
-}
 #feedback_dialog > .modal {
   width: 850px;
   height: 550px;
@@ -251,109 +228,6 @@ x-modal {
 .navbar-inverse .navbar-inner {
   background-color: #272b30;
   background-image: -webkit-linear-gradient(#202328,#272b30 70%,#272b30);
-}
-
-/* Icons @import url(http://weloveiconfonts.com/api/?family=fontawesome|fontelico|zocial); */
-
-/* fontawesome */
-[class*="fontawesome-"]:before {
-  font-family: 'FontAwesome', sans-serif;
-}
-
-/* fontelico */
-[class*="fontelico-"]:before {
-  font-family: 'fontelico', sans-serif;
-}
-
-/* zocial */
-[class*="zocial-"]:before {
-  font-family: 'zocial', sans-serif;
-}
-
-/*
-   Animation example, for spinners
-*/
-.animate-spin {
-  -moz-animation: spin 2s infinite linear;
-  -o-animation: spin 2s infinite linear;
-  -webkit-animation: spin 2s infinite linear;
-  animation: spin 2s infinite linear;
-  display: inline-block;
-}
-@-moz-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  100% {
-    -moz-transform: rotate(359deg);
-    -o-transform: rotate(359deg);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
-}
-@-webkit-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  100% {
-    -moz-transform: rotate(359deg);
-    -o-transform: rotate(359deg);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
-}
-@-o-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  100% {
-    -moz-transform: rotate(359deg);
-    -o-transform: rotate(359deg);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
-}
-@-ms-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  100% {
-    -moz-transform: rotate(359deg);
-    -o-transform: rotate(359deg);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
-}
-@keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-
-  100% {
-    -moz-transform: rotate(359deg);
-    -o-transform: rotate(359deg);
-    -webkit-transform: rotate(359deg);
-    transform: rotate(359deg);
-  }
 }
 .navbar label {
   display: inline-block;
