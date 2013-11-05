@@ -136,8 +136,8 @@ class VDrones {
     _initialize(v);
   }
 
-  void handleError(error,[s]) {
-    print("ERROR !! ${error}");
+  void handleError(error,[s, cat = ""]) {
+    print("${cat}\tERROR\t${error}");
     if (s != null) print(s); //.fullStackTrace); // This should print the full stack trace)
   }
 
@@ -270,7 +270,7 @@ class VDrones {
       ;
       _world.addSystem(_proto2dSystem, passive:true);
     }
-    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x]), passive : false);
+    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x], handleError: handleError), passive : false);
     _world.addSystem(_hudSystem, passive: true);
     _world.initialize();
   }
@@ -325,13 +325,21 @@ class VDrones {
       if (!gameLoop.isVisible) pause();
     };
     _gameLoop.onUpdate = (gameLoop){
-      _world.delta = gameLoop.dt * 1000.0;
-      _world.process();
+      try {
+        _world.delta = gameLoop.dt * 1000.0;
+        _world.process();
+      } catch(e, s) {
+        handleError(e, s);
+      }
     };
     _gameLoop.onRender = (gameLoop){
-      _renderSystem.process();
-      _hudSystem.process();
-      if (_proto2dSystem != null) _proto2dSystem.process();
+      try {
+        _renderSystem.process();
+        _hudSystem.process();
+        if (_proto2dSystem != null) _proto2dSystem.process();
+      } catch(e, s) {
+        handleError(e, s);
+      }
     };
     return _gameLoop;
   }
