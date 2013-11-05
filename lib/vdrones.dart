@@ -69,19 +69,6 @@ String findBaseUrl() {
   }
 }
 
-void showScreen(id){
-  document.querySelectorAll('.screen_info').forEach((screen) {
-    //screen.style.opacity = (screen.id === id)?1 : 0;
-    if (screen.id == id) {
-      screen.classes.remove('hidden');
-      screen.classes.add('show');
-    } else {
-      screen.classes.remove('show');
-      screen.classes.add('hidden');
-    }
-  });
-}
-
 class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
@@ -100,18 +87,19 @@ class VDrones {
   var _gl;
   var _gameLoop;
 
+  Function showScreen;
+  
   get audioManager => _audioManager;
-  final uiScreenInit = new UiScreenInit();
-  final uiScreenRunResult = new UiScreenRunResult();
+  final _uiScreenInit = new UiScreenInit();
+  final _uiScreenRunResult = new UiScreenRunResult();
 
-  VDrones() {
-    var container = document.querySelector('#layers');
-    if (container == null) throw new StateError("#layers not found");
-    uiScreenInit
-    ..el = container.querySelector("#screenInit")
+  VDrones(Element container) {
+    if (container == null) throw new StateError("container not defined");
+    _uiScreenInit
+    ..el = querySelector("#screenInit")
     ..onPlay = play
     ;
-    uiScreenRunResult
+    _uiScreenRunResult
     ..el = querySelector('#screenRunResult')
     ..onPlay = play
     ;
@@ -121,7 +109,7 @@ class VDrones {
     _gl = _newRenderingContext(container.querySelectorAll("canvas")[0]);
     _audioManager = _newAudioManager(findBaseUrl());
 
-    var bar = document.querySelector('#gameload');
+    var bar = querySelector('#gameload');
     _assetManager = _newAssetManager(bar, _gl, _audioManager);
     _preloadAssets();
 
@@ -131,14 +119,15 @@ class VDrones {
     _setupGameLoop(container);
 
     container.tabIndex = -1;
+    container.focus();
   }
 
   get status => _status;
   void _updateStatus(int v) {
     _status = v;
-    uiScreenInit.onPlayEnabled = playable();
-    uiScreenInit.update();
-    uiScreenRunResult.onPlayEnabled = playable();
+    _uiScreenInit.onPlayEnabled = playable();
+    _uiScreenInit.update();
+    _uiScreenRunResult.onPlayEnabled = playable();
   }
 
   get area => (_areaPack == null) ? null : _areaPack.name;
@@ -184,8 +173,7 @@ class VDrones {
       e.addToWorld();
       print("add to world : ${e}");
     });
-    //HACK screen should be converted into WebComponent
-    showScreen('none');
+    showScreen('screenInGame');
 
     _gameLoop.start();
   }
@@ -198,7 +186,7 @@ class VDrones {
     _stats
       .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
       .then((stats){
-        uiScreenRunResult
+        _uiScreenRunResult
         ..areaId = area
         ..cubesLast = stats[area + Stats.AREA_CUBES_LAST_V]
         ..cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN]
@@ -206,7 +194,7 @@ class VDrones {
         ..cubesTotal = stats[Stats.CUBES_TOTAL_V]
         ..update()
         ;
-        showScreen(uiScreenRunResult.el.id);
+        showScreen(_uiScreenRunResult.el.id);
       });
   }
 
@@ -216,7 +204,7 @@ class VDrones {
       return new Future.error("already initializing an area");
     }
     _updateStatus(Status.INITIALIZING);
-    showScreen(uiScreenInit.el.id);
+    showScreen(_uiScreenInit.el.id);
     _hudSystem.reset();
     _world.deleteAllEntities();
     //_newWorld();

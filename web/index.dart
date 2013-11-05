@@ -2,9 +2,12 @@ import 'dart:html';
 import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
+import 'package:widget/effects.dart';
 //import 'package:web_ui/web_ui.dart';
 
-var game = new vdrones.VDrones();
+var game = new vdrones.VDrones(document.querySelector('#screenInGame'))
+..showScreen = _showScreen
+;
 var feedbackScreen = null;
 
 void main() {
@@ -40,28 +43,30 @@ void _setupRoutes() {
 
 void _route(String hash) {
   //RegExp exp = new RegExp(r"(\w+)");
-  switch(hash) {
-    case '#/a/alpha0' :
-      game.area = 'alpha0';
-      break;
-    case '#/a/beta0' :
-      game.area = 'beta0';
-      break;
-    case '#/a/beta1' :
-      game.area = 'beta1';
-      break;
-    case '#/a/gamma0' :
-      game.area = 'gamma0';
-      break;
-    case '#/a/pacman0' :
-      game.area = 'pacman0';
-      break;
-    case '#/comments':
-      feedbackScreen.show();
-      break;
-    default:
-      window.location.hash = '/a/alpha0';
+  if (hash.startsWith("#/a/")) {
+    game.area = hash.substring("#/a/".length);
+  } else if (hash.startsWith("#/s/")) {
+    _showScreen(hash.substring("#/s/".length));
+  } else if (hash == "#/comments") {
+    feedbackScreen.show();
+  } else {
+    window.location.hash = '/a/alpha0';
   }
+}
+
+var _currentScreenId = '';
+void _showScreen(id){
+  var previousScreenId = _currentScreenId;
+  var previousScreenTransition = _findTransition(previousScreenId);
+  _currentScreenId = id;
+  var currentScreenTransition = _findTransition(_currentScreenId);
+  Swapper.swap(document.querySelector('#layers'), document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
+}
+
+final transitionsDefault = new ScaleEffect();
+//final transitionsFromTop = new ScaleEffect();
+_findTransition(id) {
+  return transitionsDefault;
 }
 
 void _setupLog() {

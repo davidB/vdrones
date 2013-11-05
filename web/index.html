@@ -53,7 +53,7 @@
               </ul>
             </li>
             <li class="divider-vertical"></li>
-            <li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fa fa-comments"></span></a></li>
+            <!--li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fa fa-comments"></span></a></li-->
             <li class="divider-vertical"></li>
             <!-- May be use service of http://sharethis.com/ -->
             <li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fa fa-twitter"></span></a></li>
@@ -84,13 +84,15 @@
   </noscript>
   <section id="game_area" class="sh">
     <div id="layers">
-      <canvas id="3d" style="z-index:0"></canvas>
-      <!--canvas id="2d_debug" style="z-index:1"></canvas-->
-      <div id="hud" style="z-index:10"></div>
-      <div id="pauseOverlay" style="z-index:11; visibility: hidden">
-        <div><a class="fa fa-pauseplay" title="play"></a></div>
+      <div id="screenInGame">
+        <canvas id="3d" style="z-index:0"></canvas>
+        <!--canvas id="2d_debug" style="z-index:1"></canvas-->
+        <div id="hud" style="z-index:10"></div>
+        <div id="pauseOverlay" style="z-index:11; visibility: hidden">
+          <div><a class="fa fa-pauseplay" title="play"></a></div>
+        </div>
       </div>
-      <div id="screenRunResult" class="screen_info hidden">
+      <div id="screenRunResult" class="screen_info">
         <div class="screen_inner">
               <div style="margin: auto; width: 12em; text-align: center;">
                 <table class="stats">
@@ -120,6 +122,29 @@
           </div>
         </div>
       </div>
+<!--
+      <div id="screenFeedback" class="screen_info">
+        <h3 id="feedbackLabel">feedback</h3>
+        <div id="disqus_thread"></div>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'vdrones'; // required: replace example with your forum shortname
+            var disqus_identifier = 'vdrones_v0';
+            var disqus_title = 'VDrones (v0)';
+            var disqus_url = 'http://vdrones.appspot.com/';
+    
+            //TODO call the function when comments should be displayed
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            setTimeout(function() {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            }, 5000);
+        </script>
+      </div>
+-->
       <div id="screenInit" class="screen_info">
         <div class="screen_inner">
           <h3>Welcome VDroner,</h3>
@@ -171,34 +196,7 @@
       </div>
     </footer>
   </div>
-  <!--
-  <x-modal id="feedback_dialog">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h3 id="feedbackLabel">feedback</h3>
-    </div>
-    <div class="modal-body">
-    <div id="disqus_thread"></div>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'vdrones'; // required: replace example with your forum shortname
-        var disqus_identifier = 'vdrones_v0';
-        var disqus_title = 'VDrones (v0)';
-        var disqus_url = 'http://vdrones.appspot.com/';
 
-        //TODO call the function when comments should be displayed
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        setTimeout(function() {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        }, 5000);
-    </script>
-    </div>
-  </x-modal>
-  -->
   <script src="packages/browser/dart.js"></script>
   <script type="application/dart" src="index.dart"></script>
   <!--script src="loader.js" data-dartsrc="index.dart"></script-->
