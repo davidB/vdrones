@@ -1,5 +1,24 @@
 part of effects;
 
+final vendorPrefix = _getVendorPrefix();
+
+_getVendorPrefix(){
+  var ua = window.navigator.userAgent.toLowerCase();
+  var prefix = "";
+  if (ua.indexOf("opera") > -1) {
+    prefix = "-O-";
+  } else if (ua.indexOf("msie") > -1) {
+    prefix = "-ms-";
+  } else if (ua.indexOf("firefox") > -1) {
+    prefix = "-Moz-";
+  } else if (ua.indexOf("chrome") > -1) {
+    prefix = "-webkit-";
+  } else if (ua.indexOf("safari") > -1) {
+    prefix = "-webkit-";
+  } 
+  return prefix;
+}
+
 class FadeEffect extends Css3TransitionEffect {
   FadeEffect() : super('opacity');
   
@@ -44,12 +63,12 @@ class ScaleEffect extends Css3TransitionEffect {
     }
     final yoValue = (yOffset == VerticalAlignment.MIDDLE) ? 'center' : yOffset.name;
 
-    return {'transform-origin' : '$xoValue $yoValue'};
+    return {'${vendorPrefix}transform-origin' : '$xoValue $yoValue'};
   }
 
   ScaleEffect({this.orientation, HorizontalAlignment xOffset,
       VerticalAlignment yOffset})
-      : super('transform', _computeValues(xOffset, yOffset));
+      : super('${vendorPrefix}transform', _computeValues(xOffset, yOffset));
 
   String computePropertyValue(num fractionComplete, Element element) {
     switch(orientation) {
@@ -66,14 +85,14 @@ class ScaleEffect extends Css3TransitionEffect {
 }
 
 class SpinEffect extends Css3TransitionEffect {
-  SpinEffect() : super('transform');
+  SpinEffect() : super('${vendorPrefix}transform');
   
   String computePropertyValue(num fractionComplete, Element element) =>
       'perspective(600px) rotateX(${(1-fractionComplete) * 90}deg)';
 }
 
 class DoorEffect extends Css3TransitionEffect {
-  DoorEffect() : super('transform', {'transform-origin': '0% 50%'});
+  DoorEffect() : super('${vendorPrefix}transform', {'${vendorPrefix}transform-origin': '0% 50%'});
   
   String computePropertyValue(num fractionComplete, Element element) =>
       'perspective(600px) rotateX(${(1-fractionComplete) * 90}deg)';
@@ -83,7 +102,7 @@ class SlideEffect extends Css3TransitionEffect {
   final HorizontalAlignment xStart;
   final VerticalAlignment yStart;
 
-  SlideEffect({this.xStart, this.yStart}) : super('transform'); 
+  SlideEffect({this.xStart, this.yStart}) : super('${vendorPrefix}transform'); 
 
   String computePropertyValue(num fractionComplete, Element _) {
     if (fractionComplete >= 1) {
