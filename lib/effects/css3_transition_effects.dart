@@ -44,12 +44,12 @@ class ScaleEffect extends Css3TransitionEffect {
     }
     final yoValue = (yOffset == VerticalAlignment.MIDDLE) ? 'center' : yOffset.name;
 
-    return {'-webkit-transform-origin' : '$xoValue $yoValue'};
+    return {'transform-origin' : '$xoValue $yoValue'};
   }
 
   ScaleEffect({this.orientation, HorizontalAlignment xOffset,
       VerticalAlignment yOffset})
-      : super('-webkit-transform', _computeValues(xOffset, yOffset));
+      : super('transform', _computeValues(xOffset, yOffset));
 
   String computePropertyValue(num fractionComplete, Element element) {
     switch(orientation) {
@@ -66,14 +66,14 @@ class ScaleEffect extends Css3TransitionEffect {
 }
 
 class SpinEffect extends Css3TransitionEffect {
-  SpinEffect() : super('-webkit-transform');
+  SpinEffect() : super('transform');
   
   String computePropertyValue(num fractionComplete, Element element) =>
       'perspective(600px) rotateX(${(1-fractionComplete) * 90}deg)';
 }
 
 class DoorEffect extends Css3TransitionEffect {
-  DoorEffect() : super('-webkit-transform', {'-webkit-transform-origin': '0% 50%'});
+  DoorEffect() : super('transform', {'transform-origin': '0% 50%'});
   
   String computePropertyValue(num fractionComplete, Element element) =>
       'perspective(600px) rotateX(${(1-fractionComplete) * 90}deg)';
@@ -83,7 +83,7 @@ class SlideEffect extends Css3TransitionEffect {
   final HorizontalAlignment xStart;
   final VerticalAlignment yStart;
 
-  SlideEffect({this.xStart, this.yStart}) : super('-webkit-transform'); 
+  SlideEffect({this.xStart, this.yStart}) : super('transform'); 
 
   String computePropertyValue(num fractionComplete, Element _) {
     if (fractionComplete >= 1) {

@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
-import 'package:widget/effects.dart';
+import 'package:vdrones/effects.dart';
 //import 'package:web_ui/web_ui.dart';
 
 var game = new vdrones.VDrones(document.querySelector('#screenInGame'))
