@@ -35,20 +35,20 @@ import 'package:crypto/crypto.dart';
 
 import 'vdrone_info.pb.dart';
 
-part 'src/components.dart';
-part 'src/system_physics.dart';
-part 'src/system_renderer.dart';
-part 'src/system_controller.dart';
-part 'src/system_hud.dart';
-part 'src/factory_physics.dart';
-part 'src/factory_entities.dart';
-part 'src/factory_animations.dart';
-part 'src/factory_renderables.dart';
-part 'src/stats.dart';
-part 'src/areadef.dart';
-part 'src/asset_loaders.dart';
-part 'src/widgets.dart';
-part 'src/storage.dart';
+part 'vdrones/components.dart';
+part 'vdrones/system_physics.dart';
+part 'vdrones/system_renderer.dart';
+part 'vdrones/system_controller.dart';
+part 'vdrones/system_hud.dart';
+part 'vdrones/factory_physics.dart';
+part 'vdrones/factory_entities.dart';
+part 'vdrones/factory_animations.dart';
+part 'vdrones/factory_renderables.dart';
+part 'vdrones/stats.dart';
+part 'vdrones/areadef.dart';
+part 'vdrones/asset_loaders.dart';
+part 'vdrones/widgets.dart';
+part 'vdrones/storage.dart';
 
 class Status {
   static const NONE = 0;
