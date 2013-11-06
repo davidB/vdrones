@@ -59,6 +59,12 @@
     </exec>
   </target>
 
+  <target name="css">
+    <exec executable="stylus">
+      <arg line="-c -o web -u nib src/styles"/>
+    </exec>
+  </target>
+
   <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
       <arg line="--package-root=packages/ --trust-type-annotations --minify index.dart -oindex.dart.js"/>
