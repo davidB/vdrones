@@ -1,3 +1,4 @@
+/* use http://the-echoplex.net/flexyboxes/ to experiment flexbox css3 */
 @import 'nib'
 
 @font-face{
@@ -27,13 +28,8 @@ body {
 }
 .sh{
   box-shadow:0px 0px 20px #111;
-  -moz-box-shadow:0px 0px 20px #111;
-  -webkit-box-shadow:0px 0px 20px #111;
-  -khtml-box-shadow:0px 0px 20px #111;
 }
-.container, .navbar-static-top .container, .navbar-fixed-top .container, .navbar-fixed-bottom .container {
-  width: 1120px;
-}
+
 #game_area {
   position: relative;
   width: 1120px;
@@ -164,10 +160,6 @@ body {
   text-align: center;
 }
 .btn {
-  -webkit-transition: all 1s;
-  -moz-transition: all 1s;
-  -o-transition: all 1s;
-  -ms-transition: all 1s;
   transition: all 1s;
 }
 footer {
@@ -206,20 +198,113 @@ table.stats th {
 table.stats td {
   text-align: right;
 }
-#feedback_dialog > .modal {
-  width: 850px;
-  height: 550px;
+
+#areas {
+	margin: 0;
+	  /* flexbox setup */
+	display: flex;
+  box-orient: horizontal;
 }
+
+#areas > div {
+	margin: 1em;
+	border: 1px solid red;
+	width: 50px;
+	height: 50px;
+
+  box-flex: 1;
+}
+
+.body
+	margin 0
+	display flex
+	flex-direction column
+	flex-wrap nowrap
+	justify-content center
+	align-items center
+	align-content center
+	font-size: 14px;
+	line-height: 21px;
+	color: #c8c8c8;
+	background-color: #272b30;
+	width: 100%
+	height: 100%
+
+.header
+	align-self flex-start
+	display flex
+	flex-direction row
+	flex-wrap nowrap
+	justify-content space-between
+	align-items flex-start
+	align-content center
+	width 100%
+	background-image: linear-gradient(rgb(32, 35, 40), rgb(21, 23, 25) 70%, rgb(21, 23, 25));
+	background-repeat: no-repeat;
+	border-color: rgb(37, 37, 37);
+	border: 1px solid rgb(12, 13, 14);
+	border-radius: 4px;
+	box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.067);
+
+.header >*
+	order 0
+	flex: 0 1 auto;
+	align-self: auto;
+
+.main
+	flex: 1 1 auto;
+	padding-top 2em
+	padding-bottom 3em
+
+.footer
+	align-self flex-end
+	display flex
+	flex-direction row
+	flex-wrap nowrap
+	justify-content center
+	align-items center
+	align-content center
+	width 100%
+
+.footer >*
+	order 0
+	flex: 0 1 auto;
+	align-self: auto;
+
+ul.nav
+	list-style none
+	padding 0
+	margin 0
+
+ul.nav >li
+	float left
+
+.nav li > a:hover, .nav li.active > a, .nav li.active > a:hover {
+	background-color: rgb(28, 30, 34);
+	background-image: linear-gradient(280deg, rgb(16, 18, 20), rgb(28, 30, 34));
+	background-repeat: repeat-x;
+	/*
+	border-right: 1px solid transparent;
+	border-left: 1px solid transparent;
+	*/
+	color: rgb(255, 255, 255);
+}
+.nav > li > a {
+	background-color: transparent;
+	background-image: none;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+	border-right: 1px solid rgba(0, 0, 0, 0.2);
+	border-left: 1px solid rgba(255, 255, 255, 0.1);
+	color: rgb(122, 130, 136);
+	font-weight: bold;
+	background-repeat: no-repeat;
+	border: 0px none;
+	text-decoration: none;
+	padding: 0px 15px;
+}
+/*
 .navbar .navbar-inner {
   min-height:0px;
-}
-.navbar .nav>li>a {
-  padding-top: 0;
-  padding-bottom: 0;
-  line-height: 20px;
-}
-.navbar .divider-vertical {
-  height: 20px;
 }
 .navbar-inverse .navbar-inner {
   background-color: #272b30;
@@ -239,21 +324,29 @@ table.stats td {
   -webkit-border-radius:12px; -moz-border-radius:12px; -ms-border-radius:12px; -o-border-radius:12px; border-radius:12px;
   background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #fefefe), color-stop(0.49, #dddddd), color-stop(0.51, #d1d1d1), color-stop(1, #a1a1a1) );
 }
-
-#areas {
-	margin: 0;
-	  /* flexbox setup */
-	display: flex;
-  box-orient: horizontal;
+*/
+.dropup, .dropdown {
+position: relative;
 }
-
-#areas > div {
-	margin: 1em;
-	border: 1px solid red;
-	width: 50px;
-	height: 50px;
-
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  box-flex: 1;
+.nav>li>.dropdown-menu.pull-right {
+right: 0;
+left: auto;
+}
+.dropdown-menu {
+position: absolute;
+top: 100%;
+left: 0;
+z-index: 1000;
+display: none;
+float: left;
+min-width: 160px;
+padding: 5px 0;
+margin: 2px 0 0;
+list-style: none;
+background-color: #3a3f44;
+border: 1px solid #ccc;
+border: 1px solid rgba(0,0,0,0.2);
+border-radius: 6px;
+box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+background-clip: padding-box;
 }
