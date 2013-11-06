@@ -61,7 +61,7 @@
 
   <target name="js" depends="check, web">
     <exec executable="${dart2js}" dir="${target}/web">
-      <arg line="--package-root=packages/ --trust-type-annotations index.dart -oindex.dart.js"/>
+      <arg line="--package-root=packages/ --trust-type-annotations --minify index.dart -oindex.dart.js"/>
     </exec>
 	<replace file="${target}/web/index.html">
       <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
