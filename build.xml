@@ -4,81 +4,80 @@
 <!--
   <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 -->
-  <property environment="env" />
-  <fail message="ERROR: Please set environmental variable DART_SDK">
-    <condition>
-      <not>
-        <isset property="env.DART_SDK" />
-      </not>
-    </condition>
-  </fail>
+	<property environment="env" />
+	<fail message="ERROR: Please set environmental variable DART_SDK">
+		<condition>
+			<not>
+				<isset property="env.DART_SDK" />
+			</not>
+		</condition>
+	</fail>
 
-  <property name="dart.sdk.dir" value="${env.DART_SDK}" />
-  <property name="dart" value="${dart.sdk.dir}/bin/dart" />
-  <property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
-  <property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
-  <property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
-  <property name="dartanalyzer" value="${dart.sdk.dir}/bin/dartanalyzer" />
-  <property name="pub" value="${dart.sdk.dir}/bin/pub" />
-  <property name="target" location="${basedir}/target"/>
+	<property name="dart.sdk.dir" value="${env.DART_SDK}" />
+	<property name="dart" value="${dart.sdk.dir}/bin/dart" />
+	<property name="dart2js" value="${dart.sdk.dir}/bin/dart2js" />
+	<property name="dartdoc" value="${dart.sdk.dir}/bin/dartdoc" />
+	<property name="dart_analyzer" value="${dart.sdk.dir}/bin/dart_analyzer" />
+	<property name="dartanalyzer" value="${dart.sdk.dir}/bin/dartanalyzer" />
+	<property name="pub" value="${dart.sdk.dir}/bin/pub" />
+	<property name="target" location="${basedir}/target"/>
 
-  <target name="clean">
-    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
-      <fileset dir="${target}" followSymlinks="false"/>
-    </delete>
-  </target>
+	<target name="clean">
+		<delete includeEmptyDirs="true" removeNotFollowedSymlinks="true">
+			<fileset dir="${target}" followSymlinks="false"/>
+		</delete>
+	</target>
 
 
-  <target name="-init">
-    <mkdir dir="${target}"/>
-    <symlink link="${target}/packages" resource="${basedir}/packages" overwrite="true"/>
-    <symlink link="packages/vdrones" resource="${basedir}/lib" overwrite="true"/>
-  </target>
+	<target name="-init">
+		<mkdir dir="${target}"/>
+		<symlink link="${target}/packages" resource="${basedir}/packages" overwrite="true"/>
+		<symlink link="packages/vdrones" resource="${basedir}/lib" overwrite="true"/>
+	</target>
 
-  <target name="check" depends="-init">
+	<target name="check" depends="-init">
     <!-- exec executable="${dart_analyzer}" failonerror="true">
       <arg line="-x-work target/dart-work -x-package-root=packages/ -x-error_format machine -x-enable_type_checks -x-dart-sdk '${dart.sdk.dir}' web/index.dart"/>
     </exec-->
-    <exec executable="${dartanalyzer}" failonerror="true">
-      <arg line="--package-root=packages/ --machine web/index.dart"/>
-    </exec>
-  </target>
+		<exec executable="${dartanalyzer}" failonerror="true">
+			<arg line="--package-root=packages/ --machine web/index.dart"/>
+		</exec>
+	</target>
 
-  <target name="test">
-  </target>
+	<target name="test"></target>
 
-  <target name="web" depends="-init">
-	<exec executable="rsync">
-      <arg line="-av --delete --links web target"/>
-    </exec>
-  </target>
+	<target name="web" depends="-init">
+		<exec executable="rsync">
+			<arg line="-av --delete --links web target"/>
+		</exec>
+	</target>
 
-  <target name="protoc">
-    <exec executable="protoc">
-      <arg line="--dart_out=${basedir}/lib -I${basedir}/src/protos --plugin=protoc-gen-dart=${basedir}/tools/protoc-gen-dart ${basedir}/src/protos/vdrone_info.proto"/>
-    </exec>
-  </target>
+	<target name="protoc">
+		<exec executable="protoc">
+			<arg line="--dart_out=${basedir}/lib -I${basedir}/src/protos --plugin=protoc-gen-dart=${basedir}/tools/protoc-gen-dart ${basedir}/src/protos/vdrone_info.proto"/>
+		</exec>
+	</target>
 
-  <target name="css">
-    <exec executable="stylus">
-      <arg line="-c -o web -u nib src/styles"/>
-    </exec>
-  </target>
+	<target name="css">
+		<exec executable="stylus">
+			<arg line="-c -o web -u nib src/styles"/>
+		</exec>
+	</target>
 
-  <target name="js" depends="check, web">
-    <exec executable="${dart2js}" dir="${target}/web">
-      <arg line="--package-root=packages/ --trust-type-annotations --minify index.dart -oindex.dart.js"/>
-    </exec>
-	<replace file="${target}/web/index.html">
-      <replacefilter token='type="application/dart"' value='type="application/javascript"'/>
-      <replacefilter token='.dart' value='.dart.js'/>
-    </replace>
-   </target>
+	<target name="js" depends="check, web">
+		<exec executable="${dart2js}" dir="${target}/web">
+			<arg line="--package-root=packages/ --trust-type-annotations --minify index.dart -oindex.dart.js"/>
+		</exec>
+		<replace file="${target}/web/index.html">
+			<replacefilter token='type="application/dart"' value='type="application/javascript"'/>
+			<replacefilter token=".dart" value=".dart.js"/>
+		</replace>
+	</target>
 
-   <target name="insert_ga" depends="js">
-    <replace file="${target}/web/index.html">
-      <replacetoken><![CDATA[</body>]]></replacetoken>
-      <replacevalue><![CDATA[
+	<target name="insert_ga" depends="js">
+		<replace file="${target}/web/index.html">
+			<replacetoken><![CDATA[</body>]]></replacetoken>
+			<replacevalue><![CDATA[
   <script type="text/javascript">
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -88,52 +87,52 @@
 
   </script>
   </body>]]></replacevalue>
-    </replace>
-  </target>
+		</replace>
+	</target>
 
-  <target name="remove_packages">
-    <delete includeemptydirs="true" removeNotFollowedSymlinks="true">
-      <fileset dir="${target}/web/packages" includes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="false"/>
-      <fileset dir="${target}/web" includes="**/packages/**" followsymlinks="false"/>
-      <fileset dir="${target}" includes="packages" followsymlinks="false"/>
-    </delete>
-    <delete includeemptydirs="true">
-      <fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
-    </delete>
+	<target name="remove_packages">
+		<delete includeemptydirs="true" removeNotFollowedSymlinks="true">
+			<fileset dir="${target}/web/packages" includes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="false"/>
+			<fileset dir="${target}/web" includes="**/packages/**" followsymlinks="false"/>
+			<fileset dir="${target}" includes="packages" followsymlinks="false"/>
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${target}/web" includes="*.dart,*.dart.map"/>
+		</delete>
     <!-- keep browser/dart.js : required by js-interop -->
-    <mkdir dir="${target}/web/packages"/>
-    <copy todir="${target}/web/packages" includeEmptyDirs="false">
-      <fileset dir="${basedir}/packages" excludes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="true"/>
-    </copy>
-    <deleteEmptyFolders dir="${target}/web/packages"/>
-  </target>
+		<mkdir dir="${target}/web/packages"/>
+		<copy todir="${target}/web/packages" includeEmptyDirs="false">
+			<fileset dir="${basedir}/packages" excludes="**/*.dart,**/*.off,**/*.failed,vdrones/**,widget*/**,unittest/**,**/packages/**" followsymlinks="true"/>
+		</copy>
+		<deleteEmptyFolders dir="${target}/web/packages"/>
+	</target>
 
-  <target name="deploy0" depends="js, insert_ga, remove_packages">
-    <mkdir dir="${target}/api"/>
-    <copy todir="${target}/api">
-      <fileset dir="src/go"/>
-    </copy>
-    <copy file="src/cfg/app.yaml" tofile="${target}/app.yaml"/>
-  </target>
+	<target name="deploy0" depends="js, insert_ga, remove_packages">
+		<mkdir dir="${target}/api"/>
+		<copy todir="${target}/api">
+			<fileset dir="src/go"/>
+		</copy>
+		<copy file="src/cfg/app.yaml" tofile="${target}/app.yaml"/>
+	</target>
 
-  <target name="deploy" depends="deploy0">
-    <exec executable="python2">
-      <arg line="$HOME/bin/soft-golang/google_appengine/appcfg.py update ${target}"/>
-    </exec>
-  </target>
+	<target name="deploy" depends="deploy0">
+		<exec executable="python2">
+			<arg line="$HOME/bin/soft-golang/google_appengine/appcfg.py update ${target}"/>
+		</exec>
+	</target>
 
   <!-- Find and delete empty folders under dir -->
-  <macrodef name="deleteEmptyFolders">
-    <attribute name="dir"/>
-    <sequential>
-        <delete includeemptydirs="true">
-            <fileset dir="@{dir}"  >
-                <and>
-                    <size value="0"/>
-                    <type type="dir"/>
-                </and>
-            </fileset>
-        </delete>
-    </sequential>
-  </macrodef>
+	<macrodef name="deleteEmptyFolders">
+		<attribute name="dir"/>
+		<sequential>
+			<delete includeemptydirs="true">
+				<fileset dir="@{dir}">
+					<and>
+						<size value="0"/>
+						<type type="dir"/>
+					</and>
+				</fileset>
+			</delete>
+		</sequential>
+	</macrodef>
 </project>
