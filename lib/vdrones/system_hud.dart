@@ -20,11 +20,12 @@ class System_Hud extends IntervalEntitySystem {
     _chronometerMapper = new ComponentMapper<Chronometer>(Chronometer, world);
     //TODO Window.resizeEvent.forTarget(window).listen(_updateViewportSize);
     //TODO use AssetManager to retreive dom or a web_ui component
-    var src = "_images/gui.svg";
-    HttpRequest.request(src, responseType : 'document').then((httpRequest){
-      var doc = httpRequest.responseXml;
-      _initializeDom((doc.documentElement.clone(true) as Element)..id = "hud_area");
-    });
+    reset();
+//    var src = "_images/gui.svg";
+//    HttpRequest.request(src, responseType : 'document').then((httpRequest){
+//      var doc = httpRequest.responseXml;
+//      _initializeDom((doc.documentElement.clone(true) as Element)..id = "hud_area");
+//    });
   }
 
   void _initializeDom(domElem) {
@@ -84,6 +85,7 @@ class System_Hud extends IntervalEntitySystem {
   }
 
   void reset() {
-    _initializeDom(querySelector("#hud_area"));
+    var c = querySelector("#hud").childNodes;
+    if (c.length == 1) _initializeDom(c[0]);
   }
 }

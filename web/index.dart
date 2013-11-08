@@ -11,6 +11,10 @@ var game = new vdrones.VDrones(document.querySelector('#screenInGame'))
 var feedbackScreen = null;
 
 void main() {
+  loadDataSvgs().map((f) => f.catchError((err,st) {
+    print(err);
+    print(st);
+  }));
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
     //_setupLog();
@@ -88,5 +92,21 @@ void _setupLog() {
   _logger.finer("finer");
   _logger.warning("warning");
   _logger.severe("severe");
+}
+
+
+Iterable<Future<Element>> loadDataSvgs(){
+  return document.querySelectorAll("[data-svg-src]").map((el){
+    var src = el.dataset["svgSrc"];
+    return HttpRequest.request(src, responseType : 'document').then((httpRequest){
+      var doc = httpRequest.responseXml;
+      var child = doc.documentElement.clone(true);
+      // to fill parent el and keep original ratio of the image
+      child.style.width = "inherit";
+      child.style.height = "inherit";
+      el.append(child);
+      return child;
+    });
+  }).toList(growable: false); // to list is called to force execution of the map function (the function map() is lazy in Dart)
 }
 
