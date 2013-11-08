@@ -88,7 +88,7 @@ class VDrones {
   var _gameLoop;
 
   Function showScreen;
-  
+
   get audioManager => _audioManager;
   final _uiScreenInit = new UiScreenInit();
   final _uiScreenRunResult = new UiScreenRunResult();
@@ -175,7 +175,7 @@ class VDrones {
     });
     showScreen('screenInGame');
 
-    _gameLoop.start();
+    resume();
   }
 
   bool _stop(bool viaExit, int cubesGrabbed) {
@@ -352,16 +352,18 @@ class VDrones {
     if (pauseOverlay != null) {
       pauseOverlay.style.visibility = "visible";
       pauseOverlay.onClick.first.then((_){
-        pauseOverlay.style.visibility = "hidden";
         resume();
       });
     }
   }
 
   resume() {
+    var pauseOverlay = querySelector("#pauseOverlay");
+    if (pauseOverlay != null) {
+      pauseOverlay.style.visibility = "hidden";
+    }
     _gameLoop.start();
     _audioManager.resumeAll();
-
   }
 }
 

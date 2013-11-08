@@ -50,6 +50,7 @@ void _route(String hash) {
   if (hash.startsWith("#/a/")) {
     game.area = hash.substring("#/a/".length);
   } else if (hash.startsWith("#/s/")) {
+    game.pause();
     _showScreen(hash.substring("#/s/".length));
   } else if (hash == "#/comments") {
     feedbackScreen.show();
