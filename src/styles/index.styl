@@ -1,6 +1,16 @@
 /* use http://the-echoplex.net/flexyboxes/ to experiment flexbox css3 */
 @import 'nib'
 
+$gray-darker =           #272B30
+$gray-dark =              #3A3F44
+$gray =                   #52575C
+$gray-light =             #7A8288
+$gray-lighter =           #999
+
+$body-bg =               $gray-darker
+$text-color =            #C8C8C8
+$border-color =          #646478
+
 @font-face{
   font-family: 'SciFly';
   src: url('_vendors/scifly/scifly-sans-webfont.eot');
@@ -50,38 +60,30 @@ body {
   width: 100%;
   height: 100%;
 }
-#pauseOverlay {
-  margin: auto;
-  opacity: 0.8;
-  background: #A0A0A0;
+#pauseOverlay
+	margin auto
+	opacity 0.8
+	background #A0A0A0
+	display flex
+	flex-direction column
+	flex-wrap nowrap
+	justify-content center
+	align-items stretch
+	align-content center
 
-  /* flexbox, por favor */
-  display: -webkit-box;
-  -webkit-box-orient: horizontal;
-  -webkit-box-pack: center;
-  -webkit-box-align: center;
+#pauseOverlay >div
+	order 0
+	flex 0 1 auto
+	align-self auto
+	font-size: 30pt
+	font-weight: bolder
+	background: #000000
+	color: #FFFFFF
+	line-height: normal
+	text-align: center
+	display: block
+	width: 100%
 
-  display: -moz-box;
-  -moz-box-orient: horizontal;
-  -moz-box-pack: center;
-  -moz-box-align: center;
-
-  display: box;
-  box-orient: horizontal;
-  box-pack: center;
-  box-align: center;
-}
-#pauseOverlay >div {
-  font-size: 30pt;
-  font-weight: bolder;
-  background: #000000;
-  color: #FFFFFF;
-  line-height: normal;
-  text-align: center;
-  vertical-align: middle;
-  display: block;
-  width: 100%;
-}
 .fa-pauseplay:before {
   content: "\f04c";
 }
@@ -144,7 +146,7 @@ body {
   left: 260px;
 }
 .screen_inner {
-  border: 2px solid rgb(100,100,120);
+  border: 2px solid $border-color;
   margin: 8px;
   padding: 5px;
   height: 80%;
@@ -159,24 +161,60 @@ body {
 .screen_inner .actions {
   text-align: center;
 }
-.btn {
-  transition: all 1s;
-}
-footer {
-  padding: 0;
-  width: 100%;
-}
-.vbadge{
-  color: rgb(250,50,50);
-  background-color: transparent;
-  font-size: 34px;
-  transform: rotate(-45deg);
-  position: absolute;
-  top: 20px;
-  left: -6px;
-  width: 100px;
-  text-align: center
-}
+
+$btn-light-radius = 40px
+$btn-color = #005
+.btn
+	transition: all 0.5s;
+	color: (#DDD - $btn-color)
+	background-color: ($btn-color + #222)
+	border: 1px solid ($btn-color + #224)
+	border-radius: 2em;
+	font-size: 300%;
+	width: 6em;
+	margin: $btn-light-radius
+	display inline-block
+
+.btn-icon
+	width: 3em;
+	padding-top: 0.1em; /* HACK to center font icon */
+
+.btn:focus
+	outline-style none
+
+.btn:hover:enabled, a.btn:hover
+	color: (#FFF - $btn-color)
+	border: 1px solid ($btn-color + #777)
+	background-color: ($btn-color + #444)
+	box-shadow: 0px 0 $btn-light-radius ($btn-color + #AAA)
+
+.btn:enabled, a.btn
+	border: 1px solid ($btn-color + #666)
+	background-color: ($btn-color + #444)
+	box-shadow: 0px 0 ($btn-light-radius / 4) ($btn-color + #BBB)
+
+.btn:disabled
+	background-color: ($body-bg + #101010)
+	color: ($body-bg + #000005)
+	border: 1px solid @color
+	box-shadow: none
+
+
+footer
+	padding: 0
+	width: 100%
+
+.vbadge
+	color: rgb(250,50,50)
+	background-color: transparent
+	font-size: 34px
+	transform: rotate(-45deg)
+	position: absolute
+	top: 46px
+	left: -6px
+	width: 100px
+	text-align: center
+
 
 
 @keyframes opacityBlink {
@@ -199,21 +237,39 @@ table.stats td {
   text-align: right;
 }
 
-#areas {
+#areas
 	margin: 0;
-	  /* flexbox setup */
-	display: flex;
-  box-orient: horizontal;
-}
+	display flex
+	flex-direction row
+	flex-wrap wrap
+	justify-content center
+	align-items center
+	align-content flex-start
+	height 80%
+	overflow-y auto
 
-#areas > div {
-	margin: 1em;
-	border: 1px solid red;
-	width: 50px;
-	height: 50px;
+.areaInfo
+	order 0
+	flex 0 1 auto
+	align-self auto
+	margin 0.1em
+	border 1px solid red
+	width 1.3em
+	height @width
+	text-decoration: none;
+	font-size: 9em;
+	background-color ($border-color + #444)
+	border-color $border-color
+	color: #000
+	line-height: initial
+	text-align: center
+	border-top-left-radius: 7px
+	border-bottom-right-radius: 40px
 
-  box-flex: 1;
-}
+.areaInfo.disabled
+	background-color ($border-color - #111)
+	border-color $border-color
+	color: ($border-color - #333)
 
 .body
 	margin 0
@@ -225,8 +281,8 @@ table.stats td {
 	align-content center
 	font-size: 14px;
 	line-height: 21px;
-	color: #c8c8c8;
-	background-color: #272b30;
+	color $text-color
+	background-color $body-bg
 	width: 100%
 	height: 100%
 
@@ -325,28 +381,28 @@ ul.nav >li
   background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0, #fefefe), color-stop(0.49, #dddddd), color-stop(0.51, #d1d1d1), color-stop(1, #a1a1a1) );
 }
 */
-.dropup, .dropdown {
-position: relative;
-}
-.nav>li>.dropdown-menu.pull-right {
-right: 0;
-left: auto;
-}
-.dropdown-menu {
-position: absolute;
-top: 100%;
-left: 0;
-z-index: 1000;
-display: none;
-float: left;
-min-width: 160px;
-padding: 5px 0;
-margin: 2px 0 0;
-list-style: none;
-background-color: #3a3f44;
-border: 1px solid #ccc;
-border: 1px solid rgba(0,0,0,0.2);
-border-radius: 6px;
-box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-background-clip: padding-box;
-}
+.dropup, .dropdown
+	position: relative;
+
+.nav>li>.dropdown-menu.pull-right
+	right: 0;
+	left: auto;
+
+.dropdown-menu
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1000;
+	display: none;
+	float: left;
+	min-width: 160px;
+	padding: 5px 0;
+	margin: 2px 0 0;
+	list-style: none;
+	background-color: #3a3f44;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.2);
+	border-radius: 6px;
+	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+	background-clip: padding-box;
+
