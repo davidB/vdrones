@@ -22,13 +22,13 @@ body{font-family:'SciFly',Arial,sans-serif}
 .screen_inner{border:2px solid #646478;margin:8px;padding:5px;height:80%}
 .screen_inner h3,.screen_inner #rules_help{text-align:center;font-size:140%}
 .screen_inner >div,.screen_inner >table{margin:auto}
-.screen_inner .actions{text-align:center}
 .btn{-webkit-transition:all 0.5s;-moz-transition:all 0.5s;-o-transition:all 0.5s;-ms-transition:all 0.5s;transition:all 0.5s;color:#dd8;background-color:#227;border:1px solid #229;-webkit-border-radius:2em;border-radius:2em;font-size:300%;width:6em;margin:40px;display:inline-block}
 .btn-icon{width:3em;padding-top:.1em;}
 .btn:focus{outline-style:none}
 .btn:hover:enabled,a.btn:hover{color:#ffa;border:1px solid #77c;background-color:#449;-webkit-box-shadow:0 0 40px #aaf;box-shadow:0 0 40px #aaf}
-.btn:enabled,a.btn{border:1px solid #66b;background-color:#449;-webkit-box-shadow:0 0 20px #bbf;box-shadow:0 0 20px #bbf}
+.btn:enabled,a.btn{border:1px solid #66b;background-color:#449;-webkit-box-shadow:0 0 10px #bbf;box-shadow:0 0 10px #bbf}
 .btn:disabled{background-color:#373b40;color:#272b35;border:1px solid #272b35;-webkit-box-shadow:none;box-shadow:none}
+.actions{margin-top:-20px;text-align:center}
 footer{padding:0;width:100%}
 .vbadge{color:#fa3232;background-color:transparent;font-size:34px;-webkit-transform:rotate(-45deg);-moz-transform:rotate(-45deg);-o-transform:rotate(-45deg);-ms-transform:rotate(-45deg);transform:rotate(-45deg);position:absolute;top:46px;left:-6px;width:100px;text-align:center}
 .blinking5s{-webkit-animation:opacityBlink .7s ease-in-out infinite;-moz-animation:opacityBlink .7s ease-in-out infinite;-o-animation:opacityBlink .7s ease-in-out infinite;-ms-animation:opacityBlink .7s ease-in-out infinite;animation:opacityBlink .7s ease-in-out infinite}

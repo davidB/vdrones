@@ -3,13 +3,13 @@ part of vdrones;
 class UiAudioVolume {
   Element _element;
   AudioManager _audioManager;
-  
+
   var subscriptions = new List();
   set element(Element v) {
     _element = v;
     _bind();
   }
-  
+
   set audioManager(AudioManager v){
     _audioManager = v;
     _bind();
@@ -24,7 +24,7 @@ class UiAudioVolume {
     _bind0("#musicVolume", _musicVolume(), _changeMusicVolume);
     _bind0("#sourceVolume", _sourceVolume(), _changeSourceVolume);
   }
-  
+
   _bind0(selector, init, onChange) {
     var el = _element.querySelector(selector);
     if (el.type == "checkbox") el.checked = init;
@@ -37,7 +37,7 @@ class UiAudioVolume {
     if (_audioManager == null) return true;
     return _audioManager.mute;
   }
-  
+
   _changeMasterMute(e){
     if(_audioManager == null) return;
     if(e.defaultPrevented) return;
@@ -49,7 +49,7 @@ class UiAudioVolume {
     if (_audioManager == null) return "0";
     return _audioManager.masterVolume;
   }
-  
+
   _changeMasterVolume(e){
     if(_audioManager == null) return;
     if(e.defaultPrevented) return;
@@ -61,7 +61,7 @@ class UiAudioVolume {
     if (_audioManager == null) return "0";
     return _audioManager.musicVolume;
   }
-  
+
   _changeMusicVolume(e){
     if(_audioManager == null) return;
     if(e.defaultPrevented) return;
@@ -73,7 +73,7 @@ class UiAudioVolume {
     if (_audioManager == null) return "0";
     return _audioManager.sourceVolume;
   }
-  
+
   _changeSourceVolume(e){
     if(_audioManager == null) return;
     if(e.defaultPrevented) return;
@@ -110,7 +110,7 @@ class UiDropdown {
       _apply(el, ShowHideAction.HIDE);
     });
   }
-  
+
   static void _onKeyDown(KeyboardEvent evt) {
     final Element target = evt.target;
     if(!evt.defaultPrevented && evt.keyCode == KeyCode.ESC) {
@@ -127,7 +127,7 @@ class UiDropdown {
       target.focus();
     }
   }
-  
+
   static void _apply(e, ShowHideAction action) {
     print("action : $action");
     final headerElement = e.querySelector('[is=x-dropdown] > .dropdown');
@@ -156,7 +156,7 @@ class UiScreenInit {
   Element el;
   var onPlayEnabled = false;
   Function onPlay;
-  
+
   update(){
     if (el == null) return;
     el.querySelector("#msgConnecting").style.opacity = onPlayEnabled ? "0" : "1";
@@ -166,7 +166,7 @@ class UiScreenInit {
       if (onPlay != null) onPlay();
     });
   }
-  
+
   _update0(k, v) {
     var el0 = el.querySelector("[data-text=$k]");
     if (el0 != null) {
@@ -182,23 +182,34 @@ class UiScreenRunResult {
   num cubesMax = 0;
   num cubesGain = 0;
   num cubesTotal = 0;
+  bool timeout = false;
   var onPlayEnabled = false;
   Function onPlay;
-  
+  var onNextEnabled = false;
+  Function onNext;
+  var _fmt = new NumberFormat("+00");
   update(){
     if (el == null) return;
     _update0("areaId", areaId);
     _update0("cubesLast", cubesLast);
     _update0("cubesMax", cubesMax);
-    _update0("cubesGain", cubesGain);
+    _update0("cubesGain", _fmt.format(cubesGain));
     _update0("cubesTotal", cubesTotal);
-    var btn = el.querySelector(".play");
-    (btn as ButtonElement).disabled = !onPlayEnabled;
-    btn.onClick.first.then((evt){
+    el.querySelector("#shadow").style.display = "block";
+    el.querySelector("#points").style.display = timeout ? "none":"block";
+    el.querySelector("#timeout").style.display = timeout ? "block":"none";
+    var btnPlay = el.querySelector(".play");
+    (btnPlay as ButtonElement).disabled = !onPlayEnabled;
+    btnPlay.onClick.first.then((evt){
       if (onPlay != null) onPlay();
     });
+    var btnNext = el.querySelector(".next");
+    (btnNext as ButtonElement).disabled = !onNextEnabled;
+    btnNext.onClick.first.then((evt){
+      if (onNext != null) onNext();
+    });
   }
-  
+
   _update0(k, v) {
     var el0 = el.querySelector("[data-text=$k]");
     if (el0 != null) {

@@ -8,6 +8,7 @@ import 'dart:svg' as svg;
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 import 'package:lawndart/lawndart.dart';
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_toolbox/system_entity_state.dart';
@@ -190,8 +191,9 @@ class VDrones {
         ..areaId = area
         ..cubesLast = stats[area + Stats.AREA_CUBES_LAST_V]
         ..cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN]
-        ..cubesMax = stats[area + Stats.AREA_CUBES_MAX_V]
+        ..cubesMax = stats[area + Stats.AREA_CUBES_MAX_V] - stats[area + Stats.AREA_CUBES_LAST_GAIN]
         ..cubesTotal = stats[Stats.CUBES_TOTAL_V]
+        ..timeout = false
         ..update()
         ;
         showScreen(_uiScreenRunResult.el.id);

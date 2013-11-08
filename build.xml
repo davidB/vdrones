@@ -46,7 +46,9 @@
 
 	<target name="test"></target>
 
-	<target name="web" depends="-init">
+	<target name="web-init" depends="-init, css, svg"></target>
+
+	<target name="web" depends="web-init">
 		<exec executable="rsync">
 			<arg line="-av --delete --links web target"/>
 		</exec>
@@ -62,6 +64,12 @@
 		<exec executable="stylus">
 			<arg line="-c -o web -u nib src/styles"/>
 		</exec>
+	</target>
+
+	<target name="svg">
+	  <copy todir="web/_images">
+	    <fileset dir="src/images" includes="gui.svg, cube.svg"></fileset>
+	  </copy>
 	</target>
 
 	<target name="js" depends="check, web">

@@ -154,13 +154,12 @@ body {
 .screen_inner h3, .screen_inner #rules_help {
   text-align: center;
   font-size: 140%;
+  margin-bottom: 39px;
 }
 .screen_inner >div, .screen_inner >table {
   margin: auto;
 }
-.screen_inner .actions {
-  text-align: center;
-}
+
 
 $btn-light-radius = 40px
 $btn-color = #005
@@ -199,6 +198,9 @@ $btn-color = #005
 	border: 1px solid @color
 	box-shadow: none
 
+.actions
+	margin-top: ($btn-light-radius / -2);
+	text-align: center;
 
 footer
 	padding: 0

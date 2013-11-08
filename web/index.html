@@ -1,209 +1,217 @@
 <!DOCTYPE html>
 <html class="no-js">
-  <head>
-    <title>vdrones</title>
-    <meta name="description" content="Game : Grab the cubes with your vdrone">
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <link type="text/plain" rel="author" href="humans.txt" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="shortcut icon" href="favicon.ico" >
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
-    <link rel="stylesheet" href="_vendors/normalize-2.0.1/normalize.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css"/>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
-    <link rel="stylesheet" href="index.css">
-  </head>
-<body>
-  <noscript>Drive your <a href="http://vdrones.appspot.com/">VDrone</a> to grab all the cubes.</noscript>
-  <div class="vbadge">alpha</div>
-  <div class="container">
-  <header class="jumbotron subhead" id="overview">
+	<head>
+		<title>vdrones</title>
+		<meta name="description" content="Game : Grab the cubes with your vdrone">
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<link type="text/plain" rel="author" href="humans.txt" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+		<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+		<link rel="shortcut icon" href="favicon.ico" >
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
+		<link rel="stylesheet" href="_vendors/normalize-2.0.1/normalize.css">
+		<!--link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css"/-->
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
+		<link rel="stylesheet" href="index.css">
+	</head>
+<body class="body">
+	<noscript>Drive your <a href="http://vdrones.appspot.com/">VDrone</a> to grab all the cubes.</noscript>
+	<!--[if lt IE 10]>
+		<p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+	<![endif]-->
+	<noscript>
+		<div class="alert alert-error">
+			Sorry, you the need a modern browser with Javascript and WebGL to play the game.
+			<ul>
+				<li>Use a modern browser like Chrome or Firefox 15+ (may be IE + <a href="http://www.google.com/chromeframe">Chrome Frame</a>)</li>
+				<li>Please enable javascript in your browser settings.</li>
+				<li>Check WebGL at <a href="http://get.webgl.org/">http://get.webgl.org/</a>)</li>
+			</ul>
+		</div>
+	</noscript>
 
-  <div class="navbar navbar-inverse">
-    <div class="navbar-inner">
-      <div class="container" style="width: auto;">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-exchange"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
-        <!--a class="brand" href="#">Project name</a-->
-        <div class="nav-collapse">
-          <ul class="nav">
-            <li><a href="#/a/alpha0" title="Go to area alpha0">α<sub>0</sub></a></li>
-            <li><a href="#/a/beta0" title="Go to area beta0">β<sub>0</sub></a></li>
-            <li><a href="#/a/beta1" title="Go to area beta1">β<sub>1</sub></a></li>
-            <li><a href="#/a/gamma0" title="Go to area gamma0">γ<sub>0</sub></a></li>
-            <li><a href="#/a/pacman0" title="Go to area pacman0">δ<sub>0</sub></a></li>
-          </ul>
-          <ul class="nav pull-right">
-            <li><a href="javascript:void" id="toggleCameraMode" title="toggle Camera View [M]">M</a></li>
-            <li class="dropdown" is="x-dropdown" id="audioVolume">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-volume-up"></span><b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                 <li><label for="mute"><span class="fa fa-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
-                 <li><label for="masterVolume"><span class="fa fa-volume-down" title="master (all)"></span></label><input id="masterVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.masterVolume"/></li>
-                 <li><label for="musicVolume"><span class="fa fa-music" title="music"></span></label><input id="musicVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.musicVolume"/></li>
-                 <li><label for="sourceVolume"><span class="fa fa-bell" title="effects"></span></label><input id="sourceVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.sourceVolume"/><li>
-              </ul>
-            </li>
-            <li class="divider-vertical"></li>
-            <!--li><a href="#/comments" title="comments, feedback, ..." onClick="_gaq.push(['_trackEvent', 'community', 'comment', 'disqus']);"><span class="fa fa-comments"></span></a></li-->
-            <li class="divider-vertical"></li>
-            <!-- May be use service of http://sharethis.com/ -->
-            <li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fa fa-twitter"></span></a></li>
-            <li><a href="https://plusone.google.com/_/+1/confirm?hl=en&url=http://vdrones.appspot.com" title="share on googleplus" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'googleplus']);"><span class="fa fa-google-plus"></span></a></li>
-            <li><a href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on facebook" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'facebook']);"><span class="fa fa-facebook"></span></a></li>
-            <li><a href="mailto:?Subject=VDrones" title="share via email" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'email']);"><span class="fa fa-envelope"></span></a></li>
-            <li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);"><span class="fa fa-github" ></span></a></li>
-        </ul>
-        </div><!-- /.nav-collapse -->
-      </div>
-    </div><!-- /navbar-inner -->
-  </div><!-- /navbar -->
-
-    <h1>VDrones</h1>
-  </header>
-  <!--[if lt IE 10]>
-      <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
-  <![endif]-->
-  <noscript>
-    <div class="alert alert-error">
-      Sorry, you the need a modern browser with Javascript and WebGL to play the game.
-      <ul>
-        <li>Use a modern browser like Chrome or Firefox 15+ (may be IE + <a href="http://www.google.com/chromeframe">Chrome Frame</a>)</li>
-        <li>Please enable javascript in your browser settings.</li>
-        <li>Check WebGL at <a href="http://get.webgl.org/">http://get.webgl.org/</a>)</li>
-      </ul>
-    </div>
-  </noscript>
-  <section id="game_area" class="sh">
-    <div id="layers">
-      <div id="screenInGame">
-        <canvas id="3d" style="z-index:0"></canvas>
-        <!--canvas id="2d_debug" style="z-index:1"></canvas-->
-        <div id="hud" style="z-index:10"></div>
-        <div id="pauseOverlay" style="z-index:11; visibility: hidden">
-          <div><a class="fa fa-pauseplay" title="play"></a></div>
-        </div>
-      </div>
-      <div id="screenRunResult" class="screen_info">
-        <div class="screen_inner">
-              <div style="margin: auto; width: 12em; text-align: center;">
-                <table class="stats">
-                  <tbody>
-                    <tr>
-                      <th>area</th>
-                      <td data-text="areaId"></td>
-                    </tr>
-                    <tr>
-                      <th>cubes</th>
-                      <td data-text="cubesLast"></td>
-                    </tr>
-                    <tr>
-                      <th>gain</th>
-                      <td>+ <span data-text="cubesGain"></span></td>
-                    </tr>
-                    <tr>
-                      <th>total</th>
-                      <td data-text="cubesTotal"></td>
-                    </tr>
-                  </tbody>
-                </table>
-              <!--p><i class="icon-trophy"></i> + <span id="trophies"></span></p-->
-              </div>
-          <div class="actions">
-            <button class="btn btn-primary play" disabled="disabled" tabindex="0"><i class="icon-repeat"></i> Replay</button>
-          </div>
-        </div>
-      </div>
+	<div class="vbadge">alpha</div>
+	<header class="navbar navbar-inverse header">
+		<ul class="nav">
+			<li><a href="#/s/screenAreaSelector" title="Choose an area"><i class="fa fa-th"></i></a></li>
+			<li class="divider-vertical"></li>
+			<li class="dropdown" is="x-dropdown" id="audioVolume">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-volume-up"></span><b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					 <li><label for="mute"><span class="fa fa-volume-off" title="mute"></span></label> <input type="checkbox" id="mute" bind-checked="game.masterMute"/></li>
+					 <li><label for="masterVolume"><span class="fa fa-volume-down" title="master (all)"></span></label><input id="masterVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.masterVolume"/></li>
+					 <li><label for="musicVolume"><span class="fa fa-music" title="music"></span></label><input id="musicVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.musicVolume"/></li>
+					 <li><label for="sourceVolume"><span class="fa fa-bell" title="effects"></span></label><input id="sourceVolume" min="0" max="1" step="0.1" type="range" class="volumemeter" bind-value="game.sourceVolume"/><li>
+				</ul>
+			</li>
+			<li><a href="javascript:void" id="toggleCameraMode" title="toggle Camera View [M]">M</a></li>
+		</ul>
+		<div>VDrones</div>
+		<ul class="nav">
+			<!--li><a href="#/s/pre-order" title="Pre-order" onClick="_gaq.push(['_trackEvent', 'money', 'goto', 'pre-order']);"><i class="fa fa-money"></i></a></li-->
+			<li><a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);"><i class="fa fa-group"></i></a></li>
+			<li class="divider-vertical"></li>
+			<!-- May be use service of http://sharethis.com/ -->
+			<li><a href="https://twitter.com/intent/tweet?status=Grab+the+cubes+with+your+%23vdrones+http%3A%2F%2Fvdrones.appspot.com%2F&amp;url=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on twitter" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'twitter']);"><span class="fa fa-twitter"></span></a></li>
+			<li><a href="https://plusone.google.com/_/+1/confirm?hl=en&amp;url=http://vdrones.appspot.com" title="share on googleplus" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'googleplus']);"><span class="fa fa-google-plus"></span></a></li>
+			<li><a href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fvdrones.appspot.com%2F" title="share on facebook" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'facebook']);"><span class="fa fa-facebook"></span></a></li>
+			<li><a href="mailto:?Subject=VDrones" title="share via email" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'share', 'email']);"><span class="fa fa-envelope"></span></a></li>
+			<li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);"><span class="fa fa-github" ></span></a></li>
+		</ul>
+	</header>
+	<div class="main">
+		<section id="game_area" class="sh">
+		<div id="layers">
+			<div id="screenInGame">
+				<canvas id="3d" style="z-index:0"></canvas>
+				<!--canvas id="2d_debug" style="z-index:1"></canvas-->
+				<div id="hud" style="z-index:10" data-svg-src="_images/gui.svg"></div>
+				<div id="pauseOverlay" style="z-index:11; visibility: hidden">
+					<div><a class="fa fa-pauseplay" title="play"></a></div>
+				</div>
+			</div>
+			<div id="screenRunResult" class="screen_info">
+				<div class="screen_inner">
+					<h3>Score on <span data-text="areaId"></span> : <span data-text="cubesLast"></span> (max <span data-text="cubesMax"></span>)</h3>
+					<div data-svg-src="_images/cube.svg" style="width:100%;height:80%"></div>
+					<div style="text-align: right;">Total :	<span data-text="cubesTotal"></span></div>
+				</div>
+				<div class="actions">
+					<a href="#/s/screenAreaSelector" class="btn btn-icon" tabindex="2" title="Choose an other area"><i class="fa fa-th"></i></a>
+					<button class="btn btn-icon play" disabled="disabled" tabindex="0" title="Replay on same area (try to do better)"><i class="fa fa-repeat"></i></button>
+					<button class="btn btn-icon next" disabled="disabled" tabindex="1" title="Go to next area"><i class="fa fa-forward"></i></button>
+				</div>
+			</div>
+			<div id="screenAreaSelector" class="screen_info">
+				<div class="screen_inner">
+					<h3>Areas</h3>
+					<div id="areas">
+						<a class="areaInfo" href="#/a/alpha0" title="Go to area alpha0">α<sub>0</sub></a>
+						<a class="areaInfo" href="#/a/beta0" title="Go to area beta0">β<sub>0</sub></a>
+						<a class="areaInfo" href="#/a/beta1" title="Go to area beta1">β<sub>1</sub></a>
+						<a class="areaInfo" href="#/a/gamma0" title="Go to area gamma0">γ<sub>0</sub></a>
+						<a class="areaInfo" href="#/a/pacman0" title="Go to area pacman0">δ<sub>0</sub></a>
+						<a class="areaInfo disabled" >?</a>
+						<a class="areaInfo disabled" >?</a>
+						<a class="areaInfo disabled" >?</a>
+						<a class="areaInfo disabled" >?</a>
+						<a class="areaInfo disabled" >?</a>
+					</div>
+				</div>
+			</div>
+			<div id="screenLeaderBoard" class="screen_info">
+				<div class="screen_inner">
+					<h3>Scores</h3>
+					<table>
+						<tbody>
+							<tr>
+								<td class="rank">${rank}</td>
+								<td class="num">${name}</td>
+								<td class="score">${score}</td>
+							</tr>
+						</tbody>
+					</table>
+					<input type="check" id="friends_filter">Friends Only</input>
+					<div class="actions">
+						<button id="leaderboardPrevious" class="btn" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
+						<button id="leaderboardNext" class="btn" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
+					</div>
+				</div>
+			</div>
+			<div id="screenAchievments" class="screen_info">
+				<div class="screen_inner">
+					<h3>Achievments</h3>
+					<div id="achievments">
+						<div class="achievmentInfo" title="${title}">
+							<img src="${url}"/>
+							<h4>${title}</h4>
+							<p>${description}</p>
+						</div>
+					</div>
+				</div>
+			</div>
 <!--
-      <div id="screenFeedback" class="screen_info">
-        <h3 id="feedbackLabel">feedback</h3>
-        <div id="disqus_thread"></div>
-        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-        <script type="text/javascript">
-            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-            var disqus_shortname = 'vdrones'; // required: replace example with your forum shortname
-            var disqus_identifier = 'vdrones_v0';
-            var disqus_title = 'VDrones (v0)';
-            var disqus_url = 'http://vdrones.appspot.com/';
-    
-            //TODO call the function when comments should be displayed
-            /* * * DON'T EDIT BELOW THIS LINE * * */
-            setTimeout(function() {
-                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-            }, 5000);
-        </script>
-      </div>
--->
-      <div id="screenInit" class="screen_info">
-        <div class="screen_inner">
-          <h3>Welcome VDroner,</h3>
-          <div id="rules_help" style="padding-bottom:3em">
-             Grab the <img src="_images/cube.png" alt="cubes of energy"/><br>
-             Don't touch the walls<br>
-             Go to exit point before timeout to validate grabbed cubes.<br>
-          </div>
-          <div id="controls_help" style="padding-bottom:3em">
-            <table>
-              <tr>
-                <td>Forward</td>
-                <td>[up] [W]</td>
-              </tr>
-              <tr>
-                <td>Turn Right</td>
-                <td>[right] [A]</td>
-              </tr>
-              <tr>
-                <td>Turn Left</td>
-                <td>[left] [D]</td>
-              </tr>
-              <tr>
-                <td>Toggle View</td>
-                <td>[M]</td>
-              </tr>
-            </table>
-          </div>
-          <div class="actions">
-            <div id="msgConnecting" style="opacity: 1"><span class="fa fa-spinner fa-spin"></span> Please wait, connecting to VSpace ...</div>
-              <button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
-            </div>
-          </div>
-        </div>
-        <!--div id="screenLast" class="screen_info">
-          <div class="screen_inner">... Waiting ...</div>
-        </div-->
-        <div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
-        </div>
-      </div>
-      <progress id="gameload" max="100" value="0">
-        <!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
-      </progress>
-    </section>
-    <footer>
-      <div style="float:left">version: 0.14.0 (updates every week)</div>
-      <div style="float:right">
-        <a href="humans.txt"  onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img  src="humanstxt-transparent-1ink.png" border="0"/></a>
-      </div>
-    </footer>
-  </div>
+			<div id="screenFeedback" class="screen_info">
+				<h3 id="feedbackLabel">feedback</h3>
+				<div id="disqus_thread"></div>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+				<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+				<script type="text/javascript">
+						/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+						var disqus_shortname = 'vdrones'; // required: replace example with your forum shortname
+						var disqus_identifier = 'vdrones_v0';
+						var disqus_title = 'VDrones (v0)';
+						var disqus_url = 'http://vdrones.appspot.com/';
 
-  <script src="packages/browser/dart.js"></script>
-  <script type="application/dart" src="index.dart"></script>
-  <!--script src="loader.js" data-dartsrc="index.dart"></script-->
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-18659445-4']);
-    _gaq.push(['_trackPageview']);
-  </script>
+						//TODO call the function when comments should be displayed
+						/* * * DON'T EDIT BELOW THIS LINE * * */
+						setTimeout(function() {
+								var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+								dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+								(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+						}, 5000);
+				</script>
+			</div>
+-->
+			<div id="screenInit" class="screen_info">
+				<div class="screen_inner">
+					<h3>Welcome VDroner,</h3>
+					<div id="rules_help">
+						 Grab the <img src="_images/cube.svg" alt="cubes of energy" style="height:1.3em;vertical-align:top"/><br>
+						 Don't touch the walls<br>
+						 Go to exit point before timeout to validate grabbed cubes.<br>
+					</div>
+					<table id="controls_help" style="margin-top:3em;margin-bottom:3em;">
+						<tr>
+							<td>Forward</td>
+							<td>[up] [W]</td>
+						</tr>
+						<tr>
+							<td>Turn Right</td>
+							<td>[right] [A]</td>
+						</tr>
+						<tr>
+							<td>Turn Left</td>
+							<td>[left] [D]</td>
+						</tr>
+						<tr>
+							<td>Toggle View</td>
+							<td>[M]</td>
+						</tr>
+					</table>
+					<div id="msgConnecting" style="opacity: 1;text-align:center"><span class="fa fa-spinner fa-spin"></span> Please wait, connecting to VSpace ...</div>
+				</div>
+				<div class="actions">
+					<button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
+				</div>
+			</div>
+		</div>
+				<!--div id="screenLast" class="screen_info">
+					<div class="screen_inner">... Waiting ...</div>
+				</div-->
+		<div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
+		</div>
+		<progress id="gameload" max="100" value="0">
+			<!--span id="progressFallback" data-bind="text : (progressCurrent() * 100 / progressMax()) + '%'"></span-->
+		</progress>
+		</section>
+	</div>
+	<footer class="footer">
+		<div>version: 0.14.0 (updates every week) by davidB</div>
+		<div><a href="humans.txt"	 onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img	 src="humanstxt-transparent-1ink.png" border="0"/></a>		</div>
+	</footer>
+
+	<script src="packages/browser/dart.js"></script>
+	<script type="application/dart" src="index.dart"></script>
+	<!--script src="loader.js" data-dartsrc="index.dart"></script-->
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-18659445-4']);
+		_gaq.push(['_trackPageview']);
+	</script>
 </body>
 </html>
