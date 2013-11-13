@@ -201,7 +201,7 @@ class ShowHide {
     assert(effectTiming != null);
     final values = _values[element];
     num fractionComplete = null;
-    
+
     switch(values.currentState) {
       case ShowHideState.HIDING:
         // no op - let the current animation finish
@@ -226,7 +226,7 @@ class ShowHide {
     if (fractionComplete == null) {
       fractionComplete = 1;
     }
-    
+
     assert(!_AnimatingValues.isAnimating(element));
     final durationMS = effect.startHide(element, desiredDuration, effectTiming, fractionComplete);
     if(durationMS > 0) {
@@ -247,26 +247,27 @@ class ShowHide {
   }
 
   static String _getShowDisplayValue(Element element) {
-    final values = _values[element];
-
-    if(values.initialComputedDisplay == 'none') {
-      // if the element was initially invisible, it's tough to know "why"
-      // even if the element has a local display value of 'none' it still
-      // might have inherited it from a style sheet
-      // so we play say and set the local value to the tag default
-      final tagDefault = _defaultDisplays[element.tagName];
-      assert(tagDefault != null);
-      return tagDefault;
-    } else {
-      if(values.initialLocalDisplay == '' || values.initialLocalDisplay == 'inherit') {
-        // it was originally visible and the local value was empty
-        // so returning the local value to '' should ensure it's visible
-        return values.initialLocalDisplay;
-      } else {
-        // it was initially visible, cool
-        return values.initialComputedDisplay;
-      }
-    }
+    return '';
+//    final values = _values[element];
+//
+//    if(values.initialComputedDisplay == 'none') {
+//      // if the element was initially invisible, it's tough to know "why"
+//      // even if the element has a local display value of 'none' it still
+//      // might have inherited it from a style sheet
+//      // so we play say and set the local value to the tag default
+//      final tagDefault = _defaultDisplays[element.tagName];
+//      assert(tagDefault != null);
+//      return tagDefault;
+//    } else {
+//      if(values.initialLocalDisplay == '' || values.initialLocalDisplay == 'inherit') {
+//        // it was originally visible and the local value was empty
+//        // so returning the local value to '' should ensure it's visible
+//        return values.initialLocalDisplay;
+//      } else {
+//        // it was initially visible, cool
+//        return values.initialComputedDisplay;
+//      }
+//    }
   }
 }
 
