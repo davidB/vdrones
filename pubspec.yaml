@@ -21,6 +21,8 @@ dependencies:
   glf:
     git: https://github.com/davidB/glf.git
   google_games_v1_api: '>=0.4.1'
+  google_oauth2_client: any
+  google_plus_v1_api: '>=0.4.11'
   intl: any
   js: any
   lawndart: any

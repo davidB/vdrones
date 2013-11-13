@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>auth</title>
+    <!--script src="_vendors/modernizr-2.6.2.min.js"></script-->
+    <link rel="stylesheet" href="../_vendors/normalize-2.0.1/normalize.css">
+    <!--link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css"/-->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
+    <link rel="stylesheet" href="../index.css">    
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto">
+  </head>
+ 
+  <body class="body">   
+  <div class="main">
+    <section id="game_area" class="sh">
+      <div id="layers">
+      <div id="screenAchievements" class="screen">
+      <h3>Achievements</h3>
+      <div class="subpage login">require login :
+          <button class="gplus_signin">
+            <span class="icon"></span>
+            <span class="buttonText">Google</span>
+          </button>
+      </div>
+      <div class="subpage loading" style="display:none">Loading ...</div>
+      <div class="subpage ready" id="achievements" style="display:none">
+        <div class="ach ${state}">
+          <img class="ach_icon" src="${iconUrl}"/>
+          <div class="ach_name">${name}</div>
+          <div class="ach_desc">${description}</div>
+          <div class="ach_at">${at}</div>
+        </div>
+      </div>
+      <div class="actions"></div>
+    </div>
+    </div>
+    </div>
+    </section>
+    </div>
+    <script type="application/dart" src="auth.dart"></script>
+    <!-- for this next line to work, your pubspec.yaml file must have a dependency on 'browser' -->
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>

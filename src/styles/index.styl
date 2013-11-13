@@ -133,7 +133,7 @@ body {
   top: 0px; width: 90%;
   padding: 5px;
 }
-.screen_info  {
+.screen  {
   z-index: 12;
   /*background-color: #00aa00;*/
   background-color:#272b30;
@@ -145,6 +145,7 @@ body {
   top: 60px;
   left: 260px;
 }
+/*
 .screen_inner {
   border: 2px solid $border-color;
   margin: 8px;
@@ -159,7 +160,7 @@ body {
 .screen_inner >div, .screen_inner >table {
   margin: auto;
 }
-
+*/
 
 $btn-light-radius = 40px
 $btn-color = #005
@@ -199,8 +200,9 @@ $btn-color = #005
 	box-shadow: none
 
 .actions
-	margin-top: ($btn-light-radius / -2);
-	text-align: center;
+	margin-top ($btn-light-radius / -2)
+	text-align center
+	align-self stretch
 
 footer
 	padding: 0
@@ -407,4 +409,82 @@ ul.nav >li
 	border-radius: 6px;
 	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 	background-clip: padding-box;
+
+.gplus_signin
+	display: inline-block;
+	background: #dd4b39;
+	color: white;
+	width: 165px;
+	border-radius: 5px;
+	white-space: nowrap;
+	border: none;
+
+.gplus_signin:hover
+	background: #e74b37;
+	cursor: hand;
+
+.gplus_signin .icon
+	background: url('https://google-developers.appspot.com/+/images/branding/btn_red_32.png') transparent 5px 50% no-repeat;
+	display: inline-block;
+	vertical-align: middle;
+	width: 35px;
+	height: 35px;
+	border-right: #bb3f30 1px solid;
+
+.gplus_signin .buttonText
+	display: inline-block;
+	vertical-align: middle;
+	padding-left: 35px;
+	padding-right: 35px;
+	font-size: 14px;
+	font-weight: bold;
+	/* Use the Roboto font that is loaded in the <head> */
+	font-family: 'Roboto',arial,sans-serif;
+
+#screenAchievements
+	margin: 0;
+	display flex
+	flex-direction column
+	flex-wrap wrap
+	justify-content space-between
+	align-items center
+	align-content stretch
+	width	100%
+
+#achievements
+	order 0
+	flex: 0 1 auto;
+	align-self auto
+	margin 0
+	display flex
+	flex-direction row
+	flex-wrap wrap
+	justify-content flex-start
+	align-items flex-start
+	align-content flex-start
+	padding 1em
+
+
+.ach
+	order 0
+	flex 0 1 auto
+	align-self auto
+	margin 0.1em
+	display flex
+	flex-direction column
+	flex-wrap wrap
+	justify-content flex-start
+	align-items center
+	/* workaround */
+	width 18em
+	height 10em
+
+.ach_desc
+	font-style: italic;
+
+.ach_icon
+	align-content flex-start
+	display block
+	width 4em
+	heignt @width
 
