@@ -60,12 +60,14 @@ void _route(String hash) {
 }
 
 void _showScreen(id){
+  if (_currentScreenId == id) return;
   var previousScreenId = _currentScreenId;
   var previousScreenTransition = _findTransition(previousScreenId);
   _currentScreenId = id;
   var currentScreenTransition = _findTransition(_currentScreenId);
   Swapper.swap(document.querySelector('#layers'), document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
 }
+
 var _currentScreenId = '';
 
 _findTransition(id) {
@@ -103,8 +105,10 @@ Iterable<Future<Element>> loadDataSvgs(){
       var doc = httpRequest.responseXml;
       var child = doc.documentElement.clone(true);
       // to fill parent el and keep original ratio of the image
-      child.style.width = "inherit";
-      child.style.height = "inherit";
+      child.attributes.remove("width");
+      child.attributes.remove("height");
+      child.style.width = "100%";
+      child.style.height = "100%";
       el.append(child);
       return child;
     });
