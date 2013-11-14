@@ -245,18 +245,18 @@ class Factory_Renderables {
 
     var r = new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      var dpr = window.devicePixelRatio;     // retina
-      //var dpr = 1;
-      //var viewWidth = (dpr * canvas.clientWidth).round();//parseInt(canvas.style.width);
-      //var viewHeight = (dpr * canvas.clientHeight).round(); //parseInt(canvas.style.height);
-
-      var vp = new glf.ViewportCamera()
-      ..x = 0
-      ..y = 0
-      ..viewWidth = (1120 * 1.0).toInt()
-      ..viewHeight = (630 * 1.0).toInt()
-      ;
-      
+//      var dpr = window.devicePixelRatio;     // retina
+//      //var dpr = 1;
+//      //var viewWidth = (dpr * canvas.clientWidth).round();//parseInt(canvas.style.width);
+//      //var viewHeight = (dpr * canvas.clientHeight).round(); //parseInt(canvas.style.height);
+//
+//      var vp = new glf.ViewportCamera()
+//      ..x = 0
+//      ..y = 0
+//      ..viewWidth = (1120 * 1.0).toInt()
+//      ..viewHeight = (630 * 1.0).toInt()
+//      ;
+      var vp = new glf.ViewportCamera.defaultSettings(gl.canvas);
       vp.camera
       ..fovRadians = degrees2radians * 45.0
       ..near = 1.0

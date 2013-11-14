@@ -74,68 +74,52 @@
 					<div><a class="fa fa-pauseplay" title="play"></a></div>
 				</div>
 			</div>
-			<div id="screenRunResult" class="screen_info">
-				<div class="screen_inner">
-					<h3>Score on <span data-text="areaId"></span> : <span data-text="cubesLast"></span> (max <span data-text="cubesMax"></span>)</h3>
-					<div data-svg-src="_images/cube.svg" style="width:100%;height:80%"></div>
-					<div style="text-align: right;">Total :	<span data-text="cubesTotal"></span></div>
-				</div>
+			<div id="screenRunResult" class="screen" style="display:none">
+				<h3>Score on <span data-text="areaId"></span> : <span data-text="cubesLast"></span> (max <span data-text="cubesMax"></span>)</h3>
+				<div data-svg-src="_images/cube.svg" style="width:100%;height:30em"></div>
+				<div style="text-align: right; width:80%">Total :	<span data-text="cubesTotal"></span></div>
 				<div class="actions">
 					<a href="#/s/screenAreaSelector" class="btn btn-icon" tabindex="2" title="Choose an other area"><i class="fa fa-th"></i></a>
 					<button class="btn btn-icon play" disabled="disabled" tabindex="0" title="Replay on same area (try to do better)"><i class="fa fa-repeat"></i></button>
 					<button class="btn btn-icon next" disabled="disabled" tabindex="1" title="Go to next area"><i class="fa fa-forward"></i></button>
 				</div>
 			</div>
-			<div id="screenAreaSelector" class="screen_info">
-				<div class="screen_inner">
-					<h3>Areas</h3>
-					<div id="areas">
-						<a class="areaInfo" href="#/a/alpha0" title="Go to area alpha0">α<sub>0</sub></a>
-						<a class="areaInfo" href="#/a/beta0" title="Go to area beta0">β<sub>0</sub></a>
-						<a class="areaInfo" href="#/a/beta1" title="Go to area beta1">β<sub>1</sub></a>
-						<a class="areaInfo" href="#/a/gamma0" title="Go to area gamma0">γ<sub>0</sub></a>
-						<a class="areaInfo" href="#/a/pacman0" title="Go to area pacman0">δ<sub>0</sub></a>
-						<a class="areaInfo disabled" >?</a>
-						<a class="areaInfo disabled" >?</a>
-						<a class="areaInfo disabled" >?</a>
-						<a class="areaInfo disabled" >?</a>
-						<a class="areaInfo disabled" >?</a>
-					</div>
+			<div id="screenAreaSelector" class="screen" style="display:none">
+				<h3>Areas</h3>
+				<div id="areas">
+					<a class="areaInfo" href="#/a/alpha0" title="Go to area alpha0">α<sub>0</sub></a>
+					<a class="areaInfo" href="#/a/beta0" title="Go to area beta0">β<sub>0</sub></a>
+					<a class="areaInfo" href="#/a/beta1" title="Go to area beta1">β<sub>1</sub></a>
+					<a class="areaInfo" href="#/a/gamma0" title="Go to area gamma0">γ<sub>0</sub></a>
+					<a class="areaInfo" href="#/a/pacman0" title="Go to area pacman0">δ<sub>0</sub></a>
+					<a class="areaInfo disabled" >?</a>
+					<a class="areaInfo disabled" >?</a>
+					<a class="areaInfo disabled" >?</a>
+					<a class="areaInfo disabled" >?</a>
+					<a class="areaInfo disabled" >?</a>
 				</div>
 			</div>
-			<div id="screenLeaderBoard" class="screen_info">
-				<div class="screen_inner">
-					<h3>Scores</h3>
-					<table>
-						<tbody>
-							<tr>
-								<td class="rank">${rank}</td>
-								<td class="num">${name}</td>
-								<td class="score">${score}</td>
-							</tr>
-						</tbody>
-					</table>
-					<input type="check" id="friends_filter">Friends Only</input>
-					<div class="actions">
-						<button id="leaderboardPrevious" class="btn" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
-						<button id="leaderboardNext" class="btn" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
-					</div>
+			<div id="screenLeaderBoard" class="screen" style="display:none">
+				<h3>Scores</h3>
+				<table>
+					<tbody>
+						<tr>
+							<td class="rank">${rank}</td>
+							<td class="num">${name}</td>
+							<td class="score">${score}</td>
+						</tr>
+					</tbody>
+				</table>
+				<input type="check" id="friends_filter">Friends Only</input>
+				<div class="actions">
+					<button id="leaderboardPrevious" class="btn" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
+					<button id="leaderboardNext" class="btn" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
 				</div>
 			</div>
-			<div id="screenAchievments" class="screen_info">
-				<div class="screen_inner">
-					<h3>Achievments</h3>
-					<div id="achievments">
-						<div class="achievmentInfo" title="${title}">
-							<img src="${url}"/>
-							<h4>${title}</h4>
-							<p>${description}</p>
-						</div>
-					</div>
-				</div>
+			<div id="screenAchievements" class="screen" style="display:none">
 			</div>
 <!--
-			<div id="screenFeedback" class="screen_info">
+			<div id="screenFeedback" class="screen">
 				<h3 id="feedbackLabel">feedback</h3>
 				<div id="disqus_thread"></div>
 				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
@@ -157,40 +141,38 @@
 				</script>
 			</div>
 -->
-			<div id="screenInit" class="screen_info">
-				<div class="screen_inner">
-					<h3>Welcome VDroner,</h3>
-					<div id="rules_help">
-						 Grab the <img src="_images/cube.svg" alt="cubes of energy" style="height:1.3em;vertical-align:top"/><br>
-						 Don't touch the walls<br>
-						 Go to exit point before timeout to validate grabbed cubes.<br>
-					</div>
-					<table id="controls_help" style="margin-top:3em;margin-bottom:3em;">
-						<tr>
-							<td>Forward</td>
-							<td>[up] [W]</td>
-						</tr>
-						<tr>
-							<td>Turn Right</td>
-							<td>[right] [A]</td>
-						</tr>
-						<tr>
-							<td>Turn Left</td>
-							<td>[left] [D]</td>
-						</tr>
-						<tr>
-							<td>Toggle View</td>
-							<td>[M]</td>
-						</tr>
-					</table>
-					<div id="msgConnecting" style="opacity: 1;text-align:center"><span class="fa fa-spinner fa-spin"></span> Please wait, connecting to VSpace ...</div>
+			<div id="screenInit" class="screen">
+				<h3>Welcome VDroner,</h3>
+				<div id="rules_help">
+					 Grab the <img src="_images/cube.svg" alt="cubes of energy" style="height:1.3em;vertical-align:top"/><br>
+					 Don't touch the walls<br>
+					 Go to exit point before timeout to validate grabbed cubes.<br>
 				</div>
+				<table id="controls_help" style="margin-top:3em;margin-bottom:3em;">
+					<tr>
+						<td>Forward</td>
+						<td>[W] [up]</td>
+					</tr>
+					<tr>
+						<td>Turn Right</td>
+						<td>[A] [right]</td>
+					</tr>
+					<tr>
+						<td>Turn Left</td>
+						<td>[D] [left]</td>
+					</tr>
+					<tr>
+						<td>Toggle View</td>
+						<td>[M]</td>
+					</tr>
+				</table>
+				<div id="msgConnecting" style="opacity: 1;text-align:center"><span class="fa fa-spinner fa-spin"></span> Please wait, connecting to VSpace ...</div>
 				<div class="actions">
 					<button class="btn btn-primary play" disabled="disabled" tabindex="0">START</button>
 				</div>
 			</div>
 		</div>
-				<!--div id="screenLast" class="screen_info">
+				<!--div id="screenLast" class="screen">
 					<div class="screen_inner">... Waiting ...</div>
 				</div-->
 		<div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
@@ -202,6 +184,7 @@
 	</div>
 	<footer class="footer">
 		<div>version: 0.14.0 (updates every week) by davidB</div>
+		<div>VDrones at <a href="https://plus.google.com/106535708348552848993" rel="publisher">Google+</a></div>
 		<div><a href="humans.txt"	 onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img	 src="humanstxt-transparent-1ink.png" border="0"/></a>		</div>
 	</footer>
 

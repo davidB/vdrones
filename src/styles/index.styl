@@ -43,9 +43,19 @@ body {
 #game_area {
   position: relative;
   margin: auto;
-
+/*
   width: 1120px;
   height: 630px;
+*/
+  /*
+  To have a height dynamic at 16:9 of parent's width (require parent to be sized (eg 100% x 100%))
+  see http://blog.brianjohnsondesign.com/maintain-aspect-ratio-for-html-element-using-only-css-in-a-responsive-design/
+  but the width is not relative of maximum visible height
+  overflow: auto
+*/
+  width: 85%;
+  height: 0;
+  padding-bottom: (@width * 9 / 16)
 }
 #layers, #layers >*{
   position: absolute;
@@ -134,11 +144,18 @@ body {
   top: 0px; width: 90%;
   padding: 5px;
 }
-.screen  {
-  z-index: 12;
-  /*background-color: #00aa00;*/
-  background-color:#272b30;
-}
+.screen
+	z-index 12
+	background-color $body-bg
+	margin 0
+	display flex
+	flex-direction column
+	flex-wrap wrap
+	justify-content space-between
+	align-items center
+	align-content stretch
+	width	100%
+
 #layers >div.dialog_info {
   position: absolute;
   height: 300px;
@@ -153,15 +170,13 @@ body {
   padding: 5px;
   height: 80%;
 }
-.screen_inner h3, .screen_inner #rules_help {
-  text-align: center;
-  font-size: 140%;
-  margin-bottom: 39px;
-}
-.screen_inner >div, .screen_inner >table {
-  margin: auto;
-}
 */
+h3
+	font-size 150%
+
+#rules_help
+	text-align center
+	font-size 140%
 
 $btn-light-radius = 40px
 $btn-color = #005
@@ -292,14 +307,13 @@ table.stats td {
 	height: 100%
 
 .header
-	align-self flex-start
+	align-self stretch
 	display flex
 	flex-direction row
 	flex-wrap nowrap
 	justify-content space-between
 	align-items flex-start
 	align-content center
-	width 100%
 	background-image: linear-gradient(rgb(32, 35, 40), rgb(21, 23, 25) 70%, rgb(21, 23, 25));
 	background-repeat: no-repeat;
 	border-color: rgb(37, 37, 37);
@@ -307,20 +321,25 @@ table.stats td {
 	border-radius: 4px;
 	box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.067);
 
-.header >*
+.header >*, .screen >*
 	order 0
 	flex: 0 1 auto;
 	align-self: auto;
 
 .main
 	flex: 1 1 auto;
+	margin 0
+	padding-left 0
+	padding-right 0
 	padding-top 2em
 	padding-bottom 3em
 	width 100%
-	height 100%
+/* disable height to not override flex-grow: 1
+height 100%
+*/
 
 .footer
-	align-self flex-end
+	align-self stretch
 	display flex
 	flex-direction row
 	flex-wrap nowrap
@@ -443,16 +462,6 @@ ul.nav >li
 	font-weight: bold;
 	/* Use the Roboto font that is loaded in the <head> */
 	font-family: 'Roboto',arial,sans-serif;
-
-#screenAchievements
-	margin: 0;
-	display flex
-	flex-direction column
-	flex-wrap wrap
-	justify-content space-between
-	align-items center
-	align-content stretch
-	width	100%
 
 #achievements
 	order 0
