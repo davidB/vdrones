@@ -3,7 +3,7 @@
 
 # TEAM
 
-  Lead: David Bernard
+	Lead: David Bernard
 	Github: http://github.com/davidB
 	From: Chartres, France
 
@@ -12,11 +12,11 @@
 
 # SITE
 
-	Last update: 2013/04/24
+	Last update: 2013/11/14
 	Language: English
 	Standards: HTML5, CSS3, Dart
 	Doctype:HTML5
-	Components: Three.js, asset_pack, dartemis, dartbox2d, bootwatch
-	Software: DartEditor, Vim, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github
-	Fonts: SciFly, Font-Awesome, Fontello, Zocial, weloveiconfonts.com
-	Host: Google App Engine
+	Components: asset_pack, dartemis,
+	Software: DartEditor, Vim, jEdit, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github, Stylus
+	Fonts: SciFly, Font-Awesome, weloveiconfonts.com
+	Host: Google App Engine, Google Play / Game services
