@@ -10,10 +10,10 @@ import 'package:vdrones/effects.dart';
 
 
 
-var signAction = new SignAction()
-..autoLogin = false
-;
 void main() {
+  var signAction = new SignAction()
+  ..autoLogin = false
+  ;
   signAction.bind();
   signAction.onSign.listen((evt) {
     if (evt.logged) helloGPlus(evt.auth);
@@ -28,8 +28,6 @@ void main() {
     screenAchievements.showPage();
   });
   screenAchievements.showPage();
-
-  //ShowHide.show(querySelector("#achievements"))
 }
 
 class SignEvent {
@@ -73,10 +71,10 @@ class SignAction {
 
   _displayAction() {
     _streamCtrl.add(new SignEvent()
-    ..auth = auth
-    ..logged = (auth.token != null)
+      ..auth = auth
+      ..logged = (auth.token != null)
     );
-    var txt = (auth.token == null || auth.token.expired) ? "Sign In" : "Sign Out";
+    var txt = (auth.token == null || auth.token.expired) ? "Sign in" : "Sign out";
     querySelectorAll(selector + " .buttonText").forEach((e) {
       e.text = txt;
       e.parent.disabled = false;
@@ -85,17 +83,12 @@ class SignAction {
 
   _displayWIP() {
     querySelectorAll(selector + " .buttonText").forEach((e) {
-      e.text = "... working ...";
+      e.text = "...";
       e.parent.disabled = true;
     });
   }
 
-  _oauthReady(oauth.Token token){
-
-  }
-
 }
-
 
 void helloGPlus(auth) {
   var plus = new plusclient.Plus(auth);
@@ -112,21 +105,44 @@ class ScreenAchievements {
   final Element el;
   final gamesbrowser.Games gameservice;
   var _state = 0;
-  var defsF;
-  var tmplAchievements = null;
-  var tmplAchievementsParent = null;
+  var _defsF;
+  var _tmplAchievements = null;
+  var _tmplAchievementsParent = null;
   var uriPolicy = new UriPolicyAll();
+  var playerId = "me"; //gameservice.auth.token.userId
 
   ScreenAchievements(this.el, this.gameservice) {
-    var tmpl = el.querySelector(".ach");
+    var tmpl = el.querySelector("script.ach");
     if (tmpl == null) {
-      print("no template define for achivement");
+      print("ERROR: no template define for '.ach'");
       _state = -1;
       return;
     }
-    tmplAchievementsParent = tmpl.parent;
-    tmplAchievements = tmplAchievementsParent.innerHtml;
-    tmplAchievementsParent.setInnerHtml('');
+    _tmplAchievementsParent = tmpl.parent;
+    //_tmplAchievements = _tmplAchievementsParent.innerHtml;
+    _tmplAchievements = tmpl.text;
+    _tmplAchievementsParent.setInnerHtml('');
+  }
+
+  showPage() {
+    var s = ShowHide.getState(el);
+    if (s == ShowHideState.HIDING || s == ShowHideState.HIDDEN) return;
+    if (gameservice.auth.token == null){
+      _showPage("login");
+      return;
+    }
+    if(_state == 0) {
+      _loadAchievements();
+    }
+    if (_state == 1) {
+      _showPage("loading");
+    }
+    if (_state == 2) {
+      _showPage("ready");
+    }
+    if (_state == -1) {
+      _showPage("bad");
+    }
   }
 
   _showPage(clazz) {
@@ -142,55 +158,28 @@ class ScreenAchievements {
     });
   }
 
-  showPage() {
-    print("showPage 00");
-    var s = ShowHide.getState(el);
-    if (s == ShowHideState.HIDING || s == ShowHideState.HIDDEN) return;
-    print("showPage 01");
-    if (gameservice.auth.token == null){
-      print("showPage 01 - x");
-      _showPage("login");
-      return;
-    }
-    print("showPage 01 - ${_state}");
-    if(_state == 0) {
-      _loadAchievements();
-    }
-    if (_state == 1) {
-      _showPage("loading");
-    }
-    if (_state == 2) {
-      _showPage("ready");
-    }
-    if (_state == -1) {
-      _showPage("bad");
-    }
-  }
-
   void _loadAchievements() {
     _state = 1;
   //TODO setup the screen to "loading mode"
-    if (defsF == null) {
-      defsF = gameservice.achievementDefinitions.list();
+    if (_defsF == null) {
+      _defsF = gameservice.achievementDefinitions.list();
     }
     Future.wait([
-      defsF,
-      gameservice.achievements.list(gameservice.auth.token.userId)
+      _defsF,
+      gameservice.achievements.list(playerId)
     ]).then((l){
-      print("data received");
       _renderAchievements(l[0].items, l[1].items);
       _state = 2;
-      print("showPage zz - ${_state}");
       showPage();
     }, onError: (e,st){
-      _state = 3;
-      showPage();
       //TODO setup the screen to "error mode"
       // eg : Failed to load resource: the server responded with a status of 401 (Unauthorized)
       //   https://www.googleapis.com/games/v1/achievements
       // APIRequestException: 401 Login Required
-      print(e);
-      print(st);
+      print("ERROR: $e");
+      print("ERROR: $st");
+      _state = 3;
+      showPage();
     });
 
 //  games.leaderboards.list(maxResults: 5).then((x){
@@ -216,8 +205,8 @@ class ScreenAchievements {
       pas.firstWhere((y) => y.ad.id == x.id).pa = x;
     });
     pas.sort((e1,e2) => e2.pos - e1.pos);
-    tmplAchievementsParent.setInnerHtml(
-      pas.fold("", (acc, item) => acc + (interpolate(tmplAchievements, item.asMap()))),
+    _tmplAchievementsParent.setInnerHtml(
+      pas.fold("", (acc, item) => acc + (interpolate(_tmplAchievements, item.asMap()))),
       validator: new NodeValidator(uriPolicy: uriPolicy)
     );
   }
@@ -238,7 +227,7 @@ class PlayerAchievements {
       "iconUrl" : _iconUrl(),
       "name" : ad.name,
       "description" : ad.description,
-      "state" : pa.achievementState,
+      "state" : pa.achievementState.toLowerCase(),
       "at" : (pa.lastUpdatedTimestamp == null)  ? "" : datetimeFmt.format(new DateTime.fromMillisecondsSinceEpoch(pa.lastUpdatedTimestamp))
     };
   }

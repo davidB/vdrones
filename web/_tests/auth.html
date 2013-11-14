@@ -17,20 +17,24 @@
       <div id="layers">
       <div id="screenAchievements" class="screen">
       <h3>Achievements</h3>
-      <div class="subpage login">require login :
+      <div class="subpage login">
+          <p>To view Achievements, you have to Sign in.</p>
           <button class="gplus_signin">
             <span class="icon"></span>
-            <span class="buttonText">Google</span>
+            <span class="buttonText">Sign in</span>
           </button>
+          
       </div>
       <div class="subpage loading" style="display:none">Loading ...</div>
       <div class="subpage ready" id="achievements" style="display:none">
+        <script class="ach" type="text/tmpl">
         <div class="ach ${state}">
           <img class="ach_icon" src="${iconUrl}"/>
           <div class="ach_name">${name}</div>
           <div class="ach_desc">${description}</div>
           <div class="ach_at">${at}</div>
         </div>
+        </script>
       </div>
       <div class="actions"></div>
     </div>
