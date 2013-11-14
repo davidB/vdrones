@@ -55,8 +55,8 @@ class DroneGenerator extends Component {
 class DroneNumbers extends Component {
   int energy = 500;
   int energyMax = 1000;
-  ///forward acceleration
-  double accf = 100.0;
+  ///forward acceleration [100,500]
+  double accf = 150.0;
   ///lateral (turn) acceleration
   double accl = 50.0;
   int score = 0;
