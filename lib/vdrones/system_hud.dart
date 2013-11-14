@@ -53,9 +53,10 @@ class System_Hud extends IntervalEntitySystem {
     }
   }
 
-  check() {
+  bool checkProcessing() {
+    var b = super.checkProcessing();
     if (!_initialized) reset();
-    return _initialized;
+    return b && _initialized;
   }
   void processEntities(ReadOnlyBag<Entity> entities) {
     entities.forEach((entity){
