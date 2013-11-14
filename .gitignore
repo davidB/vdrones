@@ -14,3 +14,4 @@ filter
 .idea
 *.orig
 /.project
+web/index.css
