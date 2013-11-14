@@ -11,6 +11,7 @@ class System_Hud extends IntervalEntitySystem {
   Element _chronometerEl;
   Element _energyBarEl;
   Element _viewRedEl;
+  bool _initialized = false;
 
   System_Hud(this._container, this.playerToFollow):super(1000.0/15, Aspect.getAspectForOneOf([DroneNumbers, Chronometer]));
 
@@ -21,17 +22,10 @@ class System_Hud extends IntervalEntitySystem {
     //TODO Window.resizeEvent.forTarget(window).listen(_updateViewportSize);
     //TODO use AssetManager to retreive dom or a web_ui component
     reset();
-//    var src = "_images/gui.svg";
-//    HttpRequest.request(src, responseType : 'document').then((httpRequest){
-//      var doc = httpRequest.responseXml;
-//      _initializeDom((doc.documentElement.clone(true) as Element)..id = "hud_area");
-//    });
   }
 
   void _initializeDom(domElem) {
     if (domElem != null) {
-      document.querySelector("#hud").nodes.add(domElem);
-
       _scoreEl = _container.querySelector("#score");
       if (_scoreEl != null) _scoreEl.text = "0";
 
@@ -43,6 +37,7 @@ class System_Hud extends IntervalEntitySystem {
 
       _energyBarEl = _container.querySelector("#energyBar");
       _viewRedEl = _container.querySelector("#view_red");
+      _initialized = true;
     }
   }
 
@@ -58,6 +53,10 @@ class System_Hud extends IntervalEntitySystem {
     }
   }
 
+  check() {
+    if (!_initialized) reset();
+    return _initialized;
+  }
   void processEntities(ReadOnlyBag<Entity> entities) {
     entities.forEach((entity){
       if (_playerManager.getPlayer(entity) == playerToFollow) {
@@ -85,7 +84,8 @@ class System_Hud extends IntervalEntitySystem {
   }
 
   void reset() {
-    var c = querySelector("#hud").childNodes;
+    _initialized = false;
+    var c = _container.querySelector("#hud").childNodes;
     if (c.length == 1) _initializeDom(c[0]);
   }
 }
