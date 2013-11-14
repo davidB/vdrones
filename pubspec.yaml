@@ -1,5 +1,5 @@
 name: vdrones
-version: 0.14.0
+version: 0.15.0
 author: david bernard
 description: An arcade game
 homepage: https://vdrones.appspot.com/
@@ -19,7 +19,8 @@ dependencies:
       ref: davidB
       url: https://github.com/davidB/game_loop.git
   glf:
-    git: https://github.com/davidB/glf.git
+    path: ../glf
+#    git: https://github.com/davidB/glf.git
   google_games_v1_api: '>=0.4.1'
   google_oauth2_client: any
   google_plus_v1_api: '>=0.4.11'

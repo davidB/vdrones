@@ -56,11 +56,10 @@ packages:
     version: "0.9.2"
   glf:
     description:
-      ref: null
-      resolved-ref: "580acc7012141df8759ae558da5d21c246bd7189"
-      url: "https://github.com/davidB/glf.git"
-    source: git
-    version: "0.1.0"
+      path: "/home/dwayne/work/dart/vdrones/../glf"
+      relative: true
+    source: path
+    version: "0.2.0"
   google_games_v1_api:
     description: google_games_v1_api
     source: hosted
