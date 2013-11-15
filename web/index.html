@@ -100,24 +100,55 @@
 				</div>
 			</div>
 			<div id="screenLeaderBoard" class="screen" style="display:none">
-				<h3>Scores</h3>
-				<table>
-					<tbody>
-						<tr>
-							<td class="rank">${rank}</td>
-							<td class="num">${name}</td>
-							<td class="score">${score}</td>
-						</tr>
-					</tbody>
-				</table>
-				<input type="check" id="friends_filter">Friends Only</input>
+				<h3>Scores<sub>(preview)</sub></h3>
+				<div class="subpage login">
+					<p>To view Scores, you have to Sign in.</p>
+					<button class="gplus_signin">
+						<span class="icon"></span>
+						<span class="buttonText">Sign in</span>
+					</button>
+				</div>
+				<div class="subpage loading" style="display:none">Loading ...</div>
+				<div class="subpage ready" id="achievements" style="display:none">
+					<table>
+						<tbody>
+							<tr class="score">
+								<td class="score_rank">${rank}</td>
+								<td class="score_name">${name}</td>
+								<td class="score_value">${score}</td>
+							</tr>
+						</tbody>
+					</table>
+					<input type="check" id="friends_filter" style="width:100%; align-text:right">Friends Only</input>
+				</div>
 				<div class="actions">
 					<button id="leaderboardPrevious" class="btn" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
 					<button id="leaderboardNext" class="btn" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
 				</div>
 			</div>
 			<div id="screenAchievements" class="screen" style="display:none">
+				<h3>Achievements <sub>(preview)</sub></h3>
+				<div class="subpage login">
+					<p>To view Achievements, you have to Sign in.</p>
+					<button class="gplus_signin">
+						<span class="icon"></span>
+						<span class="buttonText">Sign in</span>
+					</button>
+				</div>
+				<div class="subpage loading" style="display:none">Loading ...</div>
+				<div class="subpage ready" id="achievements" style="display:none">
+					<script class="ach" type="text/tmpl">
+					<div class="ach ${state}">
+						<img class="ach_icon" src="${iconUrl}"/>
+						<div class="ach_name">${name}</div>
+						<div class="ach_desc">${description}</div>
+						<div class="ach_at">${at}</div>
+					</div>
+					</script>
+				</div>
+				<div class="actions"></div>
 			</div>
+
 <!--
 			<div id="screenFeedback" class="screen">
 				<h3 id="feedbackLabel">feedback</h3>

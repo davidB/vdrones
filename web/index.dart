@@ -4,11 +4,15 @@ import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
 import 'package:vdrones/effects.dart';
 //import 'package:web_ui/web_ui.dart';
+import 'package:vdrones/auth.dart';
+import 'package:vdrones/html_tools.dart';
+import 'package:vdrones/game_services.dart';
 
 var game = new vdrones.VDrones(document.querySelector('#screenInGame'))
 ..showScreen = _showScreen
 ;
 var feedbackScreen = null;
+var screenAchievements = null;
 
 void main() {
   loadDataSvgs().map((f) => f.catchError((err,st) {
@@ -18,27 +22,23 @@ void main() {
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
     //_setupLog();
-    _setupRoutes();
     new vdrones.UiAudioVolume()
     ..element = querySelector("#audioVolume")
     ..audioManager = game.audioManager
     ;
-    vdrones.UiDropdown.bind(document.body);
+    UiDropdown.bind(document.body);
+    var uiSign = new UiSign()..bind();
+    var gameservices = makeGameServices(uiSign.auth);
+
+    screenAchievements = new ScreenAchievements(querySelector("#screenAchievements"), gameservices);
+    uiSign.onSign.listen((evt) {
+      screenAchievements.showPage();
+    });
+    _setupRoutes();
   });
 }
 
 void _setupRoutes() {
-  var el = querySelector('#feedback_dialog');
-  if (el != null) {
-    feedbackScreen = el.xtag;
-    feedbackScreen.onToggle.listen((e){
-      if (!feedbackScreen.isShown) {
-        window.location.hash = '/a/${game.area}';
-      }
-    });
-  }
-
-
   Window.hashChangeEvent.forTarget(window).listen((e) {
     _route(window.location.hash);
   });
@@ -52,8 +52,6 @@ void _route(String hash) {
   } else if (hash.startsWith("#/s/")) {
     game.pause();
     _showScreen(hash.substring("#/s/".length));
-  } else if (hash == "#/comments") {
-    feedbackScreen.show();
   } else {
     window.location.hash = '/a/alpha0';
   }
@@ -65,6 +63,7 @@ void _showScreen(id){
   var previousScreenTransition = _findTransition(previousScreenId);
   _currentScreenId = id;
   var currentScreenTransition = _findTransition(_currentScreenId);
+  _preShowScreen(id);
   Swapper.swap(document.querySelector('#layers'), document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
 }
 
@@ -76,6 +75,11 @@ _findTransition(id) {
 final _transitionsDefault = new ScaleEffect();
 //final _transitionsFromTop = new ScaleEffect();
 
+_preShowScreen(id) {
+  if (id == 'screenAchievements') {
+    screenAchievements.showPage();
+  }
+}
 void _setupLog() {
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((r){
@@ -97,21 +101,4 @@ void _setupLog() {
   _logger.severe("severe");
 }
 
-
-Iterable<Future<Element>> loadDataSvgs(){
-  return document.querySelectorAll("[data-svg-src]").map((el){
-    var src = el.dataset["svgSrc"];
-    return HttpRequest.request(src, responseType : 'document').then((httpRequest){
-      var doc = httpRequest.responseXml;
-      var child = doc.documentElement.clone(true);
-      // to fill parent el and keep original ratio of the image
-      child.attributes.remove("width");
-      child.attributes.remove("height");
-      child.style.width = "100%";
-      child.style.height = "100%";
-      el.append(child);
-      return child;
-    });
-  }).toList(growable: false); // to list is called to force execution of the map function (the function map() is lazy in Dart)
-}
 
