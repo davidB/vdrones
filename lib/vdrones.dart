@@ -33,7 +33,6 @@ import 'package:glf/glf_renderera.dart';
 import 'package:game_loop/game_loop_html.dart';
 import 'package:crypto/crypto.dart';
 
-import 'effects.dart';
 import 'vdrone_info.pb.dart';
 
 part 'vdrones/components.dart';
