@@ -35,6 +35,12 @@
 		<symlink link="packages/vdrones" resource="${basedir}/lib" overwrite="true"/>
 	</target>
 
+	<target name="set-version">
+		<replaceregexp file="pubspec.yaml" match="version: (\S*)" replace="version: 0.16.0-dev"/>
+		<replaceregexp file="web/index.html" match="version: (\S*)" replace="version: 0.16.0-dev"/>
+		<replaceregexp file="src/cfg/app.yaml" match="version: (\S*)" replace="version: 0-16-0-dev"/>
+	</target>
+
 	<target name="check" depends="-init">
     <!-- exec executable="${dart_analyzer}" failonerror="true">
       <arg line="-x-work target/dart-work -x-package-root=packages/ -x-error_format machine -x-enable_type_checks -x-dart-sdk '${dart.sdk.dir}' web/index.dart"/>
@@ -70,6 +76,14 @@
 	  <copy todir="web/_images">
 	    <fileset dir="src/images" includes="gui.svg, cube.svg"></fileset>
 	  </copy>
+	  <!-- try to run/configure an optimizer like scour
+	   see http://www.codedread.com/scour/
+	   for othe optimizer see http://johan.github.io/kilobyte-svg-challenge/
+	   TODO try it for level
+		<exec executable="scour">
+			<arg line="-i src/images/gui.svg -o web/_images/gui.svg"/>
+		</exec>
+		 -->
 	</target>
 
 	<target name="js" depends="check, web">
