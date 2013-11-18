@@ -3,6 +3,7 @@ library auth;
 import 'dart:html';
 import 'dart:async';
 import 'package:google_oauth2_client/google_oauth2_browser.dart' as oauth;
+import 'package:google_plus_v1_api/plus_v1_api_browser.dart' as plusclient;
 import 'events.dart';
 import 'cfg.dart' as cfg;
 
@@ -45,10 +46,24 @@ class UiSign {
   }
 
   _displayAction() {
-    bus.fire(eventAuth, new Auth()
+    if (auth.token != null) {
+      var plus = new plusclient.Plus(auth);
+      // set the API key
+      plus.key = cfg.API_KEY_BROWSER;
+      plus.oauth_token = auth.token.data;
+      plus.people.get("me").then((person) {
+        bus.fire(eventAuth, new Auth()
+        ..name = "${person.name.givenName} ${person.name.familyName}"
+        ..auth = auth
+        ..logged = true
+        );
+      });
+    } else {
+      bus.fire(eventAuth, new Auth()
       ..auth = auth
-      ..logged = (auth.token != null)
-    );
+      ..logged = false
+      );
+    }
     var txt = (auth.token == null || auth.token.expired) ? "Sign in" : "Sign out";
     querySelectorAll(_selector + " .buttonText").forEach((e) {
       e.text = txt;

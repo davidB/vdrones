@@ -19,6 +19,7 @@ class Err {
 }
 
 class Auth {
+  var name = "guest";
   var auth;
   var logged;
 }

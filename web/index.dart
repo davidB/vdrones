@@ -21,8 +21,11 @@ var screenRunResult = null;
 void main() {
   bus.on(eventErr).listen(handleError);
   loadDataSvgs().map((f) => f.catchError((err,st) {
-    print(err);
-    print(st);
+    bus.fire(eventErr, new Err()
+    ..category = "load svg"
+    ..exc = err
+    ..stacktrace = st
+    );
   }));
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
@@ -37,13 +40,13 @@ void main() {
 
     var uiSign = new UiSign()
     ..bus = bus
-    ..init()
     ;
 
     var gameservices = makeGameServices(uiSign.auth);
     var dataServices = new vdrones.DataServices()
     ..gameservices = gameservices
     ..bus = bus
+    ..init()
     ;
 
     screenAchievements = new ScreenAchievements()
@@ -77,8 +80,11 @@ void main() {
     bus.on(eventAuth).listen((x) {
       screenScores.update();
       screenAchievements.update();
+      var n = querySelector("[data-text=authName]");
+      if (n != null) n.text = x.name;
     });
 
+    uiSign.init();
     game = new vdrones.VDrones()
     ..el = querySelector("#screenInGame")
     ..audioManager = audioManager

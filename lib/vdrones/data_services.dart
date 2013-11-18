@@ -7,8 +7,17 @@ class DataServices {
   gamesbrowser.Games gameservices;
   var bus;
 
-  var _storage = new Storage("u0")..loadAll();
+  var _storage;
   var _syncing = new Future.value(true);
+
+  init() {
+    _storage = new Storage(new Auth().name)..loadAll();
+    bus.on(eventAuth).listen((x){
+      _storage = new Storage(x.name)
+      ..loadAll()
+      ;
+    });
+  }
 
   RunResult processRunReport(String area, RunReport runReport) {
     var modified = false;
@@ -112,7 +121,7 @@ class DataServices {
   _updateCacheGoogle(PCache local) {
     var cg = _storage.cacheG;
     var futures = new List();
-    //if (local.scoreCubes > cg.scoreCubes) {
+    if (local.scoreCubes > cg.scoreCubes) {
       futures.add(
         gameservices.scores.submit(cfg.LEAD_CUBES, local.scoreCubes.toInt()).then((r){
           cg.scoreCubes = local.scoreCubes;
@@ -120,7 +129,7 @@ class DataServices {
           _storage.cacheG = cg;
         })
       );
-    //}
+    }
     var diff = new List();
     _diffOfAchievements(local.achievements, cg.achievements, diff);
     if (diff.length > 0) {
