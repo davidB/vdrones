@@ -350,8 +350,10 @@ height 100%
 
 .footer >*
 	order 0
-	flex: 0 1 auto;
-	align-self: auto;
+	flex: 0 1 auto
+	align-self: auto
+	margin-left: 1em
+	margin-right: @margin-left
 
 ul.nav
 	list-style none
@@ -462,6 +464,17 @@ ul.nav >li
 	font-weight: bold;
 	/* Use the Roboto font that is loaded in the <head> */
 	font-family: 'Roboto',arial,sans-serif;
+li.signin
+	transform: scale(0.5)
+	margin-bottom: -10px
+	margin-top: -9px;
+
+li.signin >span
+	font-size: 200%
+	vertical-align: text-top
+
+li.signin span.buttonText
+	font-size: 135%
 
 #achievements
 	order 0
