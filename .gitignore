@@ -15,3 +15,4 @@ filter
 *.orig
 /.project
 web/index.css
+/.ant_targets
