@@ -1,8 +1,6 @@
 library events;
 
 import 'package:event_bus/event_bus.dart';
-import 'vdrone_info.pb.dart';
-import 'vdrones.dart';
 
 //see https://github.com/marcojakob/dart-event-bus
 
@@ -42,4 +40,12 @@ class IGAction {
   static const STOP = 4;
 }
 
-
+class RunResult {
+  String area = 'undef';
+  int cubes = 0;
+  int gain = 0;
+  int previousMax = 0;
+  int cubesTotal = 0;
+  bool exiting = true;
+  List achievementsUnlocked = new List<String>();
+}

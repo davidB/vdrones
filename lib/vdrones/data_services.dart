@@ -7,7 +7,7 @@ class DataServices {
   gamesbrowser.Games gameservices;
   var bus;
 
-  var _storage = new Storage("u0");
+  var _storage = new Storage("u0")..loadAll();
   var _syncing = new Future.value(true);
 
   RunResult processRunReport(String area, RunReport runReport) {
@@ -86,9 +86,7 @@ class DataServices {
   }
 
   _syncCaches() {
-    print("try syncing....");
     if (gameservices == null || gameservices.auth.token == null) return _syncing;
-    print("syncing....");
     _syncing = _syncing.then((_){
       return (_storage.cacheG.lastModification < new DateTime.now().subtract(new Duration(days: 15)).toUtc().millisecondsSinceEpoch)
         ? _remoteLoadCacheGoogle().then((_) => _updateCacheGoogle(_storage.cache))
@@ -99,7 +97,6 @@ class DataServices {
   }
 
   _remoteLoadCacheGoogle() {
-    print("_remoteLoadCacheGoogle()");
     return Future.wait([
       gameservices.achievements.list("me", state: "UNLOCKED", optParams: {"fields": "items/id"}),
       gameservices.scores.get("me", cfg.LEAD_CUBES, "ALL_TIME")
@@ -113,14 +110,11 @@ class DataServices {
   }
 
   _updateCacheGoogle(PCache local) {
-    print("_updateCacheGoogle");
     var cg = _storage.cacheG;
     var futures = new List();
     //if (local.scoreCubes > cg.scoreCubes) {
-      print("try to save score ${local.scoreCubes} ");
       futures.add(
         gameservices.scores.submit(cfg.LEAD_CUBES, local.scoreCubes.toInt()).then((r){
-          print("try to save score ${local.scoreCubes} on local : ${r}");
           cg.scoreCubes = local.scoreCubes;
         }).then((_) {
           _storage.cacheG = cg;
@@ -130,7 +124,6 @@ class DataServices {
     var diff = new List();
     _diffOfAchievements(local.achievements, cg.achievements, diff);
     if (diff.length > 0) {
-      print("try to save achievements ${diff}");
       futures.add(
         Future.wait(diff.map((x){
           return gameservices.achievements.unlock(x).then((_) => cg.achievements.add(x));
@@ -218,14 +211,4 @@ class DataServices {
     return out..sort();
   }
 
-}
-
-class RunResult {
-  String area = 'undef';
-  int cubes = 0;
-  int gain = 0;
-  int previousMax = 0;
-  int cubesTotal = 0;
-  bool exiting = true;
-  List achievementsUnlocked = new List<String>();
 }
