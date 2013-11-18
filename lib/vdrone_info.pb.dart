@@ -39,6 +39,32 @@ class AreaBook extends GeneratedMessage {
   List<AreaStat> get areaStats => getField(1);
 }
 
+class PCache extends GeneratedMessage {
+  static final BuilderInfo _i = new BuilderInfo('PCache')
+    ..a(1, 'lastModification', GeneratedMessage.Q6, () => makeLongInt(0))
+    ..a(2, 'scoreCubes', GeneratedMessage.Q3)
+    ..p(3, 'achievements', GeneratedMessage.PS)
+  ;
+
+  PCache() : super();
+  PCache.fromBuffer(List<int> i, [ExtensionRegistry r = ExtensionRegistry.EMPTY]) : super.fromBuffer(i, r);
+  PCache.fromJson(String i, [ExtensionRegistry r = ExtensionRegistry.EMPTY]) : super.fromJson(i, r);
+  PCache clone() => new PCache()..mergeFromMessage(this);
+  BuilderInfo get info_ => _i;
+
+  Int64 get lastModification => getField(1);
+  void set lastModification(Int64 v) { setField(1, v); }
+  bool hasLastModification() => hasField(1);
+  void clearLastModification() => clearField(1);
+
+  int get scoreCubes => getField(2);
+  void set scoreCubes(int v) { setField(2, v); }
+  bool hasScoreCubes() => hasField(2);
+  void clearScoreCubes() => clearField(2);
+
+  List<String> get achievements => getField(3);
+}
+
 class AreaStat extends GeneratedMessage {
   static final BuilderInfo _i = new BuilderInfo('AreaStat')
     ..a(1, 'id', GeneratedMessage.QS)
@@ -94,6 +120,7 @@ class RunReport extends GeneratedMessage {
     ..a(4, 'timeLeft', GeneratedMessage.Q3)
     ..a(5, 'startTime', GeneratedMessage.Q6, () => makeLongInt(0))
     ..a(6, 'endTime', GeneratedMessage.Q6, () => makeLongInt(0))
+    ..a(7, 'nohit', GeneratedMessage.QB)
   ;
 
   RunReport() : super();
@@ -131,6 +158,11 @@ class RunReport extends GeneratedMessage {
   void set endTime(Int64 v) { setField(6, v); }
   bool hasEndTime() => hasField(6);
   void clearEndTime() => clearField(6);
+
+  bool get nohit => getField(7);
+  void set nohit(bool v) { setField(7, v); }
+  bool hasNohit() => hasField(7);
+  void clearNohit() => clearField(7);
 }
 
 class Inventory extends GeneratedMessage {

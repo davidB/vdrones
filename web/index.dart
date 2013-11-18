@@ -7,33 +7,85 @@ import 'package:vdrones/effects.dart';
 import 'package:vdrones/auth.dart';
 import 'package:vdrones/html_tools.dart';
 import 'package:vdrones/game_services.dart';
+import 'package:vdrones/screens.dart';
+import 'package:vdrones/events.dart';
+import 'package:simple_audio/simple_audio.dart';
 
-var game = new vdrones.VDrones(document.querySelector('#screenInGame'))
-..showScreen = _showScreen
-;
-var feedbackScreen = null;
+var bus = makeBus();
+var game = null;
 var screenAchievements = null;
+var screenScores = null;
+var screenInit = null;
+var screenRunResult = null;
 
 void main() {
+  bus.on(eventErr).listen(handleError);
   loadDataSvgs().map((f) => f.catchError((err,st) {
     print(err);
     print(st);
   }));
   // xtag is null until the end of the event loop (known dart web ui issue)
   new Timer(const Duration(), () {
+    var audioManager = _newAudioManager(findBaseUrl());
+
     //_setupLog();
-    new vdrones.UiAudioVolume()
-    ..element = querySelector("#audioVolume")
-    ..audioManager = game.audioManager
+    new UiAudioVolume()
+    ..el = querySelector("#audioVolume")
+    ..audioManager = audioManager
     ;
     UiDropdown.bind(document.body);
-    var uiSign = new UiSign()..bind();
-    var gameservices = makeGameServices(uiSign.auth);
 
-    screenAchievements = new ScreenAchievements(querySelector("#screenAchievements"), gameservices);
-    uiSign.onSign.listen((evt) {
-      screenAchievements.showPage();
+    var uiSign = new UiSign()
+    ..bus = bus
+    ..init()
+    ;
+
+    var gameservices = makeGameServices(uiSign.auth);
+    var dataServices = new vdrones.DataServices()
+    ..gameservices = gameservices
+    ..bus = bus
+    ;
+
+    screenAchievements = new ScreenAchievements()
+    ..el = querySelector("#screenAchievements")
+    ..gameservices = gameservices
+    ..init()
+    ;
+
+    screenScores = new ScreenScores()
+    ..el = querySelector("#screenScores")
+    ..gameservices = gameservices
+    ..init()
+    ;
+    screenInit = new UiScreenInit()
+    ..el = querySelector("#screenInit")
+    ..bus = bus
+    ..init()
+    ;
+    screenRunResult = new UiScreenRunResult()
+    ..el = querySelector('#screenRunResult')
+    ..bus = bus
+    ..init()
+    ;
+
+    bus.on(eventRunResult).listen((x) {
+      _showScreen("screenRunResult");
     });
+    bus.on(eventInGameStatus).listen((x) {
+      if (x == IGStatus.PLAYING) _showScreen("screenInGame");
+    });
+    bus.on(eventAuth).listen((x) {
+      screenScores.update();
+      screenAchievements.update();
+    });
+
+    game = new vdrones.VDrones()
+    ..el = querySelector("#screenInGame")
+    ..audioManager = audioManager
+    ..bus = bus
+    ..dataServices = dataServices
+    ..init()
+    ;
     _setupRoutes();
   });
 }
@@ -48,9 +100,11 @@ void _setupRoutes() {
 void _route(String hash) {
   //RegExp exp = new RegExp(r"(\w+)");
   if (hash.startsWith("#/a/")) {
-    game.area = hash.substring("#/a/".length);
+    game.areaReq = hash.substring("#/a/".length);
+    bus.fire(eventInGameReqAction, IGAction.INITIALIZE);
+    _showScreen("screenInit");
   } else if (hash.startsWith("#/s/")) {
-    game.pause();
+    bus.fire(eventInGameReqAction, IGAction.PAUSE);
     _showScreen(hash.substring("#/s/".length));
   } else {
     window.location.hash = '/a/alpha0';
@@ -76,10 +130,16 @@ final _transitionsDefault = new ScaleEffect();
 //final _transitionsFromTop = new ScaleEffect();
 
 _preShowScreen(id) {
-  if (id == 'screenAchievements') {
-    screenAchievements.showPage();
+  switch(id) {
+    case 'screenAchievements' :
+      screenAchievements.reload();
+      break;
+    case 'screenScores' :
+      screenScores.reload();
+      break;
   }
 }
+
 void _setupLog() {
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((r){
@@ -101,4 +161,25 @@ void _setupLog() {
   _logger.severe("severe");
 }
 
+AudioManager _newAudioManager(baseUrl) {
+  try {
+    var audioManager = new AudioManager(baseUrl);
+    audioManager.mute = false;
+    audioManager.masterVolume = 1.0;
+    audioManager.musicVolume = 0.5;
+    audioManager.sourceVolume = 0.9;
+    return audioManager;
+  } catch (e, st) {
+    bus.fire(eventErr, new Err()
+    ..exc = e
+    ..stacktrace = st
+    );
+    return null;
+  }
+}
+
+void handleError(Err err) {
+  print("${err.category}\tERROR\t${err.exc}");
+  if (err.stacktrace != null) print(err.stacktrace); //.fullStackTrace); // This should print the full stack trace)
+}
 

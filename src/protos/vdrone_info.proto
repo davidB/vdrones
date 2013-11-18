@@ -1,16 +1,22 @@
 syntax = "proto2";
 
 message AreaBook {
-  repeated AreaStat areaStats = 1;
+  repeated  AreaStat  areaStats = 1;
+}
+
+message PCache {
+  required  int64 lastModification = 1;
+  required  int32  score_cubes = 2;
+  repeated  string achievements = 3;
 }
 
 message AreaStat {
-  required string id = 1;
-  required int32 runCount = 2;
-  required int32 crashCount = 3;
-  required int32 exitingCount = 4;
-  optional RunReport cubeBestRun = 5;
-  optional int64 lastStartTime = 6;
+  required  string  id = 1;
+  required  int32 runCount = 2;
+  required  int32 crashCount = 3;
+  required  int32 exitingCount = 4;
+  optional  RunReport cubeBestRun = 5;
+  optional  int64 lastStartTime = 6;
 }
 
 message RunReport {
@@ -20,6 +26,7 @@ message RunReport {
   required int32 timeLeft = 4;
   required int64 startTime = 5;
   required int64 endTime = 6;
+  required bool nohit = 7;
   // frameduration avg,min,max
   // max speed of the drone
 }

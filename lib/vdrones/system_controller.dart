@@ -232,7 +232,7 @@ class System_DroneHandler extends EntityProcessingSystem {
           ps.position3dPrevious[i].setFrom(ps.position3d[i]);
           ps.position3d[i].setFrom(v);
         }
-      } else {
+      } else if (ctrl != null){
         _updateEnergy(numbers, ctrl);
         //ps.accForces[DRONE_PFRONT].setValues(3.0, 0.0, 3.0);
         // component of normal of PBACKs  (2.0 is the BACK LR)

@@ -2,7 +2,7 @@
 #see https://developers.google.com/appengine/docs/python/config/appconfig
 #
 application: vdrones
-version: 0-15-0
+version: 0-16-0-dev
 runtime: go
 api_version: go1
 threadsafe: true

@@ -3,6 +3,7 @@ library auth;
 import 'dart:html';
 import 'dart:async';
 import 'package:google_oauth2_client/google_oauth2_browser.dart' as oauth;
+import 'events.dart';
 import 'cfg.dart' as cfg;
 
 class SignEvent {
@@ -11,12 +12,10 @@ class SignEvent {
 }
 
 class UiSign {
+  var bus;
+  var autoLogin = false;
   final _selector = ".gplus_signin";
   var _im = true;
-  var _streamCtrl = new StreamController<SignEvent>.broadcast();
-  List<StreamSubscription> _subs;
-
-  get onSign => _streamCtrl.stream;
 
   final auth = new oauth.GoogleOAuth2(
       cfg.OAUTH2_CLIENT_ID,
@@ -24,23 +23,13 @@ class UiSign {
       autoLogin: false
   );
 
-  bind([autoLogin = false]) {
-    unbind();
-    _subs = querySelectorAll(_selector).map((Element e) => e.onClick.listen((_) => _toggleSign())).toList(growable: false);
+  init() {
+    querySelectorAll(_selector).map((Element e) => e.onClick.listen((_) => _toggleSign())).toList(growable: false);
     if (autoLogin) {
       auth.login(immediate: _im).then((_) => _displayAction());
       _displayWIP();
     }
     _displayAction();
-    return _subs;
-  }
-
-  unbind() {
-    if (_subs != null) {
-      _subs.forEach((x) => x.cancel());
-      _subs.clear();
-      _subs = null;
-    }
   }
 
   _toggleSign() {
@@ -56,7 +45,7 @@ class UiSign {
   }
 
   _displayAction() {
-    _streamCtrl.add(new SignEvent()
+    bus.fire(eventAuth, new Auth()
       ..auth = auth
       ..logged = (auth.token != null)
     );

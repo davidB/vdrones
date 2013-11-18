@@ -1,11 +1,16 @@
-part of vdrones;
+library screens;
+
+import 'dart:html';
+import 'package:simple_audio/simple_audio.dart';
+import 'package:intl/intl.dart';
+import 'events.dart';
 
 class UiAudioVolume {
   Element _element;
   AudioManager _audioManager;
 
   var subscriptions = new List();
-  set element(Element v) {
+  set el(Element v) {
     _element = v;
     _bind();
   }
@@ -86,40 +91,64 @@ class UiAudioVolume {
 
 class UiScreenInit {
   Element el;
-  var onPlayEnabled = false;
-  Function onPlay;
+  var bus;
+
+  var _onPlayEnabled = false;
+  var _onPlay;
+
+  init() {
+    bus.on(eventInGameStatus).listen((x) {
+      _onPlayEnabled = (x == IGStatus.INITIALIZED || x == IGStatus.STOPPED);
+      update();
+    });
+    _onPlay = (_){
+      bus.fire(eventInGameReqAction, IGAction.PLAY);
+    };
+  }
 
   update(){
     if (el == null) return;
-    el.querySelector("#msgConnecting").style.opacity = onPlayEnabled ? "0" : "1";
+    el.querySelector("#msgConnecting").style.opacity = _onPlayEnabled ? "0" : "1";
     var btn = el.querySelector(".play");
-    (btn as ButtonElement).disabled = !onPlayEnabled;
-    btn.onClick.first.then((evt){
-      if (onPlay != null) onPlay();
-    });
-  }
-
-  _update0(k, v) {
-    var el0 = el.querySelector("[data-text=$k]");
-    if (el0 != null) {
-      el0.text = v.toString();
-    }
+    (btn as ButtonElement).disabled = !_onPlayEnabled;
+    btn.onClick.first.then(_onPlay);
   }
 }
 
 class UiScreenRunResult {
   Element el;
+  var bus;
   String areaId = "";
   num cubesLast = 0;
   num cubesMax = 0;
   num cubesGain = 0;
   num cubesTotal = 0;
   bool timeout = false;
-  var onPlayEnabled = false;
-  Function onPlay;
-  var onNextEnabled = false;
-  Function onNext;
+  var _onPlayEnabled = false;
+  Function _onPlay;
+  var _onNextEnabled = false;
+  Function _onNext;
   var _fmt = new NumberFormat("+00");
+
+  init() {
+    bus.on(eventRunResult).listen((x) {
+      areaId = x.area;
+      cubesLast = x.cubes;
+      cubesGain = x.gain;
+      cubesMax = x.previousMax;
+      cubesTotal = x.cubesTotal;
+      timeout = !x.exiting;
+      update();
+    });
+    bus.on(eventInGameStatus).listen((x) {
+      _onPlayEnabled = (x == IGStatus.INITIALIZED || x == IGStatus.STOPPED);
+      update();
+    });
+    _onPlay = (_){
+      bus.fire(eventInGameReqAction, IGAction.PLAY);
+    };
+  }
+
   update(){
     if (el == null) return;
     _update0("areaId", areaId);
@@ -131,15 +160,11 @@ class UiScreenRunResult {
     el.querySelector("#points").style.display = timeout ? "none":"block";
     el.querySelector("#timeout").style.display = timeout ? "block":"none";
     var btnPlay = el.querySelector(".play");
-    (btnPlay as ButtonElement).disabled = !onPlayEnabled;
-    btnPlay.onClick.first.then((evt){
-      if (onPlay != null) onPlay();
-    });
+    (btnPlay as ButtonElement).disabled = !_onPlayEnabled;
+    btnPlay.onClick.first.then(_onPlay);
     var btnNext = el.querySelector(".next");
-    (btnNext as ButtonElement).disabled = !onNextEnabled;
-    btnNext.onClick.first.then((evt){
-      if (onNext != null) onNext();
-    });
+    (btnNext as ButtonElement).disabled = !_onNextEnabled;
+    btnNext.onClick.first.then(_onNext);
   }
 
   _update0(k, v) {

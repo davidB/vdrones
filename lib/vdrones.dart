@@ -8,7 +8,7 @@ import 'dart:svg' as svg;
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
 import 'dart:typed_data';
-import 'package:intl/intl.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:lawndart/lawndart.dart';
 import 'package:dartemis/dartemis.dart';
 import 'package:dartemis_toolbox/system_entity_state.dart';
@@ -25,15 +25,17 @@ import 'package:dartemis_toolbox/system_proto2d.dart' as proto2d;
 import 'package:dartemis_toolbox/colors.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:asset_pack/asset_pack.dart';
-import 'package:simple_audio/simple_audio.dart';
 import 'package:simple_audio/simple_audio_asset_pack.dart';
 import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
 import 'package:game_loop/game_loop_html.dart';
 import 'package:crypto/crypto.dart';
+import 'package:google_games_v1_api/games_v1_api_browser.dart' as gamesbrowser;
 
 import 'vdrone_info.pb.dart';
+import 'cfg.dart' as cfg;
+import 'events.dart';
 
 part 'vdrones/components.dart';
 part 'vdrones/system_physics.dart';
@@ -47,171 +49,153 @@ part 'vdrones/factory_renderables.dart';
 part 'vdrones/stats.dart';
 part 'vdrones/areadef.dart';
 part 'vdrones/asset_loaders.dart';
-part 'vdrones/widgets.dart';
 part 'vdrones/storage.dart';
+part 'vdrones/data_services.dart';
 
-class Status {
-  static const NONE = 0;
-  static const INITIALIZING = 1;
-  static const INITIALIZED = 2;
-  static const RUNNING = 3;
-  static const STOPPING = 4;
-  static const STOPPED = 5;
-}
-
-String findBaseUrl() {
-  String location = window.location.pathname;
-  int slashIndex = location.lastIndexOf('/');
-  if (slashIndex < 0) {
-    return '/';
-  } else {
-    return location.substring(0, slashIndex);
-  }
-}
 
 class VDrones {
   //var _evt = new Evt();
   var _devMode = true; //document.location.href.indexOf('dev=true') > -1;
-  var _status = Status.NONE;
+  var _status = IGStatus.NONE;
   var _world;
   var _entitiesFactory;
   var _hudSystem;
   var _renderSystem;
   var _proto2dSystem;
   var _player = "u0";
+  var areaReq;
   var _areaPack;
   var _stats = new Stats("u0", clean : false);
   var _assetManager;
-  var _audioManager;
   var _textures;
   var _gl;
   var _gameLoop;
+  var _runReport;
 
-  Function showScreen;
+  Element el;
+  var audioManager;
+  DataServices dataServices;
+  var bus;
 
-  get audioManager => _audioManager;
-  final _uiScreenInit = new UiScreenInit();
-  final _uiScreenRunResult = new UiScreenRunResult();
-
-  VDrones(Element container) {
-    if (container == null) throw new StateError("container not defined");
-    _uiScreenInit
-    ..el = querySelector("#screenInit")
-    ..onPlay = play
-    ;
-    _uiScreenRunResult
-    ..el = querySelector('#screenRunResult')
-    ..onPlay = play
-    ;
+  init() {
     _world = new World();
-    _gameLoop = new GameLoopHtml(container);
+    _gameLoop = new GameLoopHtml(el);
 
-    _gl = _newRenderingContext(container.querySelectorAll("canvas")[0]);
-    _audioManager = _newAudioManager(findBaseUrl());
+    _gl = _newRenderingContext(el.querySelectorAll("canvas")[0]);
 
     var bar = querySelector('#gameload');
-    _assetManager = _newAssetManager(bar, _gl, _audioManager);
+    _assetManager = _newAssetManager(bar, _gl, audioManager);
     _preloadAssets();
 
     _textures = new glf.TextureUnitCache(_gl);
     _entitiesFactory = new Factory_Entities(_world, _assetManager, new Factory_Physics(), new Factory_Renderables(new glf.MeshDefTools(), _textures));
-    _setupWorld(container);
-    _setupGameLoop(container);
+    _setupWorld(el);
+    _setupGameLoop(el);
 
-    container.tabIndex = -1;
-    container.focus();
+    el.tabIndex = -1;
+    el.focus();
+    bus.on(eventInGameReqAction).listen(onReqAction);
+  }
+
+  onReqAction(int req){
+    switch(req) {
+      case IGAction.INITIALIZE:
+        _initialize();
+        break;
+      case IGAction.PLAY:
+        _play();
+        break;
+      case IGAction.PAUSE:
+        _pause();
+        break;
+      case IGAction.STOP:
+        _stop(false, 0);
+        break;
+    }
   }
 
   get status => _status;
   void _updateStatus(int v) {
     _status = v;
-    _uiScreenInit.onPlayEnabled = playable();
-    _uiScreenInit.update();
-    _uiScreenRunResult.onPlayEnabled = playable();
+    bus.fire(eventInGameStatus, v);
   }
 
   get area => (_areaPack == null) ? null : _areaPack.name;
-  set area(String v) {
-    if (v == area) return;
-    _initialize(v);
-  }
 
-  void handleError(error,[s, cat = ""]) {
-    print("${cat}\tERROR\t${error}");
-    if (s != null) print(s); //.fullStackTrace); // This should print the full stack trace)
-  }
-
-
-  bool playable () => (_status == Status.INITIALIZED || _status == Status.STOPPING);
-
-  bool play() {
-    print("call play : ${_status}");
+  bool _play() {
     try {
-    if  (!playable()){
+    if  (!(_status == IGStatus.INITIALIZED || _status == IGStatus.STOPPING)){
       print("NOT playable : ${_status}");
       return false;
     }
-    if (_status != Status.INITIALIZED) {
+    if (_status != IGStatus.INITIALIZED) {
       print("initialize : ${_status}");
-      _initialize(area).then((_) => _start());
+      _initialize().then((_) => _start());
       return true;
     } else {
       _start();
       return true;
     }
-    } on Object catch(e, s) {
-      handleError(e, s);
+    } on Object catch(e, st) {
+      _handleError(e, st);
     }
   }
 
+  _now() => new Int64(new DateTime.now().toUtc().millisecondsSinceEpoch);
+
   void _start() {
-    _updateStatus(Status.RUNNING);
+    _updateStatus(IGStatus.PLAYING);
     //TODO spawn drone
     //TODO start area (=> start chronometer)
     var es = _entitiesFactory.newFullArea(_areaPack, (e,t,t0){ _stop(false, 0); });
     es.forEach((e){
       e.addToWorld();
-      print("add to world : ${e}");
     });
-    showScreen('screenInGame');
 
-    resume();
+    var n = _now();
+    _runReport = new RunReport()
+    ..cubeCount = 0
+    ..exiting = false
+    ..crashCount = 0
+    ..nohit = true
+    ..startTime = n
+    ..endTime = n
+    ..timeLeft = -1
+    ;
+
+    _resume();
   }
 
   bool _stop(bool viaExit, int cubesGrabbed) {
-    if (_status == Status.RUNNING) {
-      _updateStatus(Status.STOPPING);
+    if (_status == IGStatus.PLAYING) {
+      _updateStatus(IGStatus.STOPPING);
       _gameLoop.stop();
     }
-    _stats
-      .updateCubesLast(area, (viaExit)? cubesGrabbed : 0)
-      .then((stats){
-        _uiScreenRunResult
-        ..areaId = area
-        ..cubesLast = stats[area + Stats.AREA_CUBES_LAST_V]
-        ..cubesGain = stats[area + Stats.AREA_CUBES_LAST_GAIN]
-        ..cubesMax = stats[area + Stats.AREA_CUBES_MAX_V] - stats[area + Stats.AREA_CUBES_LAST_GAIN]
-        ..cubesTotal = stats[Stats.CUBES_TOTAL_V]
-        ..timeout = false
-        ..update()
-        ;
-        showScreen(_uiScreenRunResult.el.id);
-      });
+    _runReport
+    ..cubeCount = cubesGrabbed
+    ..exiting = viaExit
+    ..crashCount = 0
+    ..nohit = true
+    ..endTime = _now()
+    ..timeLeft = -1
+    ;
+
+    var result = dataServices.processRunReport(area, _runReport);
+    bus.fire(eventRunResult, result);
+    _initialize();
   }
 
-  Future _initialize(String areaId) {
-    print("Request init");
-    if (_status == Status.INITIALIZING) {
+  Future _initialize() {
+    if (_status == IGStatus.INITIALIZING) {
       return new Future.error("already initializing an area");
     }
-    _updateStatus(Status.INITIALIZING);
-    showScreen(_uiScreenInit.el.id);
+    _updateStatus(IGStatus.INITIALIZING);
     _hudSystem.reset();
     _world.deleteAllEntities();
     //_newWorld();
-    return _loadArea(areaId).then((pack){
+    return _loadArea(areaReq).then((pack){
       _areaPack = pack;
-      _updateStatus(Status.INITIALIZED);
+      _updateStatus(IGStatus.INITIALIZED);
       return _areaPack;
     });
   }
@@ -271,9 +255,17 @@ class VDrones {
       ;
       _world.addSystem(_proto2dSystem, passive:true);
     }
-    if (_audioManager != null) _world.addSystem(new System_Audio(_audioManager, clipProvider : (x) => _assetManager[x], handleError: handleError), passive : false);
+    if (audioManager != null) _world.addSystem(new System_Audio(audioManager, clipProvider : (x) => _assetManager[x], handleError: _handleError), passive : false);
     _world.addSystem(_hudSystem, passive: true);
     _world.initialize();
+  }
+
+  _handleError(e, st) {
+    bus.fire(eventErr, new Err()
+    ..category = "ingame"
+    ..exc = e
+    ..stacktrace = st
+    );
   }
 
   // TODO add notification of errors
@@ -298,20 +290,6 @@ class VDrones {
     return b;
   }
 
-  AudioManager _newAudioManager(baseUrl) {
-    try {
-      var audioManager = new AudioManager(baseUrl);
-      audioManager.mute = false;
-      audioManager.masterVolume = 1.0;
-      audioManager.musicVolume = 0.5;
-      audioManager.sourceVolume = 0.9;
-      return audioManager;
-    } catch (e) {
-      handleError(e);
-      return null;
-    }
-  }
-
   WebGL.RenderingContext _newRenderingContext(CanvasElement canvas) {
     return canvas.getContext3d(alpha: false, depth: true, antialias:false);
   }
@@ -323,14 +301,14 @@ class VDrones {
   _setupGameLoop(element){
     _gameLoop.pointerLock.lockOnClick = false;
     _gameLoop.onVisibilityChange = (gameLoop){
-      if (!gameLoop.isVisible) pause();
+      if (!gameLoop.isVisible) _pause();
     };
     _gameLoop.onUpdate = (gameLoop){
       try {
         _world.delta = gameLoop.dt * 1000.0;
         _world.process();
       } catch(e, s) {
-        handleError(e, s);
+        _handleError(e, s);
       }
     };
     _gameLoop.onRender = (gameLoop){
@@ -339,32 +317,32 @@ class VDrones {
         _hudSystem.process();
         if (_proto2dSystem != null) _proto2dSystem.process();
       } catch(e, s) {
-        handleError(e, s);
+        _handleError(e, s);
       }
     };
     return _gameLoop;
   }
 
-  pause() {
-    _audioManager.pauseAll();
+  _pause() {
+    audioManager.pauseAll();
     _gameLoop.stop();
 
     var pauseOverlay = querySelector("#pauseOverlay");
     if (pauseOverlay != null) {
       pauseOverlay.style.visibility = "visible";
       pauseOverlay.onClick.first.then((_){
-        resume();
+        _resume();
       });
     }
   }
 
-  resume() {
+  _resume() {
     var pauseOverlay = querySelector("#pauseOverlay");
     if (pauseOverlay != null) {
       pauseOverlay.style.visibility = "hidden";
     }
     _gameLoop.start();
-    _audioManager.resumeAll();
+    audioManager.resumeAll();
   }
 }
 

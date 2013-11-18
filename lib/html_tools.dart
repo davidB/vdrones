@@ -8,7 +8,13 @@ const uriPolicyAll = const _UriPolicyAll();
 
 interpolate(String tmpl, Map kv) {
   var from = new RegExp(r'\$\{([^}]*)\}');
-  return tmpl.replaceAllMapped(from, (x) => kv[x.group(1)]);
+  return tmpl.replaceAllMapped(from, (x) => findValue(kv, x.group(1)));
+}
+
+findValue(Map kv, String k) {
+  if (kv.containsKey(k)) return kv[k];
+  var ks = k.split(".");
+  return ks.fold(kv, (v, k) => v[k]);
 }
 
 class _UriPolicyAll implements UriPolicy{
@@ -24,7 +30,7 @@ class MicroTemplate {
   MicroTemplate(Element tmpl) {
     _tmplParent = tmpl.parent;
     //_tmplAchievements = _tmplAchievementsParent.innerHtml;
-    _tmpl = tmpl.text;
+    _tmpl = (tmpl.tagName.toLowerCase() == "script") ? tmpl.text : tmpl.outerHtml;
     _tmplParent.setInnerHtml('');
   }
 
@@ -33,6 +39,16 @@ class MicroTemplate {
       items.fold("", (acc, item) => acc + (interpolate(_tmpl, item))),
       validator: new NodeValidator(uriPolicy: uriPolicy)
     );
+  }
+}
+
+String findBaseUrl() {
+  String location = window.location.pathname;
+  int slashIndex = location.lastIndexOf('/');
+  if (slashIndex < 0) {
+    return '/';
+  } else {
+    return location.substring(0, slashIndex);
   }
 }
 

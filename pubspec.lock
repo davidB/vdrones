@@ -43,6 +43,10 @@ packages:
       url: "https://github.com/davidB/dartemis_toolbox.git"
     source: git
     version: "0.5.0-dev"
+  event_bus:
+    description: event_bus
+    source: hosted
+    version: "0.2.4"
   fixnum:
     description: fixnum
     source: hosted

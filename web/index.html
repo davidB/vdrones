@@ -38,6 +38,8 @@
 	<header class="navbar navbar-inverse header">
 		<ul class="nav">
 			<li><a href="#/s/screenAreaSelector" title="Choose an area"><i class="fa fa-th"></i></a></li>
+			<li><a href="#/s/screenAchievements" title="See your Achievements"><i class="fa fa-star"></i></a></li>
+			<li><a href="#/s/screenScores" title="Scores"><i class="fa fa-trophy"></i></a></li>
 			<li class="divider-vertical"></li>
 			<li class="dropdown" is="x-dropdown" id="audioVolume">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-volume-up"></span><b class="caret"></b></a>
@@ -52,6 +54,13 @@
 		</ul>
 		<div>VDrones</div>
 		<ul class="nav">
+      <li style="-webkit-transform: scale(0.5);">
+        <button class="gplus_signin" style="">
+          <span class="icon"></span>
+          <span class="buttonText" style="font-size: 130%">Sign in</span>
+        </button>
+      </li>
+      <li class="divider-vertical"></li>
 			<!--li><a href="#/s/pre-order" title="Pre-order" onClick="_gaq.push(['_trackEvent', 'money', 'goto', 'pre-order']);"><i class="fa fa-money"></i></a></li-->
 			<li><a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);"><i class="fa fa-group"></i></a></li>
 			<li class="divider-vertical"></li>
@@ -99,7 +108,7 @@
 					<a class="areaInfo disabled" >?</a>
 				</div>
 			</div>
-			<div id="screenLeaderBoard" class="screen" style="display:none">
+			<div id="screenScores" class="screen" style="display:none">
 				<h3>Scores<sub>(preview)</sub></h3>
 				<div class="subpage login">
 					<p>To view Scores, you have to Sign in.</p>
@@ -109,21 +118,33 @@
 					</button>
 				</div>
 				<div class="subpage loading" style="display:none">Loading ...</div>
-				<div class="subpage ready" id="achievements" style="display:none">
+				<div class="subpage ready" id="scores" style="display:none">
 					<table>
+            <thead>
+              <tr>
+                <th class="score_rank">Rank</th>
+                <th class="score_name">Name</th>
+                <th class="score_value">Total Cube (Max)</th>
+              </tr>
+            </thead>
 						<tbody>
+						  <script class="score" type="text/tmpl">
 							<tr class="score">
-								<td class="score_rank">${rank}</td>
-								<td class="score_name">${name}</td>
-								<td class="score_value">${score}</td>
+								<td class="score_rank">${scoreRank}</td>
+								<td class="score_name">${player.displayName}</td>
+								<td class="score_value">${scoreValue}</td>
 							</tr>
+							</script>
 						</tbody>
 					</table>
-					<input type="check" id="friends_filter" style="width:100%; align-text:right">Friends Only</input>
+					<div style="width:100%; align-text:right">
+						<input type="checkbox" id="friends_filter" checked="checked">Friends Only</input>
+            <a href="https://plus.google.com/u/0/apps" target="_blank" style="font-size:80%">configure permissions to see scores</a>
+					</div>
 				</div>
 				<div class="actions">
-					<button id="leaderboardPrevious" class="btn" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
-					<button id="leaderboardNext" class="btn" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
+					<button class="btn next" disabled="disabled" title="previous page"><i class="fa fa-backward"></i></button>
+					<button class="btn prev" disabled="disabled" title="next page"><i class="fa fa-forward"></i></button>
 				</div>
 			</div>
 			<div id="screenAchievements" class="screen" style="display:none">
@@ -214,7 +235,7 @@
 		</section>
 	</div>
 	<footer class="footer">
-		<div>version: 0.15.0 (updates every week) by davidB</div>
+		<div>version: 0.16.0-dev (updates every week) by davidB</div>
 		<div>VDrones at <a href="https://plus.google.com/106535708348552848993" rel="publisher">Google+</a></div>
 		<div><a href="humans.txt"	 onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img	 src="humanstxt-transparent-1ink.png" border="0"/></a>		</div>
 	</footer>
