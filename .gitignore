@@ -16,3 +16,4 @@ filter
 /.project
 web/index.css
 /.ant_targets
+/lib/cfg.dart
