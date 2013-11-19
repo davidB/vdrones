@@ -16,7 +16,9 @@ class UiSign {
   var bus;
   var autoLogin = false;
   final _selector = ".gplus_signin";
-  var _im = true;
+  // to prevent popup-blocker
+  // see https://developers.google.com/api-client-library/javascript/features/authentication#popup
+  var _im = false;
 
   final auth = new oauth.GoogleOAuth2(
       cfg.OAUTH2_CLIENT_ID,
@@ -25,21 +27,32 @@ class UiSign {
   );
 
   init() {
-    querySelectorAll(_selector).map((Element e) => e.onClick.listen((_) => _toggleSign())).toList(growable: false);
+    querySelectorAll(_selector).map((Element e) => e.onClick.listen((_) => _toggleSign(true))).toList(growable: false);
     if (autoLogin) {
-      auth.login(immediate: _im).then((_) => _displayAction());
-      _displayWIP();
+      _toggleSign(false);
     }
     _displayAction();
   }
 
-  _toggleSign() {
+  _toggleSign([logout = true]) {
     if (auth.token == null || auth.token.expired) {
-      auth.login(immediate: _im).then((_) => _displayAction());
+      auth.login(immediate: _im)
+      .catchError((err){
+        bus.fire(eventErr, new Err()
+        ..category = "auth.${_im}"
+        ..exc = err
+        );
+        _im = !_im;
+        return auth.login(immediate: _im);
+      }).then((_) => _displayAction())
+      .catchError((err){
+        bus.fire(eventErr, new Err()
+        ..category = "auth.${_im}"
+        ..exc = err
+        );
+      });
       _displayWIP();
-      _im = false;
-    } else {
-      _im = false;
+    } else if (logout){
       auth.logout();
       _displayAction();
     }
