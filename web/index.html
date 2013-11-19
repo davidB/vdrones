@@ -34,7 +34,7 @@
 		</div>
 	</noscript>
 
-	<div class="vbadge">alpha</div>
+	<div class="vbadge"><div style="font-size:80%;opacity:0.8;margin-bottom:0.2em;">open</div><div style="font-size:125%">alpha</div></div>
 	<header class="navbar navbar-inverse header">
 		<ul class="nav">
 			<li><a href="#/s/screenAreaSelector" title="Choose an area"><i class="fa fa-th"></i></a></li>
@@ -52,9 +52,10 @@
 			</li>
 			<li><a href="javascript:void" id="toggleCameraMode" title="toggle Camera View [M]">M</a></li>
 		</ul>
-		<div>VDrones</div>
+		<div style="font-size:110%;font-weight:bold;">VDrones</div>
 		<ul class="nav">
       <li class="signin">
+        <span style="font-style: italic;">play as </span>&nbsp;
         <span data-text="authName"></span>&nbsp;
         <button class="gplus_signin">
           <span class="icon"></span>
@@ -196,6 +197,7 @@
 -->
 			<div id="screenInit" class="screen">
 				<h3>Welcome VDroner,</h3>
+        <h3>Area <span data-text="area">.....</span></h3>
 				<div id="rules_help">
 					 Grab the <img src="_images/cube.svg" alt="cubes of energy" style="height:1.3em;vertical-align:top"/><br>
 					 Don't touch the walls<br>

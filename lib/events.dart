@@ -7,7 +7,7 @@ import 'package:event_bus/event_bus.dart';
 makeBus() => new EventBus();
 //final EventBus bus = new EventBus();
 final EventType<RunResult> eventRunResult = new EventType<RunResult>();
-final EventType<int> eventInGameStatus = new EventType<int>();
+final EventType<IGStatus> eventInGameStatus = new EventType<IGStatus>();
 final EventType<int> eventInGameReqAction = new EventType<int>();
 final EventType<Err> eventErr = new EventType<Err>();
 final EventType<Auth> eventAuth = new EventType<Auth>();
@@ -32,6 +32,8 @@ class IGStatus {
   static const PAUSED = 4;
   static const STOPPING = 5;
   static const STOPPED = 6;
+  int kind;
+  String area;
 }
 
 class IGAction {

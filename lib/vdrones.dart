@@ -117,7 +117,10 @@ class VDrones {
   get status => _status;
   void _updateStatus(int v) {
     _status = v;
-    bus.fire(eventInGameStatus, v);
+    bus.fire(eventInGameStatus, new IGStatus()
+    ..kind = v
+    ..area = areaReq
+    );
   }
 
   get area => (_areaPack == null) ? null : _areaPack.name;

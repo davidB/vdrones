@@ -75,7 +75,7 @@ void main() {
       _showScreen("screenRunResult");
     });
     bus.on(eventInGameStatus).listen((x) {
-      if (x == IGStatus.PLAYING) _showScreen("screenInGame");
+      if (x.kind == IGStatus.PLAYING) _showScreen("screenInGame");
     });
     bus.on(eventAuth).listen((x) {
       screenScores.update();

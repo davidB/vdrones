@@ -94,11 +94,13 @@ class UiScreenInit {
   var bus;
 
   var _onPlayEnabled = false;
+  var _area = "";
   var _onPlay;
 
   init() {
     bus.on(eventInGameStatus).listen((x) {
-      _onPlayEnabled = (x == IGStatus.INITIALIZED || x == IGStatus.STOPPED);
+      _onPlayEnabled = (x.kind == IGStatus.INITIALIZED || x.kind == IGStatus.STOPPED);
+      _area = x.area;
       update();
     });
     _onPlay = (_){
@@ -109,6 +111,7 @@ class UiScreenInit {
   update(){
     if (el == null) return;
     el.querySelector("#msgConnecting").style.opacity = _onPlayEnabled ? "0" : "1";
+    el.querySelector("[data-text=area]").text = _area;
     var btn = el.querySelector(".play");
     (btn as ButtonElement).disabled = !_onPlayEnabled;
     btn.onClick.first.then(_onPlay);
