@@ -4,6 +4,9 @@ import 'dart:html';
 import 'package:simple_audio/simple_audio.dart';
 import 'package:intl/intl.dart';
 import 'events.dart';
+import 'effects.dart';
+import 'dart:js';
+import 'dart:convert';
 
 class UiAudioVolume {
   Element _element;
@@ -117,6 +120,106 @@ class UiScreenInit {
     btn.onClick.first.then(_onPlay);
   }
 }
+
+class ScreenBuy {
+  Element el;
+  var _state = 0;
+  var _defsF;
+  var playerId = "me"; //gameservice.auth.token.userId
+  var auth;
+
+  init() {
+    el.querySelector("button.buy").onClick.listen((_){
+      _askJwt();
+      _state = 1;
+    });
+  }
+
+  reload() {
+    _state = 0;
+    update();
+  }
+
+  update() {
+    var s = ShowHide.getState(el);
+    //if (s == ShowHideState.HIDING || s == ShowHideState.HIDDEN) return;
+    if (auth.token == null){
+      _showPage("login");
+      return;
+    }
+    if(_state == 0) {
+      _showPage("ready");
+    }
+    if(_state == 1) {
+      _showPage("loading");
+    }
+    if(_state == 1) {
+      _showPage("thanks");
+      _state = 0;
+    }
+    if (_state == -1) {
+      _showPage("bad");
+    }
+  }
+
+  _showPage(clazz) {
+    el.children.forEach((e){
+      var cs = e.classes;
+      if (cs.contains("subpage")) {
+        if (e.classes.contains(clazz)) {
+          ShowHide.show(e);
+        } else {
+          ShowHide.hide(e);
+        }
+      }
+    });
+  }
+
+  _askJwt() {
+    var url = "/api/buy_bill";
+    var amount = (el.querySelector("input.amount") as InputElement).value;
+    var params = JSON.encode({
+      "amount" : amount
+    });
+//    var requestHeaders = {
+//      "Content-type": 'application/json; charset=utf-8'
+//    };
+    //Send the proper header information along with the request
+
+    //http.setRequestHeader("Content-length", params.length);
+    //http.setRequestHeader("Connection", "close");
+    var http = HttpRequest.request(url, method: 'POST', mimeType: 'application/json; charset=utf-8', sendData: params);
+    http.then((req){
+      if(req.readyState == 4 && req.status == 200) {
+        var info = JSON.decode(req.responseText);
+        if (info["amount"] == amount) {
+          context.callMethod('google.payments.inapp.buy',[new JsObject.jsify({
+            'parameters': {},
+            'jwt': info["jwt"],
+            'success': this.buyOK,
+            'failure': this.buyFailed,
+          })]);
+        }
+      }
+    }).catchError((err){
+      print("failed to req $err");
+    });
+  }
+
+  buyOK() {
+    print(" buy success");
+    _state = 2;
+    update();
+  }
+
+  buyFailed() {
+    print(" buy failure");
+    _state = -1;
+    update();
+  }
+
+}
+
 
 class UiScreenRunResult {
   Element el;

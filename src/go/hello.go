@@ -1,4 +1,4 @@
-package hello
+package api
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/api/hello", handler)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {

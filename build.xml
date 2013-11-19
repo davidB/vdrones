@@ -74,7 +74,7 @@
 
 	<target name="svg">
 	  <copy todir="web/_images">
-	    <fileset dir="src/images" includes="gui.svg, cube.svg"></fileset>
+	    <fileset dir="src/images" includes="gui.svg, cube.svg, buy_sample.svg"></fileset>
 	  </copy>
 	  <!-- try to run/configure an optimizer like scour
 	   see http://www.codedread.com/scour/

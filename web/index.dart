@@ -17,6 +17,7 @@ var screenAchievements = null;
 var screenScores = null;
 var screenInit = null;
 var screenRunResult = null;
+var screenBuy = null;
 
 void main() {
   bus.on(eventErr).listen(handleError);
@@ -70,6 +71,11 @@ void main() {
     ..bus = bus
     ..init()
     ;
+    screenBuy = new ScreenBuy()
+    ..el = querySelector('#screenBuy')
+    ..auth = uiSign.auth
+    ..init()
+    ;
 
     bus.on(eventRunResult).listen((x) {
       _showScreen("screenRunResult");
@@ -78,8 +84,18 @@ void main() {
       if (x.kind == IGStatus.PLAYING) _showScreen("screenInGame");
     });
     bus.on(eventAuth).listen((x) {
-      screenScores.update();
-      screenAchievements.update();
+      var state = ShowHide.getState(screenScores.el);
+      if (state != ShowHideState.HIDDEN && state != ShowHideState.HIDING) {
+        screenScores.update();
+      }
+      state = ShowHide.getState(screenAchievements.el);
+      if (state != ShowHideState.HIDDEN && state != ShowHideState.HIDING) {
+        screenAchievements.update();
+      }
+      state = ShowHide.getState(screenBuy.el);
+      if (state != ShowHideState.HIDDEN && state != ShowHideState.HIDING) {
+        screenBuy.update();
+      }
       var n = querySelector("[data-text=authName]");
       if (n != null) n.text = x.name;
     });

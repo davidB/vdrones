@@ -16,6 +16,7 @@
 		<link rel="stylesheet" href="_vendors/normalize-2.0.1/normalize.css">
 		<!--link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css"/-->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css">
+		<!--script src="https://sandbox.google.com/checkout/inapp/lib/buy.js"></script-->
 		<link rel="stylesheet" href="index.css">
 	</head>
 <body class="body">
@@ -65,7 +66,7 @@
 			</li>
 			<li class="divider-vertical"></li>
 			<!--li><a href="#/s/screenBuy" title="Pre-order" onClick="_gaq.push(['_trackEvent', 'money', 'goto', 'pre-order']);"><i class="fa fa-money"></i></a></li-->
-			<li><a href="#/s/screenInfo" title="Info" onClick="_gaq.push(['_trackEvent', 'info', 'goto', 'info']);"><i class="fa fa-info-circle"></i></a></li>
+			<li><a href="#/s/screenInfo" title="About VDrones" onClick="_gaq.push(['_trackEvent', 'info', 'goto', 'info']);"><i class="fa fa-info-circle"></i></a></li>
 			<li><a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);"><i class="fa fa-group"></i></a></li>
 			<li class="divider-vertical"></li>
 			<!-- May be use service of http://sharethis.com/ -->
@@ -178,7 +179,7 @@
 					<h3>About VDrones</h3>
 					<p>In 'VDrones', player drives a vdrone across areas to grab cubes.</p>
 					<p>'VDrones' is a 3D game for modern web browser (Windows, Linux, Mac). It follows the web standard : update often, no plugins.</p>
-					<p>Only the firsts areas are playable for free. The game is a 'Pay to play fully' (not a 'Free To Play'/'Pay to Win')</p>
+					<p>Only the firsts areas are playable for free. The game is a 'Pay to play fully' (not a 'Free To Play'/'Pay to Win').</p>
 					<h4>Future</h4>
 					<ul>
 						<li>More FUN, better areas (graphics, sounds, effects, design), more areas, more enemies, more traps, more defenses...</li>
@@ -187,6 +188,7 @@
 						<li>Play on tablets (Android, iOS)</li>
 						<li>Guide to create area</li>
 						<li>Multi-player modes</li>
+						<li>Translations</li>
 						<li>...</li>
 					</ul>
 					<p>Suggestions and feedbacks are welcome, use <a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);">The Google+ community page</a>.
@@ -204,6 +206,34 @@
 						<li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);">The sources code (client-side)</a></li>
 					</ul>
 				</div>
+				<div class="actions"></div>
+			</div>
+			<div id="screenBuy" class="screen">
+				<div>
+					<h3>Preorder / Alpha funding</h3>
+					<p>
+					It is the beginning of 'VDrones', we planned lot of stuff to enhance the game (take a look at <a href="#/s/screenInfo" title="About VDrones" onClick="_gaq.push(['_trackEvent', 'info', 'goto', 'info']);"><i class="fa fa-info-circle"></i> Future</a>).
+					But to be able to continue, we require your help via preorder, buzz, comments...
+					</p>
+					<p>
+						Only the firsts areas are playable for free. The game is a 'Pay to play fully' (not a 'Free To Play'/'Pay to Win').
+						<br/>During the alpha phase, it's a pay what you want.
+					</p>
+				</div>
+				<img src="_images/buy_sample.svg" style="width:50%"/>
+				<div class="subpage login"  style="display:none">
+					<p>To pay, you have to Sign in.</p>
+					<button class="gplus_signin">
+						<span class="icon"></span>
+						<span class="buttonText">Sign in</span>
+					</button>
+				</div>
+				<div class="subpage loading" style="display:none">Loading ...</div>
+				<div class="subpage ready">
+					<input class="amount" type="text" value="3.00"/> EURO
+					<button class="buy" value="buy"><b>Purchase</b></button>
+				</div>
+				<div class="subpage thanks" style="display:none">Thank you !</div>
 				<div class="actions"></div>
 			</div>
 			<div id="screenInit" class="screen">
@@ -253,6 +283,7 @@
 	<script src="packages/browser/dart.js"></script>
 	<script type="application/dart" src="index.dart"></script>
 	<!--script src="loader.js" data-dartsrc="index.dart"></script-->
+</script>
 	<script type="text/javascript">
 		var _gaq = _gaq || [];
 		_gaq.push(['_setAccount', 'UA-18659445-4']);
