@@ -247,27 +247,27 @@ class ShowHide {
   }
 
   static String _getShowDisplayValue(Element element) {
-    return '';
-//    final values = _values[element];
-//
-//    if(values.initialComputedDisplay == 'none') {
-//      // if the element was initially invisible, it's tough to know "why"
-//      // even if the element has a local display value of 'none' it still
-//      // might have inherited it from a style sheet
-//      // so we play say and set the local value to the tag default
-//      final tagDefault = _defaultDisplays[element.tagName];
-//      assert(tagDefault != null);
-//      return tagDefault;
-//    } else {
-//      if(values.initialLocalDisplay == '' || values.initialLocalDisplay == 'inherit') {
-//        // it was originally visible and the local value was empty
-//        // so returning the local value to '' should ensure it's visible
-//        return values.initialLocalDisplay;
-//      } else {
-//        // it was initially visible, cool
-//        return values.initialComputedDisplay;
-//      }
-//    }
+    final values = _values[element];
+    if(values.initialLocalDisplay == 'none') {
+      return '';
+    } else if(values.initialComputedDisplay == 'none') {
+      // if the element was initially invisible, it's tough to know "why"
+      // even if the element has a local display value of 'none' it still
+      // might have inherited it from a style sheet
+      // so we play say and set the local value to the tag default
+      final tagDefault = _defaultDisplays[element.tagName];
+      assert(tagDefault != null);
+      return tagDefault;
+    } else {
+      if(values.initialLocalDisplay == '' || values.initialLocalDisplay == 'inherit') {
+        // it was originally visible and the local value was empty
+        // so returning the local value to '' should ensure it's visible
+        return values.initialLocalDisplay;
+      } else {
+        // it was initially visible, cool
+        return values.initialComputedDisplay;
+      }
+    }
   }
 }
 
