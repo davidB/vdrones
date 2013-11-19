@@ -144,7 +144,7 @@ class UiScreenRunResult {
       update();
     });
     bus.on(eventInGameStatus).listen((x) {
-      _onPlayEnabled = (x == IGStatus.INITIALIZED || x == IGStatus.STOPPED);
+      _onPlayEnabled = (x.kind == IGStatus.INITIALIZED || x.kind == IGStatus.STOPPED);
       update();
     });
     _onPlay = (_){
