@@ -73,11 +73,15 @@ class DataServices {
 
   _diffOfAchievements(List source, List target, List diff) {
     if (source.length > target.length) {
-      for(var i=0, j=0; i < source.length; i++) {
-        if (source[i] != target[j]) {
-          diff.add(source[i]);
-        } else {
-          j++;
+      if (target.length == 0) {
+        diff.addAll(source);
+      } else {
+        for(var i=0, j=0; i < source.length; i++) {
+          if (source[i] != target[j]) {
+            diff.add(source[i]);
+          } else {
+            j++;
+          }
         }
       }
     }
