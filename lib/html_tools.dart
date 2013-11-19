@@ -116,7 +116,6 @@ class UiDropdown {
   }
 
   static void _apply(e, ShowHideAction action) {
-    print("action : $action");
     final headerElement = e.querySelector('[is=x-dropdown] > .dropdown');
     if(headerElement != null) {
       switch(action) {
@@ -135,6 +134,5 @@ class UiDropdown {
     if(contentDiv != null) {
       ShowHide.begin(action, contentDiv, effect: _effect);
     }
-    print("action : $action $e $headerElement $contentDiv");
   }
 }
