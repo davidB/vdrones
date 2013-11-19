@@ -257,20 +257,26 @@ class UiScreenRunResult {
 
   update(){
     if (el == null) return;
-    _update0("areaId", areaId);
-    _update0("cubesLast", cubesLast);
-    _update0("cubesMax", cubesMax);
-    _update0("cubesGain", _fmt.format(cubesGain));
-    _update0("cubesTotal", cubesTotal);
-    el.querySelector("#shadow").style.display = "block";
-    el.querySelector("#points").style.display = timeout ? "none":"block";
-    el.querySelector("#timeout").style.display = timeout ? "block":"none";
-    var btnPlay = el.querySelector(".play");
-    (btnPlay as ButtonElement).disabled = !_onPlayEnabled;
-    btnPlay.onClick.first.then(_onPlay);
-    var btnNext = el.querySelector(".next");
-    (btnNext as ButtonElement).disabled = !_onNextEnabled;
-    btnNext.onClick.first.then(_onNext);
+    try {
+      _update0("areaId", areaId);
+      _update0("cubesLast", cubesLast);
+      _update0("cubesMax", cubesMax);
+      _update0("cubesGain", _fmt.format(cubesGain));
+      _update0("cubesTotal", cubesTotal);
+      el.querySelector("#shadow").style.display = "block";
+      el.querySelector("#points").style.display = timeout ? "none":"block";
+      el.querySelector("#timeout").style.display = timeout ? "block":"none";
+      var btnPlay = el.querySelector(".play");
+      (btnPlay as ButtonElement).disabled = !_onPlayEnabled;
+      btnPlay.onClick.first.then(_onPlay);
+      var btnNext = el.querySelector(".next");
+      (btnNext as ButtonElement).disabled = !_onNextEnabled;
+      btnNext.onClick.first.then(_onNext);
+    } catch(e, st) {
+      print("WARNING");
+      print(e);
+      print(st);
+    }
   }
 
   _update0(k, v) {
