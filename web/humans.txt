@@ -9,14 +9,17 @@
 
 # THANKS
 
+	Every providers of the technologies used to create the site
 
 # SITE
 
 	Last update: 2013/11/14
 	Language: English
-	Standards: HTML5, CSS3, Dart
+	Standards: HTML5, CSS3
 	Doctype:HTML5
-	Components: asset_pack, dartemis,
-	Software: DartEditor, Vim, jEdit, Blender, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github, Stylus
+	Languages: Dart/Javascript, html5, Stylus/CSS3, GLSL, Go
+	Components: asset_pack, dartemis, glf, google_games_v1_api, lawndart, protobuf, simple_audio, vector_math, event_bus
+	Software: DartEditor, Vim, jEdit, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github, Stylus
 	Fonts: SciFly, Font-Awesome, weloveiconfonts.com
-	Host: Google App Engine, Google Play / Game services
+	Host: Google App Engine, Google Play Game Services
+	Services: Google+ API, Google Wallet

@@ -38,6 +38,7 @@
 	<header class="navbar navbar-inverse header">
 		<ul class="nav">
 			<li><a href="#/s/screenAreaSelector" title="Choose an area"><i class="fa fa-th"></i></a></li>
+			<!--li><a href="#/s/screenGarage" title="Customize the vdrone in the Garage"><i class="fa fa-gears"></i></a></li-->
 			<li><a href="#/s/screenAchievements" title="See your Achievements"><i class="fa fa-star"></i></a></li>
 			<li><a href="#/s/screenScores" title="Scores"><i class="fa fa-trophy"></i></a></li>
 			<li class="divider-vertical"></li>
@@ -54,16 +55,17 @@
 		</ul>
 		<div style="font-size:110%;font-weight:bold;">VDrones</div>
 		<ul class="nav">
-      <li class="signin">
-        <span style="font-style: italic;">play as </span>&nbsp;
-        <span data-text="authName"></span>&nbsp;
-        <button class="gplus_signin">
-          <span class="icon"></span>
-          <span class="buttonText">Sign in</span>
-        </button>
-      </li>
-      <li class="divider-vertical"></li>
-			<!--li><a href="#/s/pre-order" title="Pre-order" onClick="_gaq.push(['_trackEvent', 'money', 'goto', 'pre-order']);"><i class="fa fa-money"></i></a></li-->
+			<li class="signin">
+				<span style="font-style: italic;">play as </span>&nbsp;
+				<span data-text="authName"></span>&nbsp;
+				<button class="gplus_signin">
+					<span class="icon"></span>
+					<span class="buttonText">Sign in</span>
+				</button>
+			</li>
+			<li class="divider-vertical"></li>
+			<!--li><a href="#/s/screenBuy" title="Pre-order" onClick="_gaq.push(['_trackEvent', 'money', 'goto', 'pre-order']);"><i class="fa fa-money"></i></a></li-->
+			<li><a href="#/s/screenInfo" title="Info" onClick="_gaq.push(['_trackEvent', 'info', 'goto', 'info']);"><i class="fa fa-info-circle"></i></a></li>
 			<li><a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);"><i class="fa fa-group"></i></a></li>
 			<li class="divider-vertical"></li>
 			<!-- May be use service of http://sharethis.com/ -->
@@ -122,13 +124,13 @@
 				<div class="subpage loading" style="display:none">Loading ...</div>
 				<div class="subpage ready" id="scores" style="display:none">
 					<table>
-            <thead>
-              <tr>
-                <th class="score_rank">Rank</th>
-                <th class="score_name">Name</th>
-                <th class="score_value">Total Cube (Max)</th>
-              </tr>
-            </thead>
+						<thead>
+							<tr>
+								<th class="score_rank">Rank</th>
+								<th class="score_name">Name</th>
+								<th class="score_value">Total Cube (Max)</th>
+							</tr>
+						</thead>
 						<tbody>
 						  <script class="score" type="text/tmpl">
 							<tr class="score">
@@ -141,7 +143,7 @@
 					</table>
 					<div style="width:100%; align-text:right">
 						<input type="checkbox" id="friends_filter" checked="checked">Friends Only</input>
-            <a href="https://plus.google.com/u/0/apps" target="_blank" style="font-size:80%">configure permissions to see scores</a>
+						<a href="https://plus.google.com/u/0/apps" target="_blank" style="font-size:80%">configure permissions to see scores</a>
 					</div>
 				</div>
 				<div class="actions">
@@ -171,33 +173,42 @@
 				</div>
 				<div class="actions"></div>
 			</div>
-
-<!--
-			<div id="screenFeedback" class="screen">
-				<h3 id="feedbackLabel">feedback</h3>
-				<div id="disqus_thread"></div>
-				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-				<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-				<script type="text/javascript">
-						/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-						var disqus_shortname = 'vdrones'; // required: replace example with your forum shortname
-						var disqus_identifier = 'vdrones_v0';
-						var disqus_title = 'VDrones (v0)';
-						var disqus_url = 'http://vdrones.appspot.com/';
-
-						//TODO call the function when comments should be displayed
-						/* * * DON'T EDIT BELOW THIS LINE * * */
-						setTimeout(function() {
-								var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-								dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-								(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-						}, 5000);
-				</script>
+			<div id="screenInfo" class="screen">
+				<div style="overflow:auto; max-height:99%">
+					<h3>About VDrones</h3>
+					<p>In 'VDrones', player drives a vdrone across areas to grab cubes.</p>
+					<p>'VDrones' is a 3D game for modern web browser (Windows, Linux, Mac). It follows the web standard : update often, no plugins.</p>
+					<p>Only the firsts areas are playable for free. The game is a 'Pay to play fully' (not a 'Free To Play'/'Pay to Win')</p>
+					<h4>Future</h4>
+					<ul>
+						<li>More FUN, better areas (graphics, sounds, effects, design), more areas, more enemies, more traps, more defenses...</li>
+						<li>A garage and a shop to tune vdrone</li>
+						<li>Gamepad support</li>
+						<li>Play on tablets (Android, iOS)</li>
+						<li>Guide to create area</li>
+						<li>Multi-player modes</li>
+						<li>...</li>
+					</ul>
+					<p>Suggestions and feedbacks are welcome, use <a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);">The Google+ community page</a>.
+					<h4>Technologies</h4>
+					<ul>
+						<li>The client side is open source <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/fr/">(CC-BY-SA 3.0)</a></li>
+						<li>Languages: Dart/Javascript, html5, Stylus/CSS3, GLSL, Go</li>
+						<li>Hosting: Google App Engine, Google+, Google Play Game Sevices</li>
+					</ul>
+					<p>Full list of technologies used to create and to run the site is available into <a href="humans.txt">Humans.txt</a></p>
+					<h4>Links</h4>
+					<ul>
+						<li><a href="http://vdrones.appspot.com">The Game</a></li>
+						<li>The Google+ <a href="https://plus.google.com/u/0/communities/110862522334698857374" title="go to G+ community" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'goto', 'googleplus']);"> community page</a> / <a href="https://plus.google.com/106535708348552848993" rel="publisher">dev team page</a></li>
+						<li><a href="http://github.com/davidB/vdrones" target="_blank" onClick="_gaq.push(['_trackEvent', 'community', 'info', 'gihub']);">The sources code (client-side)</a></li>
+					</ul>
+				</div>
+				<div class="actions"></div>
 			</div>
--->
 			<div id="screenInit" class="screen">
 				<h3>Welcome VDroner,</h3>
-        <h3>Area <span data-text="area">.....</span></h3>
+				<h3>Area <span data-text="area">.....</span></h3>
 				<div id="rules_help">
 					 Grab the <img src="_images/cube.svg" alt="cubes of energy" style="height:1.3em;vertical-align:top"/><br>
 					 Don't touch the walls<br>
@@ -227,9 +238,6 @@
 				</div>
 			</div>
 		</div>
-				<!--div id="screenLast" class="screen">
-					<div class="screen_inner">... Waiting ...</div>
-				</div-->
 		<div id="alert" class="alert alert-error" style="z-index:100; display:none" data-bind="text: alert, visible: shouldShowAlert">
 		</div>
 		<progress id="gameload" max="100" value="0">
@@ -239,7 +247,6 @@
 	</div>
 	<footer class="footer">
 		<div>version: 0.16.0-dev (updates every week) by davidB</div>
-		<div>VDrones at <a href="https://plus.google.com/106535708348552848993" rel="publisher">Google+</a></div>
 		<div><a href="humans.txt"	 onClick="_gaq.push(['_trackEvent', 'community', 'info', 'humanstxt']);"><img	 src="humanstxt-transparent-1ink.png" border="0"/></a>		</div>
 	</footer>
 
