@@ -36,9 +36,9 @@
 	</target>
 
 	<target name="set-version">
-		<replaceregexp file="pubspec.yaml" match="version: (\S*)" replace="version: 0.16.0"/>
-		<replaceregexp file="web/index.html" match="version: (\S*)" replace="version: 0.16.0"/>
-		<replaceregexp file="src/cfg/app.yaml" match="version: (\S*)" replace="version: 0-16-0"/>
+		<replaceregexp file="pubspec.yaml" match="version: (\S*)" replace="version: 0.16.1"/>
+		<replaceregexp file="web/index.html" match="version: (\S*)" replace="version: 0.16.1"/>
+		<replaceregexp file="src/cfg/app.yaml" match="version: (\S*)" replace="version: 0-16-1"/>
 	</target>
 
 	<target name="check" depends="-init">
