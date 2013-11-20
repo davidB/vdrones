@@ -1,7 +1,7 @@
 #see https://developers.google.com/appengine/docs/java/configyaml/appconfig_yaml
 #see https://developers.google.com/appengine/docs/python/config/appconfig
 #
-application: gcdc2013-vdrones
+application: vdrones
 version: 0-16-1
 runtime: go
 api_version: go1
