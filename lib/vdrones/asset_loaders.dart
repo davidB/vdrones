@@ -49,7 +49,6 @@ class AreaJsonImporter extends AssetImporter {
       }
       return new Future.value(asset);
     } catch(e, st) {
-      print(st);
       tracer.assetImportError(asset, "failed to import : $e");
     } finally {
       tracer.assetImportEnd(asset);
@@ -76,7 +75,6 @@ class AreaSvgImporter extends AssetImporter {
       }
       return new Future.value(asset);
     } catch(e, st) {
-      print(st);
       tracer.assetImportError(asset, "failed to import : ${e}");
     } finally {
       tracer.assetImportEnd(asset);

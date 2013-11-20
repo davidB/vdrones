@@ -225,8 +225,8 @@ class Factory_Entities {
     es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
     es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
     es.addAll(areadef.cubeGenerators.map((x) => newCubeGenerator(x)));
-    print("areadef.mobileWalls : ${areadef.mobileWalls.length}");
-    print("nb entities for area : ${es.length}");
+//    print("DEBUG: areadef.mobileWalls : ${areadef.mobileWalls.length}");
+//    print("DEBUG: nb entities for area : ${es.length}");
     return es;
   }
 

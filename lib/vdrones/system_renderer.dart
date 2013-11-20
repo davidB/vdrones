@@ -100,8 +100,8 @@ class System_Render3D extends EntitySystem {
         if( v.filters != null ) _renderer.filters2d.addAll(v.filters);
         if( v.prepare != null ) _renderer.addPrepare(v.prepare);
         if( v.main != null ) _renderer.add(v.main);
-      } else {
-        print("failed to insert 3d ${entity} : provide null ");
+//      } else {
+//        print("DEBUG: failed to insert 3d ${entity} : provide null ");
       }
     }
   }
@@ -236,7 +236,7 @@ class System_Render3D extends EntitySystem {
     ;
     return pass;
   }
-  
+
   _makeSSAOPass(renderer, am, WebGL.Texture texNormals, WebGL.Texture texVertices, WebGL.Texture texNormalsRandom) {
     var filter0 = _makeSSAOFilter(am, texNormals, texVertices, texNormalsRandom);
     //var filter0 = _am['filter2d_identity'];

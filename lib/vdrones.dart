@@ -128,11 +128,10 @@ class VDrones {
   bool _play() {
     try {
     if  (!(_status == IGStatus.INITIALIZED || _status == IGStatus.STOPPING)){
-      print("NOT playable : ${_status}");
+//      print("DEBUG: NOT playable : ${_status}");
       return false;
     }
     if (_status != IGStatus.INITIALIZED) {
-      print("initialize : ${_status}");
       _initialize().then((_) => _start());
       return true;
     } else {
@@ -358,6 +357,8 @@ class EventsPrintControler {
   }
 
   void onEvent(AssetPackTraceEvent event) {
-    print("AssetPackTraceEvent : ${event}");
+    if (event.type.contains('Error', 0)) {
+      print("WARNING: AssetPackTraceEvent : ${event}");
+    }
   }
 }
