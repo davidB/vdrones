@@ -232,8 +232,6 @@ class UiScreenRunResult {
   bool timeout = false;
   var _onPlayEnabled = false;
   Function _onPlay;
-  var _onNextEnabled = false;
-  Function _onNext;
   var _fmt = new NumberFormat("+00");
 
   init() {
@@ -270,12 +268,12 @@ class UiScreenRunResult {
       (btnPlay as ButtonElement).disabled = !_onPlayEnabled;
       btnPlay.onClick.first.then(_onPlay);
       var btnNext = el.querySelector(".next");
-      (btnNext as ButtonElement).disabled = !_onNextEnabled;
+      (btnNext as ButtonElement).disabled = (_findNextAreaId() == null);
       btnNext.onClick.first.then(_onNext);
     } catch(e, st) {
-      print("WARNING");
-      print(e);
-      print(st);
+//      print("WARNING");
+//      print(e);
+//      print(st);
     }
   }
 
@@ -284,5 +282,22 @@ class UiScreenRunResult {
     if (el0 != null) {
       el0.text = v.toString();
     }
+  }
+
+  _onNext(_) {
+    var n = _findNextAreaId();
+    if (n != null) {
+      window.location.hash = '/a/$n';
+    }
+  }
+
+  _findNextAreaId() {
+    switch(areaId) {
+      case 'alpha0': return 'beta0';
+      case 'beta0': return 'beta1';
+      case 'beta1': return 'gamma0';
+      case 'gamma0': return 'pacman0';
+    }
+    return null;
   }
 }
