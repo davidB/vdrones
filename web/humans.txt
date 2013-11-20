@@ -22,4 +22,4 @@
 	Software: DartEditor, Vim, jEdit, Inkscape, Chromium, Firefox, Arch Linux, Ant, Git+github, Stylus
 	Fonts: SciFly, Font-Awesome, weloveiconfonts.com
 	Host: Google App Engine, Google Play Game Services
-	Services: Google+ API, Google Wallet
+	Services: Google+ API, Google Wallet, Google Analytics
