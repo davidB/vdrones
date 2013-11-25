@@ -1,23 +1,28 @@
 import 'dart:html';
 import 'package:google_plus_v1_api/plus_v1_api_browser.dart' as plusclient;
 import '../../lib/cfg.dart' as cfg;
+import '../../lib/events.dart';
 import 'package:vdrones/auth.dart';
 import 'package:vdrones/game_services.dart';
 
 void main() {
-  var uiSign = new UiSign()..bind();
+  var bus = makeBus();
+  var uiSign = new UiSign()
+  ..bus = bus
+  ..init()
+  ;
   var gameservices = makeGameServices(uiSign.auth);
 
-  var screenAchievements = new ScreenAchievements(querySelector("#screenAchievements"), gameservices);
-  uiSign.onSign.listen((evt) {
-    screenAchievements.showPage();
-  });
-  screenAchievements.showPage();
-
-  uiSign.onSign.listen((evt) {
+  var screenAchievements = new ScreenAchievements()
+  ..el = querySelector("#screenAchievements")
+  ..gameservices = gameservices
+  ..init()
+  ;
+  bus.on(eventAuth).listen((evt) {
     if (evt.logged) helloGPlus(evt.auth);
+    screenAchievements.update();
   });
-
+  screenAchievements.update();
 }
 
 void helloGPlus(auth) {
