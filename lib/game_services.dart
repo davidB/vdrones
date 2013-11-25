@@ -5,10 +5,11 @@ import 'dart:async';
 import "package:google_oauth2_client/google_oauth2_browser.dart" as oauth;
 import 'package:google_games_v1_api/games_v1_api_browser.dart' as gamesbrowser;
 import 'package:google_games_v1_api/games_v1_api_client.dart' as gamesclient;
+import 'package:html_toolbox/html_toolbox.dart';
 import 'package:intl/intl.dart';
 
 import 'effects.dart';
-import 'html_tools.dart';
+
 import 'cfg.dart' as cfg;
 
 makeGameServices(oauth.OAuth2 auth) {

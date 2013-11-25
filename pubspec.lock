@@ -84,6 +84,12 @@ packages:
     description: html5lib
     source: hosted
     version: "0.8.10+3"
+  html_toolbox:
+    description:
+      path: "/home/dwayne/work/dart/vdrones/../html_toolbox"
+      relative: true
+    source: path
+    version: "0.1.0"
   http:
     description: http
     source: hosted
