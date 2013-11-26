@@ -149,7 +149,7 @@ class Factory_Physics {
     }
     // shape over floor
     for(var i=0; i < 4; i++) {
-      fs.add(new Force_SpringZ(ps, i, 50.0, 0.0));
+      fs.add(new Force_SpringZ(ps, i, 100.0, 0.5));
     }
     return [ps, ss, fs, new Collisions()];
   }

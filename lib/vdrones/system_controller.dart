@@ -225,10 +225,6 @@ class System_DroneHandler extends EntityProcessingSystem {
       numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
       var ctrl = _droneControlMapper.get(entity);
       var fs = _forcesMapper.get(entity);
-      //var m = _motionMapper.get(entity);
-      //m.acceleration = ctrl.forward * numbers.acc;
-      //m.angularVelocity = radians(ctrl.turn * numbers.angularv);
-      //ctrl.forward * numbers.acc;
       var ps = _particlesMapper.get(entity);
       if (_printDebug) {
         _printDebug = false;
@@ -236,31 +232,25 @@ class System_DroneHandler extends EntityProcessingSystem {
         print("DEBUG: vdrone position3dPrevious ${ps.position3dPrevious}");
         print("DEBUG: vdrone position3d ${ps.position3d}");
       }
-//      //if (stop) {
-//        //ctrl.forward = 0.0;
-//        //ctrl.turn = 0.0;
-//        //TODO find a better impluse formula
-//        var v = new Vector3.zero();
-//        for (var i = 0; i < ps.length; ++i) {
-//          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
-//          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
-//          if (ps.collide[i] == -1) {
-//            tcoll = 0.0;
-//            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll}");
-//            ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
-//            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
-//            //TODO add acceleration
-//            ps.acc[i].scale(-1.0);
-//          }
-//        }
-      //} else
-      if (ctrl != null) {
+      if (stop) {
+        //TODO find a better impluse formula
+        for (var i = 0; i < ps.length; ++i) {
+          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
+          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
+          if (ps.collide[i] == -1) {
+            tcoll = 0.0;
+            //print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll} ${ps.position3d[i]}");
+            //ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
+            ps.position3d[i].setFrom(ps.position3dPrevious[i]);
+            //TODO add acceleration
+          }
+        }
+        fs.actions[DRONE_PFRONT].force.setZero();
+        fs.actions[DRONE_PCENTER].force.setZero();
+        fs.actions[DRONE_PBACKL].force.setZero();
+        fs.actions[DRONE_PBACKR].force.setZero();
+      } else if (ctrl != null) {
         _updateEnergy(numbers, ctrl);
-        //ps.accForces[DRONE_PFRONT].setValues(3.0, 0.0, 3.0);
-        // component of normal of PBACKs  (2.0 is the BACK LR)
-  //      var ux = (ps.position3d[DRONE_PBACKR].y - ps.position3d[DRONE_PBACKL].y);
-  //      var uy = -(ps.position3d[DRONE_PBACKR].x - ps.position3d[DRONE_PBACKL].x);
-  //      var l = math.sqrt(ux * ux + uy * uy);//2.0;
         var ux = (ps.position3d[DRONE_PFRONT].x - ps.position3d[DRONE_PCENTER].x);
         var uy = (ps.position3d[DRONE_PFRONT].y - ps.position3d[DRONE_PCENTER].y);
         var l = math.sqrt(ux * ux + uy * uy);
@@ -277,61 +267,15 @@ class System_DroneHandler extends EntityProcessingSystem {
         var ty = ux * turn;
 
         fs.actions[DRONE_PFRONT].force.setValues(fx+tx, fy+ty, 0.0);
-        fs.actions[DRONE_PCENTER].force.setValues(fx+tx*0.5 , fy+ty * 0.5, 0.0);
-//        if (ctrl.turn < 0) {
-//          fs.actions[DRONE_PBACKR].force.setValues(fx , fy , 0.0);
-//          fs.actions[DRONE_PBACKL].force.setValues(-fx , -fy , 0.0);
-//        } else if (ctrl.turn > 0) {
-//          fs.actions[DRONE_PBACKR].force.setValues(-fx , -fy , 0.0);
-//          fs.actions[DRONE_PBACKL].force.setValues(fx , fy , 0.0);
-//        } else {
-          fs.actions[DRONE_PBACKL].force.setValues(fx , fy , 0.0);
-          fs.actions[DRONE_PBACKR].force.setValues(fx , fy , 0.0);
-//        }
-  //      var transform = _transformMapper.get(entity);
-  //      if (transform != null) {
-  //        transform.position3d.setFrom(ps.position3d[DRONE_PCENTER]);
-  //      }
-      //}
+        fs.actions[DRONE_PCENTER].force.setValues(fx+tx*0.75 , fy+ty * 0.75, 0.0);
+        fs.actions[DRONE_PBACKL].force.setValues(fx , fy , 0.0);
+        fs.actions[DRONE_PBACKR].force.setValues(fx , fy , 0.0);
+      } else {
+        fs.actions[DRONE_PFRONT].force.setZero();
+        fs.actions[DRONE_PCENTER].force.setZero();
+        fs.actions[DRONE_PBACKL].force.setZero();
+        fs.actions[DRONE_PBACKR].force.setZero();
       }
-        var v = new Vector3.zero();
-        for (var i = 0; i < ps.length; ++i) {
-          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
-          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
-          if (ps.collide[i] == -1) {
-            tcoll = 0.0;
-            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll}");
-            ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
-            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
-            //TODO add acceleration
-            //v.setFrom(segment)
-            //v.scale(ps.acc[i].dot(v))
-            //ps.acc[i].add(v);
-//            ps.acc[i].scale(-1.0);
-          }
-        }
-//        var accz = 50.0;
-//        ps.acc[DRONE_PFRONT].z += _attract1D(ps.position3d[DRONE_PFRONT].z, 0.8, accz);
-//        ps.acc[DRONE_PCENTER].z += _attract1D(ps.position3d[DRONE_PCENTER].z, 2.0, accz);
-//        ps.acc[DRONE_PBACKL].z += _attract1D(ps.position3d[DRONE_PBACKL].z, 1.0, accz);
-//        ps.acc[DRONE_PBACKR].z += _attract1D(ps.position3d[DRONE_PBACKR].z, 1.0, accz);
-
-//        // ground collision
-//        for (var i = 0; i < ps.length; ++i) {
-//          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
-//          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
-//          if (ps.position3d[i].z < 0.0) {
-//            tcoll = 0.0;
-//            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ground");
-//            ps.position3d[i].z = 0.0;
-//            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
-//            //TODO add acceleration
-//            //v.setFrom(segment)
-//            //v.scale(ps.acc[i].dot(v))
-//            //ps.acc[i].add(v);
-//            ps.acc[i].z += 1.0;
-//          }
-//        }
     }
   }
 
