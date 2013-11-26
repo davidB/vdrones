@@ -37,7 +37,7 @@ class Factory_Entities {
   );
 
   var defaultDraw = proto2d.drawComponentType([
-    new proto2d.DrawComponentType(Particles.CT, proto2d.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
+    new proto2d.DrawComponentType(Particles.CT, proto2d.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1], radiusMin: 2.0)),
     new proto2d.DrawComponentType(Segments.CT, proto2d.segments(distanceStyleCollide : "#e20000"))
   ]);
 
