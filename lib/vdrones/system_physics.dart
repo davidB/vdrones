@@ -4,6 +4,7 @@ class ColliderInfo {
   Entity e;
   // the collision groupId
   int group; //HACK quick to know the entity kind
+  double tcoll;
 }
 
 class Collisions extends Component {
@@ -17,16 +18,18 @@ class _EntityContactListener extends collisions.Resolver {
   _EntityContactListener(this._collisionsMapper);
 
   void notifyCollisionParticleSegment(Particles psA, int iA, Segment s, double tcoll){
-    notifyCollision(psA.extradata, s.ps.extradata);
+    notifyCollision(psA.extradata, s.ps.extradata, tcoll);
   }
 
   void notifyCollisionParticleParticle(Particles psA, int iA, Particles psB, int iB, double tcoll){
-    notifyCollision(psA.extradata, psB.extradata);
+    notifyCollision(psA.extradata, psB.extradata, tcoll);
   }
 
-  void notifyCollision(ColliderInfo cA, ColliderInfo cB) {
+  void notifyCollision(ColliderInfo cA, ColliderInfo cB, double tcoll) {
     if (cA == null || cB == null) return;
     //if (contact.fixtureA.filter.groupIndex == contact.fixtureB.filter.groupIndex) return;
+    cA.tcoll = tcoll;
+    cB.tcoll = tcoll;
     _addCollisionOnce(cA, cB);
     _addCollisionOnce(cB, cA);
   }

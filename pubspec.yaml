@@ -13,7 +13,8 @@ dependencies:
   crypto: any
   dartemis: '>=0.4.1'
   dartemis_toolbox:
-    git: https://github.com/davidB/dartemis_toolbox.git
+    #git: https://github.com/davidB/dartemis_toolbox.git
+    path: ../dartemis_toolbox
   game_loop:
     git:
       ref: davidB

@@ -4,7 +4,7 @@ packages:
   analyzer:
     description: analyzer
     source: hosted
-    version: "0.10.1"
+    version: "0.10.2"
   args:
     description: args
     source: hosted
@@ -19,29 +19,28 @@ packages:
   bot:
     description: bot
     source: hosted
-    version: "0.24.0"
+    version: "0.25.3"
   bot_io:
     description: bot_io
     source: hosted
-    version: "0.24.0"
+    version: "0.25.0"
   browser:
     description: browser
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   crypto:
     description: crypto
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   dartemis:
     description: dartemis
     source: hosted
-    version: "0.4.2"
+    version: "0.5.1"
   dartemis_toolbox:
     description:
-      ref: null
-      resolved-ref: "1c36bc77cdc5d8b2be5225ca4b82ab83ef21ffbf"
-      url: "https://github.com/davidB/dartemis_toolbox.git"
-    source: git
+      path: "/home/dwayne/work/dart/vdrones/../dartemis_toolbox"
+      relative: true
+    source: path
     version: "0.5.0-dev"
   event_bus:
     description: event_bus
@@ -50,7 +49,7 @@ packages:
   fixnum:
     description: fixnum
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   game_loop:
     description:
       ref: davidB
@@ -67,23 +66,23 @@ packages:
   google_games_v1_api:
     description: google_games_v1_api
     source: hosted
-    version: "0.4.2"
+    version: "0.4.3"
   google_oauth2_client:
     description: google_oauth2_client
     source: hosted
-    version: "0.3.1"
+    version: "0.3.2"
   google_plus_v1_api:
     description: google_plus_v1_api
     source: hosted
-    version: "0.4.11"
+    version: "0.4.12"
   hop:
     description: hop
     source: hosted
-    version: "0.27.0"
+    version: "0.27.1"
   html5lib:
     description: html5lib
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.1"
   html_toolbox:
     description:
       path: "/home/dwayne/work/dart/vdrones/../html_toolbox"
@@ -93,7 +92,7 @@ packages:
   http:
     description: http
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   intl:
     description: intl
     source: hosted
@@ -117,7 +116,7 @@ packages:
   oauth2:
     description: oauth2
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   path:
     description: path
     source: hosted
@@ -125,10 +124,10 @@ packages:
   protobuf:
     description:
       ref: null
-      resolved-ref: ffae11268570030e52bed459995ecc1bb12d9b40
+      resolved-ref: ad69bcea501acd457883871d94a0b0b6cce94a72
       url: "https://github.com/dart-lang/dart-protobuf.git"
     source: git
-    version: "0.3.0"
+    version: "0.3.2"
   simple_audio:
     description:
       ref: davidB
@@ -139,15 +138,15 @@ packages:
   source_maps:
     description: source_maps
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   stack_trace:
     description: stack_trace
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   unittest:
     description: unittest
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   unmodifiable_collection:
     description: unmodifiable_collection
     source: hosted
@@ -155,7 +154,7 @@ packages:
   utf:
     description: utf
     source: hosted
-    version: "0.8.10+3"
+    version: "0.9.0"
   vector_math:
     description: vector_math
     source: hosted

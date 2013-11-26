@@ -7,6 +7,7 @@ var _keysForward = [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ];
 var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
 var _keysTurnRight = [KeyCode.RIGHT, KeyCode.D];
 var _keysCameraMode = [KeyCode.M];
+var _keysPrintDebugInfo = [KeyCode.P];
 
 class System_CameraFollower extends EntityProcessingSystem {
   ComponentMapper<Particles> _particlesMapper;
@@ -173,6 +174,7 @@ class System_DroneHandler extends EntityProcessingSystem {
   //ComponentMapper<PhysicMotion> _motionMapper;
   ComponentMapper<Particles> _particlesMapper;
   ComponentMapper<DroneControl> _droneControlMapper;
+  ComponentMapper<Forces> _forcesMapper;
   ComponentMapper<Collisions> _collisionsMapper;
   ComponentMapper<EntityStateComponent> _statesMapper;
   ComponentMapper<Generated> _genMapper;
@@ -180,15 +182,18 @@ class System_DroneHandler extends EntityProcessingSystem {
   ComponentMapper<DroneNumbers> _droneNumbersMapper;
   Factory_Entities _efactory;
   VDrones _game;
+  var _printDebug = false;
 
   System_DroneHandler(this._efactory, this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, Particles/*PhysicMotion, PhysicCollisions*/, EntityStateComponent]));
 
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
+    _forcesMapper = new ComponentMapper<Forces>(Forces, world);
     _droneNumbersMapper = new ComponentMapper<DroneNumbers>(DroneNumbers, world);
     _collisionsMapper = new ComponentMapper<Collisions>(Collisions, world);
     _particlesMapper = new ComponentMapper<Particles>(Particles, world);
     _statesMapper = new ComponentMapper<EntityStateComponent>(EntityStateComponent, world);
+    _bindKeyboardControl();
   }
 
   void processEntity(Entity entity) {
@@ -196,6 +201,7 @@ class System_DroneHandler extends EntityProcessingSystem {
     var collisions = _collisionsMapper.get(entity);
     var numbers = _droneNumbersMapper.get(entity);
     var stop = false;
+    var tcoll = 1.0;
     collisions.colliders.iterateAndUpdate((collider){
       switch(collider.group) {
         case EntityTypes_WALL :
@@ -206,6 +212,7 @@ class System_DroneHandler extends EntityProcessingSystem {
               _crash(entity);
             }
           }
+          tcoll = collider.tcoll;
           stop = true;
           break;
         case EntityTypes_MWALL : _crash(entity); break;
@@ -217,22 +224,37 @@ class System_DroneHandler extends EntityProcessingSystem {
     if (esc.currentState == State_DRIVING) {
       numbers.hitLastTime = math.max(0, --numbers.hitLastTime);
       var ctrl = _droneControlMapper.get(entity);
+      var fs = _forcesMapper.get(entity);
       //var m = _motionMapper.get(entity);
       //m.acceleration = ctrl.forward * numbers.acc;
       //m.angularVelocity = radians(ctrl.turn * numbers.angularv);
       //ctrl.forward * numbers.acc;
       var ps = _particlesMapper.get(entity);
-      if (stop) {
-        //ctrl.forward = 0.0;
-        //ctrl.turn = 0.0;
-        //TODO find a better impluse formula
-        var v = new Vector3.zero();
-        for (var i = 0; i < ps.length; ++i) {
-          v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0).add(ps.position3d[i]);
-          ps.position3dPrevious[i].setFrom(ps.position3d[i]);
-          ps.position3d[i].setFrom(v);
-        }
-      } else if (ctrl != null){
+      if (_printDebug) {
+        _printDebug = false;
+        print("DEBUG: frame #${_game._gameLoop.frame} ${_game._gameLoop.frameTime}");
+        print("DEBUG: vdrone position3dPrevious ${ps.position3dPrevious}");
+        print("DEBUG: vdrone position3d ${ps.position3d}");
+      }
+//      //if (stop) {
+//        //ctrl.forward = 0.0;
+//        //ctrl.turn = 0.0;
+//        //TODO find a better impluse formula
+//        var v = new Vector3.zero();
+//        for (var i = 0; i < ps.length; ++i) {
+//          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
+//          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
+//          if (ps.collide[i] == -1) {
+//            tcoll = 0.0;
+//            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll}");
+//            ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
+//            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
+//            //TODO add acceleration
+//            ps.acc[i].scale(-1.0);
+//          }
+//        }
+      //} else
+      if (ctrl != null) {
         _updateEnergy(numbers, ctrl);
         //ps.accForces[DRONE_PFRONT].setValues(3.0, 0.0, 3.0);
         // component of normal of PBACKs  (2.0 is the BACK LR)
@@ -241,7 +263,7 @@ class System_DroneHandler extends EntityProcessingSystem {
   //      var l = math.sqrt(ux * ux + uy * uy);//2.0;
         var ux = (ps.position3d[DRONE_PFRONT].x - ps.position3d[DRONE_PCENTER].x);
         var uy = (ps.position3d[DRONE_PFRONT].y - ps.position3d[DRONE_PCENTER].y);
-        var l = math.sqrt(ux * ux + uy * uy);//2.0;
+        var l = math.sqrt(ux * ux + uy * uy);
 
         ux = ux / l;
         uy = uy / l;
@@ -250,22 +272,76 @@ class System_DroneHandler extends EntityProcessingSystem {
         var forward = ctrl.forward * numbers.accf;
         var fx = ux * forward;
         var fy = uy * forward;
-        var turn = ctrl.turn * numbers.accl;// * numbers.angularv;
+        var turn = ctrl.turn * numbers.accl * 2.0;// * numbers.angularv;
         var tx = - uy * turn;
         var ty = ux * turn;
-        var accz = 10.0;
-        ps.acc[DRONE_PFRONT].setValues(fx + tx, fy + ty, (0.8 - ps.position3d[DRONE_PFRONT].z) * accz);
-        ps.acc[DRONE_PCENTER].setValues(fx, fy, (2.0 - ps.position3d[DRONE_PCENTER].z) * accz);
-        ps.acc[DRONE_PBACKL].setValues(fx - tx, fy - ty, (1.0 - ps.position3d[DRONE_PBACKL].z) * accz);
-        ps.acc[DRONE_PBACKR].setValues(fx - tx, fy - ty, (1.0 - ps.position3d[DRONE_PBACKR].z) * accz);
+
+        fs.actions[DRONE_PFRONT].force.setValues(fx+tx, fy+ty, 0.0);
+        fs.actions[DRONE_PCENTER].force.setValues(fx+tx*0.5 , fy+ty * 0.5, 0.0);
+//        if (ctrl.turn < 0) {
+//          fs.actions[DRONE_PBACKR].force.setValues(fx , fy , 0.0);
+//          fs.actions[DRONE_PBACKL].force.setValues(-fx , -fy , 0.0);
+//        } else if (ctrl.turn > 0) {
+//          fs.actions[DRONE_PBACKR].force.setValues(-fx , -fy , 0.0);
+//          fs.actions[DRONE_PBACKL].force.setValues(fx , fy , 0.0);
+//        } else {
+          fs.actions[DRONE_PBACKL].force.setValues(fx , fy , 0.0);
+          fs.actions[DRONE_PBACKR].force.setValues(fx , fy , 0.0);
+//        }
   //      var transform = _transformMapper.get(entity);
   //      if (transform != null) {
   //        transform.position3d.setFrom(ps.position3d[DRONE_PCENTER]);
   //      }
+      //}
       }
+        var v = new Vector3.zero();
+        for (var i = 0; i < ps.length; ++i) {
+          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
+          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
+          if (ps.collide[i] == -1) {
+            tcoll = 0.0;
+            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll}");
+            ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
+            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
+            //TODO add acceleration
+            //v.setFrom(segment)
+            //v.scale(ps.acc[i].dot(v))
+            //ps.acc[i].add(v);
+//            ps.acc[i].scale(-1.0);
+          }
+        }
+//        var accz = 50.0;
+//        ps.acc[DRONE_PFRONT].z += _attract1D(ps.position3d[DRONE_PFRONT].z, 0.8, accz);
+//        ps.acc[DRONE_PCENTER].z += _attract1D(ps.position3d[DRONE_PCENTER].z, 2.0, accz);
+//        ps.acc[DRONE_PBACKL].z += _attract1D(ps.position3d[DRONE_PBACKL].z, 1.0, accz);
+//        ps.acc[DRONE_PBACKR].z += _attract1D(ps.position3d[DRONE_PBACKR].z, 1.0, accz);
+
+//        // ground collision
+//        for (var i = 0; i < ps.length; ++i) {
+//          //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
+//          //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
+//          if (ps.position3d[i].z < 0.0) {
+//            tcoll = 0.0;
+//            print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ground");
+//            ps.position3d[i].z = 0.0;
+//            //ps.position3d[i].setFrom(ps.position3dPrevious[i]);
+//            //TODO add acceleration
+//            //v.setFrom(segment)
+//            //v.scale(ps.acc[i].dot(v))
+//            //ps.acc[i].add(v);
+//            ps.acc[i].z += 1.0;
+//          }
+//        }
     }
   }
 
+//  _attract1D(v, target, f) {
+//    var c = target-v;
+//    c = math.max(c * c, 1.0);
+//    if (v > target) return -f / c;
+//    if (v < target) return f / c;
+//    return 0.0;
+//  }
   void _crash(Entity entity) {
     EntityStateComponent.change(entity, State_CRASHING);
   }
@@ -308,6 +384,13 @@ class System_DroneHandler extends EntityProcessingSystem {
     numbers.energy = math.max(numbers.energy + emax / 2, emax).toInt();
     numbers.score = numbers.score + 1;
   }
+
+  void _bindKeyboardControl(){
+    document.onKeyUp.listen((KeyboardEvent e) {
+      if (_keysPrintDebugInfo.contains(e.keyCode)) _printDebug = true;
+    });
+  }
+
 }
 
 class System_DroneGenerator extends EntityProcessingSystem {

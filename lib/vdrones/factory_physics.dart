@@ -56,8 +56,9 @@ class Factory_Physics {
   Iterable<Component> newPolygones(Iterable<Polygone> shapes, groupIndex) {
     var collide = 1;
     var nbPoints = shapes.fold(0,(acc, x) => acc + x.points.length);
-    var ps = new Particles(nbPoints, radius0: 0.0, inertia0: 0, withCollides: true, collide0: collide);
-    var cs = new Constraints();
+    var ps = new Particles(nbPoints, radius0: 0.0, inertia0: 0, withCollides: true, collide0: collide, isSim0: false);
+    //var fs = new Forces();
+    var ss = new Segments();
 
     var p0 = 0;
     shapes.forEach((shape){
@@ -67,14 +68,15 @@ class Factory_Physics {
       }
       for(var j = 0; j < points.length; ++j) {
         // extern shape
-        cs.l.add(new Constraint_Distance(new Segment(ps, p0+j, p0 + ((j+1) % points.length), collide), 1.0));
+        ss.add(new Segment(ps, p0+j, p0 + ((j+1) % points.length), collide));
+        //fs.add(new Force_Spring(s, 10.0, 0.0));
         // TODO inner axes ? (need tessellation)
       }
       p0 += points.length;
     });
     ps.copyPosition3dIntoPrevious();
     ps.extradata = new ColliderInfo()..group = groupIndex;
-    return [ps, cs];
+    return [ps,ss];
   }
 
 //  Iterable<Component> newBoxes2d(List<double> rects, groupIndex) {
@@ -120,25 +122,68 @@ class Factory_Physics {
 
   Iterable<Component> newDrone() {
     var collide = 1;
-    var ps = new Particles(4, radius0: 0.0, withAccs:true, withCollides: true, collide0: collide, inertia0: 0.9, withColors: true, color0: 0xff0000ff);
+    var ps = new Particles(4, radius0: 0.0, withAccs:true, withCollides: true, collide0: collide, inertia0: 0.9, withColors: true, color0: 0xff0000ff, isSim0: true);
     ps.position3d[DRONE_PCENTER].setValues(0.0, 0.0, 2.0);
     ps.position3d[DRONE_PFRONT].setValues(3.0, 0.0, 0.8);
     ps.position3d[DRONE_PBACKR].setValues(-1.0, -1.0, 1.0);
     ps.position3d[DRONE_PBACKL].setValues(-1.0, 1.0, 1.0);
     ps.copyPosition3dIntoPrevious();
     ps.extradata = new ColliderInfo()..group = EntityTypes_DRONE;
-    var cs = new Constraints();
+    var ss = new Segments();
+    var fs = new Forces();
+    //propulsion accessible by fs.actions[DRONE_Pxxx].
+    for(var i=0; i < 4; i++) {
+      fs.actions.add(new Force_Constante(ps, i, new Vector3.zero()));
+    }
+    var stiffness = 100.0;
+    var damping = 0.2;
     // inner axes
     for(var i=1; i < 4; i++) {
-      cs.l.add(new Constraint_Distance(new Segment(ps, 0, i, 0), 1.0));
+      var s = new Segment(ps, 0, i, 0);
+      fs.add(new Force_Spring(s, stiffness, damping));
     }
     // extern shape
     for(var i=0; i < 3; i++) {
-      cs.l.add(new Constraint_Distance(new Segment(ps, 1+ i, 1 + ((i+1) % 3), collide), 1.0));
+      var s = ss.add(new Segment(ps, 1+ i, 1 + ((i+1) % 3), collide));
+      fs.add(new Force_Spring(s, stiffness, damping)..stiffnessRatioLonger = 20.0);
     }
-    return [ps, cs, new Collisions()];
+    // shape over floor
+    for(var i=0; i < 4; i++) {
+      fs.add(new Force_SpringZ(ps, i, 50.0, 0.0));
+    }
+    return [ps, ss, fs, new Collisions()];
   }
 
 }
 
+class Force_SpringZ extends Force{
+  final Particles ps;
+  final int i;
+  final reaction = false;
+  double stiffness;
+  double damping;
+  double _restZ;
 
+  Force_SpringZ(this.ps, this.i, this.stiffness, this.damping, [restZ = -1]) {
+    _restZ = (restZ < 0) ? ps.position3d[i].z : restZ;
+  }
+
+//  factory Force_Spring.fromParticles(ps, i1, i2, stiffness, damping, [collide = 0]) {
+//    return new Force_Spring(new Segment(ps, i1, i2, collide), stiffness, damping);
+//  }
+
+  apply() {
+    var a = ps.position3d[i];
+    var l = a.z;
+    var diff = ( _restZ - l);
+    if (diff == 0) return;
+    // spring force
+    //_fa.setFrom(segment.ps.acc[segment.i1]).add(segment.ps.acc[segment.i2]).scale(0.5);
+    //print(_fa.dot(_dir).abs());
+    var fs = stiffness * diff;
+    // spring damping force
+    var fd = ps.position3d[i].z - ps.position3dPrevious[i].z;
+    fd = damping * fd;
+    ps.acc[i].z += fs + fd;
+  }
+}

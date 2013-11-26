@@ -38,7 +38,7 @@ class Factory_Entities {
 
   var defaultDraw = proto2d.drawComponentType([
     new proto2d.DrawComponentType(Particles.CT, proto2d.particles(5.0, fillStyle : foregroundcolors[0], strokeStyle : foregroundcolors[1])),
-    new proto2d.DrawComponentType(Constraints.CT, proto2d.constraints(distanceStyleCollide : "#e20000"))
+    new proto2d.DrawComponentType(Segments.CT, proto2d.segments(distanceStyleCollide : "#e20000"))
   ]);
 
   Entity _newEntity(List<Component> cs, {String group, String player, List<String> groups}) {

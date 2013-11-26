@@ -124,7 +124,7 @@ class AreaReader4Svg {
       if (i == (l - 1)) {
         strokesV[i] = new Vector3.copy(strokesV[i - 1]);
       } else {
-        strokesV[i] = Math2.rot90V2(new Vector3.copy(points[i + 1]).sub(points[i])).normalize().scale(r);
+        strokesV[i] = Math2.VXY.rot90(new Vector3.copy(points[i + 1]).sub(points[i])).normalize().scale(r);
       }
     }
     // stroke of points (join stroke of frag)
