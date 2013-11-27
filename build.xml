@@ -5,6 +5,8 @@
   <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 -->
 	<property environment="env" />
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+
 	<fail message="ERROR: Please set environmental variable DART_SDK">
 		<condition>
 			<not>
@@ -36,9 +38,11 @@
 	</target>
 
 	<target name="set-version">
-		<replaceregexp file="pubspec.yaml" match="version: (\S*)" replace="version: 0.16.1"/>
-		<replaceregexp file="web/index.html" match="version: (\S*)" replace="version: 0.16.1"/>
-		<replaceregexp file="src/cfg/app.yaml" match="version: (\S*)" replace="version: 0-16-1"/>
+		<input message="version" addproperty="version"/>
+		<propertyregex property="versionB" input="${version}" regexp="." replace="-" global="true" />
+		<replaceregexp file="pubspec.yaml" match="version: (\S*)" replace="version: ${version}"/>
+		<replaceregexp file="web/index.html" match="version: (\S*)" replace="version: ${version}"/>
+		<replaceregexp file="src/cfg/app.yaml" match="version: (\S*)" replace="version: ${versionB}"/>
 	</target>
 
 	<target name="check" depends="-init">
@@ -137,10 +141,30 @@
 		<copy file="src/cfg/app.yaml" tofile="${target}/app.yaml"/>
 	</target>
 
-	<target name="deploy" depends="deploy0">
-		<exec executable="python2">
-			<arg line="$HOME/bin/soft-golang/google_appengine/appcfg.py update ${target}"/>
+	<target name="deploy" depends="deploy0, deploy-only"/>
+
+	<target name="deploy-only">
+		<input message="email ?" addproperty="email"/>
+		<input message="password ?" addproperty="pass"/>
+		<exec executable="python2" inputstring="${pass}">
+			<arg line="${user.home}/bin/soft/go_appengine/appcfg.py update --skip_sdk_update_check --email=${email} --passin ${target}"/>
 		</exec>
+	</target>
+
+	<target name="archives">
+		<input message="version" addproperty="version"/>
+		<propertyregex property="versionB" input="${version}" regexp="." replace="-" global="true" />
+		<property name="archdir" value="../vdrones-archives"/>
+		<mkdir dir="${archdir}/tmp"/>
+		<exec executable="python2">
+			<arg line="${user.home}/bin/soft/go_appengine/appcfg.py download_app --skip_sdk_update_check -A vdrones -V ${versionB} ${archdir}/tmp"/>
+		</exec>
+		<tar destfile="${archdir}/vdrones-${version}.tar" basedir="${archdir}/tmp"/>
+		<gzip destfile="${archdir}/vdrones-${version}.tar.gz" src="${archdir}/vdrones-${version}.tar"/>
+		<delete file="${archdir}/vdrones-${version}.tar"/>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${archdir}/tmp"/>
+		</delete>
 	</target>
 
   <!-- Find and delete empty folders under dir -->
