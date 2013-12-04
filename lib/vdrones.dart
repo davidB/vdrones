@@ -83,6 +83,10 @@ class VDrones {
     _gameLoop = new GameLoopHtml(el);
 
     _gl = _newRenderingContext(el.querySelectorAll("canvas")[0]);
+    if (_gl == null) {
+      _handleError("Failed to acquire 3D RenderingContext", null);
+      return;
+    }
 
     var bar = querySelector('#gameload');
     _assetManager = _newAssetManager(bar, _gl, audioManager);
