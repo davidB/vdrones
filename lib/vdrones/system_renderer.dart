@@ -53,6 +53,7 @@ class System_Render3D extends EntitySystem {
     _objCacheMapper = new ComponentMapper<RenderableCache>(RenderableCache, world);
     _groupManager = world.getManager(GroupManager) as GroupManager;
     _assets = _loadAssets();
+    _renderer.debugPrintFragShader = true;
     //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
     _renderer.nearLight = r.nearLight_SpotAt(new Vector3(50.0, 50.0, 10.0));
   }

@@ -123,7 +123,7 @@ class Factory_Entities {
     new proto2d.Drawable(defaultDraw),
     //new Transform.w2d(0.0, 0.0, 0.0),
     physicFact.newPolygones(x.shapes, EntityTypes_WALL),
-//    renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
+    renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
   ]);
 
   Entity newFloor() => _newEntity([
@@ -149,7 +149,8 @@ class Factory_Entities {
   Entity newMobileWall(MobileWall x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newPolygones(x.shapes, EntityTypes_WALL),
-//    renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
+    renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
+//    renderFact.newMobileWall(x.shapes, 4.0, x.color),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {

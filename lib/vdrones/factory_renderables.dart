@@ -47,62 +47,100 @@ class Factory_Renderables {
     ;
   }
 
-  RenderableDef newMobileWall(num dx, num dy, num dz, glf.ProgramContext ctx) {
-//    return new RenderableDef()
-//    ..onInsert = (gl, Entity entity) {
-//      var ps = entity.getComponent(Particles.CT) as Particles;
-//      var extrusion = new Vector3(0.0, 0.0, dz);
-//      var vertices = new Float32List(4 * 3);
-//      updateVertices() {
-//        for(var i = 0; i < 4; i++) {
-//          var v = ps.position3d[i + 1];
-//          vertices[i * 3 + 0] = v.x;
-//          vertices[i * 3 + 1] = v.y;
-//          vertices[i * 3 + 2] = v.z;
-//        }
-//      }
-//      updateVertices();
-//      var geometry = new Geometry()
-//      ..meshDef = _mdt.makeExtrude(vertices, extrusion)
-//      ..transforms.setIdentity()
-//      ;
-//
-//      //mw_setPositions(geometry.meshDef, ps.position3d[1], ps.position3d[2], ps.position3d[3], ps.position3d[4], dz);
-//      //mw_setPositions(geometry.meshDef, new Vector3(-dx, -dy, 0.0), new Vector3(-dx, dy, 0.0), new Vector3(dx, dy, 0.0), new Vector3(dx, -dy, 0.0), dz);
-//      return new Renderable()
-//      ..geometry = geometry
-//      ..material = (new Material()
-//        ..ctx = ctx
-//        ..transparent = true
-//        ..cfg = (ctx) {
-//          ctx.gl.uniform1f(ctx.getUniformLocation('_DissolveRatio'), 0.0);
-//          ctx.gl.uniform4f(ctx.getUniformLocation(glf.SFNAME_COLORS), 0.8, 0.1, 0.1, 0.7);
-//        }
-//      )
-//      ..prepare = (new glf.RequestRunOn()
-//        ..beforeAll = (gl) {
-//          // TODO optimize to reduce number of copy (position3d => Float32List => buffer)
-//          //updateVertices();
-//          //_mdt.extrudeInto(vertices, extrusion, geometry.meshDef);
-//          //geometry.verticesNeedUpdate = true;
+  var _mwCnt = 0;
+  RenderableDef newMobileWall(Iterable<Polygone> shapes, num dz, Vector4 color) {
+    _mwCnt++;
+    var utx = 'mwTx${_mwCnt}';
+          // TODO optimize to reduce number of copy (position3d => Float32List => buffer)
+          //updateVertices();
+          //_mdt.extrudeInto(vertices, extrusion, geometry.meshDef);
+          //geometry.verticesNeedUpdate = true;
 //          var vp0 = ps.position3d[1];
 //          var vm = geometry.meshDef.vertices;
 //          geometry..transforms.setTranslationRaw(vp0.x - vm[0], vp0.y - vm[1], vp0.z - vm[2]);
-//        }
-//      );
-//    };
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
-      return new r.ObjectInfo()
-      ..de = "sd_flatFloor(p)"
-      ..sd = r.sd_flatFloor(1.0)
-      ..mat = r.mat_chessboardXY0(1.0, new Vector4(0.9,0.0,0.5,1.0), new Vector4(0.2,0.2,0.8,1.0))
-      ..sh = """return shade0(mat_chessboardXY0(p), getNormal(o, p), o, p);"""
+      var ps = entity.getComponent(Particles.CT) as Particles;
+      var transform = new Matrix4.identity();
+      var obj = new r.ObjectInfo()
+        ..uniforms = 'uniform mat4 ${utx};'
+        ..de = "sd_box(opTx(p, ${utx}), vec3(1.0, 3.0, $dz))"
+        ..sh = """return shade0(vec4(${color.r}, ${color.g}, ${color.b}, ${color.a}), getNormal(o, p), o, p);"""
+        ..at = (ctx) {
+            glf.injectMatrix4(ctx, transform, utx);
+            transform.setIdentity();
+            //transform.setTranslation(-ps.position3d[0]);
+            //print("$shapes, $dz');
+        }
       ;
+      return new Renderable()..obj = obj;
     }
     ;
   }
+  ud_seg() {
+    return '''
+      float distance2(vec2 v, vec2 w) {
+        float x = w.x - v.x;
+        float y = w.y - v.y;
+        return x * x + y * y;
+      }
+      float ud_segXY(vec2 p, vec2 v, vec2 w) {
+        float l = distance2(v, w);
+        if (l < 0.001) return distance2(p, v);
+        float t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l;
+        if (t < 0.0) return distance2(p, v);
+        if (t > 1.0) return distance2(p, w);
+        return distance2(p, vec2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
+      }
+      
+      float ud_seg(vec3 p, vec2 v, vec2 w, float dz) {
+        return ud_segXY(p.xy, v, w);
+      }
+    ''';
+  }
 
+  var _pezCnt = 0;
+  RenderableDef newPolygonesExtrudesZ(Iterable<Polygone> shapes, num dz, glf.ProgramContext ctx, Vector4 color, {isMobile : false, includeFloor : false}) {
+    _pezCnt++;
+    var utx = 'pezTx${_pezCnt}';
+    var ud = 'ud_pez${_pezCnt}';
+    return new RenderableDef()
+    ..onInsert = (gl, Entity entity) {
+      //var ps = entity.getComponent(Particles.CT) as Particles;
+      //QUESTION use shapes or Segment from entity ??
+      var transform = new Matrix4.identity();
+      var ud_merge = '';
+      shapes.forEach((shape){
+        for(var i=0; i < shape.points.length; i++) {
+          var p0 = shape.points[i];
+          var p1 = shape.points[(i + 1) % shape.points.length];
+          ud_merge += 'd = min(d, ud_segXY(pxy, vec2(${p0.x}, ${p0.y}), vec2(${p1.x}, ${p1.y})));\n';
+        }
+      });
+      ud_merge = '''
+        float ${ud}(vec3 p){
+          vec2 pxy = p.xy;
+          float d = ${glf.SFNAME_FAR} * ${glf.SFNAME_FAR};
+          ${ud_merge}
+          float z = max(0.0, (p.z - $dz));
+          return sqrt(d + z * z);
+        }''';
+      var obj = new r.ObjectInfo()
+        ..uniforms = 'uniform mat4 ${utx};'
+        ..sds = [ud_seg(), ud_merge]
+        ..de = "${ud}(p)"
+        ..sh = """return shade0(vec4(${color.r}, ${color.g}, ${color.b}, ${color.a}), getNormal(o, p), o, p);"""
+        ..at = (ctx) {
+            glf.injectMatrix4(ctx, transform, utx);
+            transform.setIdentity();
+            //transform.setTranslation(-ps.position3d[0]);
+            //print("$shapes, $dz');
+        }
+      ;
+      return new Renderable()..obj = obj;
+    }
+    ;
+  }
 //  RenderableDef newPolygonesExtrudesZ(Iterable<Polygone> shapes, num dz, glf.ProgramContext ctx, Vector4 color, {isMobile : false, includeFloor : false}) {
 //    return new RenderableDef()
 //    ..onInsert = (gl, Entity entity) {
