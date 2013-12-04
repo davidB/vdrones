@@ -123,14 +123,18 @@ class Factory_Entities {
     new proto2d.Drawable(defaultDraw),
     //new Transform.w2d(0.0, 0.0, 0.0),
     physicFact.newPolygones(x.shapes, EntityTypes_WALL),
-    renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
+//    renderFact.newPolygonesExtrudesZ(x.shapes, 5.0, assetpack["wall_material"], x.color, includeFloor: true)
+  ]);
+
+  Entity newFloor() => _newEntity([
+    renderFact.newFloor()
   ]);
 
   Entity newGateIns(Iterable<GateIn> x, AssetPack assetpack) {
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
-      renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
+//      renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
       new Animatable(),
       new DroneGenerator(x, [0])
     ]);
@@ -139,13 +143,13 @@ class Factory_Entities {
   Entity newGateOuts(Iterable<GateOut> x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newCircles2d(x.map((x) => x.ellipse), 0.3, EntityTypes_GATEOUT),
-    renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
+//    renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
   ]);
 
   Entity newMobileWall(MobileWall x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newPolygones(x.shapes, EntityTypes_WALL),
-    renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
+//    renderFact.newPolygonesExtrudesZ(x.shapes, 4.0, assetpack["mwall_material"], x.color, isMobile: true),
     new Animatable()
       ..add(new Animation()
         ..onTick = (e, t, t0) {
@@ -199,22 +203,12 @@ class Factory_Entities {
     new AudioDef()..add(music)..isAudioListener = true
   ]);
 
-  Entity newLight(Vector3 pos, Vector3 lookAt) => _newEntity([
-    new Transform.w3d(pos).lookAt(lookAt),
-    renderFact.newLight()
-  ]);
-
-  Entity newAmbientLight(color) => _newEntity([
-    new Transform.w3d(new Vector3(0.0, 0.0, 10.0)),
-    renderFact.newAmbientLight(color)
-  ]);
-
-  List<Entity> newFullArea(AssetPack assetpack, timeout) {
+ List<Entity> newFullArea(AssetPack assetpack, timeout) {
     var areadef = assetpack['area'];
 
     var es = new List<Entity>();
     es.add(newCamera("${assetpack.name}.music", areadef.aabb3));
-    es.add(newAmbientLight(areadef.ambient));
+//    es.add(newAmbientLight(areadef.ambient));
 //    area["lights_spots"].forEach((i) {
 //      es.add(newLight(new Vector3(i[0]*cellr, i[1]*cellr, i[2]*cellr), new Vector3(i[3]*cellr, i[4]*cellr, i[5]*cellr)));
 //    });
@@ -222,6 +216,7 @@ class Factory_Entities {
     es.add(newChronometer(areadef.chronometer, timeout));
     es.add(newGateIns(areadef.gateIns, assetpack));
     es.add(newGateOuts(areadef.gateOuts, assetpack));
+    es.add(newFloor());
     es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
     es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
     es.addAll(areadef.cubeGenerators.map((x) => newCubeGenerator(x)));
@@ -295,42 +290,30 @@ class Factory_Entities {
 }
 
 
-Node makeHud(Document d){
-  // I tried a lot to read SVG as text and then create svfelement but without success
-  //(I also tried like https://github.com/IntersoftDev/dart-squid/blob/master/lib/svg_defs.dart)
-  // But the better it to read responseXml and not responseTxt
-  //return document.importNode(d.result.documentElement, true);
-//  var svgElement = new Element.tag('div');
-//  var svgElement = new svg.SvgElement.tag('svg');
-//  svgElement.innerHtml = d;
-//  var b = svgElement.nodes[0].clone(true);
-//  return b;
-  return d.documentElement.clone(true);
-}
 
-Future<String> _loadTxt(src) {
-  return HttpRequest.request(src, responseType : 'text').then((httpRequest) => httpRequest.responseText);
-}
-
-Future<Document> _loadXml(src) {
-  return HttpRequest.request(src, responseType : 'document').then((httpRequest) => httpRequest.responseXml);
-}
-
-
-Future<ImageElement> _loadImage(src) {
-  var completer = new Completer<ImageElement>();
-  ImageElement image = new ImageElement();
-  image.onLoad.listen(
-    (event) {
-      completer.complete(image);
-    },
-    onError : (err) {
-      completer.completeError(err.error, err.stackTrace);
-    }
-  );
-  image.src = src;
-  return completer.future;
-}
+//Future<String> _loadTxt(src) {
+//  return HttpRequest.request(src, responseType : 'text').then((httpRequest) => httpRequest.responseText);
+//}
+//
+//Future<Document> _loadXml(src) {
+//  return HttpRequest.request(src, responseType : 'document').then((httpRequest) => httpRequest.responseXml);
+//}
+//
+//
+//Future<ImageElement> _loadImage(src) {
+//  var completer = new Completer<ImageElement>();
+//  ImageElement image = new ImageElement();
+//  image.onLoad.listen(
+//    (event) {
+//      completer.complete(image);
+//    },
+//    onError : (err) {
+//      completer.completeError(err.error, err.stackTrace);
+//    }
+//  );
+//  image.src = src;
+//  return completer.future;
+//}
 
 var _randomSplitter = new math.Random();
 _newWallsSplitter0(int w, int h) {

@@ -29,6 +29,7 @@ import 'package:simple_audio/simple_audio_asset_pack.dart';
 import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
 import 'package:glf/glf_renderera.dart';
+import 'package:glf/glf_rendererr.dart' as r;
 import 'package:game_loop/game_loop_html.dart';
 import 'package:crypto/crypto.dart';
 import 'package:google_games_v1_api/games_v1_api_browser.dart' as gamesbrowser;
@@ -88,7 +89,7 @@ class VDrones {
     _preloadAssets();
 
     _textures = new glf.TextureUnitCache(_gl);
-    _entitiesFactory = new Factory_Entities(_world, _assetManager, new Factory_Physics(), new Factory_Renderables(new glf.MeshDefTools(), _textures));
+    _entitiesFactory = new Factory_Entities(_world, _assetManager, new Factory_Physics(), new Factory_Renderables(_textures));
     _setupWorld(el);
     _setupGameLoop(el);
 

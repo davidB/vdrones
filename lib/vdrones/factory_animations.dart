@@ -15,9 +15,8 @@ class Factory_Animations {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
         var r = e.getComponent(RenderableCache.CT) as RenderableCache;
-        if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
-        var transform = r.v.geometry.transforms;
-        r.v.geometry.normalMatrixNeedUpdate = true;
+        if (r == null || r.v == null || r.v.ext['transform'] == null) return false;
+        var transform = r.v.ext['transform'];
         var rot = (t % 4000.0)/2000.0 * math.PI;
         transform.setRotationX(rot);
         transform.rotateY(rot* 0.5);
@@ -42,9 +41,8 @@ class Factory_Animations {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
         var r = e.getComponent(RenderableCache.CT) as RenderableCache;
-        if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
-        var transform = r.v.geometry.transforms;
-        r.v.geometry.normalMatrixNeedUpdate = true;
+        if (r == null || r.v == null || r.v.ext['transform'] == null) return false;
+        var transform = r.v.ext['transform'];
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
         //transform.setIdentity();
@@ -63,9 +61,8 @@ class Factory_Animations {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
         var r = e.getComponent(RenderableCache.CT) as RenderableCache;
-        if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
-        var transform = r.v.geometry.transforms;
-        r.v.geometry.normalMatrixNeedUpdate = true;
+        if (r == null || r.v == null || r.v.ext['transform'] == null) return false;
+        var transform = r.v.ext['transform'];
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
         //transform.setIdentity();
@@ -95,9 +92,8 @@ class Factory_Animations {
     return new Animation()
       ..onTick = (Entity e, double t, double t0){
         var r = e.getComponent(RenderableCache.CT) as RenderableCache;
-        if (r == null || r.v == null || r.v.geometry.transforms == null) return false;
-        var transform = r.v.geometry.transforms;
-        r.v.geometry.normalMatrixNeedUpdate = true;
+        if (r == null || r.v == null || r.v.ext['transform'] == null) return false;
+        var transform = r.v.ext['transform'];
         var dt = math.min(300, t - t0);
         var ratio = dt/300;
         //transform.setIdentity();
