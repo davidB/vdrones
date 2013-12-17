@@ -3,7 +3,8 @@ part of vdrones;
 final vecZ = new Vector3(0.0, 0.0, 1.0);
 final vecY = new Vector3(0.0, 1.0, 0.0);
 
-var _keysForward = [ KeyCode.UP, KeyCode.DOWN, KeyCode.W, KeyCode.Z ];
+var _keysForward = [ KeyCode.UP, KeyCode.W, KeyCode.Z ];
+var _keysBackward = [ KeyCode.DOWN, KeyCode.S];
 var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
 var _keysTurnRight = [KeyCode.RIGHT, KeyCode.D];
 var _keysCameraMode = [KeyCode.M];
@@ -158,13 +159,14 @@ class System_DroneController extends EntityProcessingSystem {
   void _bindKeyboardControl(){
    _subDown = document.onKeyDown.listen((KeyboardEvent e) {
       if (_keysForward.contains(e.keyCode)) _state.forward = 1.0;
+      else if (_keysBackward.contains(e.keyCode)) _state.forward = -0.3;
       else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 1.0;
       else if (_keysTurnRight.contains(e.keyCode)) _state.turn = -1.0;
     });
     _subUp = document.onKeyUp.listen((KeyboardEvent e) {
       if (_keysForward.contains(e.keyCode)) _state.forward = 0.0;
+      else if (_keysBackward.contains(e.keyCode)) _state.forward = 0.0;
       else if (_keysTurnLeft.contains(e.keyCode)) _state.turn = 0.0;
-      else if (_keysTurnRight.contains(e.keyCode)) _state.turn = 0.0;
       else if (_keysTurnRight.contains(e.keyCode)) _state.turn = 0.0;
     });
   }
