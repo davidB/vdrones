@@ -265,8 +265,8 @@ class System_DroneHandler extends EntityProcessingSystem {
         var fx = ux * forward;
         var fy = uy * forward;
         var turn = ctrl.turn * numbers.accl * 2.0;// * numbers.angularv;
-        var tx = uy * turn;
-        var ty = - ux * turn;
+        var tx = - uy * turn;
+        var ty = ux * turn;
 
         fs.actions[DRONE_PFRONT].force.setValues(fx+tx, fy+ty, 0.0);
         fs.actions[DRONE_PCENTER].force.setValues(fx+tx*0.75 , fy+ty * 0.75, 0.0);
