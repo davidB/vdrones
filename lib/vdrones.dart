@@ -53,6 +53,7 @@ part 'vdrones/asset_loaders.dart';
 part 'vdrones/storage.dart';
 part 'vdrones/data_services.dart';
 
+var debugTexR0;
 
 class VDrones {
   //var _evt = new Evt();
@@ -93,6 +94,7 @@ class VDrones {
     _preloadAssets();
 
     _textures = new glf.TextureUnitCache(_gl);
+    debugTexR0 = new glf.RendererTexture(_gl);
     _entitiesFactory = new Factory_Entities(_world, _assetManager, new Factory_Physics(), new Factory_Renderables(_textures));
     _setupWorld(el);
     _setupGameLoop(el);
@@ -321,6 +323,7 @@ class VDrones {
     _gameLoop.onRender = (gameLoop){
       try {
         _renderSystem.process();
+        debugTexR0.run();
         _hudSystem.process();
         if (_proto2dSystem != null) _proto2dSystem.process();
       } catch(e, s) {
