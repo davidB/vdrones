@@ -53,9 +53,11 @@ class System_Render3D extends EntitySystem {
     _objCacheMapper = new ComponentMapper<RenderableCache>(RenderableCache, world);
     _groupManager = world.getManager(GroupManager) as GroupManager;
     _assets = _loadAssets();
-    _renderer.debugPrintFragShader = true;
+    _renderer.debugPrintFragShader = false;
     //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
-    _renderer.nearLight = r.nearLight_SpotAt(new Vector3(50.0, 50.0, 10.0));
+    _renderer.nearLight = r.nearLight_SpotAt(new Vector3(50.0, 50.0, 50.0));
+    _renderer.stepmax = 256;
+    _renderer.epsilon_de = 0.001;
   }
 
   bool checkProcessing() => _renderer.camera != null;

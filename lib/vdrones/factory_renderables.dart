@@ -38,8 +38,8 @@ class Factory_Renderables {
       return new Renderable()
       ..obj = (new r.ObjectInfo()
         ..de = "sd_flatFloor(p)"
-        ..sd = r.sd_flatFloor(0.0)
-        ..mat = r.mat_chessboardXY0(1.0, new Vector4(0.9,0.0,0.5,1.0), new Vector4(0.2,0.2,0.8,1.0))
+        ..sds = [r.sd_flatFloor(0.0)]
+        ..mats = [r.mat_chessboardXY0(1.0, new Vector4(0.9,0.0,0.5,1.0), new Vector4(0.2,0.2,0.8,1.0))]
         ..sh = """return shade0(mat_chessboardXY0(p), getNormal(o, p), o, p);"""
       )
       ;
@@ -77,66 +77,54 @@ class Factory_Renderables {
     }
     ;
   }
-  ud_seg() {
-    return '''
-      float distance2(vec2 v, vec2 w) {
-        float x = w.x - v.x;
-        float y = w.y - v.y;
-        return x * x + y * y;
-      }
-      float ud_segXY(vec2 p, vec2 v, vec2 w) {
-        float l = distance2(v, w);
-        if (l < 0.001) return distance2(p, v);
-        float t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l;
-        if (t < 0.0) return distance2(p, v);
-        if (t > 1.0) return distance2(p, w);
-        return distance2(p, vec2(v.x + t * (w.x - v.x), v.y + t * (w.y - v.y)));
-      }
-      
-      float ud_seg(vec3 p, vec2 v, vec2 w, float dz) {
-        return ud_segXY(p.xy, v, w);
-      }
-    ''';
-  }
 
   var _pezCnt = 0;
   RenderableDef newPolygonesExtrudesZ(Iterable<Polygone> shapes, num dz, glf.ProgramContext ctx, Vector4 color, {isMobile : false, includeFloor : false}) {
     _pezCnt++;
     var utx = 'pezTx${_pezCnt}';
+    var utex = 'pezTex${_pezCnt}';
     var ud = 'ud_pez${_pezCnt}';
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
       //var ps = entity.getComponent(Particles.CT) as Particles;
-      //QUESTION use shapes or Segment from entity ??
+      //QUESTION use shapes or segment from entity ??
       var transform = new Matrix4.identity();
+      var aabb = new Aabb3();
+      shapes.forEach((shape){
+        Math2.updateAabbPoly(shape.points, aabb);
+      });
       var ud_merge = '';
       shapes.forEach((shape){
+        ud_merge += 'dshape = -10000.0;\n';
         for(var i=0; i < shape.points.length; i++) {
           var p0 = shape.points[i];
           var p1 = shape.points[(i + 1) % shape.points.length];
-          ud_merge += 'd = min(d, ud_segXY(pxy, vec2(${p0.x}, ${p0.y}), vec2(${p1.x}, ${p1.y})));\n';
+          ud_merge += 'dshape = max(dshape, sd_lineXY(pxy, vec2(${p0.x}, ${p0.y}), vec2(${p1.x}, ${p1.y})));\n';
         }
+        ud_merge += 'd = min(d, dshape);\n';
       });
       ud_merge = '''
         float ${ud}(vec3 p){
           vec2 pxy = p.xy;
           float d = ${glf.SFNAME_FAR} * ${glf.SFNAME_FAR};
+          float dshape;
           ${ud_merge}
-          float z = max(0.0, (p.z - $dz));
-          return sqrt(d + z * z);
+          return d;
         }''';
+      var sds = [];
+      r.sd_lineXY(sds);
+      sds.add(ud_merge);
       var obj = new r.ObjectInfo()
-        ..uniforms = 'uniform mat4 ${utx};'
-        ..sds = [ud_seg(), ud_merge]
-        ..de = "${ud}(p)"
-        ..sh = """return shade0(vec4(${color.r}, ${color.g}, ${color.b}, ${color.a}), getNormal(o, p), o, p);"""
-        ..at = (ctx) {
-            glf.injectMatrix4(ctx, transform, utx);
-            transform.setIdentity();
-            //transform.setTranslation(-ps.position3d[0]);
-            //print("$shapes, $dz');
-        }
-      ;
+      ..uniforms = 'uniform mat4 ${utx};'
+      ..sds = sds
+      ..de = "${ud}(p)"
+      ..at = (ctx) {
+          glf.injectMatrix4(ctx, transform, utx);
+          transform.setIdentity();
+          //transform.setTranslation(-ps.position3d[0]);
+      };
+      var unit = math.max(aabb.max.x - aabb.min.x, aabb.max.y - aabb.min.y);
+      obj = r.makeExtrudeZinTex(gl, _textures, utex, aabb.center, 10.0, unit, [obj], color: color);
       return new Renderable()..obj = obj;
     }
     ;
@@ -253,27 +241,29 @@ class Factory_Renderables {
       uniform vec3 drone1, drone2, drone3, drone4;
       """
       ..de = "sd_drone(p, drone1, drone2, drone3, drone4)"
-      ..sd = """
-      float thalfspace(vec3 p, vec3 a1, vec3 a2, vec3 a3) {
-        vec3 c = vec3(a1);
-        c = c + (a2 - c) * 0.5;
-        c = c + (a3 - c) * 0.5;
-        
-        //vec3 c = (a1 + a2 + a3) * TIER;
-        vec3 n = -normalize(cross(a2 - a1, a3 - a1));
-        float b = length(a1 - c);
-        return max(0.0, dot(p-a1, n));
-      }
-        
-      float sd_drone(vec3 p, vec3 a1, vec3 a2, vec3 a3, vec3 a4){
-        float d = 0.0;
-        d = max(thalfspace(p, a1, a3, a2),d);
-        d = max(thalfspace(p, a1, a2, a4),d);
-        d = max(thalfspace(p, a4, a2, a3),d);
-        d = max(thalfspace(p, a1, a4, a3),d);
-        return d;
-      }
-      """
+      ..sds = ["""
+float thalfspace(vec3 p, vec3 a1, vec3 a2, vec3 a3) {
+  vec3 c = vec3(a1);
+  c = c + (a2 - c) * 0.5;
+  c = c + (a3 - c) * 0.5;
+
+  //vec3 c = (a1 + a2 + a3) * TIER;
+  vec3 n = -normalize(cross(a2 - a1, a3 - a1));
+  float b = length(a1 - c);
+  return max(0.0, dot(p-a1, n));
+}
+""",
+"""
+float sd_drone(vec3 p, vec3 a1, vec3 a2, vec3 a3, vec3 a4){
+  float d = 0.0;
+  d = max(thalfspace(p, a1, a3, a2),d);
+  d = max(thalfspace(p, a1, a2, a4),d);
+  d = max(thalfspace(p, a4, a2, a3),d);
+  d = max(thalfspace(p, a1, a4, a3),d);
+  return d;
+}
+"""
+]
       ..sh = """return shadeUniformBasic(vec4(0.5, 0.0, 0.0, 1.0), o, p);"""
       ..at = (ctx){
         ctx.gl.uniform3fv(ctx.getUniformLocation("drone1"), ps.position3d[DRONE_PCENTER].storage);
