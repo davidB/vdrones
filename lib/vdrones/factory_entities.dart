@@ -16,6 +16,7 @@ const State_EXITING = 4;
 const State_WAITING = 5;
 const State_GRABBING = 6;
 const State_RUNNING = 10;
+const State_HIDDEN = 20;
 
 var foregroundcolor = 0xe3e3f8ff;
 var foregroundcolors = hsl_tetrad(irgba_hsl(foregroundcolor)).map((hsl) => irgba_rgbaString(hsl_irgba(hsl))).toList();
@@ -23,12 +24,13 @@ var foregroundcolorsM = hsv_monochromatic(irgba_hsv(foregroundcolor), 4).map((hs
 
 
 class Factory_Entities {
+  static final _random = new math.Random();
+
   final Factory_Physics physicFact;
   final Factory_Renderables renderFact;
 
   World _world;
   AssetManager _assetManager;
-
   Factory_Entities(
     this._world,
     this._assetManager,
@@ -71,34 +73,65 @@ class Factory_Entities {
     a.addAll(l);
   });
 
-  Entity newCube() => _newEntity([
+  Entity newCube(CubeGen x) => _newEntity([
     new proto2d.Drawable(defaultDraw),
     physicFact.newCube(),
-    renderFact.newCube(_assetManager['0.cube_material']),
+    renderFact.newCube(),
+    new Orientation(),
     new Attraction(),
     new Animatable(),
-    new EntityStateComponent(State_CREATING, _cubeStates())
+    new CubesZone(x.subZones),
+    new EntityStateComponent(State_HIDDEN, _cubeStates())
   ]);
 
   _cubeStates(){
+    _move(Entity e, double x, double y, double z) {
+//      var tf = new Matrix4.identity();
+//      tf.translate(x, y, z);
+      var ps = e.getComponent(Particles.CT) as Particles;
+      ps.position3d[0].setValues(x, y, z);
+      ps.copyPosition3dIntoPrevious();
+    }
+
+    Vector2 _nextPosition(CubesZone gen) {
+      gen.subZoneOffset = (gen.subZoneOffset + 1) % gen.subZones.length;
+      var subZone = gen.subZones[gen.subZoneOffset];
+      var v0 = subZone.points[0];
+      var r0 = _random.nextDouble();
+      var p0 = new Vector3.copy(subZone.points[1]).sub(v0).scale(r0).add(v0);
+      var v2 = subZone.points[2];
+      var p2 = new Vector3.copy(subZone.points[3]).sub(v2).scale(r0).add(v2);
+      p2.sub(p0).scale(_random.nextDouble()).add(p0);
+      var out = new Vector2(p2.x, p2.y);
+      //print("$out , ${subZone.points[0]}, ${subZone.points[1]}, ${subZone.points[2]}, ${subZone.points[3]}");
+      return out;
+    }
+
     return new Map<int, EntityState>()
       ..[State_CREATING] = (new EntityState()
         ..modifiers.add(setAnimations([
           Factory_Animations.newScaleIn()
-            ..onEnd = ((e,t, t0) => EntityStateComponent.change(e, State_WAITING))
+          ..onEnd = ((e,t,t0) => EntityStateComponent.change(e, State_WAITING))
         ]))
+        ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
+          a.extradata = new ColliderInfo()
+          ..group = EntityTypes_ITEM
+          ..e = e
+          ;
+          a.collide[0] = 1;
+       }))
       )
       ..[State_WAITING] = (new EntityState()
         ..modifiers.add(setAnimations([
           Factory_Animations.newRotateXYEndless(),
           Factory_Animations.newDelay(5 * 1000)
-            ..onEnd = (e,t, t0) => EntityStateComponent.change(e, State_EXITING)
+          ..onEnd = (e,t,t0) => EntityStateComponent.change(e, State_EXITING)
         ]))
       )
      ..[State_EXITING] = (new EntityState()
        ..modifiers.add(setAnimations([
          Factory_Animations.newScaleOut()
-         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+         ..onEnd = (e,t,t0) => EntityStateComponent.change(e, State_HIDDEN)
        ]))
      )
      ..[State_GRABBING] = (new EntityState()
@@ -108,16 +141,30 @@ class Factory_Entities {
        }))
        ..modifiers.add(setAnimations([
          Factory_Animations.newCubeAttraction()
-         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+         ..onEnd = (e,t,t0) => EntityStateComponent.change(e, State_HIDDEN)
+       ]))
+     )
+     ..[State_HIDDEN] = (new EntityState()
+//       ..onEnter = (e){
+//         print("hidden : ${e.id}");
+//       }
+       ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
+         a.extradata = null; // no more collisions
+         a.collide[0] = 0;
+         a.position3d[0].z = -10000.0;
+         a.position3dPrevious[0].z = -10000.0;
+       }))
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newDelay(200)
+         ..onEnd = ((e,t,t0){
+           var p = _nextPosition(e.getComponent(CubesZone.CT));
+           _move(e, p.x, p.y, 1.0);
+           EntityStateComponent.change(e, State_CREATING);
+         })
        ]))
      )
      ;
   }
-
-  Entity newCubeGenerator(CubeGen x) => _newEntity([
-    new CubeGenerator(x.subZones),
-    new Animatable()
-  ]);
 
   Entity newStaticWalls(StaticWall x, AssetPack assetpack) => _newEntity([
     new proto2d.Drawable(defaultDraw),
@@ -131,10 +178,12 @@ class Factory_Entities {
   ]);
 
   Entity newGateIns(Iterable<GateIn> x, AssetPack assetpack) {
+    var e = x.first.ellipse;
     return  _newEntity([
       new Transform.w3d(new Vector3(0.0, 0.0, 0.2)),
       //TODO use an animated texture (like wave, http://glsl.heroku.com/e#6603.0)
 //      renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_in_material'],_assetManager['0.gate_in_map']),
+      renderFact.newCylindersZ(x.map((x) => x.ellipse), 0.2, new Vector4(0.0, 0.0, 0.5, 1.0)),
       new Animatable(),
       new DroneGenerator(x, [0])
     ]);
@@ -144,6 +193,7 @@ class Factory_Entities {
     new proto2d.Drawable(defaultDraw),
     physicFact.newCircles2d(x.map((x) => x.ellipse), 0.3, EntityTypes_GATEOUT),
 //    renderFact.newEllipses3d(x.map((x) => x.ellipse), _assetManager['0.gate_out_material'],_assetManager['0.gate_out_map'])
+    renderFact.newCylindersZ(x.map((x) => x.ellipse), 0.2, new Vector4(0.0, 0.5, 0.0, 1.0)),
   ]);
 
   Entity newMobileWall(MobileWall x, AssetPack assetpack) => _newEntity([
@@ -220,7 +270,7 @@ class Factory_Entities {
     es.add(newFloor());
     es.addAll(areadef.staticWalls.map((x) => newStaticWalls(x, assetpack)));
     es.addAll(areadef.mobileWalls.map((x) => newMobileWall(x, assetpack)));
-    es.addAll(areadef.cubeGenerators.map((x) => newCubeGenerator(x)));
+    es.addAll(areadef.cubeGenerators.map((x) => newCube(x)));
 //    print("DEBUG: areadef.mobileWalls : ${areadef.mobileWalls.length}");
 //    print("DEBUG: nb entities for area : ${es.length}");
     return es;

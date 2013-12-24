@@ -26,21 +26,27 @@ class Generated extends Component {
   Generated(this.generator);
 }
 
-class CubeGenerator extends Component {
+class CubesZone extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(CubesZone);
   List<Polygone> subZones;
   int subZoneOffset = 0;
-  int nb = 1;
 
-  CubeGenerator(subZones0) : subZones = subZones0.toList(growable:false);
+  CubesZone(subZones0) : subZones = subZones0.toList(growable:false);
 }
 
 class Attraction extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Attraction);
   Vector3 attractor;
 }
+
 class Dissolvable extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Dissolvable);
   double ratio;
+}
+
+class Orientation extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(Orientation);
+  Quaternion q;
 }
 
 class DroneGenerator extends Component {

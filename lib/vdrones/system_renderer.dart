@@ -55,7 +55,7 @@ class System_Render3D extends EntitySystem {
     _assets = _loadAssets();
     _renderer.debugPrintFragShader = false;
     //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
-    _renderer.nearLight = r.nearLight_SpotAt(new Vector3(50.0, 50.0, 50.0));
+    _renderer.lightSegment = r.lightSegment_spotAt(new Vector3(50.0, 50.0, 50.0));
     _renderer.stepmax = 256;
     _renderer.epsilon_de = 0.001;
   }

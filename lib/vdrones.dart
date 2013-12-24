@@ -7,7 +7,6 @@ import 'dart:html';
 import 'dart:svg' as svg;
 import 'dart:collection';
 import 'dart:web_gl' as WebGL;
-import 'dart:typed_data';
 import 'package:fixnum/fixnum.dart';
 import 'package:lawndart/lawndart.dart';
 import 'package:dartemis/dartemis.dart';
@@ -28,7 +27,6 @@ import 'package:asset_pack/asset_pack.dart';
 import 'package:simple_audio/simple_audio_asset_pack.dart';
 import 'package:glf/glf.dart' as glf;
 import 'package:glf/glf_asset_pack.dart';
-import 'package:glf/glf_renderera.dart';
 import 'package:glf/glf_rendererr.dart' as r;
 import 'package:game_loop/game_loop_html.dart';
 import 'package:crypto/crypto.dart';
@@ -235,7 +233,6 @@ class VDrones {
     _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
     _world.addSystem(new System_DroneHandler(_entitiesFactory, this));
-    _world.addSystem(new System_CubeGenerator(_entitiesFactory));
     _world.addSystem(new System_EntityState());
     _world.addSystem(new System_Animator());
 
