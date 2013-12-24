@@ -234,6 +234,7 @@ class System_DroneHandler extends EntityProcessingSystem {
         print("DEBUG: vdrone position3dPrevious ${ps.position3dPrevious}");
         print("DEBUG: vdrone position3d ${ps.position3d}");
       }
+      if (fs == null) return; //HACK
       if (stop) {
         //TODO find a better impluse formula
         for (var i = 0; i < ps.length; ++i) {
