@@ -1,12 +1,12 @@
 library screens;
 
 import 'dart:html';
-import 'package:simple_audio/simple_audio.dart';
-import 'package:intl/intl.dart';
-import 'events.dart';
-import 'effects.dart';
 import 'dart:js';
 import 'dart:convert';
+import 'package:simple_audio/simple_audio.dart';
+import 'package:intl/intl.dart';
+import 'package:html_toolbox/effects.dart';
+import 'events.dart';
 
 class UiAudioVolume {
   Element _element;

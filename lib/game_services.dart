@@ -8,7 +8,7 @@ import 'package:google_games_v1_api/games_v1_api_client.dart' as gamesclient;
 import 'package:html_toolbox/html_toolbox.dart';
 import 'package:intl/intl.dart';
 
-import 'effects.dart';
+import 'package:html_toolbox/effects.dart';
 
 import 'cfg.dart' as cfg;
 

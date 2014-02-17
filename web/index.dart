@@ -2,10 +2,10 @@ import 'dart:html';
 import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:vdrones/vdrones.dart' as vdrones;
-import 'package:vdrones/effects.dart';
 //import 'package:web_ui/web_ui.dart';
 import 'package:vdrones/auth.dart';
 import 'package:html_toolbox/html_toolbox.dart';
+import 'package:html_toolbox/effects.dart';
 import 'package:vdrones/html_tools.dart';
 import 'package:vdrones/game_services.dart';
 import 'package:vdrones/screens.dart';
@@ -141,7 +141,7 @@ void _showScreen(id){
   _currentScreenId = id;
   var currentScreenTransition = _findTransition(_currentScreenId);
   _preShowScreen(id);
-  Swapper.swap(document.querySelector('#layers'), document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
+  Swapper.swap(document.querySelector('#layers').children, document.querySelector('#$id'), effect: currentScreenTransition, duration : 1000, effectTiming: EffectTiming.ease, hideEffect: previousScreenTransition);
 }
 
 var _currentScreenId = '';

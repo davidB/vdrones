@@ -1,7 +1,7 @@
 library html_tools;
 
 import 'dart:html';
-import 'effects.dart';
+import 'package:html_toolbox/effects.dart';
 
 
 /**
