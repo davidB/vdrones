@@ -1,0 +1,26 @@
+{
+   "area":{
+      "url":"map0.svg",
+      "type":"area_svg"
+   },
+   "hud":{
+      "url":"../_images/gui.svg",
+      "type":"svg"
+   },
+   "gate_in":{
+      "url":"../_images/gate_in.png",
+      "type":"img"
+   },
+   "gate_out":{
+      "url":"../_images/gate_out.png",
+      "type":"img"
+   },
+   "music":{
+       "url":"../_songs/chris01.ogg",
+       "type": "audioclip"
+   },
+   "wall_material": {
+     "url": "../_packs/0/mat0",
+     "type": "shaderProgram"
+   }
+}

@@ -50,6 +50,7 @@ part 'vdrones/areadef.dart';
 part 'vdrones/asset_loaders.dart';
 part 'vdrones/storage.dart';
 part 'vdrones/data_services.dart';
+part 'progress_controler.dart';
 
 var debugTexR0;
 
@@ -71,6 +72,7 @@ class VDrones {
   var _gl;
   var _gameLoop;
   var _runReport;
+  var _progressCtrl;
 
   Element el;
   var audioManager;
@@ -87,8 +89,8 @@ class VDrones {
       return;
     }
 
-    var bar = querySelector('#gameload');
-    _assetManager = _newAssetManager(bar, _gl, audioManager);
+    _progressCtrl = new ProgressControler(querySelector('#gameload'));
+    _assetManager = _newAssetManager(_progressCtrl, _gl, audioManager);
     _preloadAssets();
 
     _textures = new glf.TextureUnitCache(_gl);
@@ -154,10 +156,7 @@ class VDrones {
     _updateStatus(IGStatus.PLAYING);
     //TODO spawn drone
     //TODO start area (=> start chronometer)
-    var es = _entitiesFactory.newFullArea(_areaPack, (e,t,t0){ _stop(false, 0); });
-    es.forEach((e){
-      e.addToWorld();
-    });
+
 
     var n = _now();
     _runReport = new RunReport()
@@ -196,12 +195,22 @@ class VDrones {
     if (_status == IGStatus.INITIALIZING) {
       return new Future.error("already initializing an area");
     }
+    _progressCtrl.start(3);
     _updateStatus(IGStatus.INITIALIZING);
-    _hudSystem.reset();
     _world.deleteAllEntities();
     //_newWorld();
+
     return _loadArea(areaReq).then((pack){
+      var es = _entitiesFactory.newFullArea(pack, (e,t,t0){ _stop(false, 0); });
+      es.forEach((e) => e.addToWorld());
+      var drone = _entitiesFactory.newDrone(_player);
+      drone.addToWorld();
+      _world.processEntityChanges();
       _areaPack = pack;
+      _renderSystem.reset();
+      _hudSystem.reset();
+      _progressCtrl.end(3);
+      print("end initialize");
       _updateStatus(IGStatus.INITIALIZED);
       return _areaPack;
     });
@@ -230,9 +239,9 @@ class VDrones {
     //var collSpace = new collisions.Space_QuadtreeXY(new collisions.Checker_MvtAsPoly4(), new _EntityContactListener(new ComponentMapper<Collisions>(Collisions,_world)), grid : new collisions.QuadTreeXYAabb(-10.0, -10.0, 220.0, 220.0, 5));
     _world.addManager(new PlayerManager());
     _world.addManager(new GroupManager());
-    _world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
+    //_world.addSystem(new System_DroneGenerator(_entitiesFactory, _player));
     _world.addSystem(new System_DroneController());
-    _world.addSystem(new System_DroneHandler(_entitiesFactory, this));
+    _world.addSystem(new System_DroneHandler(this));
     _world.addSystem(new System_EntityState());
     _world.addSystem(new System_Animator());
 
@@ -257,11 +266,11 @@ class VDrones {
       _proto2dSystem = new proto2d.System_Renderer(canvases[1])
       ..scale = 2.0
       ..translateX = 10
-      ..translateY = 500
+      ..translateY = 100
       ;
       _world.addSystem(_proto2dSystem, passive:true);
     }
-    if (audioManager != null) _world.addSystem(new System_Audio(audioManager, clipProvider : (x) => _assetManager[x], handleError: _handleError), passive : false);
+    //if (audioManager != null) _world.addSystem(new System_Audio(audioManager, clipProvider : (x) => _assetManager[x], handleError: _handleError), passive : false);
     _world.addSystem(_hudSystem, passive: true);
     _world.initialize();
   }
@@ -275,10 +284,10 @@ class VDrones {
   }
 
   // TODO add notification of errors
-  static AssetManager _newAssetManager(Element bar, gl, audioManager) {
+  static AssetManager _newAssetManager(ProgressControler progressCtrl, gl, audioManager) {
     var tracer = new AssetPackTrace();
     var stream = tracer.asStream().asBroadcastStream();
-    new ProgressControler(bar).bind(stream);
+    progressCtrl.bind(stream);
     new EventsPrintControler().bind(stream);
 
     var b = new AssetManager(tracer);
