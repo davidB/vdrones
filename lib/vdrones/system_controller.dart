@@ -49,7 +49,7 @@ class System_CameraFollower extends EntityProcessingSystem {
     return _targetUpdated;
   }
 
-  void processEntities(ReadOnlyBag<Entity> entities) => entities.forEach((entity) => processEntity(entity));
+  void processEntities(Iterable<Entity> entities) => entities.forEach((entity) => processEntity(entity));
 
   void processEntity(Entity entity) {
     var follower = _followerMapper.get(entity);
@@ -180,13 +180,11 @@ class System_DroneHandler extends EntityProcessingSystem {
   ComponentMapper<Collisions> _collisionsMapper;
   ComponentMapper<EntityStateComponent> _statesMapper;
   ComponentMapper<Generated> _genMapper;
-  ComponentMapper<DroneGenerator> _droneGenMapper;
   ComponentMapper<DroneNumbers> _droneNumbersMapper;
-  Factory_Entities _efactory;
   VDrones _game;
   var _printDebug = false;
 
-  System_DroneHandler(this._efactory, this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, Particles/*PhysicMotion, PhysicCollisions*/, EntityStateComponent]));
+  System_DroneHandler(this._game) : super(Aspect.getAspectForAllOf([DroneControl, DroneNumbers, Particles/*PhysicMotion, PhysicCollisions*/, EntityStateComponent]));
 
   void initialize(){
     _droneControlMapper = new ComponentMapper<DroneControl>(DroneControl, world);
@@ -207,6 +205,7 @@ class System_DroneHandler extends EntityProcessingSystem {
     collisions.colliders.iterateAndUpdate((collider){
       switch(collider.group) {
         case EntityTypes_WALL :
+          print("DEBUG: frame #${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : hit wall");
           if (numbers.hitLastTime < 1) {
             numbers.hit += 34;
             numbers.hitLastTime = 75;
@@ -241,7 +240,7 @@ class System_DroneHandler extends EntityProcessingSystem {
           //v.setFrom(ps.position3dPrevious[i]).sub(ps.position3d[i]).scale(3.0);
           //ps.position3dPrevious[i].setFrom(ps.position3d[i]);
           if (ps.collide[i] == -1) {
-            tcoll = 0.0;
+            //tcoll = 0.0;
             //print("collision : ${_game._gameLoop.frame} ${_game._gameLoop.frameTime} : ${i} ${tcoll} ${ps.position3d[i]}");
             //ps.position3d[i].sub(ps.position3dPrevious[i]).scale(tcoll).add(ps.position3dPrevious[i]);
             ps.position3d[i].setFrom(ps.position3dPrevious[i]);
@@ -290,6 +289,7 @@ class System_DroneHandler extends EntityProcessingSystem {
 //    return 0.0;
 //  }
   void _crash(Entity entity) {
+    print("DEBUG: crash entity");
     EntityStateComponent.change(entity, State_CRASHING);
   }
 
@@ -327,9 +327,11 @@ class System_DroneHandler extends EntityProcessingSystem {
     }
 
     var numbers = _droneNumbersMapper.get(drone);
-    var emax = numbers.energyMax;
-    numbers.energy = math.max(numbers.energy + emax / 2, emax).toInt();
-    numbers.score = numbers.score + 1;
+    if (numbers != null) {
+      var emax = numbers.energyMax;
+      numbers.energy = math.max(numbers.energy + emax / 2, emax).toInt();
+      numbers.score = numbers.score + 1;
+    }
   }
 
   void _bindKeyboardControl(){
@@ -340,64 +342,64 @@ class System_DroneHandler extends EntityProcessingSystem {
 
 }
 
-class System_DroneGenerator extends EntityProcessingSystem {
-  ComponentMapper<DroneGenerator> _droneGeneratorMapper;
-  ComponentMapper<Generated> _genMapper;
-  ComponentMapper<Animatable> _animatableMapper;
-  ComponentMapper<DroneNumbers> _droneNumbersMapper;
-  Factory_Entities _efactory;
-  String _player;
-
-  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Animatable]));
-
-  void initialize(){
-    _droneGeneratorMapper = new ComponentMapper<DroneGenerator>(DroneGenerator, world);
-    _genMapper = new ComponentMapper<Generated>(Generated, world);
-    _animatableMapper = new ComponentMapper<Animatable>(Animatable, world);
-    _droneNumbersMapper = new ComponentMapper<DroneNumbers>(DroneNumbers, world);
-  }
-
-  void processEntity(Entity entity) {
-    var gen = _droneGeneratorMapper.get(entity);
-    gen.scores.removeWhere((score) {
-      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.gateIns.length) : gen.nextPointsIdx % gen.gateIns.length;
-      var p = gen.gateIns[pointsIdx].ellipse.position;
-      var e = _efactory.newDrone(_player);
-      _move(e, p.x, p.y, p.z + 0.5);
-      e.addComponent(new Generated(entity));
-      var numbers = _droneNumbersMapper.get(e);
-      numbers.score = score;
-      numbers.hit = 0;
-      world.addEntity(e);
-      return true;
-    });
-  }
-
-  _move(Entity e, double x, double y, double z) {
-    var tf = new Matrix4.identity();
-    tf.translate(x, y, z);
-    var ps = e.getComponent(Particles.CT) as Particles;
-    ps.position3d.forEach((p) => tf.transform3(p));
-    ps.copyPosition3dIntoPrevious();
-  }
-
-  void deleted(Entity e) {
-    super.deleted(e);
-    var g0 = _genMapper.getSafe(e);
-    if (g0 != null) {
-      var egenerator = g0.generator;
-      var generator = _droneGeneratorMapper.getSafe(egenerator);
-      if (generator != null) {
-        var score = _droneNumbersMapper.get(e).score;
-        var a = _animatableMapper.get(egenerator).l.add(Factory_Animations.newDelay(900)
-          ..onEnd = (e0,t,t0) {
-            generator.scores.add(score);
-            return true;
-          }
-        );
-      }
-    }
-  }
-}
+//class System_DroneGenerator extends EntityProcessingSystem {
+//  ComponentMapper<DroneGenerator> _droneGeneratorMapper;
+//  ComponentMapper<Generated> _genMapper;
+//  ComponentMapper<Animatable> _animatableMapper;
+//  ComponentMapper<DroneNumbers> _droneNumbersMapper;
+//  Factory_Entities _efactory;
+//  String _player;
+//
+//  System_DroneGenerator(this._efactory, this._player) : super(Aspect.getAspectForAllOf([DroneGenerator, Animatable]));
+//
+//  void initialize(){
+//    _droneGeneratorMapper = new ComponentMapper<DroneGenerator>(DroneGenerator, world);
+//    _genMapper = new ComponentMapper<Generated>(Generated, world);
+//    _animatableMapper = new ComponentMapper<Animatable>(Animatable, world);
+//    _droneNumbersMapper = new ComponentMapper<DroneNumbers>(DroneNumbers, world);
+//  }
+//
+//  void processEntity(Entity entity) {
+//    var gen = _droneGeneratorMapper.get(entity);
+//    gen.scores.removeWhere((score) {
+//      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.gateIns.length) : gen.nextPointsIdx % gen.gateIns.length;
+//      var p = gen.gateIns[pointsIdx].ellipse.position;
+//      var e = _efactory.newDrone(_player);
+//      _move(e, p.x, p.y, p.z + 0.5);
+//      e.addComponent(new Generated(entity));
+//      var numbers = _droneNumbersMapper.get(e);
+//      numbers.score = score;
+//      numbers.hit = 0;
+//      world.addEntity(e);
+//      return true;
+//    });
+//  }
+//
+//  _move(Entity e, double x, double y, double z) {
+//    var tf = new Matrix4.identity();
+//    tf.translate(x, y, z);
+//    var ps = e.getComponent(Particles.CT) as Particles;
+//    ps.position3d.forEach((p) => tf.transform3(p));
+//    ps.copyPosition3dIntoPrevious();
+//  }
+//
+//  void deleted(Entity e) {
+//    super.deleted(e);
+//    var g0 = _genMapper.getSafe(e);
+//    if (g0 != null) {
+//      var egenerator = g0.generator;
+//      var generator = _droneGeneratorMapper.getSafe(egenerator);
+//      if (generator != null) {
+//        var score = _droneNumbersMapper.get(e).score;
+//        var a = _animatableMapper.get(egenerator).l.add(Factory_Animations.newDelay(900)
+//          ..onEnd = (e0,t,t0) {
+//            generator.scores.add(score);
+//            return true;
+//          }
+//        );
+//      }
+//    }
+//  }
+//}
 
 

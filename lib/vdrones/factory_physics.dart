@@ -164,7 +164,7 @@ class Force_SpringZ extends Force{
   double damping;
   double _restZ;
 
-  Force_SpringZ(this.ps, this.i, this.stiffness, this.damping, [restZ = -1]) {
+  Force_SpringZ(this.ps, this.i, this.stiffness, this.damping, [restZ = -1.0]) {
     _restZ = (restZ < 0) ? ps.position3d[i].z : restZ;
   }
 
@@ -173,6 +173,7 @@ class Force_SpringZ extends Force{
 //  }
 
   apply() {
+    if (!ps.isSim[i]) return;
     var a = ps.position3d[i];
     var l = a.z;
     var diff = ( _restZ - l);

@@ -1,6 +1,7 @@
 part of vdrones;
 
 const GROUP_DRONE = "drone";
+const GROUP_GATEIN = "gatein";
 
 const EntityTypes_WALL    = 0x0001;
 const EntityTypes_DRONE   = 0x0002;
@@ -151,8 +152,8 @@ class Factory_Entities {
        ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
          a.extradata = null; // no more collisions
          a.collide[0] = 0;
-         a.position3d[0].z = -10000.0;
-         a.position3dPrevious[0].z = -10000.0;
+         a.position3d[0].z -= 10000.0;
+         a.position3dPrevious[0].z -= 10000.0;
        }))
        ..modifiers.add(setAnimations([
          Factory_Animations.newDelay(200)
@@ -186,7 +187,7 @@ class Factory_Entities {
       renderFact.newCylindersZ(x.map((x) => x.ellipse), 0.2, new Vector4(0.0, 0.0, 0.5, 1.0)),
       new Animatable(),
       new DroneGenerator(x, [0])
-    ]);
+    ], group : GROUP_GATEIN);
   }
 
   Entity newGateOuts(Iterable<GateOut> x, AssetPack assetpack) => _newEntity([
@@ -256,7 +257,7 @@ class Factory_Entities {
 
  List<Entity> newFullArea(AssetPack assetpack, timeout) {
     var areadef = assetpack['area'];
-
+    renderFact.reset();
     var es = new List<Entity>();
     es.add(newCamera("${assetpack.name}.music", areadef.aabb3));
 //    es.add(newAmbientLight(areadef.ambient));
@@ -283,7 +284,7 @@ class Factory_Entities {
         new DroneNumbers(),
         renderFact.newDrone(_assetManager['0.default_material'], _assetManager['0.dissolve_map']),
         new Animatable(),
-        new EntityStateComponent(State_CREATING, _droneStates())
+        new EntityStateComponent(State_HIDDEN, _droneStates())
       ]..addAll(l0)
       , group : GROUP_DRONE
       , player : player
@@ -292,30 +293,92 @@ class Factory_Entities {
 
   _droneStates(){
     var control = new ComponentProvider(DroneControl, (e) => new DroneControl());
+
+    _move(Entity e, double x, double y, double z) {
+      var tf = new Matrix4.identity();
+      tf.translate(x, y, z);
+      var ps = e.getComponent(Particles.CT) as Particles;
+      print("before move :"+ ps.position3d.toString());
+      ps.position3d.forEach((p) => tf.transform3(p));
+      ps.copyPosition3dIntoPrevious();
+      print("after move :" + ps.position3d.toString());
+    }
+
+    _moveTo(Entity e, double x, double y, double z) {
+      var ps = e.getComponent(Particles.CT) as Particles;
+      print(ps.position3d);
+      var tf = new Matrix4.identity();
+      tf.translate(x - ps.position3d[0].x, y - ps.position3d[0].y, z - ps.position3d[0].z);
+      ps.position3d.forEach((p) => tf.transform3(p));
+      ps.copyPosition3dIntoPrevious();
+      print(tf);
+      print(ps.position3d);
+    }
+
+    _nextPosition() {
+      // HACK
+      var gen = (_world.getManager(GroupManager) as GroupManager).getEntities(GROUP_GATEIN).first.getComponent(DroneGenerator.CT);
+      var pointsIdx = (gen.nextPointsIdx == -1) ? new math.Random().nextInt(gen.gateIns.length) : gen.nextPointsIdx % gen.gateIns.length;
+      gen.nextPointsIdx = pointsIdx;
+      return gen.gateIns[pointsIdx].ellipse.position;
+    }
+
     return new Map<int, EntityState>()
       ..[State_CREATING] = (new EntityState()
         ..modifiers.add(setAnimations([
-          Factory_Animations.newScaleIn()
+          //Factory_Animations.newScaleIn()
+          Factory_Animations.newDelay(1000)
           ..onEnd = (e,t, t0) => EntityStateComponent.change(e, State_DRIVING)
         ]))
+        ..modifiers.add(new ComponentModifier<DroneNumbers>(DroneNumbers, (e, a){
+          //a.score = score;
+          a.hit = 0;
+        }))
       )
       ..[State_DRIVING] = (new EntityState()
         ..add(control)
-      )
+        ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
+          a.isSim.setAll(true);
+          a.extradata = new ColliderInfo()
+          ..group = EntityTypes_DRONE
+          ..e = e
+          ;
+          a.collide.setAll(1);
+       }))
+     )
      ..[State_CRASHING] = (new EntityState()
        ..add(new ComponentProvider(Dissolvable, (e) => new Dissolvable()))
        ..modifiers.add(setAnimations([
          Factory_Animations.newDissolve()
-         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+         ..onEnd = (e,t,t0) => EntityStateComponent.change(e, State_HIDDEN)
        ]))
      )
      ..[State_EXITING] = (new EntityState()
        ..modifiers.add(setAnimations([
          Factory_Animations.newScaleOut()
-         ..onEnd = (e,t,t0) { e.deleteFromWorld() ; }
+         ..onEnd = (e,t,t0) => EntityStateComponent.change(e, State_HIDDEN)
        ]))
      )
-      ;
+     ..[State_HIDDEN] = (new EntityState()
+//       ..onEnter = (e){
+//         print("hidden : ${e.id}");
+//       }
+       ..modifiers.add(new ComponentModifier<Particles>(Particles, (e, a){
+         a.isSim.setAll(false);
+         a.extradata = null; // no more collisions
+         a.collide.setAll(0);
+         _move(e, 0.0, 0.0, -1000.0);
+       }))
+       ..modifiers.add(setAnimations([
+         Factory_Animations.newDelay(200)
+         ..onEnd = ((e,t,t0){
+           var p = _nextPosition();
+           _moveTo(e, p.x, p.y, 10.0);
+           EntityStateComponent.change(e, State_CREATING);
+         })
+       ]))
+     )
+     ;
   }
 
   /// convert a list of cells [bottom0, left0, width0, height0, bottom1, left1,...] + cellr into
