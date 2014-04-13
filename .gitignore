@@ -8,6 +8,7 @@ off
 *.off
 out
 target
+build
 .buildlog
 web/out
 filter
