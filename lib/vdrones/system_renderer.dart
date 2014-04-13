@@ -53,16 +53,20 @@ class System_Render3D extends EntitySystem {
     _objCacheMapper = new ComponentMapper<RenderableCache>(RenderableCache, world);
     _groupManager = world.getManager(GroupManager) as GroupManager;
     _assets = _loadAssets();
-    _renderer.debugPrintFragShader = false;
-    //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
-    _renderer.lightSegment = r.lightSegment_spotAt(new Vector3(50.0, 50.0, 50.0));
-    _renderer.stepmax = 256;
-    _renderer.epsilon_de = 0.001;
   }
 
   bool checkProcessing() => _renderer.camera != null;
 
-  void processEntities(ReadOnlyBag<Entity> entities) {
+  void reset() {
+    _renderer.debugPrintFragShader = true;
+    //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
+    _renderer.lightSegment = r.lightSegment_spotAt(new Vector3(50.0, 50.0, 50.0));
+    _renderer.stepmax = 256;
+    _renderer.epsilon_de = 0.001;
+    _renderer.updateShader();
+  }
+
+  void processEntities(Iterable<Entity> entities) {
     _renderer.run();
     //call gl.finish() doesn't prevente frame "tearing" (when you rotate vdrones)
     //see http://www.opengl.org/wiki/Swap_Interval

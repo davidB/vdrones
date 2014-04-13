@@ -58,7 +58,7 @@ class System_Hud extends IntervalEntitySystem {
     if (!_initialized) reset();
     return b && _initialized;
   }
-  void processEntities(ReadOnlyBag<Entity> entities) {
+  void processEntities(Iterable<Entity> entities) {
     entities.forEach((entity){
       if (_playerManager.getPlayer(entity) == playerToFollow) {
         var numbers = _droneNumbersMapper.getSafe(entity);

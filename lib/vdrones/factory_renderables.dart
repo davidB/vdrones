@@ -2,13 +2,17 @@ part of vdrones;
 
 class Factory_Renderables {
   static const _devMode = false;
-  static const TEX_DIFFUSE = 1;
-  static const TEX_DISSOLVEMAP = 3;
   RenderableDef _newRenderableDef(f) => new RenderableDef()..onInsert = ((gl, e) => null);
   final glf.TextureUnitCache _textures;
   var _uCnt = 0;
 
+
   Factory_Renderables(this._textures);
+
+  reset() {
+    print("[DEBUG] reset");
+    _uCnt = 0;
+  }
 
   _vec3(Vector3 v) => "vec3(${v.x}, ${v.y}, ${v.z})";
   _vec4(Vector4 v) => "vec4(${v.x}, ${v.y}, ${v.z}, ${v.w})";
@@ -27,8 +31,8 @@ class Factory_Renderables {
         vec3 n = $n;
         vec3 nf = faceforward(n, rd, n);
         //return shade1($c, p, nf, t, rd);
-        //return shade0($c, p, nf);
-        return shadeOutdoor($c, p, nf);
+        return shade0($c, p, nf);
+        //return shadeOutdoor($c, p, nf);
         //return aoToColor(p, nf);
         //return normalToColor(nf);
         """;
@@ -47,23 +51,24 @@ class Factory_Renderables {
   }
 
   RenderableDef newCube(){
-    var utx = 'utx${_uCnt++}';
+    _uCnt++;
+    var ut = 'ut${_uCnt}';
+    var uq = 'uq${_uCnt}';
     return new RenderableDef()
     ..onInsert = (gl, Entity entity) {
       var ps = entity.getComponent(Particles.CT) as Particles;
       var rad = ps.radius[0];
-      var transform = new Matrix4.identity();
+      var q = (entity.getComponent(Orientation.CT) as Orientation).q;
       return new Renderable()
       ..obj = (new r.ObjectInfo()
-        ..uniforms = 'uniform mat4 ${utx};'
-        ..sds = [r.sd_box]
-        ..de = "sd_box(opTx(p, ${utx}), vec3($rad))"
+        ..uniforms = 'uniform vec3 ${ut}; uniform vec4 ${uq};'
+        ..sds = [r.qrot, r.sd_box]
+        ..de = "sd_box(qrot(${uq}, p - ${ut}), vec3($rad))"
         ..mats = [_defaultShadeMats]
         ..sh = _defaultShade()
         ..at = (ctx) {
-          glf.injectMatrix4(ctx, transform, utx);
-          transform.setIdentity();
-          transform.setTranslation(-ps.position3d[0]);
+          ctx.gl.uniform3fv(ctx.getUniformLocation(ut), ps.position3d[0].storage);
+          ctx.gl.uniform4fv(ctx.getUniformLocation(uq), q.storage);
         }
       )
       ;

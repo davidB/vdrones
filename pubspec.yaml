@@ -11,7 +11,7 @@ dependencies:
     git: https://github.com/johnmccutchan/asset_pack.git
   browser: any
   crypto: any
-  dartemis: '>=0.4.1'
+  dartemis: '>=0.6.0'
   dartemis_toolbox:
     #git: https://github.com/davidB/dartemis_toolbox.git
     path: ../dartemis_toolbox
@@ -33,12 +33,13 @@ dependencies:
     git: https://github.com/dart-lang/dart-protobuf.git
     version: '>=0.3.0'
   simple_audio:
-    git:
-      ref: davidB
-      url: https://github.com/davidB/simpleaudio.git
+#    git:
+#      ref: davidB
+#      url: https://github.com/davidB/simpleaudio.git
+    git: https://github.com/johnmccutchan/simpleaudio.git
+    version: '>=0.9.0'
   vector_math: '>=1.3.0'
   event_bus: '>=0.2.4'
-  html_toolbox:
-    path: ../html_toolbox
+  html_toolbox: '>=0.2.0'
 dev_dependencies:
   unittest: any
