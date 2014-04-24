@@ -104,10 +104,17 @@ class System_Render3D extends EntitySystem {
   }
 
   Future<AssetManager> _loadAssets() {
-    return Future.wait([
-      //factory_filter2d.init(),
-      _am.loadAndRegisterAsset('filter2d_fxaa', 'filter2d', 'packages/glf/shaders/filters_2d/fxaa.frag', null, null),
-    ]).then((l) => _am);
+    var factory_filter2d = new Factory_Filter2D()
+    ..am = _am
+    ;
+    var bctrl = new BrightnessCtrl()
+    ..brightness = 0.1
+    ..contrast = 0.3
+    ;
+    return factory_filter2d.init().then((_){
+      _renderer.filters2d.add(factory_filter2d.makeFXAA());
+      _renderer.filters2d.add(factory_filter2d.makeBrightness(bctrl));
+    }).then((l) => _am);
   }
 }
 
