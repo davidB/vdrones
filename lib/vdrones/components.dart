@@ -46,10 +46,11 @@ class Dissolvable extends Component {
 
 class Orientation extends Component {
   static final CT = ComponentTypeManager.getTypeFor(Orientation);
-  Quaternion q;
+  Quaternion q = new Quaternion.identity();
 }
 
 class DroneGenerator extends Component {
+  static final CT = ComponentTypeManager.getTypeFor(DroneGenerator);
   /// score of drone to generate
   List<int> scores;
   int nextPointsIdx = 0;
@@ -109,7 +110,7 @@ class CameraFollower extends Component {
         break;
       case TPS :
         _mode = 1;
-        targetTranslation.setValues(-10.0, 0.0, 2.0);
+        targetTranslation.setValues(-10.0, 0.0, 4.0);
         break;
       case FPS :
         _mode = 2;
