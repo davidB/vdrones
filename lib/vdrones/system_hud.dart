@@ -32,7 +32,7 @@ class System_Hud extends IntervalEntitySystem {
       if (_scoreEl != null) _scoreEl.text = "0";
       _scoreIncEl = _container.querySelector("#scoreInc");
       if (_scoreIncEl != null) {
-        _scoreIncEl.style.transition = "all 1.5s ease-in-out";
+        _scoreIncEl.style.transition = "all 1.5s ease-out";
       }
 
       _chronometerEl = _container.querySelector("#chronometer");

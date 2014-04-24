@@ -245,7 +245,7 @@
      id="score">
     <tspan
        style="fill:#505a63;stroke:#3a4048;stroke-width:0.84966731;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
-       id="tspan3484">Hello333</tspan>
+       id="tspan3484">000</tspan>
   </text>
   <g
      id="energyWidget"
@@ -277,7 +277,7 @@
        id="energyBar" />
   </g>
   <g
-     transform="matrix(3.0007077,0,0,3.0007077,702.92617,-294.86791)"
+     transform="matrix(3.0007077,0,0,3.0007077,768.2931,-293.65741)"
      style="display:inline"
      id="g6684"
      inkscape:export-xdpi="804.69305"
