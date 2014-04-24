@@ -61,8 +61,8 @@ class System_Render3D extends EntitySystem {
     _renderer.debugPrintFragShader = true;
     //_renderer.nearLight = r.nearLight_SpotGrid(10.0);
     _renderer.lightSegment = r.lightSegment_spotAt(new Vector3(50.0, 50.0, 50.0));
-    _renderer.stepmax = 256;
-    _renderer.epsilon_de = 0.001;
+    _renderer.stepmax = 200;
+    //_renderer.epsilon_de = 0.001;
     _renderer.updateShader();
   }
 
