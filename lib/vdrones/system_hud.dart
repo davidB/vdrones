@@ -8,10 +8,12 @@ class System_Hud extends IntervalEntitySystem {
   String playerToFollow;
   Element _container;
   Element _scoreEl;
+  Element _scoreIncEl;
   Element _chronometerEl;
   Element _energyBarEl, _energyWidgetEl;
   Element _viewRedEl;
   bool _initialized = false;
+  int _previousScore = 0;
 
   System_Hud(this._container, this.playerToFollow):super(1000.0/15, Aspect.getAspectForOneOf([DroneNumbers, Chronometer]));
 
@@ -28,6 +30,10 @@ class System_Hud extends IntervalEntitySystem {
     if (domElem != null) {
       _scoreEl = _container.querySelector("#score");
       if (_scoreEl != null) _scoreEl.text = "0";
+      _scoreIncEl = _container.querySelector("#scoreInc");
+      if (_scoreIncEl != null) {
+        _scoreIncEl.style.transition = "all 1.5s ease-in-out";
+      }
 
       _chronometerEl = _container.querySelector("#chronometer");
       if (_chronometerEl != null) {
@@ -37,7 +43,7 @@ class System_Hud extends IntervalEntitySystem {
 
       _energyWidgetEl = _container.querySelector("#energyWidget");
       _energyBarEl = _container.querySelector("#energyBar");
-      _viewRedEl = _container.querySelector("#view_red");
+      _viewRedEl = _container.querySelector("#viewRed");
       _initialized = true;
     }
   }
@@ -62,6 +68,15 @@ class System_Hud extends IntervalEntitySystem {
       if (_playerManager.getPlayer(entity) == playerToFollow) {
         var numbers = _droneNumbersMapper.getSafe(entity);
         if (numbers != null) {
+          if (_scoreIncEl != null && numbers.score > _previousScore) {
+            _previousScore = numbers.score;
+            _scoreIncEl.style.opacity = "1.0";
+            _scoreIncEl.onTransitionEnd.first.then((TransitionEvent e) {
+              new Future(() {
+                _scoreIncEl.style.opacity = "0.0";
+              });
+            });
+          }
           if (_scoreEl != null) _scoreEl.text = numbers.score.toString();
           if (_energyBarEl != null) {
             var max = numbers.energyMax;
@@ -69,7 +84,6 @@ class System_Hud extends IntervalEntitySystem {
               double ratio = numbers.energy / max;
               _energyBarEl.attributes["width"] = (ratio * 449).toString();
               _energyWidgetEl.style.opacity = (0.2 + 0.8 * (1 - ratio)).toString();
-              print(_energyWidgetEl.style.opacity);
             }
           }
           if (_viewRedEl != null) {

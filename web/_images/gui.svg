@@ -217,14 +217,14 @@
      y="0"
      width="1120"
      height="630"
-     id="view_red" />
+     id="viewRed" />
   <rect
      style="fill-opacity:0"
      x="0"
      y="0"
      width="1120"
      height="630"
-     id="view_dark" />
+     id="viewDark" />
   <text
      x="222.46263"
      y="99.673767"
@@ -303,10 +303,10 @@
      y="318.07275"
      font-size="29.469px"
      transform="scale(1.0486924,0.95356847)"
-     style="font-size:58.98361588000000211px;text-anchor:end;fill:#505a63;stroke:#3a4048;stroke-width:1.40106343999999994;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly;opacity:0"
-     id="score-inc">
+     style="font-size:58.98361588px;text-anchor:end;opacity:0;fill:#505a63;stroke:#3a4048;stroke-width:1.40106344;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
+     id="scoreInc">
     <tspan
-       style="fill:#505a63;stroke:#3a4048;stroke-width:1.40106343999999994;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
+       style="fill:#505a63;stroke:#3a4048;stroke-width:1.40106344;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
        id="tspan3484-2">+1</tspan>
   </text>
 </svg>
