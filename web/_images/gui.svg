@@ -12,7 +12,7 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2985"
    version="1.1"
-   inkscape:version="0.48+devel r12701 custom"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="gui.svg"
    viewBox="0 0 1120 630"
    width="1120"
@@ -35,9 +35,9 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:zoom="0.8261058"
-     inkscape:cx="552.88135"
-     inkscape:cy="342.52712"
-     inkscape:window-x="0"
+     inkscape:cx="559.31873"
+     inkscape:cy="315.89615"
+     inkscape:window-x="1080"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2985" />
@@ -138,6 +138,66 @@
        xlink:href="#linearGradient3826"
        gradientTransform="matrix(1.1071,0,-2.4122e-8,0.60714,-54.577,285.23)"
        r="560" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3826"
+       id="radialGradient3401"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1071,0,-2.4122e-8,0.60714,-54.577,147.23)"
+       cx="546.07001"
+       cy="268.09"
+       r="560" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6429"
+       id="linearGradient6435"
+       x1="47.977776"
+       y1="102.26666"
+       x2="47.977776"
+       y2="112.14444"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6429">
+      <stop
+         style="stop-color:#dba2d1;stop-opacity:1;"
+         offset="0"
+         id="stop6431" />
+      <stop
+         style="stop-color:#b180a8;stop-opacity:1"
+         offset="1"
+         id="stop6433" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6421"
+       id="linearGradient6427"
+       x1="53.622223"
+       y1="102.26666"
+       x2="53.622223"
+       y2="112.14444"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6421">
+      <stop
+         style="stop-color:#27a3d4;stop-opacity:1;"
+         offset="0"
+         id="stop6423" />
+      <stop
+         style="stop-color:#054e6b;stop-opacity:1"
+         offset="1"
+         id="stop6425" />
+    </linearGradient>
+    <linearGradient
+       y2="112.14444"
+       x2="53.622223"
+       y1="102.26666"
+       x1="53.622223"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3945"
+       xlink:href="#linearGradient6421"
+       inkscape:collect="always" />
   </defs>
   <metadata
      id="metadata2990">
@@ -147,76 +207,106 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <rect
+     style="fill:url(#radialGradient3401);fill-opacity:0.5"
+     x="0"
+     y="0"
+     width="1120"
+     height="630"
+     id="view_red" />
+  <rect
+     style="fill-opacity:0"
+     x="0"
+     y="0"
+     width="1120"
+     height="630"
+     id="view_dark" />
+  <text
+     x="222.46263"
+     y="99.673767"
+     font-size="131.39px"
+     transform="scale(1.0182942,0.98203446)"
+     style="font-size:131.39074707000000330px;text-anchor:end;opacity:0.42971888;fill:#ff0000;font-family:SciFly"
+     id="chronometer">
+    <tspan
+       style="font-family:SciFly"
+       id="tspan3482">060</tspan>
+  </text>
+  <text
+     x="1228.7394"
+     y="32.926449"
+     font-size="29.469px"
+     transform="scale(0.80656415,1.239827)"
+     style="font-size:35.77029037px;text-anchor:end;fill:#505a63;stroke:#3a4048;stroke-width:0.84966731;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
+     id="score">
+    <tspan
+       style="fill:#505a63;stroke:#3a4048;stroke-width:0.84966731;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
+       id="tspan3484">Hello333</tspan>
+  </text>
   <g
-     id="top_left "
-     transform="translate(0,-138)">
+     id="energyWidget"
+     transform="translate(-325.62415,412.77691)"
+     style="opacity:1">
     <rect
-       id="view_dark"
-       transform="translate(0,138)"
-       height="630"
-       width="1120"
-       y="0"
-       x="0"
-       style="fill-opacity:0" />
-    <text
-       id="chronometer"
-       style="font-size:131.38999939px;text-anchor:end;opacity:0.25253003;fill:#ff0000;font-family:SciFly"
-       transform="scale(1.0183,0.98204)"
-       font-size="131.39px"
-       y="272.90186"
-       x="343.71332">
-      <tspan
-         id="tspan3482"
-         style="font-family:SciFly">00:60</tspan>
-    </text>
+       style="fill:#635d50;filter:url(#filter4472);fill-opacity:1"
+       x="652.60999"
+       y="153.97"
+       width="452"
+       height="14"
+       ry="3.0179"
+       id="rect2993-8" />
     <rect
-       id="view_red"
-       height="630"
-       width="1120"
-       y="138"
-       x="0"
-       style="fill:url(#radialGradient3824);fill-opacity:0.5" />
-    <text
-       id="score"
-       style="font-size:29.46899986px;text-anchor:end;fill:#505a63;stroke:#3a4048;stroke-width:0.69998997;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
-       transform="scale(0.97903,1.0214)"
-       font-size="29.469px"
-       y="193.84758"
-       x="1123.5631">
-      <tspan
-         id="tspan3484"
-         style="fill:#505a63;stroke:#3a4048;stroke-width:0.69998997;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly">Hello333</tspan>
-    </text>
-    <g
-       id="g4478">
-      <rect
-         id="rect2993-8"
-         ry="3.0179"
-         height="14"
-         width="452"
-         y="153.97"
-         x="652.60999"
-         style="fill:#505a63;filter:url(#filter4472)" />
-      <rect
-         id="rect4476"
-         ry="3.0179"
-         height="14"
-         width="452"
-         y="153.97"
-         x="652.60999"
-         style="fill:#505a63" />
-      <rect
-         id="energyBar"
-         ry="2.3712001"
-         height="11"
-         width="449"
-         y="154.82001"
-         x="653.28998"
-         style="fill:#d6d6d6" />
-    </g>
+       style="fill:#f3f1b9;fill-opacity:1"
+       x="652.60999"
+       y="153.97"
+       width="452"
+       height="14"
+       ry="3.0179"
+       id="rect4476" />
+    <rect
+       style="fill:#f7f032;fill-opacity:1;opacity:1"
+       x="653.28998"
+       y="154.82001"
+       width="449"
+       height="11"
+       ry="2.3712001"
+       id="energyBar" />
   </g>
+  <g
+     transform="matrix(3.0007077,0,0,3.0007077,702.92617,-294.86791)"
+     style="display:inline"
+     id="g6684"
+     inkscape:export-xdpi="804.69305"
+     inkscape:export-ydpi="804.69305">
+    <path
+       d="m 56.777468,102.93967 -5.750351,1.35302 -5.643763,-1.51019 5.658136,-1.03297 z"
+       style="fill:#7815b3;fill-opacity:1;fill-rule:evenodd;stroke:#e1e1e1;stroke-width:0.14111112;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path6171"
+       inkscape:connector-curvature="0" />
+    <path
+       d="m 51.104696,112.76305 -0.07758,-8.47036 -5.643763,-1.51019 0.06725,7.34197 z"
+       style="fill:url(#linearGradient6435);fill-opacity:1;fill-rule:evenodd;stroke:#e1e1e1;stroke-width:0.14111112;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path6173"
+       inkscape:connector-curvature="0" />
+    <path
+       d="m 56.845787,110.39908 -5.741091,2.36397 -0.07758,-8.47036 5.750351,-1.35302 z"
+       style="fill:url(#linearGradient3945);fill-opacity:1;fill-rule:evenodd;stroke:#e1e1e1;stroke-width:0.14111112;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path6175"
+       inkscape:connector-curvature="0" />
+  </g>
+  <text
+     x="659.57446"
+     y="318.07275"
+     font-size="29.469px"
+     transform="scale(1.0486924,0.95356847)"
+     style="font-size:58.98361588000000211px;text-anchor:end;fill:#505a63;stroke:#3a4048;stroke-width:1.40106343999999994;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly;opacity:0"
+     id="score-inc">
+    <tspan
+       style="fill:#505a63;stroke:#3a4048;stroke-width:1.40106343999999994;stroke-linecap:round;stroke-linejoin:round;font-family:SciFly"
+       id="tspan3484-2">+1</tspan>
+  </text>
 </svg>

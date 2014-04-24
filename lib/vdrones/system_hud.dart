@@ -9,7 +9,7 @@ class System_Hud extends IntervalEntitySystem {
   Element _container;
   Element _scoreEl;
   Element _chronometerEl;
-  Element _energyBarEl;
+  Element _energyBarEl, _energyWidgetEl;
   Element _viewRedEl;
   bool _initialized = false;
 
@@ -35,6 +35,7 @@ class System_Hud extends IntervalEntitySystem {
         _updateChronometer(0);
       }
 
+      _energyWidgetEl = _container.querySelector("#energyWidget");
       _energyBarEl = _container.querySelector("#energyBar");
       _viewRedEl = _container.querySelector("#view_red");
       _initialized = true;
@@ -44,9 +45,7 @@ class System_Hud extends IntervalEntitySystem {
   void _updateChronometer(int v) {
     if (_chronometerEl == null) return;
     int totalSec = v.abs();
-    int minutes = totalSec ~/ 60;
-    int seconds = totalSec % 60;
-    var txt = "${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}";
+    var txt = "${totalSec < 100 ? "0" : ""}${totalSec}";
     _chronometerEl.text = txt;
     if (v == -5) {
       _chronometerEl.classes.add("blinking5s");
@@ -67,8 +66,10 @@ class System_Hud extends IntervalEntitySystem {
           if (_energyBarEl != null) {
             var max = numbers.energyMax;
             if (max > 0) {
-              int r = (numbers.energy * 449) ~/ max;
-              _energyBarEl.attributes["width"] = r.toString();
+              double ratio = numbers.energy / max;
+              _energyBarEl.attributes["width"] = (ratio * 449).toString();
+              _energyWidgetEl.style.opacity = (0.2 + 0.8 * (1 - ratio)).toString();
+              print(_energyWidgetEl.style.opacity);
             }
           }
           if (_viewRedEl != null) {
