@@ -14,7 +14,7 @@ class AreaReader4Svg {
     ;
     out.aabb3 = out.staticWalls.fold(out.aabb3, (acc, v){
       return v.shapes.fold(acc, (acc1, v1){
-        return Math2.updateAabbPoly(v1.points, acc1);
+        return math2.updateAabbPoly(v1.points, acc1);
       });
     });
     return out;
@@ -124,7 +124,7 @@ class AreaReader4Svg {
       if (i == (l - 1)) {
         strokesV[i] = new Vector3.copy(strokesV[i - 1]);
       } else {
-        strokesV[i] = Math2.VXY.rot90(new Vector3.copy(points[i + 1]).sub(points[i])).normalize().scale(r);
+        strokesV[i] = math2.VXY.rot90(new Vector3.copy(points[i + 1]).sub(points[i])).normalize().scale(r);
       }
     }
     // stroke of points (join stroke of frag)
@@ -202,7 +202,7 @@ class AreaReader4Json1 {
     ;
     out.aabb3 = out.staticWalls.fold(out.aabb3, (acc, v){
       return v.shapes.fold(acc, (acc1, v1){
-        return Math2.updateAabbPoly(v1.points, acc1);
+        return math2.updateAabbPoly(v1.points, acc1);
       });
     });
     return out;

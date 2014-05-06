@@ -1,8 +1,5 @@
 part of vdrones;
 
-final vecZ = new Vector3(0.0, 0.0, 1.0);
-final vecY = new Vector3(0.0, 1.0, 0.0);
-
 var _keysForward = [ KeyCode.UP, KeyCode.W, KeyCode.Z ];
 var _keysBackward = [ KeyCode.DOWN, KeyCode.S];
 var _keysTurnLeft = [ KeyCode.LEFT, KeyCode.A, KeyCode.Q ];
@@ -19,7 +16,7 @@ class System_CameraFollower extends EntityProcessingSystem {
   bool _targetUpdated = true;
   String playerToFollow;
   collisions.Space collSpace;
-  final _int = new Math2.IntersectionFinderXY();
+  final _int = new math2.IntersectionFinderXY();
   final Vector4 _scol = new Vector4.zero();
   var _toggleMode = false;
 
@@ -66,7 +63,7 @@ class System_CameraFollower extends EntityProcessingSystem {
       position.x = approachMulti(next.x, position.x, 0.2);
       position.y = approachMulti(next.y, position.y, 0.2);
       position.z = approachMulti(next.z, position.z, 0.3);
-      camera.upDirection.setFrom(vecY);
+      camera.upDirection.setFrom(math2.VY_AXIS);
       camera.focusPosition.setFrom(_targetPosition);
     } else {
       var _targetDirection = _targetParticles.position3d[DRONE_PFRONT] - _targetParticles.position3d[DRONE_PCENTER];
@@ -91,7 +88,7 @@ class System_CameraFollower extends EntityProcessingSystem {
       position.y = approachMulti(_targetPosition.y + 4 * _targetDirection.y, position.y, damp);
       //TODO optimize could be done once when mode change
       position.z = 3.0;
-      camera.upDirection.setFrom(vecZ);
+      camera.upDirection.setFrom(math2.VZ_AXIS);
       camera.near = 0.001;
       camera.far = 200.0;//(follower.focusAabb.max - follower.focusAabb.min).length;
     }

@@ -17,7 +17,7 @@ import 'package:dartemis_toolbox/system_transform.dart';
 import 'package:dartemis_toolbox/system_verlet.dart';
 import 'package:dartemis_toolbox/system_particles.dart';
 import 'package:dartemis_toolbox/utils.dart';
-import 'package:dartemis_toolbox/utils_math.dart' as Math2;
+import 'package:dartemis_toolbox/utils_math.dart' as math2;
 import 'package:dartemis_toolbox/ease.dart' as ease;
 import 'package:dartemis_toolbox/collisions.dart' as collisions;
 import 'package:dartemis_toolbox/system_proto2d.dart' as proto2d;
