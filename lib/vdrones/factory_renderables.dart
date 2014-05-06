@@ -24,17 +24,96 @@ class Factory_Renderables {
     r.shade1(l);
     r.shade0(l);
     r.shadeOutdoor(l);
+    _myshade(l);
   }
+  _myshade(l) {
+    r.softshadow(l);
+    r.ao_de(l);
+    l.add('''
+#define HIGH
+  // see http://www.altdevblogaday.com/2011/08/23/shader-code-for-physically-based-lighting/
+  const vec3 light_colour = vec3(1.0, 1.0, 1.0);
+  const float specular_power = 1.0;
+  const float specular_colour = 0.5;
+  const float PI_OVER_FOUR = PI / 4.0;
+  const float PI_OVER_TWO = PI / 2.0;
 
+  color myshade(color c, vec3 p, vec3 n, float t, vec3 rd) {
+    vec3 light_direction = normalize( lightSegment(p) );
+    float n_dot_l = clamp( dot( n, light_direction ), 0.0, 1.0 ); 
+    //vec3 diffuse = light_colour * n_dot_l;
+    float diffuse = n_dot_l;
+    //diffuse =  mix ( diffuse, 0, somethingAboutSpecularLobeLuminance );
+
+    vec3 hv = normalize(light_direction - rd);
+    float n_dot_h = clamp( dot( n, hv ), 0.0, 1.0 );
+    //float normalisation_term = ( specular_power + 2.0 ) / 2.0 * PI;
+    float normalisation_term = ( specular_power + 2.0 ) / 8.0;
+    float blinn_phong = pow( n_dot_h, specular_power );
+    float specular_term = normalisation_term * blinn_phong;
+    float cosine_term = n_dot_l;
+    //vec3 specular = (PI / 4.0f) * specular_term * cosine_term * fresnel_term * visibility_term * light_colour;
+    float specularCoeff = specular_term * cosine_term;
+#if defined(MID) || defined(HIGH) 
+    float h_dot_l = dot(hv, light_direction); // Dot product of half vector and light vector. No need to saturate as it can't go above 90 degrees
+    float base = 1.0 - h_dot_l;    
+    float exponential = pow( base, 5.0 );
+    float fresnel_term = specular_colour + ( 1.0 - specular_colour ) * exponential;
+    specularCoeff = specularCoeff * fresnel_term;
+#endif
+#ifdef HIGH
+    float n_dot_v = dot(n, -rd);
+    float alpha = 1.0 / ( sqrt( PI_OVER_FOUR * specular_power + PI_OVER_TWO ) );
+    float visibility_term = ( n_dot_l * ( 1.0 - alpha ) + alpha ) * ( n_dot_v * ( 1.0 - alpha ) + alpha ); // Both dot products should be saturated
+    visibility_term = 1.0 / visibility_term;
+    specularCoeff = specularCoeff * visibility_term;
+#endif
+    vec3 albedo = c.rgb;
+    float ao = ao_de(p, n);
+    float ambient = 0.5;
+    diffuse = clamp(diffuse, ambient, 1.0);
+    float sh = softshadow( p, light_direction, 0.02, 10.0, 7.0 );
+    // sh = min(sh, ao);
+    c.rgb = albedo * diffuse * sh + light_colour * specularCoeff;
+    return c;
+//
+//    float ao = ao_de(p, n);
+//
+//    float amb = clamp( 0.5+0.5*n.z, 0.0, 1.0 );
+//    float dif = clamp( dot( n, lig ), 0.0, 1.0 );
+//    float bac = clamp( dot( n, normalize(vec3(-lig.x,0.0,-lig.z))), 0.0, 1.0 )*clamp( 1.0-p.y,0.0,1.0);
+//
+//    float sh = 1.0;
+//    if( dif>0.02 ) { sh = softshadow( p, lig, 0.02, 10.0, 7.0 ); dif *= sh; }
+//
+//    vec3 brdf = vec3(0.0);
+//    brdf += 0.20*amb*vec3(0.10,0.11,0.13)*ao;
+//    brdf += 0.20*bac*vec3(0.15,0.15,0.15)*ao;
+//    brdf += 1.20*dif*vec3(1.00,0.90,0.70);
+//
+//    float pp = clamp(dot(reflect(rd, n), lig), 0.0, 1.0 );
+//    float spe = sh*pow(pp, 16.0);
+//    float fre = ao*pow(clamp(1.0+dot(n, rd),0.0,1.0), 2.0 );
+//
+//    vec3 col = c.rgb;
+//    col = col*brdf + col * vec3(1.0)*spe + 0.2*fre*(0.5+0.5*col);
+//    col *= exp( -0.01*t*t );
+//    c.rgb = col;
+//    return c;
+  }
+    ''');
+  }
   _defaultShade({String c : "normalToColor(n)", String n : "n_de(o, p)"}) {
     return """
         vec3 n = $n;
         vec3 nf = faceforward(n, rd, n);
+        return myshade($c, p, nf, t, rd);
         //return shade1($c, p, nf, t, rd);
-        return shade0($c, p, nf);
+        //return shade0($c, p, nf);
         //return shadeOutdoor($c, p, nf);
         //return aoToColor(p, nf);
         //return normalToColor(nf);
+        //return $c * ao_de(p, nf);
         """;
   }
 
@@ -84,7 +163,8 @@ class Factory_Renderables {
         ..de = "sd_flatFloor(p)"
         ..sds = [r.sd_flatFloor(0.0)]
         ..mats = [r.mat_chessboardXY0(1.0, new Vector4(0.9,0.0,0.5,1.0), new Vector4(0.2,0.2,0.8,1.0)), _defaultShadeMats]
-        ..sh = _defaultShade(c: "mat_chessboardXY0(p)")
+        //..sh = _defaultShade(c: "mat_chessboardXY0(p)")
+        ..sh = _defaultShade(c: "vec4(1.0)")
       )
       ;
     }
@@ -152,7 +232,7 @@ class Factory_Renderables {
       var transform = new Matrix4.identity();
       var aabb = new Aabb3();
       shapes.forEach((shape){
-        Math2.updateAabbPoly(shape.points, aabb);
+        math2.updateAabbPoly(shape.points, aabb);
       });
       var sdm = sd_merge(sd, shapes.map((shape){
           var s = 'd = -10000.0;\n';
@@ -178,7 +258,7 @@ class Factory_Renderables {
       var zSize = 10.0;
       obj = r.makeExtrudeZinTex(gl, _textures, utex, aabb.center, zSize, unit, [obj], color: color)
       ..mats = [r.n_tex2d, _defaultShadeMats]
-      ..sh = _defaultShade(c: "vec4(1.0)"/*, n : "n_tex2d(p, ${utex}, vec3(${aabb.center.x}, ${aabb.center.y}, ${aabb.center.z}), $zSize, ${1/unit}, ${unit})"*/)
+      ..sh = _defaultShade(c: "vec4(1.0,1.0,1.0,1.0)"/*, n : "n_tex2d(p, ${utex}, vec3(${aabb.center.x}, ${aabb.center.y}, ${aabb.center.z}), $zSize, ${1/unit}, ${unit})"*/)
       //..sh = defaultShade()
       ;
       return new Renderable()..obj = obj;
