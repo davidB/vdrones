@@ -11,15 +11,33 @@ class Factory_Animations {
       }
     ;
   }
+
+  static final Qx = new Quaternion.axisAngle(new Vector3(1.0, 0.0, 0.0), math.PI);
+  static final Qy = new Quaternion.axisAngle(new Vector3(0.0, 1.0, 0.0), math.PI);
+
+  static _mult(Quaternion o1, Quaternion o2, Quaternion out, double s1, double s2) {
+    double _w = o1.storage[3] * s1;
+    double _z = o1.storage[2];
+    double _y = o1.storage[1];
+    double _x = o1.storage[0];
+    double ow = o2.storage[3] * s2;
+    double oz = o2.storage[2];
+    double oy = o2.storage[1];
+    double ox = o2.storage[0];
+    out.x = _w * ox + _x * ow + _y * oz - _z * oy;
+    out.y = _w * oy + _y * ow + _z * ox - _x * oz;
+    out.z = _w * oz + _z * ow + _x * oy - _y * ox;
+    out.w = _w * ow - _x * ox - _y * oy - _z * oz;
+  }
+
   static Animation newRotateXYEndless() {
     return new Animation()
       ..onTick = (Entity e, num t, num t0){
-        var r = e.getComponent(RenderableCache.CT) as RenderableCache;
-        if (r == null || r.v == null || r.v.ext['transform'] == null) return false;
-        var transform = r.v.ext['transform'];
-        var rot = (t % 4000.0)/2000.0 * math.PI;
-        transform.setRotationX(rot);
-        transform.rotateY(rot* 0.5);
+        var r = e.getComponent(Orientation.CT) as Orientation;
+        if (r == null) return false;
+        var rot = math.sin(((t  % 4000) / 2000) * math.PI);
+        _mult(Qx, Qy, r.q, rot, rot);
+        //print("orientation : " + r.q.toString());
         return true;
       }
       ;
