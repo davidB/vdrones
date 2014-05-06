@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author dwayne
  */
-public class CGeoPhy implements EntityComponent {
+class CGeoPhy implements EntityComponent {
 
     final Spatial geom;
     final List<Object> physics;
@@ -37,10 +37,9 @@ class AppStateGeoPhy extends AbstractAppState {
     Node rootNode;
     final BulletAppState bulletAppState = new BulletAppState();
 
-    ;
-
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        super.initialize(stateManager, app);
         EntityData ed = ((Main) app).entityData;
         geophySet = ed.getEntities(CGeoPhy.class);
         rootNode = ((Main) app).getRootNode();
@@ -50,6 +49,7 @@ class AppStateGeoPhy extends AbstractAppState {
 
     @Override
     public void update(float tpf) {
+        super.update(tpf);
         geophySet.applyChanges();
         for (Entity e : geophySet.getRemovedEntities()) {
             System.out.println("remove " + e.getId());
@@ -71,11 +71,13 @@ class AppStateGeoPhy extends AbstractAppState {
 
     @Override
     public void stateAttached(AppStateManager stateManager) {
+        super.stateAttached(stateManager);
         stateManager.attach(bulletAppState);
     }
 
     @Override
     public void stateDetached(AppStateManager stateManager) {
         stateManager.detach(bulletAppState);
+        super.stateDetached(stateManager);
     }
 }
