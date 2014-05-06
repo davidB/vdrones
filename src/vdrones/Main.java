@@ -50,12 +50,12 @@ public class Main extends SimpleApplication {
         setDisplayFps(true);
 
         viewPort.setBackgroundColor(ColorRGBA.Pink);
-        flyCam.setEnabled(false);
+        //flyCam.setEnabled(false);
 
+        stateManager.attach(new AppStateCamera());
         stateManager.attach(new AppStateInput());
         stateManager.attach(new AppStateDrone());
         stateManager.attach(new AppStateGeoPhy());
-
         spawned = false;
     }
 
@@ -64,9 +64,8 @@ public class Main extends SimpleApplication {
         if (!spawned) {
             spawned = true;
             EntityId droneId = entityData.createEntity();
-            CGeoPhy gp = VDrone.newDrone(assetManager);
-            entityData.setComponents(droneId, gp);
-            entityData.setComponents(droneId, new CDroneInfo(), new CDroneInput());
+            entityData.setComponents(droneId, VDrone.newDrone(assetManager));
+            entityData.setComponents(droneId, new CDroneInfo(), new CDroneInput(), new CCameraFollower(CCameraFollower.Mode.TPS));
             entityData.setComponents(entityData.createEntity(), newArea(assetManager));
         }
     }

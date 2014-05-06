@@ -15,6 +15,7 @@ import com.simsilica.es.Entity;
 import com.simsilica.es.EntityComponent;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntitySet;
+import vdrones.CCameraFollower.Mode;
 import static vdrones.DroneInput.LEFT;
 
 class CDroneInput implements EntityComponent {
@@ -50,14 +51,16 @@ class DroneInput implements ActionListener {
     static final String RIGHT = "Right";
     static final String FORWARD = "Forward";
     static final String BACKWARD = "Backward";
+    static final String TOGGLE_CAMERA = "toggle_camera";
 
     static void bind(InputManager inputManager, DroneInput ctrl) {
         inputManager.addMapping(LEFT, new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping(RIGHT, new KeyTrigger(KeyInput.KEY_K));
         inputManager.addMapping(FORWARD, new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping(BACKWARD, new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping(TOGGLE_CAMERA, new KeyTrigger(KeyInput.KEY_M));
         //inputManager.addMapping(RESET, new KeyTrigger(KeyInput.KEY_RETURN));
-        inputManager.addListener(ctrl, LEFT, RIGHT, FORWARD, BACKWARD);
+        inputManager.addListener(ctrl, LEFT, RIGHT, FORWARD, BACKWARD, TOGGLE_CAMERA);
     }
 
     static void unbind(InputManager inputManager, DroneInput ctrl) {
@@ -69,7 +72,7 @@ class DroneInput implements ActionListener {
     private EntitySet droneSet;
 
     DroneInput(EntityData ed) {
-        droneSet = ed.getEntities(CDroneInfo.class, CDroneInput.class);
+        droneSet = ed.getEntities(CDroneInfo.class, CDroneInput.class, CCameraFollower.class);
     }
 
     @Override
@@ -84,17 +87,25 @@ class DroneInput implements ActionListener {
         switch (binding) {
             case LEFT:
                 info.turn = (value) ? 1 : 0;
+                e.set(info);
                 break;
             case RIGHT:
                 info.turn = (value) ? -1 : 0;
+                e.set(info);
                 break;
             case FORWARD:
                 info.forward = (value) ? 1 : 0;
+                e.set(info);
                 break;
             case BACKWARD:
                 info.forward = (value) ? -1 : 0;
+                e.set(info);
                 break;
+            case TOGGLE_CAMERA:
+                if (value) {
+                    CCameraFollower f = e.get(CCameraFollower.class);
+                    e.set(new CCameraFollower((f.mode == Mode.TPS) ? Mode.TOP : Mode.TPS));
+                }
         }
-        e.set(info);
     }
 }
