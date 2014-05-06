@@ -53,21 +53,23 @@ class DroneCfg {
 
 class AppStateDrone extends AbstractAppState {
 
-    EntitySet droneSet;
+    private EntitySet droneSet;
     private EntityData ed;
+    private Vector3f dir = new Vector3f(1.0f, 0.0f, 0.0f);
+    private Vector3f forward = new Vector3f(1.0f, 0.0f, 0.0f);
+    private Vector3f turn = new Vector3f(1.0f, 0.0f, 0.0f);
+    private Vector3f gravity = new Vector3f(0.0f, 9.0f, 0.0f);
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        super.initialize(stateManager, app);
         ed = ((Main) app).entityData;
         droneSet = ed.getEntities(CDroneInfo.class, CGeoPhy.class);
     }
-    Vector3f dir = new Vector3f(1.0f, 0.0f, 0.0f);
-    Vector3f forward = new Vector3f(1.0f, 0.0f, 0.0f);
-    Vector3f turn = new Vector3f(1.0f, 0.0f, 0.0f);
-    Vector3f gravity = new Vector3f(0.0f, 9.0f, 0.0f);
 
     @Override
     public void update(float tpf) {
+        super.update(tpf);
         droneSet.applyChanges();
         //for (Entity e : droneSet.getChangedEntities()) {
         Iterator<Entity> it = droneSet.iterator();
@@ -81,10 +83,6 @@ class AppStateDrone extends AbstractAppState {
             //gp.geom.getWorldRotation().multLocal(dir);
             phy0.getPhysicsRotation().multLocal(dir);
             dir.normalizeLocal();
-
-            System.out.println("dir " + dir);
-            System.out.println("loc " + phy0.getPhysicsLocation());
-
             forward.set(dir).multLocal(drone.forward * drone.cfg.forward);
             turn.set(0.0f, drone.turn * drone.cfg.turn, 0.0f);
             phy0.applyCentralForce(forward);
@@ -96,7 +94,6 @@ class AppStateDrone extends AbstractAppState {
                 dist = -1.0f;
             }
             gravity.set(0.0f, /*9.0f * phy0.getMass()*/ 9.0f * dist, 0.0f);
-            System.out.println("gravity " + gravity);
             phy0.setGravity(gravity);
             phy0.setLinearDamping(drone.cfg.linearDamping);
             phy0.setAngularVelocity(turn);
