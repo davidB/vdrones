@@ -46,7 +46,7 @@ class CDroneInfo implements EntityComponent {
 
 class DroneCfg {
 
-    public float turn = 0.5f;
+    public float turn = 2.0f;
     public float forward = 50f;
     public float linearDamping = 0.5f;
 }
