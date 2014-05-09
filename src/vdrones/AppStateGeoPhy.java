@@ -44,7 +44,7 @@ class AppStateGeoPhy extends AbstractAppState {
         geophySet = ed.getEntities(CGeoPhy.class);
         rootNode = ((Main) app).getRootNode();
         bulletAppState.getPhysicsSpace();
-        bulletAppState.setDebugEnabled(true);
+        //bulletAppState.setDebugEnabled(true);
     }
 
     @Override
