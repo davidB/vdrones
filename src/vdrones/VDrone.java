@@ -43,13 +43,11 @@ public class VDrone {
     }
 
     static Spatial newGeometry(AssetManager assetManager) {
-        Spatial geom = assetManager.loadModel("Models/vdrone.j3o");
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        //mat.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
-        mat.setColor("Diffuse", new ColorRGBA(0.118f, 0.118f, 0.545f, 0.25f));
-        //mat.setBoolean("VertexColor", true);
-        //mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.AlphaAdditive);
-        geom.setMaterial(mat);
+        Spatial geom = assetManager.loadModel("Models/drone.j3o");
+
+//        Material mat = assetManager.loadMaterial("Materials/Mat1.j3m");
+//        mat.setColor("Diffuse", new ColorRGBA(0.118f, 0.118f, 0.545f, 0.25f));
+//        geom.setMaterial(mat);
 
         return geom;
     }
