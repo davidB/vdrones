@@ -11,10 +11,9 @@
             <name>vdrones</name>
             <source-roots>
                 <root id="src.dir"/>
+                <root id="src.test.dir"/>
             </source-roots>
-            <test-roots>
-                <root id="test.test.dir"/>
-            </test-roots>
+            <test-roots/>
         </data>
     </configuration>
 </project>
