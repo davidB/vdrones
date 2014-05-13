@@ -3,3 +3,4 @@ target
 *.class
 *.so
 *.dll
+/dist/
