@@ -10,13 +10,17 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
+import tonegod.gui.controls.buttons.Button;
 import tonegod.gui.controls.extras.Indicator;
 import tonegod.gui.controls.lists.Slider;
 import tonegod.gui.controls.windows.LoginBox;
+import tonegod.gui.controls.windows.Panel;
 import tonegod.gui.core.Screen;
+import tonegod.gui.core.SubScreen;
 
 /**
  *
@@ -24,7 +28,8 @@ import tonegod.gui.core.Screen;
  */
 public class MultiScreen extends SimpleApplication {
 
-    PageManager pageMgr;
+    public PageManager pageMgr;
+    Screen screen;
     
     public static void main(String[] args) {
         MultiScreen app = new MultiScreen();
@@ -35,7 +40,8 @@ public class MultiScreen extends SimpleApplication {
     public void simpleInitApp() {
         pageMgr = new PageManager();
         pageMgr.stateManager = stateManager;
-        
+        screen = new Screen(this);
+        this.getGuiNode().addControl(screen);
         pageMgr.show(new Page1());
     }
 }
@@ -74,17 +80,19 @@ class Page0 implements Page {
 }
 
 class Screen0 extends AbstractAppState {
-    private SimpleApplication app;
+    MultiScreen app;
+    Panel panel;
     
     @Override
     public void initialize(AppStateManager stateManager, Application app0) {
-      super.initialize(stateManager, app); 
-      app = (SimpleApplication) app0;
+      super.initialize(stateManager, app);
+      app = (MultiScreen) app0;
       app.getInputManager().setCursorVisible(true);
-
-        Screen screen = new Screen(app);
-        app.getGuiNode().addControl(screen);
-
+      fillScreen(app.screen);
+    }
+    
+    void fillScreen(Screen screen) {
+        Panel p = new Panel(screen, Vector2f.ZERO, new Vector2f(screen.getWidth(), screen.getHeight()));
         final ColorRGBA color = new ColorRGBA();
 
         final Indicator ind = new Indicator(
@@ -104,7 +112,7 @@ class Screen0 extends AbstractAppState {
         ind.setMaxValue(100);
         ind.setDisplayPercentage();
 
-        screen.addElement(ind);
+        p.addChild(ind);
 
         Slider slider = new Slider(screen, new Vector2f(100, 100), Slider.Orientation.HORIZONTAL, true) {
             @Override
@@ -116,15 +124,62 @@ class Screen0 extends AbstractAppState {
             }
         };
 
-        screen.addElement(slider);
+        p.addChild(slider);
 
+        Button btn = new Button(screen, new Vector2f(100, screen.getHeight() - 200)) {
+            @Override
+            public void onButtonMouseLeftDown(MouseButtonEvent evt, boolean toggled) {
+                System.out.println("onButtonMouseLeftDown");
+            }
+            
+            @Override
+            public void onButtonMouseRightDown(MouseButtonEvent evt, boolean toggled) {
+                System.out.println("onButtonMouseRightDown");
+            }
+            
+            @Override
+            public void onButtonMouseLeftUp(MouseButtonEvent evt, boolean toggled) {
+                System.out.println("onButtonMouseLeftUp");
+                ((MultiScreen)app).pageMgr.show(new Page1());
+            }
+            
+            @Override
+            public void onButtonMouseRightUp(MouseButtonEvent evt, boolean toggled) {
+                System.out.println("onButtonMouseRightUp");
+            }
+            
+            @Override
+            public void onButtonFocus(MouseMotionEvent evt) {
+                System.out.println("onButtonFocus");
+            }
+            
+            @Override
+            public void onButtonLostFocus(MouseMotionEvent evt) {
+                System.out.println("onButtonLostFocus");
+            }
+        };
+        p.addChild(btn);
+        panel = p;
+        screen.addElement(p);
+    }
+
+    void emptyScreen(Screen screen) {
+        if (panel != null) {
+            panel.removeFromParent();
+            screen.removeElement(panel);
+        }
+    }
+    
+    @Override
+    public void cleanup() {
+        System.out.println("cleanup screen0");
+        super.cleanup();
+        emptyScreen(app.screen);
     }
 }
 
 class UserLogin extends AbstractAppState {
     MultiScreen app;
-    Screen screen;
- 
     LoginBox loginWindow;
 
     @Override
@@ -132,12 +187,11 @@ class UserLogin extends AbstractAppState {
         super.initialize(stateManager, app);
         this.app = (MultiScreen) app;
         this.app.getInputManager().setCursorVisible(true);
-        this.screen = new Screen(app);
-        this.app.getGuiNode().addControl(screen);
-        initLoginWindow();
+        fillScreen(this.app.screen);
     }
  
-    public void initLoginWindow() {
+    public void fillScreen(Screen screen) {
+        
         loginWindow = new LoginBox(screen, "loginWindow", new Vector2f(screen.getWidth()/2-175,screen.getHeight()/2-125)) {
             @Override
             public void onButtonLoginPressed(MouseButtonEvent evt, boolean toggled) {
@@ -152,12 +206,18 @@ class UserLogin extends AbstractAppState {
         };
         screen.addElement(loginWindow);
     }
- 
+    void emptyScreen(Screen screen) {
+        if (loginWindow != null) {
+            loginWindow.removeFromParent();
+            screen.removeElement(loginWindow);
+        }
+    }
+    
     @Override
     public void cleanup() {
+        System.out.println("cleanup login");
         super.cleanup();
- 
-        screen.removeElement(loginWindow);
+        emptyScreen(app.screen);
     }
  
     public void finalizeUserLogin() {
