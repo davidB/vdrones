@@ -8,7 +8,11 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.simsilica.es.Entity;
 import com.simsilica.es.EntityComponent;
 import com.simsilica.es.EntityData;
@@ -77,6 +81,9 @@ class AppStateDrone extends AbstractAppState {
             Entity e = it.next();
             CDroneInfo drone = e.get(CDroneInfo.class);
             CGeoPhy gp = e.get(CGeoPhy.class);
+            if (gp.geom.getParent() == null) {
+                continue;
+            }
             RigidBodyControl phy0 = ((RigidBodyControl) gp.physics.get(0));
 
             dir.set(1.0f, 0.0f, 0.0f);
@@ -97,6 +104,20 @@ class AppStateDrone extends AbstractAppState {
             phy0.setGravity(gravity);
             phy0.setLinearDamping(drone.cfg.linearDamping);
             phy0.setAngularVelocity(turn);
+
+            CollisionResults results = new CollisionResults();
+            Spatial area = gp.geom.getParent().getChild("area");
+            //gp.geom.collideWith(area, results);
+            // Use the results
+            if (results.size() > 0) {
+                // how to react when a collision was detected
+                CollisionResult closest = results.getClosestCollision();
+                System.out.println("What was hit? " + closest.getGeometry().getName());
+                System.out.println("Where was it hit? " + closest.getContactPoint());
+                System.out.println("Distance? " + closest.getDistance());
+            } else {
+                // how to react when no collision occured
+            }
         }
     }
 }
