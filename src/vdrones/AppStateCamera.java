@@ -10,13 +10,9 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.simsilica.es.Entity;
-import com.simsilica.es.EntityComponent;
-import com.simsilica.es.EntityData;
-import com.simsilica.es.EntitySet;
-import java.util.Iterator;
+import com.jme3.scene.Spatial;
 
-class CCameraFollower implements EntityComponent {
+class CameraFollower {
 
     public enum Mode {
 
@@ -27,7 +23,7 @@ class CCameraFollower implements EntityComponent {
     final Vector3f positionOffset = new Vector3f(-10.0f, 4.0f, 0.0f);
     final Vector3f up = Vector3f.UNIT_Y.clone();
 
-    CCameraFollower(Mode m) {
+    CameraFollower(Mode m) {
         mode = m;
         switch (m) {
             case TOP:
@@ -52,36 +48,29 @@ class CCameraFollower implements EntityComponent {
 
 class AppStateCamera extends AbstractAppState {
 
-    EntitySet targetSet;
-    private EntityData ed;
     private Camera camera;
     private Vector3f v0 = new Vector3f(0, 0, 0);
+    public Spatial target;
+    public CameraFollower follower;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        ed = ((Main) app).entityData;
-        targetSet = ed.getEntities(CCameraFollower.class, CGeoPhy.class);
         camera = app.getCamera();
     }
 
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        targetSet.applyChanges();
-        //take care only of the first
-        Iterator<Entity> it = targetSet.iterator();
-        if (it.hasNext()) {
-            Entity e = it.next();
-            CGeoPhy gp = e.get(CGeoPhy.class);
-            CCameraFollower follower = e.get(CCameraFollower.class);
-            float step = Math.min(1.0f, tpf * 4.0f);
-            offsetPosition(v0, follower.positionOffset, gp.geom.getWorldTranslation(), gp.geom.getWorldRotation());
-            camera.setLocation(approachMulti(v0, camera.getLocation(), step));
-            // TODO approachMulti on v0
-            offsetPosition(v0, follower.lookAtOffset, gp.geom.getWorldTranslation(), gp.geom.getWorldRotation());
-            camera.lookAt(v0, follower.up);
+        if (target == null || follower == null) {
+            return;
         }
+        float step = Math.min(1.0f, tpf * 4.0f);
+        offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation());
+        camera.setLocation(approachMulti(v0, camera.getLocation(), step));
+        // TODO approachMulti on v0
+        offsetPosition(v0, follower.lookAtOffset, target.getWorldTranslation(), target.getWorldRotation());
+        camera.lookAt(v0, follower.up);
     }
 
     private float approachMulti(float target, float current, float step) {

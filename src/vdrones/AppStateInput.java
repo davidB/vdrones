@@ -11,33 +11,38 @@ import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.simsilica.es.Entity;
-import com.simsilica.es.EntityComponent;
-import com.simsilica.es.EntityData;
-import com.simsilica.es.EntitySet;
-import vdrones.CCameraFollower.Mode;
 import static vdrones.DroneInput.LEFT;
-
-class CDroneInput implements EntityComponent {
-}
 
 public class AppStateInput extends AbstractAppState {
 
-    DroneInput droneInput;
+    final DroneInput droneInput = new DroneInput();
     InputManager inputManager;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        EntityData ed = ((Main) app).entityData;
-        droneInput = new DroneInput(ed);
         inputManager = app.getInputManager();
-        DroneInput.bind(inputManager, droneInput);
+        setEnabled(true);
+    }
+
+    void setDroneInfo(CDroneInfo v) {
+        droneInput.info = v;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled); //To change body of generated methods, choose Tools | Templates.
+        if (enabled) {
+            DroneInput.bind(inputManager, droneInput);
+        } else {
+            DroneInput.unbind(inputManager, droneInput);
+        }
     }
 
     @Override
     public void cleanup() {
-        DroneInput.unbind(inputManager, droneInput);
+        setEnabled(false);
+        inputManager = null;
         super.cleanup();
     }
 }
@@ -69,43 +74,26 @@ class DroneInput implements ActionListener {
     ////////////////////////////////////////////////////////////////////////////
     // Object
     ////////////////////////////////////////////////////////////////////////////
-    private EntitySet droneSet;
-
-    DroneInput(EntityData ed) {
-        droneSet = ed.getEntities(CDroneInfo.class, CDroneInput.class, CCameraFollower.class);
-    }
+    public CDroneInfo info;
 
     @Override
     public void onAction(String binding, boolean value, float tpf) {
-        droneSet.applyChanges();
-        if (droneSet.isEmpty()) {
-            System.out.println("no drone to drive");
+        if (info == null) {
             return;
         }
-        Entity e = droneSet.iterator().next();
-        CDroneInfo info = e.get(CDroneInfo.class).copy();
         switch (binding) {
             case LEFT:
                 info.turn = (value) ? 1 : 0;
-                e.set(info);
                 break;
             case RIGHT:
                 info.turn = (value) ? -1 : 0;
-                e.set(info);
                 break;
             case FORWARD:
                 info.forward = (value) ? 1 : 0;
-                e.set(info);
                 break;
             case BACKWARD:
                 info.forward = (value) ? -1 : 0;
-                e.set(info);
                 break;
-            case TOGGLE_CAMERA:
-                if (value) {
-                    CCameraFollower f = e.get(CCameraFollower.class);
-                    e.set(new CCameraFollower((f.mode == Mode.TPS) ? Mode.TOP : Mode.TPS));
-                }
         }
     }
 }

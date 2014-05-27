@@ -10,21 +10,20 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.simsilica.es.Entity;
-import com.simsilica.es.EntityComponent;
-import com.simsilica.es.EntityData;
-import com.simsilica.es.EntitySet;
-import java.util.Iterator;
+import java.io.IOException;
 
 /**
  *
  * @author dwayne
  */
-class CDroneInfo implements EntityComponent {
+class CDroneInfo implements Savable {
 
+    public static String K = "DroneInfo";
     public float turn = 0f;
     public float forward = 0f;
     public DroneCfg cfg;
@@ -46,6 +45,16 @@ class CDroneInfo implements EntityComponent {
         b.forward = forward;
         return b;
     }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
 
 class DroneCfg {
@@ -57,67 +66,57 @@ class DroneCfg {
 
 class AppStateDrone extends AbstractAppState {
 
-    private EntitySet droneSet;
-    private EntityData ed;
     private Vector3f dir = new Vector3f(1.0f, 0.0f, 0.0f);
     private Vector3f forward = new Vector3f(1.0f, 0.0f, 0.0f);
     private Vector3f turn = new Vector3f(1.0f, 0.0f, 0.0f);
     private Vector3f gravity = new Vector3f(0.0f, 9.0f, 0.0f);
+    public Spatial entity;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        ed = ((Main) app).entityData;
-        droneSet = ed.getEntities(CDroneInfo.class, CGeoPhy.class);
     }
 
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        droneSet.applyChanges();
-        //for (Entity e : droneSet.getChangedEntities()) {
-        Iterator<Entity> it = droneSet.iterator();
-        while (it.hasNext()) {
-            Entity e = it.next();
-            CDroneInfo drone = e.get(CDroneInfo.class);
-            CGeoPhy gp = e.get(CGeoPhy.class);
-            if (gp.geom.getParent() == null) {
-                continue;
-            }
-            RigidBodyControl phy0 = ((RigidBodyControl) gp.physics.get(0));
+        if (entity == null || entity.getParent() == null) {
+            return;
+        }
+        CDroneInfo drone = entity.getUserData(CDroneInfo.K);
 
-            dir.set(1.0f, 0.0f, 0.0f);
-            //gp.geom.getWorldRotation().multLocal(dir);
-            phy0.getPhysicsRotation().multLocal(dir);
-            dir.normalizeLocal();
-            forward.set(dir).multLocal(drone.forward * drone.cfg.forward);
-            turn.set(0.0f, drone.turn * drone.cfg.turn, 0.0f);
-            phy0.applyCentralForce(forward);
-            float dist = 0.0f - phy0.getPhysicsLocation().y;
-            if (dist > 1.0) {
-                dist = 1.0f;
-            }
-            if (dist < -1.0) {
-                dist = -1.0f;
-            }
-            gravity.set(0.0f, /*9.0f * phy0.getMass()*/ 9.0f * dist, 0.0f);
-            phy0.setGravity(gravity);
-            phy0.setLinearDamping(drone.cfg.linearDamping);
-            phy0.setAngularVelocity(turn);
+        RigidBodyControl phy0 = entity.getControl(RigidBodyControl.class);
+        dir.set(1.0f, 0.0f, 0.0f);
+        //gp.geom.getWorldRotation().multLocal(dir);
+        phy0.getPhysicsRotation().multLocal(dir);
+        dir.normalizeLocal();
+        forward.set(dir).multLocal(drone.forward * drone.cfg.forward);
+        turn.set(0.0f, drone.turn * drone.cfg.turn, 0.0f);
+        phy0.applyCentralForce(forward);
+        float dist = 0.0f - phy0.getPhysicsLocation().y;
+        if (dist > 1.0) {
+            dist = 1.0f;
+        }
+        if (dist < -1.0) {
+            dist = -1.0f;
+        }
+        gravity.set(0.0f, /*9.0f * phy0.getMass()*/ 9.0f * dist, 0.0f);
+        phy0.setGravity(gravity);
+        phy0.setLinearDamping(drone.cfg.linearDamping);
+        phy0.setAngularVelocity(turn);
 
-            CollisionResults results = new CollisionResults();
-            Spatial area = gp.geom.getParent().getChild("area");
-            //gp.geom.collideWith(area, results);
-            // Use the results
-            if (results.size() > 0) {
-                // how to react when a collision was detected
-                CollisionResult closest = results.getClosestCollision();
-                System.out.println("What was hit? " + closest.getGeometry().getName());
-                System.out.println("Where was it hit? " + closest.getContactPoint());
-                System.out.println("Distance? " + closest.getDistance());
-            } else {
-                // how to react when no collision occured
-            }
+        CollisionResults results = new CollisionResults();
+        Spatial area = entity.getParent().getChild("area");
+        //gp.geom.collideWith(area, results);
+        // Use the results
+        if (results.size() > 0) {
+            // how to react when a collision was detected
+            CollisionResult closest = results.getClosestCollision();
+            System.out.println("What was hit? " + closest.getGeometry().getName());
+            System.out.println("Where was it hit? " + closest.getContactPoint());
+            System.out.println("Distance? " + closest.getDistance());
+        } else {
+            // how to react when no collision occured
         }
     }
 }

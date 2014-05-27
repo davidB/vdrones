@@ -3,15 +3,12 @@ package vdrones;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import com.jme3.bullet.joints.SliderJoint;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.export.JmeExporter;
@@ -35,11 +32,10 @@ public class VDrone {
         new Vector3f(0, 1, 0), new Vector3f(2, 0, 0), new Vector3f(-1, 0, -1), new Vector3f(-1, 0, 1)
     };
 
-    static CGeoPhy newDrone(AssetManager assetManager) {
+    static Spatial newDrone(AssetManager assetManager) {
         Spatial geom = newGeometry(assetManager);
-        List<Object> phy = newPhysics(geom);
-        CGeoPhy b = new CGeoPhy(geom, phy);
-        return b;
+        newPhysics(geom);
+        return geom;
     }
 
     static Spatial newGeometry(AssetManager assetManager) {
@@ -91,13 +87,10 @@ public class VDrone {
      return geom;
      }
      */
-    static List<Object> newPhysics(Spatial spatial) {
-        ArrayList<Object> b = new ArrayList<>(1);
+    static void newPhysics(Spatial spatial) {
         CollisionShape shape = CollisionShapeFactory.createDynamicMeshShape(spatial);
         RigidBodyControl ctrl = new RigidBodyControl(shape, 4.0f);
-        b.add(ctrl);
         spatial.addControl(ctrl);
-        return b;
     }
     /*
      static List<Object> newPhysics(Spâtial spatial) {
