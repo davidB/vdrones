@@ -28,7 +28,7 @@ class AppStateGeoPhy extends AbstractAppState {
         System.out.println("bulletAppState.getSpeed() : " + bulletAppState.getSpeed());
         //bulletAppState.setSpeed(30); //30 fps
         //bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
-        bulletAppState.setDebugEnabled(true);
+        //bulletAppState.setDebugEnabled(true);
     }
 
     @Override

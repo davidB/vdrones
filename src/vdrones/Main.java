@@ -75,6 +75,14 @@ public class Main extends SimpleApplication {
             stateManager.getState(AppStateGeoPhy.class).toAdd.offer(area);
 
             initLights(rootNode, assetManager, viewPort);
+
+            Spatial n = assetManager.loadModel("Models/track0.j3o");
+//            CollisionShape cshape = CollisionShapeFactory.createMeshShape(n);
+//            RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
+//            n.addControl(phy0);
+            stateManager.getState(AppStateGeoPhy.class).toAdd.offer(n);
+            //n.setLocalScale(3.0f, 3.0f, 0.5f);
+            //rootNode.attachChild(n);
         }
     }
 
@@ -119,7 +127,7 @@ public class Main extends SimpleApplication {
     static void initLights(Node area, AssetManager assetManager, ViewPort viewPort) {
         DirectionalLight light = new DirectionalLight();
         light.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        light.setColor(ColorRGBA.White.multLocal(1.0f));
+        light.setColor(ColorRGBA.White.multLocal(.9f));
         area.addLight(light);
         shadow(light, assetManager, viewPort);
 
