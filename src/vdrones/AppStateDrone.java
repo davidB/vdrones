@@ -60,7 +60,7 @@ class CDroneInfo implements Savable {
 class DroneCfg {
 
     public float turn = 2.0f;
-    public float forward = 50f;
+    public float forward = 150f;
     public float linearDamping = 0.5f;
 }
 
@@ -89,6 +89,7 @@ class AppStateDrone extends AbstractAppState {
         dir.set(1.0f, 0.0f, 0.0f);
         //gp.geom.getWorldRotation().multLocal(dir);
         phy0.getPhysicsRotation().multLocal(dir);
+        dir.y = 0f;
         dir.normalizeLocal();
         forward.set(dir).multLocal(drone.forward * drone.cfg.forward);
         turn.set(0.0f, drone.turn * drone.cfg.turn, 0.0f);
