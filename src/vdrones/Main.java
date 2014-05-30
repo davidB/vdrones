@@ -5,6 +5,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.input.ChaseCamera;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
@@ -55,6 +57,10 @@ public class Main extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         if (!spawned) {
             spawned = true;
+            Spatial area = newArea(assetManager);
+            stateManager.getState(AppStateGeoPhy.class).toAdd.offer(area);
+            initLights(area, rootNode, assetManager, viewPort);
+
             Spatial vd = VDrone.newDrone(assetManager);
             CDroneInfo info = new CDroneInfo();
             vd.setUserData(CDroneInfo.K, info);
@@ -63,10 +69,6 @@ public class Main extends SimpleApplication {
             stateManager.getState(AppStateCamera.class).target = vd;
             stateManager.getState(AppStateCamera.class).follower = new CameraFollower(CameraFollower.Mode.TPS);
             stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
-            Spatial area = newArea(assetManager);
-            stateManager.getState(AppStateGeoPhy.class).toAdd.offer(area);
-
-            initLights(rootNode, assetManager, viewPort);
         }
     }
 
@@ -79,22 +81,23 @@ public class Main extends SimpleApplication {
      * Make a solid floor and add it to the scene.
      */
     static Spatial newArea(AssetManager assetManager) {
-        Node area = new Node("area");
         Spatial n = assetManager.loadModel("Scenes/area0.j3o");
-        area.attachChild(n);
-        return area;
+        n.setName("area");
+        return n;
     }
 
-    static void initLights(Node anchor, AssetManager assetManager, ViewPort viewPort) {
-        AmbientLight light0 = new AmbientLight();
-        light0.setColor(ColorRGBA.White.mult(0.4f));
-        anchor.addLight(light0);
-
-        DirectionalLight light = new DirectionalLight();
-        light.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        light.setColor(ColorRGBA.White.multLocal(.9f));
-        anchor.addLight(light);
-        shadow(light, assetManager, viewPort);
+    /**
+     * Move lights from src (ex: area) to dest (ex: rootNode) and enable shadow for directinalLigths
+     */
+    static void initLights(Spatial src, Spatial dest, AssetManager assetManager, ViewPort viewPort) {
+        for (Light l : src.getLocalLightList()) {
+            dest.addLight(l);
+            if (l instanceof DirectionalLight) {
+                System.out.println("FOUND Light");
+                shadow((DirectionalLight) l, assetManager, viewPort);
+            }
+        }
+        src.getLocalLightList().clear();
     }
 
     static void shadow(DirectionalLight l, AssetManager assetManager, ViewPort viewPort) {
@@ -111,7 +114,7 @@ public class Main extends SimpleApplication {
         dlsf.setLambda(0.55f);
         dlsf.setShadowIntensity(0.6f);
         dlsf.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
-        dlsf.setEnabled(false);
+        dlsf.setEnabled(true);
 
         SSAOFilter ssaoFilter = new SSAOFilter(0.2f, 5.0f, 0.05f, 0.3f);
 
