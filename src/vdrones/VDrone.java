@@ -8,8 +8,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import com.jme3.bullet.joints.SliderJoint;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -33,18 +31,8 @@ public class VDrone {
     };
 
     static Spatial newDrone(AssetManager assetManager) {
-        Spatial geom = newGeometry(assetManager);
-        newPhysics(geom);
-        return geom;
-    }
-
-    static Spatial newGeometry(AssetManager assetManager) {
         Spatial geom = assetManager.loadModel("Models/drone.j3o");
-
-//        Material mat = assetManager.loadMaterial("Materials/Mat1.j3m");
-//        mat.setColor("Diffuse", new ColorRGBA(0.118f, 0.118f, 0.545f, 0.25f));
-//        geom.setMaterial(mat);
-
+        newPhysics(geom);
         return geom;
     }
 
@@ -138,17 +126,18 @@ public class VDrone {
      return joint;
      }
      */
-
-    static Object join(ArrayList<Object> b, int i, int j) {
-        RigidBodyControl ri = (RigidBodyControl) b.get(i);
-        RigidBodyControl rj = (RigidBodyControl) b.get(j);
-        SliderJoint joint = new SliderJoint(ri, rj, Vector3f.ZERO, Vector3f.ZERO, true);
-        //joint.setCollisionBetweenLinkedBodys(false);
-        Vector3f v = ri.getPhysicsLocation().subtract(rj.getPhysicsLocation());
-        //joint.setLinearLowerLimit(v.mult(0.5f));
-        //joint.setLimit(1.0f,1.0f,0);
-        return joint;
-    }
+    /*
+     static Object join(ArrayList<Object> b, int i, int j) {
+     RigidBodyControl ri = (RigidBodyControl) b.get(i);
+     RigidBodyControl rj = (RigidBodyControl) b.get(j);
+     SliderJoint joint = new SliderJoint(ri, rj, Vector3f.ZERO, Vector3f.ZERO, true);
+     //joint.setCollisionBetweenLinkedBodys(false);
+     Vector3f v = ri.getPhysicsLocation().subtract(rj.getPhysicsLocation());
+     //joint.setLinearLowerLimit(v.mult(0.5f));
+     //joint.setLimit(1.0f,1.0f,0);
+     return joint;
+     }
+     */
 }
 
 class DronePhyGeom implements Control {

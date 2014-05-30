@@ -2,25 +2,17 @@ package vdrones;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.ChaseCamera;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
@@ -88,35 +80,7 @@ public class Main extends SimpleApplication {
      */
     static Spatial newArea(AssetManager assetManager) {
         Node area = new Node("area");
-        Material mat = assetManager.loadMaterial("Materials/Mat1.j3m");
-        mat.setColor("Diffuse", ColorRGBA.White);
-        mat.setColor("Specular", ColorRGBA.White);
-        /*
-         Box shape = new Box(100f, 0.1f, 100f);
-         Geometry geo = new Geometry("Floor", shape);
-         //geo.setMaterial(mat);
-         //geo.setLocalTranslation(0, -1.0f, 0);
-         geo.setShadowMode(RenderQueue.ShadowMode.Receive);
-         area.attachChild(geo);
-
-         Geometry geo2 = new Geometry("box0", new Box(2.f, 1f, 3f));
-         geo2.setLocalTranslation(0f, 1f, 4f);
-         //geo2.setMaterial(mat);
-         geo2.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-         area.attachChild(geo2);
-
-         area.setLocalTranslation(0f, -1.0f, 0f);
-         area.setMaterial(mat);
-
-         CollisionShape cshape = CollisionShapeFactory.createMeshShape(area);
-         // Make the floor physical with mass 0.0f!
-         RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
-         geo.addControl(phy0);
-         */
         Spatial n = assetManager.loadModel("Scenes/area0.j3o");
-//            CollisionShape cshape = CollisionShapeFactory.createMeshShape(n);
-//            RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
-//            n.addControl(phy0);
         area.attachChild(n);
         return area;
     }
