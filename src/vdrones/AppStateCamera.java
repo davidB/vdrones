@@ -5,11 +5,16 @@
 package vdrones;
 
 import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 class CameraFollower {
@@ -52,11 +57,13 @@ class AppStateCamera extends AbstractAppState {
     private Vector3f v0 = new Vector3f(0, 0, 0);
     public Spatial target;
     public CameraFollower follower;
+    public Node rootNode;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         camera = app.getCamera();
+        rootNode = ((SimpleApplication) app).getRootNode();
     }
 
     @Override
@@ -88,7 +95,28 @@ class AppStateCamera extends AbstractAppState {
     private Vector3f offsetPosition(Vector3f out, Vector3f offset, Vector3f targetPosition, Quaternion targetRotation) {
         out.set(offset);
         targetRotation.multLocal(out);
-        out.addLocal(targetPosition);
+        CollisionResults results = new CollisionResults();
+        Ray ray = new Ray(targetPosition, out);
+        Spatial area = rootNode.getChild("area");
+        if (area == null) {
+            return out;
+        }
+        area.collideWith(ray, results);
+        if (results.size() > 0) {
+            CollisionResult closest = results.getClosestCollision();
+            float distance = closest.getDistance();
+            if ((distance * distance) < offset.lengthSquared()) {
+                out.set(closest.getContactPoint());
+            } else {
+                out.set(offset);
+                targetRotation.multLocal(out);
+                out.addLocal(targetPosition);
+            }
+        } else {
+            //out.set(offset);
+            //targetRotation.multLocal(out);
+            out.addLocal(targetPosition);
+        }
         return out;
     }
 }
