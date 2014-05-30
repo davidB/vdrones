@@ -75,14 +75,6 @@ public class Main extends SimpleApplication {
             stateManager.getState(AppStateGeoPhy.class).toAdd.offer(area);
 
             initLights(rootNode, assetManager, viewPort);
-
-            Spatial n = assetManager.loadModel("Models/track0.j3o");
-//            CollisionShape cshape = CollisionShapeFactory.createMeshShape(n);
-//            RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
-//            n.addControl(phy0);
-            stateManager.getState(AppStateGeoPhy.class).toAdd.offer(n);
-            //n.setLocalScale(3.0f, 3.0f, 0.5f);
-            //rootNode.attachChild(n);
         }
     }
 
@@ -96,50 +88,49 @@ public class Main extends SimpleApplication {
      */
     static Spatial newArea(AssetManager assetManager) {
         Node area = new Node("area");
-
         Material mat = assetManager.loadMaterial("Materials/Mat1.j3m");
         mat.setColor("Diffuse", ColorRGBA.White);
         mat.setColor("Specular", ColorRGBA.White);
-        Box shape = new Box(100f, 0.1f, 100f);
-        Geometry geo = new Geometry("Floor", shape);
-        //geo.setMaterial(mat);
-        //geo.setLocalTranslation(0, -1.0f, 0);
-        geo.setShadowMode(RenderQueue.ShadowMode.Receive);
-        area.attachChild(geo);
+        /*
+         Box shape = new Box(100f, 0.1f, 100f);
+         Geometry geo = new Geometry("Floor", shape);
+         //geo.setMaterial(mat);
+         //geo.setLocalTranslation(0, -1.0f, 0);
+         geo.setShadowMode(RenderQueue.ShadowMode.Receive);
+         area.attachChild(geo);
 
-        Geometry geo2 = new Geometry("box0", new Box(2.f, 1f, 3f));
-        geo2.setLocalTranslation(0f, 1f, 4f);
-        //geo2.setMaterial(mat);
-        geo2.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-        area.attachChild(geo2);
+         Geometry geo2 = new Geometry("box0", new Box(2.f, 1f, 3f));
+         geo2.setLocalTranslation(0f, 1f, 4f);
+         //geo2.setMaterial(mat);
+         geo2.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+         area.attachChild(geo2);
 
-        area.setLocalTranslation(0f, -1.0f, 0f);
-        area.setMaterial(mat);
+         area.setLocalTranslation(0f, -1.0f, 0f);
+         area.setMaterial(mat);
 
-        CollisionShape cshape = CollisionShapeFactory.createMeshShape(area);
-        /* Make the floor physical with mass 0.0f! */
-        RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
-        geo.addControl(phy0);
-
+         CollisionShape cshape = CollisionShapeFactory.createMeshShape(area);
+         // Make the floor physical with mass 0.0f!
+         RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
+         geo.addControl(phy0);
+         */
+        Spatial n = assetManager.loadModel("Scenes/area0.j3o");
+//            CollisionShape cshape = CollisionShapeFactory.createMeshShape(n);
+//            RigidBodyControl phy0 = new RigidBodyControl(cshape, 0.0f);
+//            n.addControl(phy0);
+        area.attachChild(n);
         return area;
     }
 
-    static void initLights(Node area, AssetManager assetManager, ViewPort viewPort) {
+    static void initLights(Node anchor, AssetManager assetManager, ViewPort viewPort) {
+        AmbientLight light0 = new AmbientLight();
+        light0.setColor(ColorRGBA.White.mult(0.4f));
+        anchor.addLight(light0);
+
         DirectionalLight light = new DirectionalLight();
         light.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         light.setColor(ColorRGBA.White.multLocal(.9f));
-        area.addLight(light);
+        anchor.addLight(light);
         shadow(light, assetManager, viewPort);
-
-        AmbientLight light0 = new AmbientLight();
-        light0.setColor(ColorRGBA.White.mult(0.4f));
-        area.addLight(light0);
-
-        PointLight light1 = new PointLight();
-        light1.setColor(ColorRGBA.White.multLocal(4.0f));
-        light1.setRadius(1f);
-        light1.setPosition(new Vector3f(0.0f, 3.0f, 0.0f));
-        //area.addLight(light1);
     }
 
     static void shadow(DirectionalLight l, AssetManager assetManager, ViewPort viewPort) {
