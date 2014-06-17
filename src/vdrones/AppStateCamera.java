@@ -73,10 +73,10 @@ class AppStateCamera extends AbstractAppState {
             return;
         }
         float step = Math.min(1.0f, tpf * 4.0f);
-        offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation());
+        offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation(), true);
         camera.setLocation(approachMulti(v0, camera.getLocation(), step));
         // TODO approachMulti on v0
-        offsetPosition(v0, follower.lookAtOffset, target.getWorldTranslation(), target.getWorldRotation());
+        offsetPosition(v0, follower.lookAtOffset, target.getWorldTranslation(), target.getWorldRotation(), false);
         camera.lookAt(v0, follower.up);
     }
 
@@ -92,31 +92,26 @@ class AppStateCamera extends AbstractAppState {
         return target;
     }
 
-    private Vector3f offsetPosition(Vector3f out, Vector3f offset, Vector3f targetPosition, Quaternion targetRotation) {
+    private Vector3f offsetPosition(Vector3f out, Vector3f offset, Vector3f targetPosition, Quaternion targetRotation, boolean nearest) {
         out.set(offset);
         targetRotation.multLocal(out);
-        CollisionResults results = new CollisionResults();
-        Ray ray = new Ray(targetPosition, out);
-        Spatial area = rootNode.getChild("area");
-        if (area == null) {
-            return out;
-        }
-        area.collideWith(ray, results);
-        if (results.size() > 0) {
-            CollisionResult closest = results.getClosestCollision();
-            float distance = closest.getDistance();
-            if ((distance * distance) < offset.lengthSquared()) {
-                out.set(closest.getContactPoint());
-            } else {
-                out.set(offset);
-                targetRotation.multLocal(out);
-                out.addLocal(targetPosition);
+        if (nearest) {
+            Spatial area = rootNode.getChild(EntityFactory.LevelName);
+            if (area != null) {
+                CollisionResults results = new CollisionResults();
+                Ray ray = new Ray(targetPosition, out);
+                area.collideWith(ray, results);
+                if (results.size() > 0) {
+                    CollisionResult closest = results.getClosestCollision();
+                    float distance = closest.getDistance();
+                    if ((distance * distance) < offset.lengthSquared()) {
+                        out.set(closest.getContactPoint()).subtractLocal(targetPosition);
+                    }
+                }
             }
-        } else {
-            //out.set(offset);
-            //targetRotation.multLocal(out);
-            out.addLocal(targetPosition);
         }
+        out.addLocal(targetPosition);
         return out;
     }
+
 }
