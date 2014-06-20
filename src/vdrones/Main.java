@@ -55,7 +55,7 @@ public class Main extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         if (!spawned) {
             spawned = true;
-            Spatial area = stateManager.getState(AppStateLevelLoader.class).loadLevel(efactory.newLevel("area0"), true);
+            stateManager.getState(AppStateLevelLoader.class).loadLevel(efactory.newLevel("area0"), true);
             
             //Spatial vd = VDrone.newDrone(assetManager);
             Spatial vd = efactory.newDrone();
