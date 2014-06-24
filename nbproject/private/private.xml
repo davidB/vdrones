@@ -4,16 +4,19 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/VDrone.java</file>
-            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateGeoPhy.java</file>
-            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/Geometries.java</file>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateInput.java</file>
-            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateDrone.java</file>
-            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/Main.java</file>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/ControlTranslationAnim.java</file>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/EntityFactory.java</file>
-            <file>file:/home/dwayne/work/jme3/vdrones/test/NewAppState.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStatePostProcessing.java</file>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateLevelLoader.java</file>
             <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateCamera.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateGeoPhy.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateShadow.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/ControlSpatialsToBones.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/AppStateDrone.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/Main.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/test/NewAppState.java</file>
+            <file>file:/home/dwayne/work/jme3/vdrones/src/vdrones/Spatials.java</file>
         </group>
     </open-files>
 </project-private>
