@@ -9,6 +9,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Spatial;
+import org.lwjgl.opengl.Display;
 
 /**
  * test
@@ -39,7 +40,7 @@ public class Main extends SimpleApplication {
         //setDisplayStatView(true);
         //setDisplayFps(true);
         //flyCam.setEnabled(false);
-        
+
         stateManager.detach(stateManager.getState(FlyCamAppState.class));
         stateManager.attach(new StatsAppState());
         stateManager.attach(new DebugKeysAppState());
@@ -54,11 +55,16 @@ public class Main extends SimpleApplication {
         stateManager.attach(new AppStateLevelLoader());
         stateManager.attach(new AppStateHudInGame());
         spawned = false;
-        setDebug(false);
+        setDebug(true);
     }
 
     @Override
     public void simpleUpdate(float tpf) {
+        if (Display.wasResized()) {
+            this.settings.setWidth(Display.getWidth());
+            this.settings.setHeight(Display.getHeight());
+            this.reshape(this.settings.getWidth(), this.settings.getHeight());
+        }
         if (!spawned) {
             spawned = true;
             EntityFactory efactory = Injectors.find(this).getInstance(EntityFactory.class);
@@ -86,5 +92,6 @@ public class Main extends SimpleApplication {
         stateManager.getState(BulletAppState.class).setDebugEnabled(v);
         inputManager.setCursorVisible(v);
         viewPort.setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
+        Display.setResizable(v);
     }
  }
