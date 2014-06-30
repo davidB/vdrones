@@ -1,6 +1,9 @@
 build
 target
+lib
 *.class
 *.so
 *.dll
+*.jar
 /dist/
+.gradle
