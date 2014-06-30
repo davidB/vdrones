@@ -13,6 +13,8 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -76,6 +78,15 @@ public class EntityFactory {
         Spatial b = assetManager.loadModel("Models/plateform8.j3o");
         log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
         copyCtrlAndTransform(src, b);
+        return b;
+    }
+    
+    public Spatial newBox() {
+        Box shape = new Box(1, 1, 1); // create cube shape
+        Geometry b = new Geometry("Box", shape);  // create cube geometry from the shape
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");  // create a simple material
+        mat.setColor("Color", ColorRGBA.Blue);   // set color of material to blue
+        b.setMaterial(mat);                   // set the cube's material
         return b;
     }
 /*
