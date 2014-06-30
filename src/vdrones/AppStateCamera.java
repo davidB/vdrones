@@ -54,7 +54,7 @@ class CameraFollower {
 class AppStateCamera extends AbstractAppState {
 
     private Camera camera;
-    private Vector3f v0 = new Vector3f(0, 0, 0);
+    private final Vector3f v0 = new Vector3f(0, 0, 0);
     public Spatial target;
     public CameraFollower follower;
     public Node rootNode;
@@ -99,7 +99,8 @@ class AppStateCamera extends AbstractAppState {
             Spatial area = rootNode.getChild(EntityFactory.LevelName);
             if (area != null) {
                 CollisionResults results = new CollisionResults();
-                Ray ray = new Ray(targetPosition, out);
+                //FIXME: create tmp vec3
+                Ray ray = new Ray(targetPosition, out.normalize());
                 area.collideWith(ray, results);
                 if (results.size() > 0) {
                     CollisionResult closest = results.getClosestCollision();
