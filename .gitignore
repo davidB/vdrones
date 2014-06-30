@@ -7,3 +7,5 @@ lib
 *.jar
 /dist/
 .gradle
+*.blend1
+*.blend2
