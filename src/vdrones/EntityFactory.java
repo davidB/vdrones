@@ -6,44 +6,27 @@
 
 package vdrones;
 
-import com.bulletphysics.linearmath.Transform;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
+import com.google.inject.Inject;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
-import com.jme3.bullet.joints.SliderJoint;
-import com.jme3.bullet.util.CollisionShapeFactory;
-import com.jme3.bullet.util.Converter;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.debug.SkeletonDebugger;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import java.io.IOException;
 import java.nio.Buffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -54,7 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EntityFactory {
     public static final String LevelName = "scene0";
     public static final String UD_joints = "joints";
-        
+
+    @Inject
     public AssetManager assetManager;
 
     public Spatial newLevel(String name) {

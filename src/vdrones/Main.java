@@ -14,15 +14,22 @@ import com.jme3.scene.Spatial;
  * test
  */
 public class Main extends SimpleApplication {
-
-
-
-    public static void main(String[] args) {
+    private static boolean assertionsEnabled;
+    private static boolean enabled() {
+        Main.assertionsEnabled = true;
+        return true;
+    }
+    
+    public static void main(final String[] args) {
+        assert Main.enabled();
+        if (!Main.assertionsEnabled) {
+            throw new RuntimeException("Assertions must be enabled (vm args -ea");
+        }
         Main app = new Main();
         app.start();
     }
+    
     private boolean spawned = false;
-    public EntityFactory efactory;
 
     public Main() {
     }
@@ -32,8 +39,6 @@ public class Main extends SimpleApplication {
         //setDisplayStatView(true);
         //setDisplayFps(true);
         //flyCam.setEnabled(false);
-        efactory = new EntityFactory();
-        efactory.assetManager = assetManager;
         
         stateManager.detach(stateManager.getState(FlyCamAppState.class));
         stateManager.attach(new StatsAppState());
@@ -47,6 +52,7 @@ public class Main extends SimpleApplication {
         stateManager.attach(new AppStateDrone());
         stateManager.attach(new AppStateGeoPhy());
         stateManager.attach(new AppStateLevelLoader());
+        stateManager.attach(new AppStateHudInGame());
         spawned = false;
         setDebug(false);
     }
@@ -55,6 +61,8 @@ public class Main extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         if (!spawned) {
             spawned = true;
+            EntityFactory efactory = Injectors.find(this).getInstance(EntityFactory.class);
+
             stateManager.getState(AppStateLevelLoader.class).loadLevel(efactory.newLevel("area0"), true);
             
             //Spatial vd = VDrone.newDrone(assetManager);

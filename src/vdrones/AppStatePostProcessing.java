@@ -8,18 +8,17 @@ import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.ViewPort;
 import com.jme3.system.AppSettings;
-import com.simsilica.lemur.event.BaseAppState;
 
 /**
  * @author davidB
  */
-public class AppStatePostProcessing extends BaseAppState {
+public class AppStatePostProcessing extends AppState0 {
     private FilterPostProcessor fpp;
     
     @Override
-    protected void initialize(Application app) {
-        AssetManager assets = app.getAssetManager();
-        AppSettings settings = app.getContext().getSettings();
+    protected void initialize() {
+        AssetManager assets = injector.getInstance(AssetManager.class);
+        AppSettings settings = injector.getInstance(Application.class).getContext().getSettings();
         fpp = new FilterPostProcessor(assets);
  
         // See if sampling is enabled
@@ -54,19 +53,19 @@ public class AppStatePostProcessing extends BaseAppState {
     }
 
     @Override
-    protected void cleanup(Application aplctn) {
+    protected void dispose() {
         fpp = null;
     }
 
     @Override
     protected void enable() {
-        ViewPort viewport = getApplication().getViewPort();
+        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.addProcessor(fpp);
     }
 
     @Override
     protected void disable() {
-        ViewPort viewport = getApplication().getViewPort();
+        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.removeProcessor(fpp);
     }
     

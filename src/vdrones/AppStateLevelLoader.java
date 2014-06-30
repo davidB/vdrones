@@ -1,20 +1,12 @@
 package vdrones;
 
-import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.shadow.DirectionalLightShadowFilter;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
-import com.jme3.shadow.EdgeFilteringMode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -22,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author dwayne
  */
 @Slf4j
-public class AppStateLevelLoader extends AbstractAppState {
+public class AppStateLevelLoader extends AppState0 {
     public final static int SHADOWMAP_SIZE = 2048;
     
     private SimpleApplication sapp;
@@ -31,15 +23,9 @@ public class AppStateLevelLoader extends AbstractAppState {
     private EntityFactory factory;
     
     @Override
-    public void initialize(AppStateManager stateManager, Application app) {
-        super.initialize(stateManager, app);
-        sapp = ((SimpleApplication) app);
-        if (sapp instanceof Main) {
-            factory = ((Main)sapp).efactory;
-        } else {
-            factory = new EntityFactory();
-            factory.assetManager = app.getAssetManager();
-        }
+    protected void enable() {
+        sapp = injector.getInstance(SimpleApplication.class);
+        factory = injector.getInstance(EntityFactory.class);
         rootNode = sapp.getRootNode();
         Spatial scene = rootNode.getChild("scene");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {}", rootNode.getQuantity());
@@ -77,9 +63,8 @@ public class AppStateLevelLoader extends AbstractAppState {
     }
     
     @Override
-    public void cleanup() {
+    public void disable() {
         unloadLevel();
-        super.cleanup();
     }
     
     /**

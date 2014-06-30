@@ -1,6 +1,8 @@
 package vdrones;
 
 import com.jme3.app.Application;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.post.FilterPostProcessor;
@@ -9,25 +11,40 @@ import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.ViewPort;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.simsilica.lemur.event.BaseAppState;
 
 /**
  * @author davidB
  */
-public class AppStateShadow extends BaseAppState {
+public class AppStateShadow extends AppState0 {
     private FilterPostProcessor fpp;
 
     @Override
-    protected void initialize(Application app) {
-        AssetManager assets = app.getAssetManager();
-        fpp = new FilterPostProcessor(assets);
+    protected void initialize() {
+        fpp = new FilterPostProcessor(injector.getInstance(AssetManager.class));
+    }
+    
+    @Override
+    protected void enable() {
+        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
+        viewport.addProcessor(fpp);
     }
 
+    @Override
+    protected void disable() {
+        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
+        viewport.removeProcessor(fpp);
+    }
+    
+    @Override
+    protected void dispose() {
+        fpp = null;
+    }
+    
     public void addLight(DirectionalLight l) {
       
         // Setup shadows
         //-------------------------------------
-        DirectionalLightShadowFilter shadows = new DirectionalLightShadowFilter(getApplication().getAssetManager(), 4096, 4);
+        DirectionalLightShadowFilter shadows = new DirectionalLightShadowFilter(injector.getInstance(AssetManager.class), 4096, 4);
         shadows.setShadowIntensity(0.6f); 
         shadows.setLambda(0.55f);
         shadows.setShadowIntensity(0.6f);
@@ -45,23 +62,6 @@ public class AppStateShadow extends BaseAppState {
         fpp.addFilter(lightScattering);
         
         lightScattering.setLightPosition(l.getDirection().mult(-300));
-    }
-
-    @Override
-    protected void cleanup(Application aplctn) {
-        fpp = null;
-    }
-
-    @Override
-    protected void enable() {
-        ViewPort viewport = getApplication().getViewPort();
-        viewport.addProcessor(fpp);
-    }
-
-    @Override
-    protected void disable() {
-        ViewPort viewport = getApplication().getViewPort();
-        viewport.removeProcessor(fpp);
     }
 
     void reset() {
