@@ -54,7 +54,16 @@ public class AppStateGeoPhy extends AbstractAppState {
             e.removeFromParent();
         });
         toAdd.stream().filter((e) -> !(e == null)).forEach((e) -> {
-            rootNode.attachChild(e);
+        	Node dest = rootNode;
+        	String destName = e.getUserData("dest");
+        	if (destName != null) {
+        		dest = (Node) rootNode.getChild(destName);
+        		if (dest == null) {
+        			dest = new Node(destName);
+        			rootNode.attachChild(dest);
+        		}
+        	}
+            dest.attachChild(e);
         });
 
         BulletAppState bulletAppState = sapp.getStateManager().getState(BulletAppState.class);
@@ -67,7 +76,7 @@ public class AppStateGeoPhy extends AbstractAppState {
                 space.addAll(e);
             });
         }
-        
+
         } catch (Exception exc) {
             log.warn("failed to process toAdd and toRemove", exc);
         } finally {

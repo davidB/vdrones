@@ -57,7 +57,7 @@ class AppStateCamera extends AbstractAppState {
     private final Vector3f v0 = new Vector3f(0, 0, 0);
     public Spatial target;
     public CameraFollower follower;
-    public Node rootNode;
+    private Node rootNode;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {

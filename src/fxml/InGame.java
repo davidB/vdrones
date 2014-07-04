@@ -54,7 +54,7 @@ public class InGame {
 		
 	}
 
-	public void setEnergy(int current, int max) {
+	public void setEnergy(float current, float max) {
 		FxPlatformExecutor.runOnFxApplication(() ->
 			energy.setProgress(((double)current)/max)
 		);

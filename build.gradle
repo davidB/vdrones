@@ -13,7 +13,7 @@ sourceCompatibility = '1.8'
 // prefer. In this case NetBeans will not add these tasks but you may rely on
 // your own implementation.
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'sandbox_jfx.Main'
+    ext.mainClass = 'vdrones.Main'
 }
 
 repositories {
@@ -26,25 +26,37 @@ def v_jme = '3.0.10-pre-alpha-svn'//'3.0.0.20140325-SNAPSHOT' //'3.0+2014-04-25'
 def v_slf4j = '1.7.7'
 
 dependencies {
+    //provided 'org.projectlombok:lombok:1.14.2'
+    compile 'org.projectlombok:lombok:1.14.2'
     compile "com.jme3:jme3-core:${v_jme}"
     compile "com.jme3:jme3-effects:${v_jme}"
     compile "com.jme3:jme3-jbullet:${v_jme}"
-    compile 'org.projectlombok:lombok:1.14.2'
     compile "org.slf4j:slf4j-api:${v_slf4j}"
     compile "com.jme3x:jfx:1.20140626160040.f4c31d0"
     compile 'com.google.inject:guice:4.0-beta4'
     compile 'net.alchim31.jmex:jmbullet:0.1.0'
+    //compile 'com.simsilica:zay-es:0.0.0+r1203'
     runtime "com.jme3:jme3-lwjgl:${v_jme}"
     //runtime "com.jme3:jme3-lwjgl-natives:${v_jme}" //workaround
     runtime "com.jme3:jme3-desktop:${v_jme}"
     runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
+    compile 'com.netflix.rxjava:rxjava-core:0.19.2'
+    testCompile 'junit:junit:4.11'
 }
 
 sourceSets {
     main {
+        java {
+            srcDirs = ["$projectDir/src"]
+        }
         resources {
-            srcDirs = ["$projectDir/src/main/resources", "assets"]
+            srcDirs = ["assets"]
             exclude "**/*.blend*"
+        }
+    }
+    test {
+        java {
+            srcDirs = ["$projectDir/test"]
         }
     }
 }
@@ -53,3 +65,4 @@ task copyDeps(type: Copy) {
   from configurations.runtime
   into 'lib'
 }
+

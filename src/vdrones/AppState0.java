@@ -13,18 +13,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 abstract public class AppState0 extends AbstractAppState {
     protected Injector injector;
-    
+
     @Override
     public final void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-	injector = Injectors.find(app);
+        injector = Injectors.find(app);
         initialize();
         initialized = true;
         if( isEnabled() ) {
             enable();
         }
     }
-    
+
     @Override
     public final void setEnabled( boolean enabled ) {
         if( isEnabled() == enabled )
@@ -45,7 +45,7 @@ abstract public class AppState0 extends AbstractAppState {
     abstract protected void enable();
     abstract protected void disable();
     protected void dispose(){};
-    
+
     @Override
     public final void cleanup() {
         if( isEnabled() ) {

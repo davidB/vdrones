@@ -1,97 +1,113 @@
 package vdrones;
 
+import org.lwjgl.opengl.Display;
+
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+
+import com.google.inject.Injector;
+import com.jme3.app.Application;
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
-import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Spatial;
-import org.lwjgl.opengl.Display;
 
 /**
  * test
  */
 public class Main extends SimpleApplication {
-    private static boolean assertionsEnabled;
-    private static boolean enabled() {
-        Main.assertionsEnabled = true;
-        return true;
-    }
-    
-    public static void main(final String[] args) {
-        assert Main.enabled();
-        if (!Main.assertionsEnabled) {
-            throw new RuntimeException("Assertions must be enabled (vm args -ea");
-        }
-        Main app = new Main();
-        app.start();
-    }
-    
-    private boolean spawned = false;
+	private static boolean assertionsEnabled;
+	private static boolean enabled() {
+		Main.assertionsEnabled = true;
+		return true;
+	}
 
-    public Main() {
-    }
+	//@SuppressWarnings("AssertWithSideEffects")
+	public static void main(final String[] args) {
+		assert Main.enabled();
+		if (!Main.assertionsEnabled) {
+			throw new RuntimeException("Assertions must be enabled (vm args -ea");
+		}
+		Main app = new Main();
+		app.start();
+	}
 
-    @Override
-    public void simpleInitApp() {
-        //setDisplayStatView(true);
-        //setDisplayFps(true);
-        //flyCam.setEnabled(false);
+	private boolean postinit = false;
 
-        stateManager.detach(stateManager.getState(FlyCamAppState.class));
-        stateManager.attach(new StatsAppState());
-        stateManager.attach(new DebugKeysAppState());
-        stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
-        stateManager.attach(new BulletAppState());
-        //stateManager.attach(new AppStatePostProcessing());
-        stateManager.attach(new AppStateShadow());
-        stateManager.attach(new AppStateCamera());
-        stateManager.attach(new AppStateInput());
-        stateManager.attach(new AppStateDrone());
-        stateManager.attach(new AppStateGeoPhy());
-        stateManager.attach(new AppStateLevelLoader());
-        stateManager.attach(new AppStateHudInGame());
-        spawned = false;
-        setDebug(true);
-    }
+	public Main() {
+	}
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        if (Display.wasResized()) {
-            this.settings.setWidth(Display.getWidth());
-            this.settings.setHeight(Display.getHeight());
-            this.reshape(this.settings.getWidth(), this.settings.getHeight());
-        }
-        if (!spawned) {
-            spawned = true;
-            EntityFactory efactory = Injectors.find(this).getInstance(EntityFactory.class);
+	@Override
+	public void simpleInitApp() {
+		//setDisplayStatView(true);
+		//setDisplayFps(true);
+		//flyCam.setEnabled(false);
 
-            stateManager.getState(AppStateLevelLoader.class).loadLevel(efactory.newLevel("area0"), true);
-            
-            //Spatial vd = VDrone.newDrone(assetManager);
-            Spatial vd = efactory.newDrone();
-            CDroneInfo info = new CDroneInfo();
-            vd.setUserData(CDroneInfo.K, info);
-            stateManager.getState(AppStateInput.class).setDroneInfo(info);
-            stateManager.getState(AppStateDrone.class).entity = vd;
-            stateManager.getState(AppStateCamera.class).target = vd;
-            stateManager.getState(AppStateCamera.class).follower = new CameraFollower(CameraFollower.Mode.TPS);
-            stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
-        }
-    }
+		stateManager.detach(stateManager.getState(FlyCamAppState.class));
+		stateManager.attach(new StatsAppState());
+		stateManager.attach(new DebugKeysAppState());
+		//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
+		stateManager.attach(new BulletAppState());
+		//stateManager.attach(new AppStatePostProcessing());
+		stateManager.attach(new AppStateLights());
+		stateManager.attach(new AppStateCamera());
+		stateManager.attach(new AppStateGameLogic());
+		stateManager.attach(new AppStateGeoPhy());
+		stateManager.attach(new AppStateHudInGame());
 
-    @Override
-    public void simpleRender(RenderManager rm) {
-        //TODO: add render code
-    }
+		setDebug(false);
+	}
 
-    void setDebug(boolean v) {
-        stateManager.getState(BulletAppState.class).setDebugEnabled(v);
-        inputManager.setCursorVisible(v);
-        viewPort.setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
-        Display.setResizable(v);
-    }
- }
+	@Override
+	public void simpleUpdate(float tpf) {
+		if (Display.wasResized()) {
+			this.settings.setWidth(Display.getWidth());
+			this.settings.setHeight(Display.getHeight());
+			this.reshape(this.settings.getWidth(), this.settings.getHeight());
+		}
+		if (!postinit ) {
+			postinit = true;
+			pipeAll();
+			//inputManager.setCursorVisible(true);
+			loadLevel("area0");
+		}
+	}
+
+	public Subscription pipeAll(){
+		Injector injector = Injectors.find(this);
+		LevelLoader ll = injector.getInstance(LevelLoader.class);
+		return Subscriptions.from(
+			Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class))
+			, Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
+			, Pipes.pipe(injector.getInstance(Application.class).getInputManager(), injector.getInstance(DroneInfo.class))
+		);
+
+	}
+	public void loadLevel(String name) {
+		Injector injector = Injectors.find(this);
+		EntityFactory efactory = injector.getInstance(EntityFactory.class);
+		LevelLoader ll = injector.getInstance(LevelLoader.class);
+		ll.loadLevel(efactory.newLevel(name), true);
+
+		Spatial vd = efactory.newDrone();
+		Pipes.pipe(injector.getInstance(DroneInfo.class), vd.getControl(ControlDronePhy.class));
+		stateManager.getState(AppStateCamera.class).target = vd;
+		stateManager.getState(AppStateCamera.class).follower = new CameraFollower(CameraFollower.Mode.TPS);
+		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
+	}
+
+	@Override
+	public void simpleRender(RenderManager rm) {
+	}
+
+	void setDebug(boolean v) {
+		stateManager.getState(BulletAppState.class).setDebugEnabled(v);
+		inputManager.setCursorVisible(v);
+		viewPort.setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
+		Display.setResizable(v);
+	}
+}

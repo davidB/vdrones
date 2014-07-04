@@ -1,39 +1,42 @@
 package vdrones;
 
-import vdrones.Injectors;
-import com.jme3.app.Application;
-import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+
 import com.jme3x.jfx.FXMLHud;
 import com.jme3x.jfx.GuiManager;
 
 import fxml.InGame;
 
-public class AppStateHudInGame extends AbstractAppState {
+public class AppStateHudInGame extends AppState0 {
 	private GuiManager guiManager;
 	private FXMLHud<InGame> hud;
-	float clock;
-	
+	private Subscription subscription;
+
 	@Override
-	public void initialize(AppStateManager stateManager, Application app) {
-		super.initialize(stateManager, app);
-		guiManager = Injectors.find(app).getInstance(GuiManager.class);
-		
+	public void initialize() {
+		guiManager = injector.getInstance(GuiManager.class);
+
 		hud = new FXMLHud<>("Interface/ingame.fxml");
 		hud.precache();
 		guiManager.attachHudAsync(hud);
 	}
-	
+
 	@Override
-	public void update(float tpf) {
-		super.update(tpf);
-		clock += tpf;
-		hud.getController().setClock((int)clock);
-	}
-	
-	@Override
-	public void cleanup() {
+	public void dispose() {
 		guiManager.detachHudAsync(hud);
-		super.cleanup();
+	}
+
+	@Override
+	protected void enable() {
+		subscription = Subscriptions.from(
+			Pipes.pipe(injector.getInstance(DroneInfo.class), hud)
+			, Pipes.pipe(injector.getInstance(AreaInfo.class), hud)
+		);
+	}
+
+	@Override
+	protected void disable() {
+		subscription.unsubscribe();
 	}
 }

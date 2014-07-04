@@ -46,7 +46,7 @@ public class EntityFactory {
     public Spatial newLevel(String name) {
         return newLevel(assetManager.loadModel("Scenes/"+ name + ".j3o"));
     }
-    
+
     public Spatial newLevel(Spatial src) {
         log.info("check level : {}", Tools.checkIndexesOfPosition(src));
         PlaceHolderReplacer replacer = new PlaceHolderReplacer();
@@ -56,7 +56,7 @@ public class EntityFactory {
         log.info("check level : {}", Tools.checkIndexesOfPosition(b));
         return b;
     }
-    
+
     public Spatial newMWall(Spatial src, Box shape) {
         Spatial b = new Geometry(src.getName(), shape);
         log.info("check mwall : {}", Tools.checkIndexesOfPosition(b));
@@ -80,7 +80,7 @@ public class EntityFactory {
         copyCtrlAndTransform(src, b);
         return b;
     }
-    
+
     public Spatial newBox() {
         Box shape = new Box(1, 1, 1); // create cube shape
         Geometry b = new Geometry("Box", shape);  // create cube geometry from the shape
@@ -106,30 +106,30 @@ public class EntityFactory {
         Spatial m = assetManager.loadModel("Models/drone.j3o");
         //Geometry geom = Spatials.findGeom(m, "Cube.0011");
         b.attachChild(m);
-        
+
 
         //TODO compute radius from model (bones)
         CollisionShape shape0 = new SphereCollisionShape(0.5f);
         RigidBodyControl phy0 = new RigidBodyControl(shape0, 4.0f);
         b.addControl(phy0);
         phy0.setAngularFactor(0);
-        
+
         CollisionShape shape1 = new SphereCollisionShape(0.3f);
-        
+
         Node rn = new Node("rear.R");
         rn.setLocalTranslation(-1f, 0, 1f);
         RigidBodyControl rp = new RigidBodyControl(shape1, 0.5f);
         rn.addControl(rp);
         b.attachChild(rn);
         rp.setAngularFactor(0);
-        
+
         Node ln = new Node("rear.L");
         ln.setLocalTranslation(-1f, 0, -1f);
         RigidBodyControl lp = new RigidBodyControl(shape1, 0.5f);
         ln.addControl(lp);
         b.attachChild(ln);
         lp.setAngularFactor(0);
-        
+
         Node fn = new Node("front");
         fn.setLocalTranslation(2.0f, 0, 0);
         RigidBodyControl fp = new RigidBodyControl(shape1, 1.0f);
@@ -159,9 +159,10 @@ public class EntityFactory {
         join(fp, rp);
 
         join(rp, lp);
-        
+
         //Spatials.setDebugSkeleton(b, assetManager, ColorRGBA.Green);
         b.addControl(new ControlSpatialsToBones());
+        b.addControl(new ControlDronePhy());
         return b;
     }
 
@@ -173,8 +174,8 @@ public class EntityFactory {
         joint.setUpperLinLimit(1.5f);
         joint.setCollisionBetweenLinkedBodys(false);
         */
-        
-        
+
+
         SixDofSpringJoint joint = new SixDofSpringJoint(ri, rj, Vector3f.ZERO, Vector3f.ZERO, Matrix3f.IDENTITY, Matrix3f.IDENTITY, true);
         javax.vecmath.Vector3f vi = ri.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f());
         javax.vecmath.Vector3f vj = rj.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f());
@@ -191,7 +192,7 @@ public class EntityFactory {
             //joint.setStiffness(i, 10.0f); // 0-10
             //joint.setDamping(i, 0.5f); // 0-1
         }
-        
+
         //joint.setLinearLowerLimit(new Vector3f(v.x * 0.9f, v.y * 0.9f, v.z * 0.9f));
         //joint.setLinearUpperLimit(new Vector3f(v.x * 1.1f, v.y * 1.1f, v.z * 1.1f));
         float delta = 0.5f;
@@ -202,13 +203,13 @@ public class EntityFactory {
         //joint.setLinearUpperLimit(new Vector3f(0, 0, d * 1.1f));
         joint.setAngularLowerLimit(Vector3f.ZERO);
         joint.setAngularUpperLimit(Vector3f.ZERO);
-        joint.setCollisionBetweenLinkedBodys(false);     
-        
+        joint.setCollisionBetweenLinkedBodys(false);
+
         //System.out.println("ri pos : " + ri.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f()));
         //System.out.println("rj pos : " + rj.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f()));
         return joint;
     }
-    
+
     public void copyCtrlAndTransform(Spatial src, Spatial dst) {
         dst.setLocalTransform(src.getLocalTransform());
         for(int i = 0; i< src.getNumControls(); i++) {
@@ -216,13 +217,13 @@ public class EntityFactory {
             ctrl.cloneForSpatial(dst);
         }
     }
-    
+
 }
 
 @Slf4j
 class PlaceHolderReplacer {
     EntityFactory factory;
-    
+
     public Spatial replaceTree(Spatial root) {
         Spatial rootbis = replace(root);
         if (rootbis == root && rootbis instanceof Node) {
@@ -235,7 +236,7 @@ class PlaceHolderReplacer {
         }
         return rootbis;
     }
-    
+
     public Spatial replace(Spatial spatial) {
         Spatial b = spatial;
         if (spatial instanceof Geometry) {
@@ -285,7 +286,7 @@ class Tools {
         }
         return b;
     }
-        
+
     public static boolean checkIndexesOfPosition(Mesh m) {
         boolean b = true;
         IndexBuffer iis = m.getIndexBuffer();
