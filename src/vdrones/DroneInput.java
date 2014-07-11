@@ -22,7 +22,7 @@ class DroneInput implements ActionListener {
     ////////////////////////////////////////////////////////////////////////////
 
     @NonNull
-    private final DroneInfo drone;
+    private final DroneInfo2 drone;
 
     @Override
     public void onAction(String binding, boolean value, float tpf) {

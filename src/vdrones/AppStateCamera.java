@@ -95,6 +95,7 @@ class AppStateCamera extends AbstractAppState {
     private Vector3f offsetPosition(Vector3f out, Vector3f offset, Vector3f targetPosition, Quaternion targetRotation, boolean nearest) {
         out.set(offset);
         targetRotation.multLocal(out);
+        targetRotation.mult(Vector3f.UNIT_X);
         if (nearest) {
             Spatial area = rootNode.getChild(EntityFactory.LevelName);
             if (area != null) {

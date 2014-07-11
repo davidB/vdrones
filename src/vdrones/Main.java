@@ -73,31 +73,39 @@ public class Main extends SimpleApplication {
 			postinit = true;
 			pipeAll();
 			//inputManager.setCursorVisible(true);
-			loadLevel("area0");
+			//spawnLevel("area0");
 		}
 	}
 
 	public Subscription pipeAll(){
 		Injector injector = Injectors.find(this);
 		LevelLoader ll = injector.getInstance(LevelLoader.class);
+		Channels channels = injector.getInstance(Channels.class);
+		;
 		return Subscriptions.from(
 			Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class))
 			, Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
-			, Pipes.pipe(injector.getInstance(Application.class).getInputManager(), injector.getInstance(DroneInfo.class))
+			, channels.droneInfo2s.subscribe(v -> Pipes.pipe(injector.getInstance(Application.class).getInputManager(), v))
+			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
 		);
-
 	}
-	public void loadLevel(String name) {
+
+	public void spawnLevel(String name) {
 		Injector injector = Injectors.find(this);
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
 		LevelLoader ll = injector.getInstance(LevelLoader.class);
 		ll.loadLevel(efactory.newLevel(name), true);
+	}
 
+	public Spatial spawnDrone(DroneInfo2 d) {
+		Injector injector = Injectors.find(this);
+		EntityFactory efactory = injector.getInstance(EntityFactory.class);
 		Spatial vd = efactory.newDrone();
-		Pipes.pipe(injector.getInstance(DroneInfo.class), vd.getControl(ControlDronePhy.class));
+		Pipes.pipe(d, vd.getControl(ControlDronePhy.class));
 		stateManager.getState(AppStateCamera.class).target = vd;
 		stateManager.getState(AppStateCamera.class).follower = new CameraFollower(CameraFollower.Mode.TPS);
 		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
+		return vd;
 	}
 
 	@Override

@@ -7,7 +7,6 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
 <StackPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.InGame">
    <children>
       <Rectangle fx:id="health" arcHeight="5.0" arcWidth="5.0" height="200.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="288.0" StackPane.alignment="CENTER">
@@ -21,9 +20,9 @@
             </RadialGradient>
          </fill>
       </Rectangle>
-      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="261.0">
          <children>
-            <Label fx:id="clock" prefHeight="10.0" prefWidth="74.0" text="000" textAlignment="RIGHT" textFill="#e80303" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <Label fx:id="clock" alignment="CENTER_RIGHT" prefHeight="51.0" prefWidth="76.0" text="000" textAlignment="RIGHT" textFill="#e80303" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                <font>
                   <Font name="SciFly-Sans" size="43.0" />
                </font>
