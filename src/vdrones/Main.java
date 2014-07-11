@@ -3,6 +3,7 @@ package vdrones;
 import org.lwjgl.opengl.Display;
 
 import rx.Subscription;
+import rx.subjects.BehaviorSubject;
 import rx.subscriptions.Subscriptions;
 
 import com.google.inject.Injector;
@@ -72,41 +73,43 @@ public class Main extends SimpleApplication {
 		if (!postinit ) {
 			postinit = true;
 			pipeAll();
+			Channels channels = Injectors.find(this).getInstance(Channels.class);
+			channels.areaCfgs.onNext(spawnLevel("area0"));
 			//inputManager.setCursorVisible(true);
-			//spawnLevel("area0");
 		}
 	}
 
 	public Subscription pipeAll(){
 		Injector injector = Injectors.find(this);
-		LevelLoader ll = injector.getInstance(LevelLoader.class);
+		//LevelLoader ll = injector.getInstance(LevelLoader.class);
 		Channels channels = injector.getInstance(Channels.class);
-		;
+
 		return Subscriptions.from(
-			Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class))
-			, Pipes.pipe(ll, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
-			, channels.droneInfo2s.subscribe(v -> Pipes.pipe(injector.getInstance(Application.class).getInputManager(), v))
+			Pipes.pipeA(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
+			, Pipes.pipe(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
+			, Pipes.pipe(channels.droneInfo2s, injector.getInstance(Application.class).getInputManager())
+			, Pipes.pipeD(channels.droneInfo2s, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
 			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
+			,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
+			,channels.droneInfo2s.subscribe(new ObserverPrint<DroneInfo2>("channels.droneInfo2s"))
 		);
 	}
 
-	public void spawnLevel(String name) {
+	public AreaCfg spawnLevel(String name) {
 		Injector injector = Injectors.find(this);
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-		LevelLoader ll = injector.getInstance(LevelLoader.class);
-		ll.loadLevel(efactory.newLevel(name), true);
+		return efactory.newLevel(name);
 	}
-
-	public Spatial spawnDrone(DroneInfo2 d) {
-		Injector injector = Injectors.find(this);
-		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-		Spatial vd = efactory.newDrone();
-		Pipes.pipe(d, vd.getControl(ControlDronePhy.class));
-		stateManager.getState(AppStateCamera.class).target = vd;
-		stateManager.getState(AppStateCamera.class).follower = new CameraFollower(CameraFollower.Mode.TPS);
-		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
-		return vd;
-	}
+//
+//	public Spatial spawnDrone(DroneInfo2 d) {
+//		Injector injector = Injectors.find(this);
+//		EntityFactory efactory = injector.getInstance(EntityFactory.class);
+//		Spatial vd = efactory.newDrone();
+//		Pipes.pipe(d, vd.getControl(ControlDronePhy.class));
+//		stateManager.getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, vd));
+//		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
+//		return vd;
+//	}
 
 	@Override
 	public void simpleRender(RenderManager rm) {

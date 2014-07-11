@@ -13,6 +13,7 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -26,9 +27,12 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
+
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,19 +47,41 @@ public class EntityFactory {
     @Inject
     public AssetManager assetManager;
 
-    public Spatial newLevel(String name) {
+    public AreaCfg newLevel(String name) {
         return newLevel(assetManager.loadModel("Scenes/"+ name + ".j3o"));
     }
 
-    public Spatial newLevel(Spatial src) {
+    public AreaCfg newLevel(Spatial src) {
         log.info("check level : {}", Tools.checkIndexesOfPosition(src));
         PlaceHolderReplacer replacer = new PlaceHolderReplacer();
         replacer.factory = this;
-        Spatial b = replacer.replaceTree(src.deepClone());
-        b.setName(LevelName);
-        log.info("check level : {}", Tools.checkIndexesOfPosition(b));
-        return b;
-    }
+        Spatial level = replacer.replaceTree(src.deepClone());
+        log.info("check level : {}", Tools.checkIndexesOfPosition(level));
+        AreaCfg a = new AreaCfg();
+        a.name = level.getName();
+		for (Light l : level.getLocalLightList()) {
+			a.lights.add(l);
+		}
+		extract(a.bg, level, "backgrounds");
+		//extract(a.spawnPoint, level, "spawners");
+		extract(a.bg, level, "traps");
+		extract(a.bg, level, "exits");
+		return a;
+	}
+
+	private void extract(Collection<Spatial> dest, Spatial src, String groupName) {
+		Node group = (Node) ((Node)src).getChild(groupName);
+		if (group != null) {
+			for(Spatial s : group.getChildren()) {
+				s.setLocalTransform(s.getWorldTransform());
+				s.setUserData("dest", EntityFactory.LevelName);
+				s.setUserData("groupName", groupName);
+				dest.add(s);
+			}
+		} else {
+			System.out.printf("group not found : %s \n", groupName);
+		}
+	}
 
     public Spatial newMWall(Spatial src, Box shape) {
         Spatial b = new Geometry(src.getName(), shape);
@@ -74,10 +100,12 @@ public class EntityFactory {
         return b;
     }
 
-    public Spatial newSpawner(Spatial src) {
+    public Spatial newSpawner(Location loc) {
         Spatial b = assetManager.loadModel("Models/plateform8.j3o");
         log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
-        copyCtrlAndTransform(src, b);
+        //copyCtrlAndTransform(src, b);
+        b.setLocalRotation(loc.orientation);
+        b.setLocalTranslation(loc.position);
         return b;
     }
 
@@ -256,9 +284,9 @@ class PlaceHolderReplacer {
             case "mwall" :
                 b = factory.newMWall(spatial, shape);
                 break;
-            case "spawner" :
-                b = factory.newSpawner(spatial);
-                break;
+//            case "spawner" :
+//                b = factory.newSpawner(spatial);
+//                break;
             default:
                 b = spatial;
         }

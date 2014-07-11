@@ -1,10 +1,11 @@
 package vdrones;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.google.inject.Injector;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -13,15 +14,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 abstract public class AppState0 extends AbstractAppState {
     protected Injector injector;
+    protected Application app;
 
     @Override
     public final void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         injector = Injectors.find(app);
-        initialize();
+        this.app = app;
         initialized = true;
+        doInitialize();
         if( isEnabled() ) {
-            enable();
+            doEnable();
         }
     }
 
@@ -34,24 +37,33 @@ abstract public class AppState0 extends AbstractAppState {
             return;
         if( enabled ) {
             log.trace("enable():" + this);
-            enable();
+            doEnable();
         } else {
             log.trace("disable():" + this);
-            disable();
+            doDisable();
         }
     }
 
-    protected void initialize(){}
-    abstract protected void enable();
-    abstract protected void disable();
-    protected void dispose(){};
+    @Override
+    public final void update(float tpf) {
+    	if (isEnabled()){
+    		doUpdate(tpf);
+    	}
+    };
+
+
+	protected void doInitialize(){}
+    protected void doEnable(){};
+    protected void doUpdate(float tpf) {}
+    protected void doDisable(){};
+    protected void doDispose(){};
 
     @Override
     public final void cleanup() {
         if( isEnabled() ) {
-            disable();
+            doDisable();
         }
-        dispose();
+        doDispose();
         initialized = false;
     }
 

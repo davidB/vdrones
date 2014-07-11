@@ -1,6 +1,5 @@
 package vdrones;
 
-import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -16,7 +15,7 @@ public class AppStateHudInGame extends AppState0 {
 	private Subscription subscription;
 
 	@Override
-	public void initialize() {
+	public void doInitialize() {
 		guiManager = injector.getInstance(GuiManager.class);
 
 		hud = new FXMLHud<>("Interface/ingame.fxml");
@@ -24,9 +23,10 @@ public class AppStateHudInGame extends AppState0 {
 		guiManager.attachHudAsync(hud);
 	}
 
-	protected void enable() {
+	protected void doEnable() {
 		Channels channels = injector.getInstance(Channels.class);
-		Subscription s1 = Observable.switchOnNext(channels.droneInfo2s).subscribe(new Subscriber<DroneInfo2>(){
+		//Observable.switchOnNext(channels.droneInfo2s)
+		Subscription s1 = channels.droneInfo2s.subscribe(new Subscriber<DroneInfo2>(){
 			private Subscription subscription = null;
 			void terminate() {
 				if (subscription != null) subscription.unsubscribe();
@@ -48,7 +48,8 @@ public class AppStateHudInGame extends AppState0 {
 				subscription = t.energy.subscribe((v) -> hud.getController().setEnergy(v));
 			}
 		});
-		Subscription s2 = Observable.switchOnNext(channels.areaInfo2s).subscribe(new Subscriber<AreaInfo2>(){
+		//Observable.switchOnNext(
+		Subscription s2 = channels.areaInfo2s.subscribe(new Subscriber<AreaInfo2>(){
 			private Subscription subscription = null;
 			void terminate() {
 				if (subscription != null) subscription.unsubscribe();
@@ -73,12 +74,12 @@ public class AppStateHudInGame extends AppState0 {
 	}
 
 	@Override
-	protected void disable() {
+	protected void doDisable() {
 		subscription.unsubscribe();
 	}
 
 	@Override
-	public void dispose() {
+	public void doDispose() {
 		guiManager.detachHudAsync(hud);
 	}
 }

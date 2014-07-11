@@ -8,6 +8,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 
 class ControlDronePhy extends AbstractControl {
@@ -23,6 +24,7 @@ class ControlDronePhy extends AbstractControl {
 
     @Override
 	protected void controlUpdate(float tpf) {
+    	//System.out.println(this + " forwardLg : " + forwardLg);
         RigidBodyControl phy0 = spatial.getControl(RigidBodyControl.class);
         dir.set(1.0f, 0.0f, 0.0f);
         //gp.geom.getWorldRotation().multLocal(dir);

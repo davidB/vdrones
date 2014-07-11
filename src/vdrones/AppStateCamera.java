@@ -1,13 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package vdrones;
 
-import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.math.Quaternion;
@@ -17,20 +10,22 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-class CameraFollower {
+class CameraFollower{
 
     public enum Mode {
-
         TOP, TPS, FPS
     }
+
     final Mode mode;
     final Vector3f lookAtOffset = new Vector3f(10.0f, .0f, .0f);
     final Vector3f positionOffset = new Vector3f(-10.0f, 4.0f, 0.0f);
     final Vector3f up = Vector3f.UNIT_Y.clone();
+    final Spatial target;
 
-    CameraFollower(Mode m) {
-        mode = m;
-        switch (m) {
+    CameraFollower(Mode mode, Spatial target) {
+    	this.target = target;
+        this.mode = mode;
+        switch (mode) {
             case TOP:
                 lookAtOffset.set(.0f, .0f, .0f);
                 positionOffset.set(0.0f, 80.0f, 0.0f);
@@ -51,27 +46,32 @@ class CameraFollower {
     }
 }
 
-class AppStateCamera extends AbstractAppState {
+class AppStateCamera extends AppState0 {
 
     private Camera camera;
     private final Vector3f v0 = new Vector3f(0, 0, 0);
-    public Spatial target;
-    public CameraFollower follower;
+    private CameraFollower follower;
     private Node rootNode;
 
-    @Override
-    public void initialize(AppStateManager stateManager, Application app) {
-        super.initialize(stateManager, app);
-        camera = app.getCamera();
-        rootNode = ((SimpleApplication) app).getRootNode();
+    public void setCameraFollower(CameraFollower follower){
+    	this.follower = follower;
+        if (follower == null || follower.target == null) {
+        	setEnabled(false);
+        } else {
+        	setEnabled(true);
+        }
     }
 
     @Override
-    public void update(float tpf) {
-        super.update(tpf);
-        if (target == null || follower == null) {
-            return;
-        }
+    public void doInitialize() {
+        camera = app.getCamera();
+        rootNode = ((SimpleApplication) app).getRootNode();
+        setEnabled(false);
+    }
+
+    @Override
+    public void doUpdate(float tpf) {
+        Spatial target = follower.target;
         float step = Math.min(1.0f, tpf * 4.0f);
         offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation(), true);
         camera.setLocation(approachMulti(v0, camera.getLocation(), step));

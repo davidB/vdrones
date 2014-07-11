@@ -14,6 +14,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3x.jfx.GuiManager;
 import com.jme3x.jfx.cursor.ICursorDisplayProvider;
 import com.jme3x.jfx.cursor.proton.ProtonCursorProvider;
+import com.simsilica.es.EntityData;
+import com.simsilica.es.base.DefaultEntityData;
 
 public class Injectors {
 	private static final WeakHashMap<Application, Injector> injectors = new WeakHashMap<>();
@@ -78,7 +80,12 @@ class GameModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(LevelLoader.class).asEagerSingleton();
+		//bind(LevelLoader.class).asEagerSingleton();
+	}
+
+	@Provides @Singleton
+	public EntityData entityData() {
+		return new DefaultEntityData();
 	}
 
 }

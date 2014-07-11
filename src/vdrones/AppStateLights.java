@@ -21,25 +21,25 @@ public class AppStateLights extends AppState0 {
 	private Node rootNode;
 
     @Override
-    protected void initialize() {
+    protected void doInitialize() {
         fpp = new FilterPostProcessor(injector.getInstance(AssetManager.class));
         rootNode = injector.getInstance(SimpleApplication.class).getRootNode();
     }
 
     @Override
-    protected void enable() {
+    protected void doEnable() {
         ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.addProcessor(fpp);
     }
 
     @Override
-    protected void disable() {
+    protected void doDisable() {
         ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.removeProcessor(fpp);
     }
 
     @Override
-    protected void dispose() {
+    protected void doDispose() {
         fpp = null;
     }
 

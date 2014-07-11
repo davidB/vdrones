@@ -10,8 +10,10 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.Subscriptions;
 
 import com.google.inject.Singleton;
+import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Rectangle;
 import com.jme3.math.Vector3f;
@@ -19,8 +21,9 @@ import com.jme3.scene.Spatial;
 
 @Singleton
 class Channels{
-	final BehaviorSubject<Observable<DroneInfo2>> droneInfo2s = BehaviorSubject.create();
-	final BehaviorSubject<Observable<AreaInfo2>> areaInfo2s = BehaviorSubject.create();
+	final BehaviorSubject<DroneInfo2> droneInfo2s = BehaviorSubject.create();
+	final BehaviorSubject<AreaInfo2> areaInfo2s = BehaviorSubject.create();
+	final BehaviorSubject<AreaCfg> areaCfgs = BehaviorSubject.create();
 }
 
 class DroneCfg {
@@ -75,6 +78,7 @@ class AreaCfg {
 	String name;
 	float timeout;
 
+	final List<Light> lights = new ArrayList<>();
 	final List<Spatial> bg = new ArrayList<>();
 	final List<List<Rectangle>> cubeZones = new ArrayList<>();
 	final Location spawnPoint = new Location();
@@ -199,6 +203,7 @@ class DroneGenerator extends Subscriber<Location> {
 //}
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
+	Subscription subscription;
 
 	DroneInfo2 newDroneInfo(DroneCfg cfg, Observable<Float> dt) {
 		val drone = new DroneInfo2();
@@ -220,20 +225,26 @@ public class AppStateGameLogic extends AppState0 {
 		return area;
 	}
 
+
 	@Override
-	protected void enable() {
+	protected void doInitialize() {
+		Channels channels = injector.getInstance(Channels.class);
+		DroneGenerator droneGenerator = injector.getInstance(DroneGenerator.class);
+
+		subscription =  Subscriptions.from(
+			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
+			, Pipes.pipe(channels.areaCfgs, droneGenerator)
+			, droneGenerator.drones.flatMap(v -> v).map(v -> newDroneInfo(new DroneCfg(), dt)).subscribe(channels.droneInfo2s)
+			, channels.droneInfo2s.subscribe(v -> v.drivable.onNext(true))
+		);
 	}
 
 	@Override
-	public void update(float tpf) {
-		super.update(tpf);
-		if (isEnabled()) {
-			dt.onNext(tpf);
-		}
+	protected void doUpdate(float tpf) {
+		dt.onNext(tpf);
 	}
 
-	@Override
-	protected void disable() {
-		// TODO unsubscribe !!
+	protected void doDispose() {
+		subscription.unsubscribe();
 	}
 }

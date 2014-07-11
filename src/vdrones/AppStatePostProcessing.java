@@ -16,7 +16,7 @@ public class AppStatePostProcessing extends AppState0 {
     private FilterPostProcessor fpp;
     
     @Override
-    protected void initialize() {
+    protected void doInitialize() {
         AssetManager assets = injector.getInstance(AssetManager.class);
         AppSettings settings = injector.getInstance(Application.class).getContext().getSettings();
         fpp = new FilterPostProcessor(assets);
@@ -53,18 +53,18 @@ public class AppStatePostProcessing extends AppState0 {
     }
 
     @Override
-    protected void dispose() {
+    protected void doDispose() {
         fpp = null;
     }
 
     @Override
-    protected void enable() {
+    protected void doEnable() {
         ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.addProcessor(fpp);
     }
 
     @Override
-    protected void disable() {
+    protected void doDisable() {
         ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.removeProcessor(fpp);
     }
