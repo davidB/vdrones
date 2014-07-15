@@ -13,16 +13,19 @@ import com.jme3.bullet.PhysicsSpace;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AppStateGeoPhy extends AbstractAppState {
 
     //final BulletAppState bulletAppState = new BulletAppState();
-    final Queue<Spatial> toAdd = new LinkedList<>();
-    final Queue<Spatial> toRemove = new LinkedList<>();
+    final Queue<Spatial> toAdd = new ConcurrentLinkedQueue<>();
+    final Queue<Spatial> toRemove = new ConcurrentLinkedQueue<>();
     private SimpleApplication sapp;
 
     @Override
