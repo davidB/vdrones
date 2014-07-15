@@ -52,6 +52,7 @@ public class AppStateHudInGame extends AppState0 {
 		Subscription s2 = channels.areaInfo2s.subscribe(new Subscriber<AreaInfo2>(){
 			private Subscription subscription = null;
 			void terminate() {
+				System.out.println("terminate subscription area2 -> clock");
 				if (subscription != null) subscription.unsubscribe();
 			}
 			@Override
@@ -66,8 +67,13 @@ public class AppStateHudInGame extends AppState0 {
 
 			@Override
 			public void onNext(AreaInfo2 area) {
+
 				terminate();
-				subscription = area.clock.subscribe((v) -> hud.getController().setClock(v.intValue()));
+				subscription = area.clock
+					.map(v -> v.intValue())
+					.distinctUntilChanged()
+					.subscribe((v) -> hud.getController().setClock(v))
+					;
 			}
 		});
 		subscription = Subscriptions.from(s1, s2);

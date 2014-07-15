@@ -1,7 +1,10 @@
 package vdrones;
 
+import java.util.concurrent.TimeUnit;
+
 import org.lwjgl.opengl.Display;
 
+import rx.Observable;
 import rx.Subscription;
 import rx.subjects.BehaviorSubject;
 import rx.subscriptions.Subscriptions;
@@ -37,7 +40,7 @@ public class Main extends SimpleApplication {
 		app.start();
 	}
 
-	private boolean postinit = false;
+	private boolean postInit;
 
 	public Main() {
 	}
@@ -60,7 +63,9 @@ public class Main extends SimpleApplication {
 		stateManager.attach(new AppStateGeoPhy());
 		stateManager.attach(new AppStateHudInGame());
 
+		pipeAll();
 		setDebug(false);
+		postInit = false;
 	}
 
 	@Override
@@ -70,12 +75,9 @@ public class Main extends SimpleApplication {
 			this.settings.setHeight(Display.getHeight());
 			this.reshape(this.settings.getWidth(), this.settings.getHeight());
 		}
-		if (!postinit ) {
-			postinit = true;
-			pipeAll();
-			Channels channels = Injectors.find(this).getInstance(Channels.class);
-			channels.areaCfgs.onNext(spawnLevel("area0"));
-			//inputManager.setCursorVisible(true);
+		if (!postInit) {
+			postInit = true;
+			spawnLevel("area0");
 		}
 	}
 
@@ -95,10 +97,13 @@ public class Main extends SimpleApplication {
 		);
 	}
 
-	public AreaCfg spawnLevel(String name) {
+	//FIXME remove delay to display, the delay is caused by missing callback when application is initialized
+	public void spawnLevel(String name) {
 		Injector injector = Injectors.find(this);
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-		return efactory.newLevel(name);
+		Channels channels = injector.getInstance(Channels.class);
+		//Observable.just(efactory.newLevel(name)).delay(500, TimeUnit.MILLISECONDS).subscribe(channels.areaCfgs);
+		channels.areaCfgs.onNext(efactory.newLevel("area0"));
 	}
 //
 //	public Spatial spawnDrone(DroneInfo2 d) {
