@@ -4,35 +4,27 @@
  */
 package vdrones;
 
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import lombok.extern.slf4j.Slf4j;
+
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-public class AppStateGeoPhy extends AbstractAppState {
+public class AppStateGeoPhy extends AppState0 {
 
     //final BulletAppState bulletAppState = new BulletAppState();
     final Queue<Spatial> toAdd = new ConcurrentLinkedQueue<>();
     final Queue<Spatial> toRemove = new ConcurrentLinkedQueue<>();
-    private SimpleApplication sapp;
 
     @Override
-    public void initialize(AppStateManager stateManager, Application app) {
-        super.initialize(stateManager, app);
-        sapp = (SimpleApplication)app;
-        BulletAppState bulletAppState = sapp.getStateManager().getState(BulletAppState.class);
+	protected void doInitialize() {
+        BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
         if (bulletAppState != null) {
             log.info("bulletAppState.getSpeed() : {}", bulletAppState.getSpeed());
             log.info("bulletAppState.getPhysicsSpace().getAccuracy() : {}", bulletAppState.getPhysicsSpace().getAccuracy());
@@ -49,10 +41,9 @@ public class AppStateGeoPhy extends AbstractAppState {
     }
 
     @Override
-    public void update(float tpf) {
+	protected void doUpdate(float tpf) {
         try {
-        super.update(tpf);
-        Node rootNode = sapp.getRootNode();
+        Node rootNode = app.getRootNode();
         toRemove.stream().filter((e) -> !(e == null)).forEach((e) -> {
             e.removeFromParent();
         });
@@ -69,7 +60,7 @@ public class AppStateGeoPhy extends AbstractAppState {
             dest.attachChild(e);
         });
 
-        BulletAppState bulletAppState = sapp.getStateManager().getState(BulletAppState.class);
+        BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
         if (bulletAppState != null) {
             PhysicsSpace space = bulletAppState.getPhysicsSpace();
             toRemove.stream().filter((e) -> !(e == null)).forEach((e) -> {
@@ -89,9 +80,8 @@ public class AppStateGeoPhy extends AbstractAppState {
     }
 
     @Override
-    public void cleanup() {
+    protected void doDispose() {
         toRemove.clear();
         toAdd.clear();
-        super.cleanup();
     }
 }

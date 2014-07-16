@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.google.inject.Injector;
 import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 
@@ -14,13 +15,13 @@ import com.jme3.app.state.AppStateManager;
 @Slf4j
 abstract public class AppState0 extends AbstractAppState {
     protected Injector injector;
-    protected Application app;
+    protected SimpleApplication app;
 
     @Override
     public final void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         injector = Injectors.find(app);
-        this.app = app;
+        this.app = (SimpleApplication)app;
         initialized = true;
         doInitialize();
         if( isEnabled() ) {
