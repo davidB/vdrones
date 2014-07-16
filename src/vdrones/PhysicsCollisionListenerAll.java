@@ -48,7 +48,7 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
     protected void doDispose() {
     	BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
     	if (bulletAppState != null) {
-    		bulletAppState.getPhysicsSpace().removeCollisionListener(injector.getInstance(PhysicsCollisionListener.class));
+    		bulletAppState.getPhysicsSpace().removeCollisionListener(this);
     	}
     }
 
