@@ -152,9 +152,9 @@ public class EntityFactory {
 */
     public Node asDrone(Node b) {
         Spatial m = assetManager.loadModel("Models/drone.j3o");
+        m.setName("model");
         //Geometry geom = Spatials.findGeom(m, "Cube.0011");
         b.attachChild(m);
-
 
         //TODO compute radius from model (bones)
         CollisionShape shape0 = new SphereCollisionShape(0.5f);
@@ -212,8 +212,20 @@ public class EntityFactory {
         b.addControl(new ControlSpatialsToBones());
         b.addControl(new ControlDronePhy());
         setCollisionGroupsRecursive(b, CollisionGroups.DRONE, -1);
+
         return b;
     }
+
+    public Node unasDrone(Node b) {
+    	b.detachChildNamed("model");
+    	b.detachChildNamed("top");
+    	b.detachChildNamed("front");
+    	b.detachChildNamed("rear.L");
+    	b.detachChildNamed("rear.R");
+    	b.removeControl(RigidBodyControl.class);
+    	return b;
+    }
+
 
     // http://help.autodesk.com/view/MAYAUL/2015/ENU/?guid=GUID-F7CD10A1-47D0-45A0-9E9A-495DF9F49B94
     static Object join(RigidBodyControl ri, RigidBodyControl rj) {
