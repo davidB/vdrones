@@ -13,6 +13,7 @@ import com.jme3.app.Application;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3x.jfx.FXMLHud;
 
@@ -86,28 +87,21 @@ public class Pipes {
 		return l.map(v -> v.spawnPoints.get(0)).subscribe(dg);
 	}
 
-	public static Subscription pipeD(Observable<DroneInfo2> drones,	AppStateGeoPhy gp, Injector injector) {
+	public static Subscription pipeD(Observable<Node> drones,	AppStateGeoPhy gp, Injector injector) {
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-		BehaviorSubject<T2<Spatial, DroneInfo2>> spawn = BehaviorSubject.create();
-		drones.map(v -> {
-			System.out.println("bind " + v);
-			Spatial d = efactory.newDrone();
-			d.setUserData(DroneInfo2.UD, v);
-			//d.addControl(new ControlDronePhy());
-			return new T2<Spatial, DroneInfo2>(d, v) ;
-		}).subscribe(spawn);
+		BehaviorSubject<Node> spawn = BehaviorSubject.create();
+		drones.map(efactory::asDrone).subscribe(spawn);
 		//TODO manage remove of spatial
 		Application app = injector.getInstance(Application.class);
 		return Subscriptions.from(
-				spawn.subscribe((v) -> gp.toAdd.offer(v._1))
-				,spawn.subscribe(new SubscriberL2<T2<Spatial, DroneInfo2>>() {
+				spawn.subscribe(gp.toAdd::offer)
+				,spawn.subscribe(new SubscriberL2<Node>() {
 					@Override
-					Subscription onNext2(T2<Spatial, DroneInfo2> v) {
-						return Pipes.pipe(v._2, v._1.getControl(ControlDronePhy.class), app);
+					Subscription onNext2(Node v) {
+						return Pipes.pipe(DroneInfo2.from(v), v.getControl(ControlDronePhy.class), app);
 					}
-
 				})
-				,spawn.subscribe(v -> app.getStateManager().getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, v._1)))
+				,spawn.subscribe(v -> app.getStateManager().getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, v)))
 			//, l.removeSpatial.subscribe((v) -> gp.toRemove.offer(v))
 		);
 	}

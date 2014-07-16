@@ -150,8 +150,7 @@ public class EntityFactory {
         return b;
     }
 */
-    public Spatial newDrone() {
-        Node b = new Node("drone");
+    public Node asDrone(Node b) {
         Spatial m = assetManager.loadModel("Models/drone.j3o");
         //Geometry geom = Spatials.findGeom(m, "Cube.0011");
         b.attachChild(m);
@@ -166,33 +165,33 @@ public class EntityFactory {
         CollisionShape shape1 = new SphereCollisionShape(0.3f);
 
         Node rn = new Node("rear.R");
+        b.attachChild(rn);
         rn.setLocalTranslation(-1f, 0, 1f);
         RigidBodyControl rp = new RigidBodyControl(shape1, 0.5f);
         rn.addControl(rp);
-        b.attachChild(rn);
         rp.setAngularFactor(0);
 
         Node ln = new Node("rear.L");
+        b.attachChild(ln);
         ln.setLocalTranslation(-1f, 0, -1f);
         RigidBodyControl lp = new RigidBodyControl(shape1, 0.5f);
         ln.addControl(lp);
-        b.attachChild(ln);
         lp.setAngularFactor(0);
 
         Node fn = new Node("front");
+        b.attachChild(fn);
         fn.setLocalTranslation(2.0f, 0, 0);
         RigidBodyControl fp = new RigidBodyControl(shape1, 1.0f);
         //fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
         fn.addControl(fp);
-        b.attachChild(fn);
         fp.setAngularFactor(0);
 
         Node tn = new Node("top");
+        b.attachChild(tn);
         tn.setLocalTranslation(0.0f, 0.6f, 0);
         RigidBodyControl tp = new RigidBodyControl(shape1, 0.5f);
         //fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
         tn.addControl(tp);
-        b.attachChild(tn);
         tp.setAngularFactor(0);
 
         join(phy0, rp);

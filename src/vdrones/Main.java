@@ -18,6 +18,7 @@ import com.jme3.app.StatsAppState;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
@@ -65,7 +66,7 @@ public class Main extends SimpleApplication {
 		stateManager.attach(new AppStateHudInGame());
 
 		pipeAll();
-		setDebug(false);
+		setDebug(true);
 		postInit = false;
 	}
 
@@ -90,11 +91,11 @@ public class Main extends SimpleApplication {
 		return Subscriptions.from(
 			Pipes.pipeA(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
 			, Pipes.pipe(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
-			, Pipes.pipe(channels.droneInfo2s, injector.getInstance(Application.class).getInputManager())
-			, Pipes.pipeD(channels.droneInfo2s, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
+			, Pipes.pipe(channels.drones.map(DroneInfo2::from), injector.getInstance(Application.class).getInputManager())
+			, Pipes.pipeD(channels.drones, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
 			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
 			,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
-			,channels.droneInfo2s.subscribe(new ObserverPrint<DroneInfo2>("channels.droneInfo2s"))
+			,channels.drones.subscribe(new ObserverPrint<Node>("channels.drones"))
 		);
 	}
 

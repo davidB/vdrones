@@ -26,7 +26,7 @@ public class AppStateHudInGame extends AppState0 {
 	protected void doEnable() {
 		Channels channels = injector.getInstance(Channels.class);
 		//Observable.switchOnNext(channels.droneInfo2s)
-		Subscription s1 = channels.droneInfo2s.subscribe(new Subscriber<DroneInfo2>(){
+		Subscription s1 = channels.drones.map(DroneInfo2::from).subscribe(new Subscriber<DroneInfo2>(){
 			private Subscription subscription = null;
 			void terminate() {
 				if (subscription != null) subscription.unsubscribe();

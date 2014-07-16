@@ -22,11 +22,12 @@ import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Rectangle;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 @Singleton
 class Channels{
-	final BehaviorSubject<DroneInfo2> droneInfo2s = BehaviorSubject.create();
+	final BehaviorSubject<Node> drones = BehaviorSubject.create();
 	final BehaviorSubject<AreaInfo2> areaInfo2s = BehaviorSubject.create();
 	final BehaviorSubject<AreaCfg> areaCfgs = BehaviorSubject.create();
 }
@@ -64,6 +65,9 @@ class DroneGen {
 
 class DroneInfo2 implements Savable {
 	public static final String UD = "DroneInfoUserData";
+	public static DroneInfo2 from(Spatial s) {
+		return (DroneInfo2) s.getUserData(UD);
+	}
 
 	DroneCfg cfg;
 
@@ -235,7 +239,11 @@ public class AppStateGameLogic extends AppState0 {
 	Subscription subscription;
 	public static float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
 
-	DroneInfo2 newDroneInfo(DroneCfg cfg, Observable<Float> dt) {
+	Node newDrone(DroneCfg cfg, Observable<Float> dt, DroneGen dg) {
+		val b = new Node("drone");
+		b.setLocalRotation(dg.loc.orientation);
+		b.setLocalTranslation(dg.loc.position);
+
 		val drone = new DroneInfo2();
 		drone.cfg = cfg;
 		BehaviorSubject<Float> energyVelocity = BehaviorSubject.create(0f);
@@ -248,7 +256,9 @@ public class AppStateGameLogic extends AppState0 {
 		Observable.combineLatest(drone.forward, drone.shield, (o1, o2) -> (cfg.energyRegenSpeed - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
 		//TODO use a throttleFirst based on game time vs real time
 		drone.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> drone.healthReq.onNext(wallCollisionHealthSpeed * 0.25f));
-		return drone;
+		b.setUserData(DroneInfo2.UD, drone);
+
+		return b;
 	}
 
 	AreaInfo2 newAreaInfo(AreaCfg cfg, Observable<Float> dt) {
@@ -267,8 +277,8 @@ public class AppStateGameLogic extends AppState0 {
 		subscription =  Subscriptions.from(
 			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
 			, Pipes.pipe(channels.areaCfgs, droneGenerator)
-			, droneGenerator.drones.flatMap(v -> v).map(v -> newDroneInfo(new DroneCfg(), dt)).subscribe(channels.droneInfo2s)
-			, channels.droneInfo2s.subscribe(v -> v.drivable.onNext(true))
+			, droneGenerator.drones.flatMap(v -> v).map(v -> newDrone(new DroneCfg(), dt, v)).subscribe(channels.drones)
+			, channels.drones.map(DroneInfo2::from).subscribe(v -> v.drivable.onNext(true))
 		);
 	}
 
