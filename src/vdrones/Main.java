@@ -61,6 +61,7 @@ public class Main extends SimpleApplication {
 		stateManager.attach(new AppStateCamera());
 		stateManager.attach(new AppStateGameLogic());
 		stateManager.attach(new AppStateGeoPhy());
+		stateManager.attach(new PhysicsCollisionListenerAll());
 		stateManager.attach(new AppStateHudInGame());
 
 		pipeAll();

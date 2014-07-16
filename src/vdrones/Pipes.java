@@ -23,7 +23,7 @@ public class Pipes {
 	public static Subscription pipeA(Observable<AreaCfg> l, AppStateGeoPhy gp, Injector injector) {
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
 		Observable<Spatial> bg = l.flatMap(v -> Observable.from(v.bg));
-		Observable<Spatial> spawners = l.map(v -> efactory.newSpawner(v.spawnPoint));
+		Observable<Spatial> spawners = l.flatMap(v-> Observable.from(v.spawnPoints)).map(v -> efactory.newSpawner(v));
 		//TODO manage remove of spatial
 		return Subscriptions.from(
 			bg.subscribe((v) -> gp.toAdd.offer(v))
@@ -83,7 +83,7 @@ public class Pipes {
 	}
 
 	public static Subscription pipe(Observable<AreaCfg> l, DroneGenerator dg) {
-		return l.map(v -> v.spawnPoint).subscribe(dg);
+		return l.map(v -> v.spawnPoints.get(0)).subscribe(dg);
 	}
 
 	public static Subscription pipeD(Observable<DroneInfo2> drones,	AppStateGeoPhy gp, Injector injector) {
@@ -92,6 +92,7 @@ public class Pipes {
 		drones.map(v -> {
 			System.out.println("bind " + v);
 			Spatial d = efactory.newDrone();
+			d.setUserData(DroneInfo2.UD, v);
 			//d.addControl(new ControlDronePhy());
 			return new T2<Spatial, DroneInfo2>(d, v) ;
 		}).subscribe(spawn);

@@ -1,8 +1,10 @@
 package vdrones;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import rx.Observable;
@@ -13,6 +15,9 @@ import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
 import com.google.inject.Singleton;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.Savable;
 import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Rectangle;
@@ -34,6 +39,18 @@ class DroneCfg {
 	public float energyForwardSpeed = 4;
 	public float energyShieldSpeed = 2;
 	public float energyStoreMax = 100f;
+	public float healthMax = 100f;
+}
+
+@RequiredArgsConstructor
+@EqualsAndHashCode
+class DroneCollisionEvent {
+	final Vector3f position;
+	final float lifetime;
+
+	DroneCollisionEvent lifetime(float v) {
+		return new DroneCollisionEvent(position, v);
+	}
 }
 
 class DroneGen {
@@ -45,18 +62,30 @@ class DroneGen {
 	Kind kind;
 }
 
-class DroneInfo2 {
+class DroneInfo2 implements Savable {
+	public static final String UD = "DroneInfoUserData";
+
 	DroneCfg cfg;
 
 	final BehaviorSubject<Boolean> drivable = BehaviorSubject.create(false);
 	final BehaviorSubject<Float> forwardReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<Float> turnReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<Float> shieldReq = BehaviorSubject.create(0f);
+	final BehaviorSubject<Float> healthReq = BehaviorSubject.create(0f);
+	final BehaviorSubject<DroneCollisionEvent> wallCollisions = BehaviorSubject.create();
 	//BehaviorSubject<Vector3f> position = BehaviorSubject.create(new Vector3f());
+	Observable<Float> health;
 	Observable<Float> energy;
 	Observable<Float> forward;
 	Observable<Float> turn;
 	Observable<Float> shield;
+
+	@Override
+	public void write(JmeExporter ex) throws IOException {
+	}
+	@Override
+	public void read(JmeImporter im) throws IOException {
+	}
 
 }
 
@@ -81,7 +110,7 @@ class AreaCfg {
 	final List<Light> lights = new ArrayList<>();
 	final List<Spatial> bg = new ArrayList<>();
 	final List<List<Rectangle>> cubeZones = new ArrayList<>();
-	final Location spawnPoint = new Location();
+	final List<Location> spawnPoints = new ArrayList<>();
 }
 
 class Location {
@@ -204,6 +233,7 @@ class DroneGenerator extends Subscriber<Location> {
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	Subscription subscription;
+	public static float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
 
 	DroneInfo2 newDroneInfo(DroneCfg cfg, Observable<Float> dt) {
 		val drone = new DroneInfo2();
@@ -213,8 +243,11 @@ public class AppStateGameLogic extends AppState0 {
 		drone.energy = energydt.scan(0f, (acc, d) -> Math.max(0, Math.min(cfg.energyStoreMax, acc + d)));
 		drone.forward = Observable.combineLatest(drone.energy, drone.forwardReq, (o1, o2) -> (o1 > cfg.energyForwardSpeed) ? o2 : 0f).distinctUntilChanged();
 		drone.turn = drone.turnReq.distinctUntilChanged();
+		drone.health = drone.healthReq.scan(cfg.healthMax, (acc, d) -> Math.max(0, Math.min(cfg.healthMax, acc + d)));
 		drone.shield = Observable.combineLatest(drone.energy, drone.shieldReq, (o1, o2) -> (o1 > cfg.energyShieldSpeed) ? o2 : 0f).distinctUntilChanged();
 		Observable.combineLatest(drone.forward, drone.shield, (o1, o2) -> (cfg.energyRegenSpeed - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
+		//TODO use a throttleFirst based on game time vs real time
+		drone.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> drone.healthReq.onNext(wallCollisionHealthSpeed * 0.25f));
 		return drone;
 	}
 

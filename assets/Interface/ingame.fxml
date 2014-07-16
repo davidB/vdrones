@@ -14,8 +14,8 @@
             <RadialGradient centerX="0.5056179775280899" centerY="0.5" focusDistance="0.023809523809523725" radius="1.0">
                <stops>
                   <Stop color="#de170400" />
-                  <Stop color="#05ff1a00" offset="0.40000000000000013" />
-                  <Stop color="#05ff1c" offset="1.0" />
+                  <Stop color="#ff050547" offset="0.4333333333333335" />
+                  <Stop color="#ff0505" offset="1.0" />
                </stops>
             </RadialGradient>
          </fill>

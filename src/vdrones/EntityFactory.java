@@ -32,9 +32,15 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
+class CollisionGroups {
+	static final int NONE = 0;
+	static final int DRONE = 1;
+	static final int WALL = 2;
+}
 /**
  *
  * @author dwayne
@@ -62,28 +68,42 @@ public class EntityFactory {
 		for (Light l : level.getLocalLightList()) {
 			a.lights.add(l);
 		}
-		extract(a.bg, level, "backgrounds");
-		//extract(a.spawnPoint, level, "spawners");
-		extract(a.bg, level, "traps");
-		extract(a.bg, level, "exits");
+		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
+		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
+		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
+		extract(level, "exits").forEach(v -> addInto(v, a.bg, "exits"));
+		a.bg.stream().forEach(v -> setCollisionGroupsRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
 		return a;
 	}
 
-	private void extract(Collection<Spatial> dest, Spatial src, String groupName) {
+	private Stream<Spatial> extract(Spatial src, String groupName) {
 		Node group = (Node) ((Node)src).getChild(groupName);
-		if (group != null) {
-			for(Spatial s : group.getChildren()) {
-				s.setLocalTransform(s.getWorldTransform());
-				s.setUserData("dest", EntityFactory.LevelName);
-				s.setUserData("groupName", groupName);
-				dest.add(s);
-			}
-		} else {
-			System.out.printf("group not found : %s \n", groupName);
-		}
+		if (group == null) System.out.printf("group not found : %s \n", groupName);
+		return (group != null) ? group.getChildren().stream() : Stream.empty();
 	}
 
-    public Spatial newMWall(Spatial src, Box shape) {
+	private void addInto(Spatial s, Collection<Spatial> dest, String groupName) {
+		s.setLocalTransform(s.getWorldTransform());
+		s.setUserData("dest", EntityFactory.LevelName);
+		s.setUserData("groupName", groupName);
+		dest.add(s);
+	}
+
+	private Spatial setY(Spatial s, float y) {
+		Vector3f pos = s.getLocalTranslation();
+		pos.y = y;
+		s.setLocalTranslation(pos);
+		return s;
+	}
+
+	private void addInto(Spatial s, Collection<Location> dest) {
+		Location loc = new Location();
+		loc.position.set(s.getWorldTranslation());
+		loc.orientation.set(s.getWorldRotation());
+		dest.add(loc);
+	}
+
+	public Spatial newMWall(Spatial src, Box shape) {
         Spatial b = new Geometry(src.getName(), shape);
         log.info("check mwall : {}", Tools.checkIndexesOfPosition(b));
         b.setMaterial(assetManager.loadMaterial("Materials/mwall.j3m"));
@@ -97,6 +117,7 @@ public class EntityFactory {
         phy.setKinematic(true);
         phy.setKinematicSpatial(true);
         b.addControl(phy);
+        setCollisionGroupsRecursive(b, CollisionGroups.WALL, CollisionGroups.DRONE);
         return b;
     }
 
@@ -191,6 +212,7 @@ public class EntityFactory {
         //Spatials.setDebugSkeleton(b, assetManager, ColorRGBA.Green);
         b.addControl(new ControlSpatialsToBones());
         b.addControl(new ControlDronePhy());
+        setCollisionGroupsRecursive(b, CollisionGroups.DRONE, -1);
         return b;
     }
 
@@ -244,6 +266,17 @@ public class EntityFactory {
             Control ctrl = src.getControl(i);
             ctrl.cloneForSpatial(dst);
         }
+    }
+
+    public void setCollisionGroupsRecursive(Spatial src, int collisionGroup, int collideWith) {
+    	RigidBodyControl phy = src.getControl(RigidBodyControl.class);
+    	if (phy != null) {
+    		if (collisionGroup > 0) phy.setCollisionGroup(collisionGroup);
+    		if (collideWith > 0) phy.setCollideWithGroups(collideWith);
+    	}
+    	if (src instanceof Node) {
+    		((Node)src).getChildren().stream().forEach(v -> setCollisionGroupsRecursive(v, collisionGroup, collideWith));
+    	}
     }
 
 }

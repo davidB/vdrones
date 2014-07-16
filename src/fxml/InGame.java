@@ -24,7 +24,7 @@ public class InGame {
 	@FXML
 	private Label score;
 
-	private int healthMax;
+	private float healthMax;
 	private float energyMax;
 
 	@FXML
@@ -40,14 +40,17 @@ public class InGame {
 		health.heightProperty().bind(root.heightProperty());
 	}
 
-	public void setHealthMax(int v) {
+	public void setHealthMax(float v) {
 		healthMax = v;
 	}
 
-	public void setHealth(int current) {
-		FxPlatformExecutor.runOnFxApplication(() ->
-			health.setOpacity(((double)(healthMax - current))/healthMax)
-		);
+	public void setHealth(float current) {
+		System.out.println("health : " + current);
+		FxPlatformExecutor.runOnFxApplication(() -> {
+			double ratio = (double)((healthMax - current)/healthMax);
+			ratio = ratio * ratio;
+			health.setOpacity(ratio);
+		});
 	}
 
 	public void setScore(int v) {

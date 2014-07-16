@@ -45,7 +45,11 @@ public class AppStateHudInGame extends AppState0 {
 			public void onNext(DroneInfo2 t) {
 				terminate();
 				hud.getController().setEnergyMax(t.cfg.energyStoreMax);
-				subscription = t.energy.subscribe((v) -> hud.getController().setEnergy(v));
+				hud.getController().setHealthMax(t.cfg.healthMax);
+				subscription = Subscriptions.from(
+					t.energy.subscribe((v) -> hud.getController().setEnergy(v))
+					, t.health.subscribe((v) -> hud.getController().setHealth(v))
+				);
 			}
 		});
 		//Observable.switchOnNext(
