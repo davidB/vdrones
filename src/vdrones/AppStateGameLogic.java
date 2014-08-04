@@ -14,7 +14,10 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
@@ -268,6 +271,31 @@ public class AppStateGameLogic extends AppState0 {
 		return area;
 	}
 
+	static public Subscription pipeAll(SimpleApplication jmeApp){
+		Injector injector = Injectors.find(jmeApp);
+		//LevelLoader ll = injector.getInstance(LevelLoader.class);
+		Channels channels = injector.getInstance(Channels.class);
+
+		return Subscriptions.from(
+			Pipes.pipeA(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
+			, Pipes.pipe(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
+			, Pipes.pipe(channels.drones.map(DroneInfo2::from), injector.getInstance(Application.class).getInputManager())
+			, Pipes.pipeD(channels.drones, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
+			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
+			,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
+			,channels.drones.subscribe(new ObserverPrint<Node>("channels.drones"))
+		);
+	}
+
+	//FIXME remove delay to display, the delay is caused by missing callback when application is initialized
+	static public void spawnLevel(SimpleApplication jmeApp, String name) {
+		Injector injector = Injectors.find(jmeApp);
+		EntityFactory efactory = injector.getInstance(EntityFactory.class);
+		Channels channels = injector.getInstance(Channels.class);
+		//Observable.just(efactory.newLevel(name)).delay(500, TimeUnit.MILLISECONDS).subscribe(channels.areaCfgs);
+		channels.areaCfgs.onNext(efactory.newLevel("area0"));
+		System.err.println("Done");
+	}
 
 	@Override
 	protected void doInitialize() {
@@ -280,6 +308,15 @@ public class AppStateGameLogic extends AppState0 {
 			, droneGenerator.drones.flatMap(v -> v).map(v -> newDrone(new DroneCfg(), dt, v)).subscribe(channels.drones)
 			, channels.drones.map(DroneInfo2::from).subscribe(v -> v.drivable.onNext(true))
 		);
+
+		app.enqueue(() -> {
+			pipeAll(app);
+			return true;
+		});
+		app.enqueue(() -> {
+			spawnLevel(app, "area0");
+			return true;
+		});
 	}
 
 	@Override
