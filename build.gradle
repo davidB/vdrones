@@ -22,7 +22,8 @@ repositories {
     maven { url "https://oss.sonatype.org/content/groups/public"}
 }
 
-def v_jme = '3.0.10-pre-alpha-svn'//'3.0.0.20140325-SNAPSHOT' //'3.0+2014-04-25'
+//def v_jme = '3.1.0-snapshot-github' //'3.0.10-pre-alpha-svn'//'3.0.0.20140325-SNAPSHOT' //'3.0+2014-04-25'
+def v_jme = '3.1.0-snapshot-github'
 def v_slf4j = '1.7.7'
 
 dependencies {
@@ -38,11 +39,14 @@ dependencies {
     compile 'com.simsilica:zay-es:0.0.0+r1203'
     runtime "com.jme3:jme3-lwjgl:${v_jme}"
     //runtime "com.jme3:jme3-lwjgl-natives:${v_jme}" //workaround
+    //runtime "com.jme3:jme3-jogl:${v_jme}"
+    //runtime 'org.jogamp.gluegen:gluegen-rt:2.1.5-01:natives-linux-amd64@jar'
     runtime "com.jme3:jme3-desktop:${v_jme}"
     runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
     compile 'com.netflix.rxjava:rxjava-core:0.19.2'
     testCompile 'junit:junit:4.11'
 }
+
 
 sourceSets {
     main {
