@@ -6,6 +6,7 @@ package vdrones;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Skeleton;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -24,7 +25,7 @@ public class Spatials {
         Geometry r = null;
         if (spatial instanceof Geometry && spatial.getName().startsWith(name)) {
             r = (Geometry) spatial;
-        } 
+        }
         if (r == null && spatial instanceof Node) {
             Node node = (Node) spatial;
             for (int i = 0; r == null && i < node.getQuantity(); i++) {
@@ -34,14 +35,33 @@ public class Spatials {
         }
         return r;
     }
-    
-    public static Skeleton findSkeleton(Spatial spatial) {
-        //                List<Spatial> r = v.descendantMatches(Spatial.class, "Drone");
-        Skeleton r = null;
-        final AnimControl control = spatial.getControl(AnimControl.class);
-        if (control != null) {
-            r = control.getSkeleton();
+
+    public static AnimControl findAnimControl(Spatial spatial) {
+        AnimControl r = spatial.getControl(AnimControl.class);
+        if (r == null && spatial instanceof Node) {
+            Node node = (Node) spatial;
+            for (int i = 0; r == null && i < node.getQuantity(); i++) {
+                Spatial child = node.getChild(i);
+                r = findAnimControl(child);
+            }
         }
+        return r;
+    }
+
+    public static Skeleton findSkeleton(Spatial spatial) {
+        //List<Spatial> r = v.descendantMatches(Spatial.class, "Drone");
+    	//children can have AnimControl without Skeleton => don't use findAnimControl
+        Skeleton r = null;
+    	SkeletonControl c0 = spatial.getControl(SkeletonControl.class);
+    	if (c0 != null) {
+    		r = c0.getSkeleton();
+    	}
+    	if (r == null) {
+	        AnimControl control = spatial.getControl(AnimControl.class);
+	        if (control != null) {
+	            r = control.getSkeleton();
+	        }
+    	}
         if (r == null && spatial instanceof Node) {
             Node node = (Node) spatial;
             for (int i = 0; r == null && i < node.getQuantity(); i++) {
@@ -51,7 +71,7 @@ public class Spatials {
         }
         return r;
     }
-    
+
     public static void setDebugSkeleton(Spatial spatial, AssetManager assetManager, ColorRGBA color) {
         Skeleton skel = findSkeleton(spatial);
         if (skel != null) {

@@ -14,7 +14,6 @@ import rx.Observer;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
@@ -25,11 +24,14 @@ import vdrones.DroneInfo2.State;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
+import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.Savable;
 import com.jme3.input.InputManager;
 import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
@@ -46,9 +48,9 @@ class Channels{
 }
 
 class DroneCfg {
-    public float turn = 2.0f;
-    public float forward = 150f;
-    public float linearDamping = 0.5f;
+	public float turn = 2.0f;
+	public float forward = 150f;
+	public float linearDamping = 0.5f;
 	public float energyRegenSpeed = 2;
 	public float energyForwardSpeed = 4;
 	public float energyShieldSpeed = 2;
@@ -112,7 +114,7 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 	final BehaviorSubject<Float> energyRegen = BehaviorSubject.create(0f);
 	//BehaviorSubject<Vector3f> position = BehaviorSubject.create(new Vector3f());
 	//HACK delay to async state change (eg: post-pone update after all subscriber receive previous value)
-	Observable<State> state = stateReq.delay(1,TimeUnit.MILLISECONDS);
+	Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
 	Observable<Float> health;
 	Observable<Float> energy;
 	Observable<Float> forward;
@@ -231,7 +233,6 @@ class DroneGenerator extends Subscriber<Location> {
 		DroneInfo2 drone = new DroneInfo2(new DroneCfg());
 		drone.spawnLoc = t;
 		drones0.onNext(BehaviorSubject.create(drone));
-		drone.go(DroneInfo2.State.generating);
 	}
 }
 
@@ -277,13 +278,13 @@ public class AppStateGameLogic extends AppState0 {
 		Channels channels = injector.getInstance(Channels.class);
 
 		return Subscriptions.from(
-			Pipes.pipeA(channels.areaCfgs, injector.getInstance(GeometryAndPhysic.class), injector.getInstance(EntityFactory.class))
-			, Pipes.pipe(channels.areaCfgs, injector.getInstance(AppStateManager.class).getState(AppStateLights.class))
-			, Pipes.pipe(channels.drones, injector.getInstance(InputManager.class))
-			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
-			,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
-			,channels.drones.subscribe(new ObserverPrint<DroneInfo2>("channels.drones"))
-		);
+				Pipes.pipeA(channels.areaCfgs, injector.getInstance(GeometryAndPhysic.class), injector.getInstance(EntityFactory.class))
+				, Pipes.pipe(channels.areaCfgs, injector.getInstance(AppStateManager.class).getState(AppStateLights.class))
+				, Pipes.pipe(channels.drones, injector.getInstance(InputManager.class))
+				//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
+				,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
+				,channels.drones.subscribe(new ObserverPrint<DroneInfo2>("channels.drones"))
+				);
 	}
 
 	static public void spawnLevel(String name) {
@@ -299,11 +300,11 @@ public class AppStateGameLogic extends AppState0 {
 		DroneGenerator droneGenerator = injector.getInstance(DroneGenerator.class);
 
 		subscription =  Subscriptions.from(
-			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
-			, Pipes.pipe(channels.areaCfgs, droneGenerator)
-			, droneGenerator.drones.flatMap(v -> v).map(v -> setup(dt, v)).subscribe(channels.drones)
-			,pipeAll()
-		);
+				channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
+				, Pipes.pipe(channels.areaCfgs, droneGenerator)
+				, droneGenerator.drones.flatMap(v -> v).map(v -> setup(dt, v)).subscribe(channels.drones)
+				,pipeAll()
+				);
 
 		app.enqueue(() -> {
 			spawnLevel("area0");
@@ -326,9 +327,8 @@ public class AppStateGameLogic extends AppState0 {
 class ObserverDroneState implements Observer<DroneInfo2.State> {
 	private Action1<State> onExit;
 	private DroneInfo2 drone;
-	private boolean generatedOnce = false;
 	private SubscriptionsMap subs = new SubscriptionsMap();
-
+	private AnimEventListener animListener;
 	final EntityFactory efactory;
 	final SimpleApplication jme;
 	final GeometryAndPhysic gp;
@@ -340,6 +340,28 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 		}
 		drone = v;
 		subs.add("0", drone.state.subscribe(this));
+		animListener = new AnimEventListener(){
+			@Override
+			public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+				log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
+				assert(channel.getTime() >= control.getAnimationLength(animName));
+				switch(animName) {
+				case "generation":
+					drone.go(DroneInfo2.State.driving);
+					break;
+				case "crashing":
+					drone.go(DroneInfo2.State.hidden);
+					break;
+				case "exiting":
+					drone.go(DroneInfo2.State.hidden);
+					break;
+				}
+			}
+
+			@Override
+			public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+			}
+		};
 	}
 
 	private void dispose() {
@@ -374,17 +396,14 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 		switch(v) {
 		case hidden :
 			jme.enqueue(() -> {
-				efactory.unasDrone(drone.node);
+				efactory.unas(drone.node);
 				gp.remove(drone.node);
 				return true;
 			});
-			if (generatedOnce) {
-				drone.go(DroneInfo2.State.generating);
-			}
+			drone.go(DroneInfo2.State.generating);
 			break;
 		case generating : {
-			generatedOnce = true;
-			drone.energyRegen.onNext(drone.cfg.energyRegenSpeed * 4);
+			drone.energyRegen.onNext(drone.cfg.energyStoreMax /*energyRegenSpeed * 4*/);
 			drone.healthReq.onNext(drone.cfg.healthMax);
 			jme.enqueue(() -> {
 				drone.node.setLocalRotation(drone.spawnLoc.orientation);
@@ -395,19 +414,20 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				gp.add(drone.node);
 				ascam.setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, drone.node));
 				//TODO start animation
+				AnimControl ac = Spatials.findAnimControl(drone.node);
+				ac.addListener(animListener);
+				playAnim(drone.node, "generation");
 				return true;
 			});
 			onExit = (n) -> {
 				log.info("Exit from {} to {}", v, n);
-				drone.energyRegen.onNext(0f);
+				drone.energyRegen.onNext(drone.cfg.energyRegenSpeed);
 			};
 			//TODO switch on end of animation
-			Schedulers.computation().createWorker().schedule((() ->drone.go(DroneInfo2.State.driving)), 1, TimeUnit.SECONDS);
+			//Schedulers.computation().createWorker().schedule((() ->drone.go(DroneInfo2.State.driving)), 1, TimeUnit.SECONDS);
 			break;
 		}
 		case driving :
-			drone.energyRegen.onNext(drone.cfg.energyRegenSpeed);
-			//TODO remove physics
 			onExit = (n) -> {
 				log.info("Exit from {} to {}", v, n);
 				drone.energyRegen.onNext(0f);
@@ -416,29 +436,46 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				jme.enqueue(() -> {
 					subs.unsubscribe("ControlDronePhy");
 					drone.node.removeControl(ControlDronePhy.class);
-					log.info("jme unsubscribe, remove ControlDronePhy");
 					return true;
 				});
 			};
 			break;
 		case crashing :
-			drone.go(DroneInfo2.State.hidden);
+			jme.enqueue(() -> {
+				playAnim(drone.node, "crashing");
+				return true;
+			});
 			break;
 		case exiting :
-			drone.go(DroneInfo2.State.hidden);
+			jme.enqueue(() -> {
+				playAnim(drone.node, "exiting");
+				return true;
+			});
 			break;
 		case disconnecting:
+			jme.enqueue(() -> {
+				playAnim(drone.node, "disconnecting");
+				return true;
+			});
 			break;
 		}
 	}
 
 	static Subscription pipe(DroneInfo2 drone, ControlDronePhy phy) {
 		return Subscriptions.from(
-			drone.forward.subscribe((v) -> {
-				phy.forwardLg = v * drone.cfg.forward;
-				phy.linearDamping = drone.cfg.linearDamping;
-			})
-			, drone.turn.subscribe((v) -> phy.turnLg = v * drone.cfg.turn)
-		);
+				drone.forward.subscribe((v) -> {
+					phy.forwardLg = v * drone.cfg.forward;
+					phy.linearDamping = drone.cfg.linearDamping;
+				})
+				, drone.turn.subscribe((v) -> phy.turnLg = v * drone.cfg.turn)
+				);
+	}
+
+	static void playAnim(Node n, String animName) {
+		AnimControl ac = Spatials.findAnimControl(n);
+		AnimChannel channel = ac.getChannel(0);
+		channel.setAnim(animName);
+		channel.setLoopMode(LoopMode.DontLoop);
+		channel.setSpeed(1f);
 	}
 }

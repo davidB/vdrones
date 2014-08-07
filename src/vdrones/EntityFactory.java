@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
 import com.google.inject.Inject;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -213,17 +215,31 @@ public class EntityFactory {
 		b.addControl(new ControlSpatialsToBones());
 		setCollisionGroupsRecursive(b, CollisionGroups.DRONE, -1);
 
+		Animation generatingAnim = new Animation("generation", 4.0f);
+		Animation crashingAnim = new Animation("crashing", 2.0f);
+		Animation exitingAnim = new Animation("exiting", 2.0f);
+		//generatingAnim.addTrack(new TrackNoOp(3.0f));
+		AnimControl ac = Spatials.findAnimControl(b);
+		ac.addAnim(generatingAnim);
+		ac.addAnim(crashingAnim);
+		ac.addAnim(exitingAnim);
+		ac.clearChannels();
+		ac.createChannel();
+
 		return b;
 	}
 
-	public Node unasDrone(Node b) {
+	// can be called on any Node, (like new Node())
+
+	public Node unas(Node b) {
+		AnimControl ac = Spatials.findAnimControl(b);
+		if (ac!= null) {
+			ac.clearListeners();
+			ac.clearChannels();
+		}
 		b.removeControl(ControlSpatialsToBones.class);
 		removeAllPhysic(b);
-		b.detachChildNamed("model");
-		b.detachChildNamed("top");
-		b.detachChildNamed("front");
-		b.detachChildNamed("rear.L");
-		b.detachChildNamed("rear.R");
+		b.detachAllChildren();
 		return b;
 	}
 
