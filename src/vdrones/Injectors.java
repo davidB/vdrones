@@ -2,8 +2,6 @@ package vdrones;
 
 import org.lwjgl.opengl.Display;
 
-import rx_ext.JMonkeyScheduler;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -88,11 +86,6 @@ class GameModule extends AbstractModule {
 	@Provides @Singleton
 	public EntityData entityData() {
 		return new DefaultEntityData();
-	}
-
-	@Provides @Singleton
-	public JMonkeyScheduler jMonkeyScheduler(SimpleApplication app) {
-		return new JMonkeyScheduler(app);
 	}
 
 	@Provides @Singleton

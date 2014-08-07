@@ -1,4 +1,4 @@
-package rx_ext;
+package sandbox;
 
 import java.util.AbstractMap;
 import java.util.Map;
