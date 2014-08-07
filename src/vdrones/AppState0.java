@@ -20,7 +20,7 @@ abstract public class AppState0 extends AbstractAppState {
     @Override
     public final void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        injector = Injectors.find(app);
+        injector = Injectors.find();
         this.app = (SimpleApplication)app;
         initialized = true;
         doInitialize();
