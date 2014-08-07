@@ -26,8 +26,12 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 	}
 
 	DroneInfo2 findDrone(Spatial n) {
+		if (n == null) return null; // can be null if getNodeA no longer exists or is no longer a Spatial
 		Object o = n.getUserData(DroneInfo2.UD);
-		return (DroneInfo2)((o == null) ? n.getParent().getUserData(DroneInfo2.UD) : o);
+		if (o == null && (n.getParent() != null)) {
+			o = n.getParent().getUserData(DroneInfo2.UD);
+		}
+		return (DroneInfo2)o;
 	}
 
 	@Override

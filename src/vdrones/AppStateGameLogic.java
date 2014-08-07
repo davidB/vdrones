@@ -2,25 +2,38 @@ package vdrones;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
+import rx_ext.ObserverPrint;
+import rx_ext.SubscriptionsMap;
+import vdrones.DroneInfo2.State;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AppStateManager;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
+import com.jme3.input.InputManager;
 import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Rectangle;
@@ -30,7 +43,7 @@ import com.jme3.scene.Spatial;
 
 @Singleton
 class Channels{
-	final BehaviorSubject<Node> drones = BehaviorSubject.create();
+	final BehaviorSubject<DroneInfo2> drones = BehaviorSubject.create();
 	final BehaviorSubject<AreaInfo2> areaInfo2s = BehaviorSubject.create();
 	final BehaviorSubject<AreaCfg> areaCfgs = BehaviorSubject.create();
 }
@@ -42,6 +55,7 @@ class DroneCfg {
 	public float energyRegenSpeed = 2;
 	public float energyForwardSpeed = 4;
 	public float energyShieldSpeed = 2;
+	public float energyStoreInit = 50f;
 	public float energyStoreMax = 100f;
 	public float healthMax = 100f;
 }
@@ -66,26 +80,53 @@ class DroneGen {
 	Kind kind;
 }
 
+@RequiredArgsConstructor
 class DroneInfo2 implements Savable {
+	//- CLASS -----------------------------------------------------------------------------
+	public static enum State {
+		hidden
+		, generating
+		, driving
+		, crashing
+		, disconnecting
+		, exiting
+	}
+
 	public static final String UD = "DroneInfoUserData";
 	public static DroneInfo2 from(Spatial s) {
 		return (DroneInfo2) s.getUserData(UD);
 	}
 
-	DroneCfg cfg;
+	static Node makeNode(DroneInfo2 v) {
+		Node n = new Node("drone");
+		n.setUserData(UD, v);
+		return n;
+	}
 
-	final BehaviorSubject<Boolean> drivable = BehaviorSubject.create(false);
+	//- INSTANCE --------------------------------------------------------------------------
+	final DroneCfg cfg;
+	final Node node = makeNode(this);
+	private final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
 	final BehaviorSubject<Float> forwardReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<Float> turnReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<Float> shieldReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<Float> healthReq = BehaviorSubject.create(0f);
 	final BehaviorSubject<DroneCollisionEvent> wallCollisions = BehaviorSubject.create();
+	final BehaviorSubject<Float> energyRegen = BehaviorSubject.create(0f);
 	//BehaviorSubject<Vector3f> position = BehaviorSubject.create(new Vector3f());
+	//HACK delay to async state change (eg: post-pone update after all subscriber receive previous value)
+	Observable<State> state = stateReq.delay(1,TimeUnit.MILLISECONDS);
 	Observable<Float> health;
 	Observable<Float> energy;
 	Observable<Float> forward;
 	Observable<Float> turn;
 	Observable<Float> shield;
+	Location spawnLoc;
+
+	void go(State v) {
+		//Schedulers.trampoline().createWorker().schedule(() -> stateReq.onNext(v));
+		stateReq.onNext(v);
+	}
 
 	@Override
 	public void write(JmeExporter ex) throws IOException {
@@ -93,7 +134,6 @@ class DroneInfo2 implements Savable {
 	@Override
 	public void read(JmeImporter im) throws IOException {
 	}
-
 }
 
 @RequiredArgsConstructor
@@ -176,93 +216,67 @@ class CubeGenerator extends Subscriber<List<List<Rectangle>>> {
 }
 
 class DroneGenerator extends Subscriber<Location> {
-	private final PublishSubject<Observable<DroneGen>> drones0 = PublishSubject.create();
-	Observable<Observable<DroneGen>> drones = drones0;
-
-	private Subscription subscription;
-	private Location spawnLoc;
-
-	void generate(boolean first) {
-		DroneGen v = new DroneGen();
-		v.loc = spawnLoc;
-		v.kind = first ? DroneGen.Kind.first : DroneGen.Kind.restore;
-		drones0.onNext(BehaviorSubject.create(v));
-	}
-
-	void stop() {
-		if (subscription != null && !subscription.isUnsubscribed()) {
-			subscription.unsubscribe();
-		}
-		subscription = null;
-	}
+	private final PublishSubject<Observable<DroneInfo2>> drones0 = PublishSubject.create();
+	Observable<Observable<DroneInfo2>> drones = drones0;
 
 	@Override
 	public void onCompleted() {
 		drones0.onCompleted();
-		stop();
 	}
 
 	@Override
 	public void onError(Throwable e) {
 		drones0.onError(e);
-		stop();
 	}
 
 	@Override
 	public void onNext(Location t) {
-		stop();
-		spawnLoc = t;
-		if (spawnLoc != null) {
-			subscription = drones.flatMap(v -> v).last().subscribe(v -> generate(false));
-			generate(true);
-		}
+		DroneInfo2 drone = new DroneInfo2(new DroneCfg());
+		drone.spawnLoc = t;
+		drones0.onNext(BehaviorSubject.create(drone));
+		drone.go(DroneInfo2.State.generating);
 	}
 }
 
 
-//see https://github.com/Netflix/RxJava/issues/798
-//class ObservableList<T> {
-//
-//	final Observable<T> onAdd;
-//	final Observable<T> onRemove;
-//	public void add(T v) {
-//
-//	}
-//
-//	public void remove(T v) {
-//
-//	}
-//
-//	public void removeAll() {
-//
-//	}
-//}
+
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	Subscription subscription;
 	public static float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
 
-	Node newDrone(DroneCfg cfg, Observable<Float> dt, DroneGen dg) {
-		val b = new Node("drone");
-		b.setLocalRotation(dg.loc.orientation);
-		b.setLocalTranslation(dg.loc.position);
+	DroneInfo2 setup(Observable<Float> dt, DroneInfo2 drone) {
+		DroneCfg cfg = drone.cfg;
+		injector.getInstance(ObserverDroneState.class).bind(drone);
 
-		val drone = new DroneInfo2();
-		drone.cfg = cfg;
 		BehaviorSubject<Float> energyVelocity = BehaviorSubject.create(0f);
 		Observable<Float> energydt = dt.flatMap((dt0) -> energyVelocity.firstOrDefault(0f).map((v) -> dt0 * v));
-		drone.energy = energydt.scan(0f, (acc, d) -> Math.max(0, Math.min(cfg.energyStoreMax, acc + d)));
+		drone.energy = energydt.scan(cfg.energyStoreInit, (acc, d) -> Math.max(0, Math.min(cfg.energyStoreMax, acc + d)));
 		drone.forward = Observable.combineLatest(drone.energy, drone.forwardReq, (o1, o2) -> (o1 > cfg.energyForwardSpeed) ? o2 : 0f).distinctUntilChanged();
 		drone.turn = drone.turnReq.distinctUntilChanged();
-		drone.health = drone.healthReq.scan(cfg.healthMax, (acc, d) -> Math.max(0, Math.min(cfg.healthMax, acc + d)));
+		drone.health = drone.healthReq.scan(cfg.healthMax, (acc, d) -> Math.max(0, Math.min(cfg.healthMax, acc + d))).distinctUntilChanged();
 		drone.shield = Observable.combineLatest(drone.energy, drone.shieldReq, (o1, o2) -> (o1 > cfg.energyShieldSpeed) ? o2 : 0f).distinctUntilChanged();
-		Observable.combineLatest(drone.forward, drone.shield, (o1, o2) -> (cfg.energyRegenSpeed - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
+		Observable.combineLatest(drone.energyRegen, drone.forward, drone.shield, (o0, o1, o2) -> (o0 - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
 		//TODO use a throttleFirst based on game time vs real time
 		drone.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> drone.healthReq.onNext(wallCollisionHealthSpeed * 0.25f));
-		b.setUserData(DroneInfo2.UD, drone);
+		drone.health.filter(v -> v <= 0).subscribe((v) -> drone.go(DroneInfo2.State.crashing));
+		energyVelocity.subscribe(new ObserverPrint<Float>("energyVelocity"));
+		drone.state.subscribe(new ObserverPrint<DroneInfo2.State>("droneState"));
 
-		return b;
+
+		return drone;
 	}
+
+	//
+//	public Spatial spawnDrone(DroneInfo2 d) {
+//		Injector injector = Injectors.find(this);
+//		EntityFactory efactory = injector.getInstance(EntityFactory.class);
+//		Spatial vd = efactory.newDrone();
+//		Pipes.pipe(d, vd.getControl(ControlDronePhy.class));
+//		stateManager.getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, vd));
+//		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
+//		return vd;
+//	}
 
 	AreaInfo2 newAreaInfo(AreaCfg cfg, Observable<Float> dt) {
 		val area = new AreaInfo2();
@@ -271,30 +285,26 @@ public class AppStateGameLogic extends AppState0 {
 		return area;
 	}
 
-	static public Subscription pipeAll(SimpleApplication jmeApp){
-		Injector injector = Injectors.find(jmeApp);
+	static public Subscription pipeAll(){
+		Injector injector = Injectors.find();
 		//LevelLoader ll = injector.getInstance(LevelLoader.class);
 		Channels channels = injector.getInstance(Channels.class);
 
 		return Subscriptions.from(
-			Pipes.pipeA(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
-			, Pipes.pipe(channels.areaCfgs, injector.getInstance(Application.class).getStateManager().getState(AppStateLights.class))
-			, Pipes.pipe(channels.drones.map(DroneInfo2::from), injector.getInstance(Application.class).getInputManager())
-			, Pipes.pipeD(channels.drones, injector.getInstance(Application.class).getStateManager().getState(AppStateGeoPhy.class), injector)
+			Pipes.pipeA(channels.areaCfgs, injector.getInstance(GeometryAndPhysic.class), injector.getInstance(EntityFactory.class))
+			, Pipes.pipe(channels.areaCfgs, injector.getInstance(AppStateManager.class).getState(AppStateLights.class))
+			, Pipes.pipe(channels.drones, injector.getInstance(InputManager.class))
 			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
 			,channels.areaCfgs.subscribe(new ObserverPrint<AreaCfg>("channels.areaCfgs"))
-			,channels.drones.subscribe(new ObserverPrint<Node>("channels.drones"))
+			,channels.drones.subscribe(new ObserverPrint<DroneInfo2>("channels.drones"))
 		);
 	}
 
-	//FIXME remove delay to display, the delay is caused by missing callback when application is initialized
-	static public void spawnLevel(SimpleApplication jmeApp, String name) {
-		Injector injector = Injectors.find(jmeApp);
+	static public void spawnLevel(String name) {
+		Injector injector = Injectors.find();
 		EntityFactory efactory = injector.getInstance(EntityFactory.class);
 		Channels channels = injector.getInstance(Channels.class);
-		//Observable.just(efactory.newLevel(name)).delay(500, TimeUnit.MILLISECONDS).subscribe(channels.areaCfgs);
 		channels.areaCfgs.onNext(efactory.newLevel("area0"));
-		System.err.println("Done");
 	}
 
 	@Override
@@ -305,16 +315,12 @@ public class AppStateGameLogic extends AppState0 {
 		subscription =  Subscriptions.from(
 			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
 			, Pipes.pipe(channels.areaCfgs, droneGenerator)
-			, droneGenerator.drones.flatMap(v -> v).map(v -> newDrone(new DroneCfg(), dt, v)).subscribe(channels.drones)
-			, channels.drones.map(DroneInfo2::from).subscribe(v -> v.drivable.onNext(true))
+			, droneGenerator.drones.flatMap(v -> v).map(v -> setup(dt, v)).subscribe(channels.drones)
+			,pipeAll()
 		);
 
 		app.enqueue(() -> {
-			pipeAll(app);
-			return true;
-		});
-		app.enqueue(() -> {
-			spawnLevel(app, "area0");
+			spawnLevel("area0");
 			return true;
 		});
 	}
@@ -326,5 +332,127 @@ public class AppStateGameLogic extends AppState0 {
 
 	protected void doDispose() {
 		subscription.unsubscribe();
+	}
+}
+
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
+@Slf4j
+class ObserverDroneState implements Observer<DroneInfo2.State> {
+	private Action1<State> onExit;
+	private DroneInfo2 drone;
+	private boolean generatedOnce = false;
+	private SubscriptionsMap subs = new SubscriptionsMap();
+
+	final EntityFactory efactory;
+	final SimpleApplication jme;
+	final GeometryAndPhysic gp;
+	final AppStateCamera ascam;
+
+	public void bind(DroneInfo2 v) {
+		if (drone != null && drone != v) {
+			throw new IllegalStateException("already binded");
+		}
+		drone = v;
+		subs.add("0", drone.state.subscribe(this));
+	}
+
+	private void dispose() {
+		log.debug("dispose {}", drone);
+		drone = null;
+		subs.unsubscribeAll();
+	}
+
+	@Override
+	public void onCompleted() {
+		log.debug("onCompleted {}", drone);
+		dispose();
+	}
+
+	@Override
+	public void onError(Throwable e) {
+		log.warn("onError", e);
+		dispose();
+	}
+
+	@Override
+	public void onNext(State v) {
+		if (onExit != null) {
+			try {
+				onExit.call(v);
+			} catch (Exception e) {
+				log.warn("onExit", e);
+			}
+			onExit = null;
+		}
+		log.info("Enter in {}", v);
+		switch(v) {
+		case hidden :
+			jme.enqueue(() -> {
+				efactory.unasDrone(drone.node);
+				gp.remove(drone.node);
+				return true;
+			});
+			if (generatedOnce) {
+				drone.go(DroneInfo2.State.generating);
+			}
+			break;
+		case generating : {
+			generatedOnce = true;
+			drone.energyRegen.onNext(drone.cfg.energyRegenSpeed * 4);
+			drone.healthReq.onNext(drone.cfg.healthMax);
+			jme.enqueue(() -> {
+				drone.node.setLocalRotation(drone.spawnLoc.orientation);
+				drone.node.setLocalTranslation(drone.spawnLoc.position);
+				efactory.asDrone(drone.node);
+				drone.node.addControl(new ControlDronePhy());
+				subs.add("ControlDronePhy", pipe(drone, drone.node.getControl(ControlDronePhy.class)));
+				gp.add(drone.node);
+				ascam.setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, drone.node));
+				//TODO start animation
+				return true;
+			});
+			onExit = (n) -> {
+				log.info("Exit from {} to {}", v, n);
+				drone.energyRegen.onNext(0f);
+			};
+			//TODO switch on end of animation
+			Schedulers.computation().createWorker().schedule((() ->drone.go(DroneInfo2.State.driving)), 1, TimeUnit.SECONDS);
+			break;
+		}
+		case driving :
+			drone.energyRegen.onNext(drone.cfg.energyRegenSpeed);
+			//TODO remove physics
+			onExit = (n) -> {
+				log.info("Exit from {} to {}", v, n);
+				drone.energyRegen.onNext(0f);
+				drone.forwardReq.onNext(0f);
+				drone.turnReq.onNext(0f);
+				jme.enqueue(() -> {
+					subs.unsubscribe("ControlDronePhy");
+					drone.node.removeControl(ControlDronePhy.class);
+					log.info("jme unsubscribe, remove ControlDronePhy");
+					return true;
+				});
+			};
+			break;
+		case crashing :
+			drone.go(DroneInfo2.State.hidden);
+			break;
+		case exiting :
+			drone.go(DroneInfo2.State.hidden);
+			break;
+		case disconnecting:
+			break;
+		}
+	}
+
+	static Subscription pipe(DroneInfo2 drone, ControlDronePhy phy) {
+		return Subscriptions.from(
+			drone.forward.subscribe((v) -> {
+				phy.forwardLg = v * drone.cfg.forward;
+				phy.linearDamping = drone.cfg.linearDamping;
+			})
+			, drone.turn.subscribe((v) -> phy.turnLg = v * drone.cfg.turn)
+		);
 	}
 }
