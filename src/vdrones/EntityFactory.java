@@ -6,15 +6,20 @@
 
 package vdrones;
 
+import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+import lombok.extern.slf4j.Slf4j;
+
 import com.google.inject.Inject;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
-import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.joints.SixDofSpringJoint;
 import com.jme3.light.Light;
 import com.jme3.material.Material;
@@ -30,17 +35,6 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-
-import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.hamcrest.core.IsInstanceOf;
-
-import lombok.extern.slf4j.Slf4j;
 
 class CollisionGroups {
 	static final int NONE = 0;
@@ -310,85 +304,6 @@ public class EntityFactory {
 			((Node)src).getChildren().stream().forEach(v -> setCollisionGroupsRecursive(v, collisionGroup, collideWith));
 		}
 	}
-	//    /**
-	//     * adds all physics controls and joints in the given spatial node to the physics space
-	//     * (e.g. after loading from disk) - recursive if node
-	//     * @param spatial the rootnode containing the physics objects
-	//     */
-	//    public static void addAll(PhysicsSpace space, Spatial spatial) {
-	//        if (spatial.getControl(RigidBodyControl.class) != null) {
-	//            RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-	//            physicsNode.setPhysicsSpace(space);
-	//            //add joints
-	//            List<PhysicsJoint> joints = physicsNode.getJoints();
-	//            for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
-	//                PhysicsJoint physicsJoint = it1.next();
-	//                //add connected physicsnodes if they are not already added
-	//                Object body;
-	//                body = physicsJoint.getBodyA();
-	//                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-	//                    space.add(body);
-	//                } else {
-	//                    space.addRigidBody((PhysicsControl)body);
-	//                }
-	//                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-	//                    space.add(physicsJoint.getBodyB());
-	//                } else {
-	//                    addRigidBody(physicsJoint.getBodyB());
-	//                }
-	//                addJoint(physicsJoint);
-	//            }
-	//        } else if (spatial.getControl(PhysicsControl.class) != null) {
-	//            spatial.getControl(PhysicsControl.class).setPhysicsSpace(this);
-	//        }
-	//        //recursion
-	//        if (spatial instanceof Node) {
-	//            List<Spatial> children = ((Node) spatial).getChildren();
-	//            for (Iterator<Spatial> it = children.iterator(); it.hasNext();) {
-	//                Spatial spat = it.next();
-	//                addAll(spat);
-	//            }
-	//        }
-	//    }
-	//
-	//    /**
-	//     * Removes all physics controls and joints in the given spatial from the physics space
-	//     * (e.g. before saving to disk) - recursive if node
-	//     * @param spatial the rootnode containing the physics objects
-	//     */
-	//    public void removeAll(Spatial spatial) {
-	//        if (spatial.getControl(RigidBodyControl.class) != null) {
-	//            RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-	//            physicsNode.setPhysicsSpace(null);
-	//            //remove joints
-	//            List<PhysicsJoint> joints = physicsNode.getJoints();
-	//            for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
-	//                PhysicsJoint physicsJoint = it1.next();
-	//                //add connected physicsnodes if they are not already added
-	//                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-	//                    remove(physicsJoint.getBodyA());
-	//                } else {
-	//                    removeRigidBody(physicsJoint.getBodyA());
-	//                }
-	//                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-	//                    remove(physicsJoint.getBodyB());
-	//                } else {
-	//                    removeRigidBody(physicsJoint.getBodyB());
-	//                }
-	//                removeJoint(physicsJoint);
-	//            }
-	//        } else if (spatial.getControl(PhysicsControl.class) != null) {
-	//            spatial.getControl(PhysicsControl.class).setPhysicsSpace(null);
-	//        }
-	//        //recursion
-	//        if (spatial instanceof Node) {
-	//            List<Spatial> children = ((Node) spatial).getChildren();
-	//            for (Iterator<Spatial> it = children.iterator(); it.hasNext();) {
-	//                Spatial spat = it.next();
-	//                removeAll(spat);
-	//            }
-	//        }
-	//    }
 }
 
 @Slf4j

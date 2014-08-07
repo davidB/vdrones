@@ -1,7 +1,5 @@
 package vdrones;
 
-import org.lwjgl.opengl.Display;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.math.ColorRGBA;
@@ -28,7 +26,7 @@ public class Main {
 			app.getStateManager().getState(BulletAppState.class).setDebugEnabled(v);
 			app.getInputManager().setCursorVisible(v);
 			app.getViewPort().setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
-			Display.setResizable(v);
+			//Display.setResizable(v);
 			return true;
 		});
 	}

@@ -2,7 +2,6 @@ package vdrones;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +13,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -27,7 +25,6 @@ import vdrones.DroneInfo2.State;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.export.JmeExporter;
@@ -81,7 +78,7 @@ class DroneGen {
 }
 
 @RequiredArgsConstructor
-class DroneInfo2 implements Savable {
+class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
 	//- CLASS -----------------------------------------------------------------------------
 	public static enum State {
 		hidden
@@ -266,17 +263,6 @@ public class AppStateGameLogic extends AppState0 {
 
 		return drone;
 	}
-
-	//
-//	public Spatial spawnDrone(DroneInfo2 d) {
-//		Injector injector = Injectors.find(this);
-//		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-//		Spatial vd = efactory.newDrone();
-//		Pipes.pipe(d, vd.getControl(ControlDronePhy.class));
-//		stateManager.getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, vd));
-//		stateManager.getState(AppStateGeoPhy.class).toAdd.offer(vd);
-//		return vd;
-//	}
 
 	AreaInfo2 newAreaInfo(AreaCfg cfg, Observable<Float> dt) {
 		val area = new AreaInfo2();

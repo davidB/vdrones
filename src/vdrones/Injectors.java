@@ -1,7 +1,5 @@
 package vdrones;
 
-import org.lwjgl.opengl.Display;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -114,16 +112,6 @@ class GameModule extends AbstractModule {
 				stateManager.attach(new PhysicsCollisionListenerAll());
 				stateManager.attach(new AppStateHudInGame());
 			}
-
-			@Override
-			public void simpleUpdate(float tpf) {
-				if (Display.wasResized()) {
-					this.settings.setWidth(Display.getWidth());
-					this.settings.setHeight(Display.getHeight());
-					this.reshape(this.settings.getWidth(), this.settings.getHeight());
-				}
-			}
-
 		};
 		app.setSettings(settings);
 		app.setShowSettings(true);
