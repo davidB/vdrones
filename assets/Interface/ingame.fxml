@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.paint.*?>
@@ -7,9 +8,9 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.InGame">
+<StackPane fx:id="root" prefHeight="180.0" prefWidth="320.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.InGame">
    <children>
-      <Rectangle fx:id="health" arcHeight="5.0" arcWidth="5.0" height="200.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="288.0" StackPane.alignment="CENTER">
+      <Rectangle fx:id="health" arcHeight="5.0" arcWidth="5.0" height="180.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="320.0" StackPane.alignment="CENTER">
          <fill>
             <RadialGradient centerX="0.5056179775280899" centerY="0.5" focusDistance="0.023809523809523725" radius="1.0">
                <stops>
@@ -20,7 +21,7 @@
             </RadialGradient>
          </fill>
       </Rectangle>
-      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="261.0">
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="180.0" prefWidth="320.0">
          <children>
             <Label fx:id="clock" alignment="CENTER_RIGHT" prefHeight="51.0" prefWidth="76.0" text="000" textAlignment="RIGHT" textFill="#e80303" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                <font>
@@ -34,6 +35,9 @@
                </font>
             </Label>
          </children>
+         <effect>
+            <Bloom threshold="0.15" />
+         </effect>
       </AnchorPane>
    </children>
 </StackPane>
