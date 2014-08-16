@@ -19,8 +19,8 @@ public class Main {
 			throw new RuntimeException("Assertions must be enabled (vm args -ea");
 		}
 		SimpleApplication app = Injectors.find().getInstance(SimpleApplication.class);
-		setDebug(app, false);
 		setAspectRatio(app, 16, 9);
+		setDebug(app, true);
 	}
 
 	static public void setDebug(SimpleApplication app, boolean v) {
@@ -40,19 +40,30 @@ public class Main {
 			float ratio = (h * cam.getWidth()) / (w * cam.getHeight());
 			if (ratio < 1.0) {
 				float margin = (1f - ratio) * 0.5f;
-				System.out.printf("ratio %s\n", ratio);
-				float frustumW = cam.getFrustumRight(); //cam.getFrustumRight() / ratio;
-				float frustumH = cam.getFrustumTop() / ratio; //cam.getFrustumTop() / ratio;
+				float frustumW = cam.getFrustumRight();
+				float frustumH = cam.getFrustumTop() / ratio;
 				//cam.resize(cam.getWidth(), (int)(cam.getHeight() * 0.5), true);
-				System.out.printf("frustum bottom %s top %s right %s left %s\n", cam.getFrustumBottom(), cam.getFrustumTop(), cam.getFrustumRight(), cam.getFrustumLeft() );
 				cam.setViewPort(0f, 1f, margin,  1 - margin);
 				cam.setFrustum(cam.getFrustumNear(), cam.getFrustumFar(), -frustumW, frustumW, frustumH, -frustumH);
-				System.out.printf("frustum bottom %s top %s right %s left %s\n", cam.getFrustumBottom(), cam.getFrustumTop(), cam.getFrustumRight(), cam.getFrustumLeft() );
 			}
-			Camera cam2 = app.getGuiViewPort().getCamera();
-			cam2.setViewPort(cam.getViewPortLeft(), cam.getViewPortRight(), cam.getViewPortBottom(), cam.getViewPortTop());
-			//cam2.setFrustum(cam.getViewPortLeft(), cam.getViewPortRight(), cam.getViewPortBottom(), cam.getViewPortTop());
+//			app.getRenderManager().getPreViews().forEach((vp) -> {;
+//				cp(cam, vp.getCamera());
+//			});
+//			app.getRenderManager().getPostViews().forEach((vp) -> {;
+//				cp(cam, vp.getCamera());
+//			});
+//			app.getRenderManager().getMainViews().forEach((vp) -> {;
+//				cp(cam, vp.getCamera());
+//			});
+			cp(cam, app.getGuiViewPort().getCamera());
 			return true;
 		});
+	}
+
+	static void cp(Camera src, Camera dest) {
+		if (src != dest) {
+			dest.setViewPort(src.getViewPortLeft(), src.getViewPortRight(), src.getViewPortBottom(), src.getViewPortTop());
+			dest.setFrustum(src.getFrustumNear(), src.getFrustumFar(), src.getFrustumLeft(), src.getFrustumRight(), src.getFrustumTop(), src.getFrustumBottom());
+		}
 	}
 }

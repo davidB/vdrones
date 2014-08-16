@@ -40,7 +40,6 @@ public class GeometryAndPhysic {
     }
 
     public void add(Spatial e) {
-     System.out.println("ADDDDDDDDDDD " + e);
     	addGeo(e);
     	addPhy(e);
     }

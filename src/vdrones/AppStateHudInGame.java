@@ -57,7 +57,6 @@ public class AppStateHudInGame extends AppState0 {
 		Subscription s2 = channels.areaInfo2s.subscribe(new Subscriber<InfoArea>(){
 			private Subscription subscription = null;
 			void terminate() {
-				System.out.println("terminate subscription area2 -> clock");
 				if (subscription != null) subscription.unsubscribe();
 			}
 			@Override

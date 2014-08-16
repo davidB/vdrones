@@ -45,7 +45,6 @@ public class InGame {
 	}
 
 	public void setHealth(float current) {
-		System.out.println("health : " + current);
 		FxPlatformExecutor.runOnFxApplication(() -> {
 			double ratio = (double)((healthMax - current)/healthMax);
 			ratio = ratio * ratio;

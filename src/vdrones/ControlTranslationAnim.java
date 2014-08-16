@@ -22,7 +22,7 @@ public class ControlTranslationAnim extends AbstractControl {
     @Getter @Setter long duration = 2000;
     @Getter @Setter boolean pingpong = true;
     @Getter @Setter Vector3f position0;
-    
+
     private final Vector3f tmp0 = new Vector3f();
 
     @Override
@@ -33,7 +33,7 @@ public class ControlTranslationAnim extends AbstractControl {
             position0 = null;
         }
     }
-    
+
     @Override
     protected void controlUpdate(float tpf) {
         if (position0 == null) {
@@ -47,7 +47,6 @@ public class ControlTranslationAnim extends AbstractControl {
         spatial.getLocalRotation().multLocal(tmp0);
         tmp0.addLocal(position0);
         spatial.setLocalTranslation(tmp0);
-        //System.out.println("ratio : " + ratio + " .. " + spatial.getLocalTranslation() + ".." + spatial.getName());
     }
 
     @Override

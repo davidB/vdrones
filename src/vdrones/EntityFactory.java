@@ -86,7 +86,7 @@ public class EntityFactory {
 
 	private Stream<Spatial> extract(Spatial src, String groupName) {
 		Node group = (Node) ((Node)src).getChild(groupName);
-		if (group == null) System.out.printf("group not found : %s \n", groupName);
+		if (group == null) log.warn("group not found : {}", groupName);
 		return (group != null) ? group.getChildren().stream() : Stream.empty();
 	}
 
@@ -185,11 +185,10 @@ public class EntityFactory {
 
 		//setCollisionGroupsRecursive(b, -1, CollisionGroups.DRONE);
 
-		Animation generatingAnim = new Animation("generation", 0.5f);
+		Animation generatingAnim = new Animation("generating", 0.5f);
 		Animation waitingAnim = new Animation("waiting", 2.0f);
 		waitingAnim.addTrack(new TrackRotateYX(2.0f));
 		Animation exitingAnim = new Animation("exiting", 0.5f);
-		//AnimControl ac = Spatials.findAnimControl(b);
 		AnimControl ac = new AnimControl();
 		b.addControl(ac);
 		ac.addAnim(generatingAnim);
@@ -264,11 +263,13 @@ public class EntityFactory {
 		b.addControl(new ControlSpatialsToBones());
 		setCollisionGroupsRecursive(b, CollisionGroups.DRONE, -1);
 
-		Animation generatingAnim = new Animation("generation", 4.0f);
+		Animation generatingAnim = new Animation("generating", 4.0f);
 		Animation crashingAnim = new Animation("crashing", 2.0f);
 		Animation exitingAnim = new Animation("exiting", 2.0f);
 		//generatingAnim.addTrack(new TrackNoOp(3.0f));
-		AnimControl ac = Spatials.findAnimControl(b);
+		//AnimControl ac = Spatials.findAnimControl(b);
+		AnimControl ac = new AnimControl();
+		b.addControl(ac);
 		ac.addAnim(generatingAnim);
 		ac.addAnim(crashingAnim);
 		ac.addAnim(exitingAnim);
@@ -281,11 +282,13 @@ public class EntityFactory {
 	// can be called on any Node, (like new Node())
 
 	public Node unas(Node b) {
-		AnimControl ac = Spatials.findAnimControl(b);
+//		AnimControl ac = Spatials.findAnimControl(b);
+		AnimControl ac = b.getControl(AnimControl.class);
 		if (ac!= null) {
 			ac.clearListeners();
 			ac.clearChannels();
 		}
+		b.removeControl(ac);
 		b.removeControl(ControlSpatialsToBones.class);
 		removeAllPhysic(b);
 		b.detachAllChildren();
@@ -346,8 +349,6 @@ public class EntityFactory {
 		joint.setAngularUpperLimit(Vector3f.ZERO);
 		joint.setCollisionBetweenLinkedBodys(false);
 
-		//System.out.println("ri pos : " + ri.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f()));
-		//System.out.println("rj pos : " + rj.getObjectId().getCenterOfMassPosition(new javax.vecmath.Vector3f()));
 		return joint;
 	}
 
@@ -444,12 +445,10 @@ class Tools {
 		VertexBuffer ps = m.getBuffer(VertexBuffer.Type.Position);
 		Buffer psb = ps.getDataReadOnly();
 		b = b && (psb.remaining() == (ps.getNumElements() * 3) + ps.getOffset()); // 3 float
-		//if (!b) System.out.printf("%d != %d * %d : psb.remaining() == ps.getNumElements() * 3 \n", psb.remaining(), ps.getNumElements());
 		//VertexBuffer ips = m.getBuffer(VertexBuffer.Type.Normal);
 		for(int ii = 0; b && ii < iis.size(); ii++) {
 			int i = iis.get(ii);
 			b = b && i < ps.getNumElements() && i > -1;
-			//if (!b) System.out.printf("-1 < %d < %d : i < ps.getNumElements()\n", i, ps.getNumElements());
 		}
 		return b;
 	}

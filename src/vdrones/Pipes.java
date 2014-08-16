@@ -45,7 +45,6 @@ public class Pipes {
 			return v.state.map(v0 -> new T2<DroneInput, InfoDrone.State>(ctrl, v0));
 		});
 		return m.subscribe((T2<DroneInput, InfoDrone.State> v) -> {
-			System.err.println(">>>>>>>>>>> inputmanager : " + v._2);
 			if (v._2 == InfoDrone.State.driving) {
 				inputManager.addListener(v._1, DroneInput.LEFT, DroneInput.RIGHT, DroneInput.FORWARD, DroneInput.BACKWARD, DroneInput.TOGGLE_CAMERA);
 			} else {
@@ -53,27 +52,6 @@ public class Pipes {
 			}
 		});
 	}
-
-	static Subscription pipe(InfoDrone drone, ControlDronePhy phy) {
-		return drone.state.subscribe(new SubscriberL2<InfoDrone.State>() {
-			public Subscription onNext2(InfoDrone.State b) {
-				return (b == InfoDrone.State.driving)? null :
-					Subscriptions.from(
-						drone.forward.subscribe((v) -> {
-							//app.enqueue(() -> {
-							System.out.println(phy + " foward change : " + v);
-							phy.forwardLg = v * drone.cfg.forward;
-							phy.linearDamping = drone.cfg.linearDamping;
-							System.out.println("forwardLg : " + phy.forwardLg);
-							//return null;
-							//});
-						})
-						, drone.turn.subscribe((v) -> phy.turnLg = v * drone.cfg.turn)
-					);
-			}
-		});
-	}
-
 }
 
 @RequiredArgsConstructor

@@ -177,7 +177,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 				log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
-				case "generation":
+				case "generating":
 					drone.stateReq.onNext(InfoDrone.State.driving);
 					break;
 				case "crashing":
@@ -247,7 +247,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 				//TODO start animation
 				AnimControl ac = Spatials.findAnimControl(drone.node);
 				ac.addListener(animListener);
-				animator.play(drone.node, "generation");
+				animator.play(drone.node, "generating");
 				return true;
 			});
 			onExit = (n) -> {

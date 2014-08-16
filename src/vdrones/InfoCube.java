@@ -145,7 +145,7 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 				log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
-				case "generation":
+				case "generating":
 					target.stateReq.onNext(InfoCube.State.waiting);
 					break;
 				case "exiting":
@@ -204,14 +204,13 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 				gp.add(target.node);
 				AnimControl ac = Spatials.findAnimControl(target.node);
 				ac.addListener(animListener);
-				animator.play(target.node, "generation");
+				animator.play(target.node, "generating");
 				return true;
 			});
 			break;
 		}
 		case waiting :
 			jme.enqueue(() -> {
-				System.out.print("play waiting");
 				animator.playLoop(target.node, "waiting");
 				return true;
 			});
