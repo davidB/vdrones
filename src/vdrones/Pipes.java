@@ -13,7 +13,7 @@ import com.jme3.scene.Spatial;
 
 public class Pipes {
 
-	public static Subscription pipeA(Observable<AreaCfg> l, GeometryAndPhysic gp, EntityFactory efactory) {
+	public static Subscription pipeA(Observable<CfgArea> l, GeometryAndPhysic gp, EntityFactory efactory) {
 		Observable<Spatial> bg = l.flatMap(v -> Observable.from(v.bg));
 		Observable<Spatial> spawners = l.flatMap(v-> Observable.from(v.spawnPoints)).map(v -> efactory.newSpawner(v));
 		//TODO manage remove of spatial
@@ -23,7 +23,7 @@ public class Pipes {
 		);
 	}
 
-	public static Subscription pipe(Observable<AreaCfg> l, AppStateLights lights) {
+	public static Subscription pipe(Observable<CfgArea> l, AppStateLights lights) {
 		// TODO manage remove of light
 		return Subscriptions.from(
 				l.flatMap(v -> Observable.from(v.lights)).subscribe((v) -> lights.addLight(v))
@@ -31,7 +31,7 @@ public class Pipes {
 		);
 	}
 
-	static Subscription pipe(Observable<DroneInfo2> drone, InputManager inputManager) {
+	static Subscription pipe(Observable<InfoDrone> drone, InputManager inputManager) {
 		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_H));
 		inputManager.addMapping(DroneInput.RIGHT, new KeyTrigger(KeyInput.KEY_K));
 		inputManager.addMapping(DroneInput.FORWARD, new KeyTrigger(KeyInput.KEY_U));
@@ -40,13 +40,13 @@ public class Pipes {
 		//inputManager.addMapping(RESET, new KeyTrigger(KeyInput.KEY_RETURN));
 
 		//FIXME use a temporary variable m to avoid type inference issue.
-		Observable<T2<DroneInput, DroneInfo2.State>> m = drone.flatMap((v) -> {
+		Observable<T2<DroneInput, InfoDrone.State>> m = drone.flatMap((v) -> {
 			DroneInput ctrl = new DroneInput(v);
-			return v.state.map(v0 -> new T2<DroneInput, DroneInfo2.State>(ctrl, v0));
+			return v.state.map(v0 -> new T2<DroneInput, InfoDrone.State>(ctrl, v0));
 		});
-		return m.subscribe((T2<DroneInput, DroneInfo2.State> v) -> {
+		return m.subscribe((T2<DroneInput, InfoDrone.State> v) -> {
 			System.err.println(">>>>>>>>>>> inputmanager : " + v._2);
-			if (v._2 == DroneInfo2.State.driving) {
+			if (v._2 == InfoDrone.State.driving) {
 				inputManager.addListener(v._1, DroneInput.LEFT, DroneInput.RIGHT, DroneInput.FORWARD, DroneInput.BACKWARD, DroneInput.TOGGLE_CAMERA);
 			} else {
 				inputManager.removeListener(v._1);
@@ -54,10 +54,10 @@ public class Pipes {
 		});
 	}
 
-	static Subscription pipe(DroneInfo2 drone, ControlDronePhy phy) {
-		return drone.state.subscribe(new SubscriberL2<DroneInfo2.State>() {
-			public Subscription onNext2(DroneInfo2.State b) {
-				return (b == DroneInfo2.State.driving)? null :
+	static Subscription pipe(InfoDrone drone, ControlDronePhy phy) {
+		return drone.state.subscribe(new SubscriberL2<InfoDrone.State>() {
+			public Subscription onNext2(InfoDrone.State b) {
+				return (b == InfoDrone.State.driving)? null :
 					Subscriptions.from(
 						drone.forward.subscribe((v) -> {
 							//app.enqueue(() -> {

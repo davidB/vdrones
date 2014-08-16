@@ -59,17 +59,17 @@ public class EntityFactory {
 	@Inject
 	public AssetManager assetManager;
 
-	public AreaCfg newLevel(String name) {
+	public CfgArea newLevel(String name) {
 		return newLevel(assetManager.loadModel("Scenes/"+ name + ".j3o"));
 	}
 
-	public AreaCfg newLevel(Spatial src) {
+	public CfgArea newLevel(Spatial src) {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(src));
 		PlaceHolderReplacer replacer = new PlaceHolderReplacer();
 		replacer.factory = this;
 		Spatial level = replacer.replaceTree(src.deepClone());
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
-		AreaCfg a = new AreaCfg();
+		CfgArea a = new CfgArea();
 		a.name = level.getName();
 		for (Light l : level.getLocalLightList()) {
 			a.lights.add(l);

@@ -15,7 +15,7 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 import rx_ext.SubscriptionsMap;
-import vdrones.DroneInfo2.State;
+import vdrones.InfoDrone.State;
 
 import com.google.inject.Inject;
 import com.jme3.animation.AnimChannel;
@@ -29,7 +29,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
+class InfoDrone implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
 	//- CLASS -----------------------------------------------------------------------------
 	public static enum State {
 		hidden
@@ -41,18 +41,18 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 	}
 
 	public static final String UD = "DroneInfoUserData";
-	public static DroneInfo2 from(Spatial s) {
-		return (DroneInfo2) s.getUserData(UD);
+	public static InfoDrone from(Spatial s) {
+		return (InfoDrone) s.getUserData(UD);
 	}
 
-	static Node makeNode(DroneInfo2 v) {
+	static Node makeNode(InfoDrone v) {
 		Node n = new Node("drone");
 		n.setUserData(UD, v);
 		return n;
 	}
 
 	//- INSTANCE --------------------------------------------------------------------------
-	final DroneCfg cfg;
+	final CfgDrone cfg;
 	final Node node = makeNode(this);
 	final BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
@@ -72,7 +72,7 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 	//HACK delay to async state change (eg: post-pone update after all subscriber receive previous value)
 	Location spawnLoc;
 
-	public DroneInfo2(DroneCfg cfg) {
+	public InfoDrone(CfgDrone cfg) {
 		this.cfg = cfg;
 
 		BehaviorSubject<Float> energyVelocity = BehaviorSubject.create(0f);
@@ -85,7 +85,7 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 		Observable.combineLatest(this.energyRegen, this.forward, this.shield, (o0, o1, o2) -> (o0 - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
 		//TODO use a throttleFirst based on game time vs real time
 		this.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> this.healthReq.onNext(cfg.wallCollisionHealthSpeed * 0.25f));
-		this.health.filter(v -> v <= 0).subscribe((v) -> this.stateReq.onNext(DroneInfo2.State.crashing));
+		this.health.filter(v -> v <= 0).subscribe((v) -> this.stateReq.onNext(InfoDrone.State.crashing));
 	}
 
 	@Override
@@ -96,7 +96,7 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 	}
 }
 
-class DroneCfg {
+class CfgDrone {
 	public float turn = 2.0f;
 	public float forward = 150f;
 	public float linearDamping = 0.5f;
@@ -126,9 +126,9 @@ class Location {
 }
 
 
-class DroneGenerator extends Subscriber<Location> {
-	private final PublishSubject<Observable<DroneInfo2>> drones0 = PublishSubject.create();
-	Observable<Observable<DroneInfo2>> drones = drones0;
+class GenDrone extends Subscriber<Location> {
+	private final PublishSubject<Observable<InfoDrone>> drones0 = PublishSubject.create();
+	Observable<Observable<InfoDrone>> drones = drones0;
 
 	@Override
 	public void onCompleted() {
@@ -142,7 +142,7 @@ class DroneGenerator extends Subscriber<Location> {
 
 	@Override
 	public void onNext(Location t) {
-		DroneInfo2 drone = new DroneInfo2(new DroneCfg());
+		InfoDrone drone = new InfoDrone(new CfgDrone());
 		drone.spawnLoc = t;
 		drones0.onNext(BehaviorSubject.create(drone));
 	}
@@ -150,9 +150,9 @@ class DroneGenerator extends Subscriber<Location> {
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 @Slf4j
-class ObserverDroneState implements Observer<DroneInfo2.State> {
+class ObserverDroneState implements Observer<InfoDrone.State> {
 	private Action1<State> onExit;
-	private DroneInfo2 drone;
+	private InfoDrone drone;
 	private SubscriptionsMap subs = new SubscriptionsMap();
 	private AnimEventListener animListener;
 	final EntityFactory efactory;
@@ -161,7 +161,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 	final Animator animator;
 	final AppStateCamera ascam;
 
-	public void bind(DroneInfo2 v) {
+	public void bind(InfoDrone v) {
 		if (drone != null && drone != v) {
 			throw new IllegalStateException("already binded");
 		}
@@ -174,13 +174,13 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generation":
-					drone.stateReq.onNext(DroneInfo2.State.driving);
+					drone.stateReq.onNext(InfoDrone.State.driving);
 					break;
 				case "crashing":
-					drone.stateReq.onNext(DroneInfo2.State.hidden);
+					drone.stateReq.onNext(InfoDrone.State.hidden);
 					break;
 				case "exiting":
-					drone.stateReq.onNext(DroneInfo2.State.hidden);
+					drone.stateReq.onNext(InfoDrone.State.hidden);
 					break;
 				}
 			}
@@ -227,7 +227,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				gp.remove(drone.node);
 				return true;
 			});
-			drone.stateReq.onNext(DroneInfo2.State.generating);
+			drone.stateReq.onNext(InfoDrone.State.generating);
 			break;
 		case generating : {
 			drone.energyRegen.onNext(drone.cfg.energyStoreMax /*energyRegenSpeed * 4*/);
@@ -288,7 +288,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 		}
 	}
 
-	static Subscription pipe(DroneInfo2 drone, ControlDronePhy phy) {
+	static Subscription pipe(InfoDrone drone, ControlDronePhy phy) {
 		return Subscriptions.from(
 				drone.forward.subscribe((v) -> {
 					phy.forwardLg = v * drone.cfg.forward;

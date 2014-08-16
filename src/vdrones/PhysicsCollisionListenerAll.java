@@ -13,7 +13,7 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 
 	@Override
 	public void collision(PhysicsCollisionEvent event) {
-		DroneInfo2 drone = findDrone(event.getNodeA());
+		InfoDrone drone = findDrone(event.getNodeA());
 		float lt = event.getLifeTime() * tpf;
 		if (drone != null) {
 			drone.wallCollisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnA()), lt));
@@ -25,13 +25,13 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 		}
 	}
 
-	DroneInfo2 findDrone(Spatial n) {
+	InfoDrone findDrone(Spatial n) {
 		if (n == null) return null; // can be null if getNodeA no longer exists or is no longer a Spatial
-		Object o = n.getUserData(DroneInfo2.UD);
+		Object o = n.getUserData(InfoDrone.UD);
 		if (o == null && (n.getParent() != null)) {
-			o = n.getParent().getUserData(DroneInfo2.UD);
+			o = n.getParent().getUserData(InfoDrone.UD);
 		}
-		return (DroneInfo2)o;
+		return (InfoDrone)o;
 	}
 
 	@Override

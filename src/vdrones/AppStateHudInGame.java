@@ -26,7 +26,7 @@ public class AppStateHudInGame extends AppState0 {
 	protected void doEnable() {
 		Channels channels = injector.getInstance(Channels.class);
 		//Observable.switchOnNext(channels.droneInfo2s)
-		Subscription s1 = channels.drones.subscribe(new Subscriber<DroneInfo2>(){
+		Subscription s1 = channels.drones.subscribe(new Subscriber<InfoDrone>(){
 			private Subscription subscription = null;
 			void terminate() {
 				if (subscription != null) subscription.unsubscribe();
@@ -42,7 +42,7 @@ public class AppStateHudInGame extends AppState0 {
 			}
 
 			@Override
-			public void onNext(DroneInfo2 t) {
+			public void onNext(InfoDrone t) {
 				terminate();
 				hud.getController().setEnergyMax(t.cfg.energyStoreMax);
 				hud.getController().setHealthMax(t.cfg.healthMax);
@@ -53,7 +53,7 @@ public class AppStateHudInGame extends AppState0 {
 			}
 		});
 		//Observable.switchOnNext(
-		Subscription s2 = channels.areaInfo2s.subscribe(new Subscriber<AreaInfo2>(){
+		Subscription s2 = channels.areaInfo2s.subscribe(new Subscriber<InfoArea>(){
 			private Subscription subscription = null;
 			void terminate() {
 				System.out.println("terminate subscription area2 -> clock");
@@ -70,7 +70,7 @@ public class AppStateHudInGame extends AppState0 {
 			}
 
 			@Override
-			public void onNext(AreaInfo2 area) {
+			public void onNext(InfoArea area) {
 
 				terminate();
 				subscription = area.clock

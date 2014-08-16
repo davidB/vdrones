@@ -27,7 +27,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
+class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
 	//- CLASS -----------------------------------------------------------------------------
 	public static enum State {
 		hidden
@@ -37,11 +37,11 @@ class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a
 	}
 
 	public static final String UD = "CubeInfoUserData";
-	public static Cube from(Spatial s) {
-		return (Cube) s.getUserData(UD);
+	public static InfoCube from(Spatial s) {
+		return (InfoCube) s.getUserData(UD);
 	}
 
-	static Node makeNode(Cube v, Vector3f pos) {
+	static Node makeNode(InfoCube v, Vector3f pos) {
 		Node n = new Node("drone");
 		n.setUserData(UD, v);
 		n.setLocalTranslation(pos);
@@ -56,7 +56,7 @@ class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a
 	final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
 	final Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
 
-	Cube(Vector3f position, int zone, int subzone){
+	InfoCube(Vector3f position, int zone, int subzone){
 		this.zone = zone;
 		this.subzone = subzone;
 		this.node = makeNode(this, position);
@@ -70,14 +70,14 @@ class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a
 	}
 }
 
-class CubeGenerator extends Subscriber<List<List<Rectangle>>> {
-	private final PublishSubject<Observable<Cube>> cubes0 = PublishSubject.create();
-	Observable<Observable<Cube>> cubes = cubes0;
+class GenCube extends Subscriber<List<List<Rectangle>>> {
+	private final PublishSubject<Observable<InfoCube>> cubes0 = PublishSubject.create();
+	Observable<Observable<InfoCube>> cubes = cubes0;
 	private Subscription subscription;
 
 	private List<List<Rectangle>> cubeZones;
 
-	void generateNext(Cube c) {
+	void generateNext(InfoCube c) {
 		generateIn(c.zone, c.subzone + 1 % cubeZones.get(c.zone).size());
 	}
 
@@ -85,7 +85,7 @@ class CubeGenerator extends Subscriber<List<List<Rectangle>>> {
 		Rectangle zoneR = cubeZones.get(zone).get(subzone);
 		Vector3f pos = zoneR.random();
 		//nextZone = (nextZone + 1) % cubeZones.get(zone).size();
-		Cube c = new Cube(pos, zone, subzone);
+		InfoCube c = new InfoCube(pos, zone, subzone);
 		cubes0.onNext(BehaviorSubject.create(c));
 	}
 
@@ -123,9 +123,9 @@ class CubeGenerator extends Subscriber<List<List<Rectangle>>> {
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 @Slf4j
-class ObserverCubeState implements Observer<Cube.State> {
-	private Action1<Cube.State> onExit;
-	private Cube target;
+class ObserverCubeState implements Observer<InfoCube.State> {
+	private Action1<InfoCube.State> onExit;
+	private InfoCube target;
 	private SubscriptionsMap subs = new SubscriptionsMap();
 	private AnimEventListener animListener;
 	final EntityFactory efactory;
@@ -133,7 +133,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 	final GeometryAndPhysic gp;
 	final Animator animator;
 
-	public void bind(Cube v) {
+	public void bind(InfoCube v) {
 		if (target != null && target != v) {
 			throw new IllegalStateException("already binded");
 		}
@@ -146,10 +146,10 @@ class ObserverCubeState implements Observer<Cube.State> {
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generation":
-					target.stateReq.onNext(Cube.State.waiting);
+					target.stateReq.onNext(InfoCube.State.waiting);
 					break;
 				case "exiting":
-					target.stateReq.onNext(Cube.State.hidden);
+					target.stateReq.onNext(InfoCube.State.hidden);
 					break;
 				}
 			}
@@ -179,7 +179,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 	}
 
 	@Override
-	public void onNext(Cube.State v) {
+	public void onNext(InfoCube.State v) {
 		if (onExit != null) {
 			try {
 				onExit.call(v);
@@ -196,7 +196,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 				gp.remove(target.node);
 				return true;
 			});
-			target.stateReq.onNext(Cube.State.generating);
+			target.stateReq.onNext(InfoCube.State.generating);
 			break;
 		case generating : {
 			jme.enqueue(() -> {
