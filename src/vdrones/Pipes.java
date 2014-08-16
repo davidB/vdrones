@@ -74,9 +74,6 @@ public class Pipes {
 		});
 	}
 
-	public static Subscription pipe(Observable<AreaCfg> l, DroneGenerator dg) {
-		return l.map(v -> v.spawnPoints.get(0)).subscribe(dg);
-	}
 }
 
 @RequiredArgsConstructor

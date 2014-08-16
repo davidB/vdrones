@@ -10,6 +10,7 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import com.google.inject.Inject;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
@@ -74,6 +76,7 @@ public class EntityFactory {
 		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
 		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
 		extract(level, "exits").forEach(v -> addInto(v, a.bg, "exits"));
+		extract(level, "cubes").map(this::extractZone).forEach(a.cubeZones::add);
 		a.bg.stream().forEach(v -> setCollisionGroupsRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
 		return a;
 	}
@@ -96,6 +99,12 @@ public class EntityFactory {
 		pos.y = y;
 		s.setLocalTranslation(pos);
 		return s;
+	}
+
+	private List<BoundingBox> extractZone(Spatial src) {
+		return ((Node)src).getChildren().stream().map(v -> {
+			return (BoundingBox)v.getWorldBound();
+		}).collect(Collectors.toList());
 	}
 
 	private void addInto(Spatial s, Collection<Location> dest) {
@@ -152,6 +161,35 @@ public class EntityFactory {
         return b;
     }
 	 */
+	public Node asCube(Node b) {
+		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+		Geometry geom = new Geometry("cube", mesh);
+		geom.setMaterial(assetManager.loadMaterial("Materials/cube.j3m"));
+		b.attachChild(geom);
+
+		CollisionShape shape0 = new SphereCollisionShape(0.5f);
+		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
+		phy0.setGravity(Vector3f.ZERO);
+		b.addControl(phy0);
+
+		//setCollisionGroupsRecursive(b, -1, CollisionGroups.DRONE);
+
+		Animation generatingAnim = new Animation("generation", 0.5f);
+		Animation waitingAnim = new Animation("waiting", 2.0f);
+		waitingAnim.addTrack(new TrackRotateYX(2.0f));
+		Animation exitingAnim = new Animation("exiting", 0.5f);
+		//AnimControl ac = Spatials.findAnimControl(b);
+		AnimControl ac = new AnimControl();
+		b.addControl(ac);
+		ac.addAnim(generatingAnim);
+		ac.addAnim(waitingAnim);
+		ac.addAnim(exitingAnim);
+		ac.clearChannels();
+		ac.createChannel();
+
+		return b;
+	}
+
 	public Node asDrone(Node b) {
 		Spatial m = assetManager.loadModel("Models/drone.j3o");
 		m.setName("model");

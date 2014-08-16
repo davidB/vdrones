@@ -1,0 +1,7 @@
+Material My Material : Common/MatDefs/Misc/ShowNormals.j3md {
+     MaterialParameters {
+        UseInstancing : false
+     }
+    AdditionalRenderState {
+    }
+}
