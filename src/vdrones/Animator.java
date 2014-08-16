@@ -1,11 +1,5 @@
 package vdrones;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import rx.subjects.BehaviorSubject;
-import rx.subjects.Subject;
-
 import com.google.inject.Singleton;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
