@@ -36,7 +36,7 @@ dependencies {
     compile "com.jme3x:jfx:1.20140626160040.f4c31d0"
     compile 'com.google.inject:guice:4.0-beta4'
     compile 'net.alchim31.jmex:jmbullet:0.1.0'
-    compile 'com.simsilica:zay-es:0.0.0+r1203'
+    //compile 'com.simsilica:zay-es:0.0.0+r1203'
     runtime "com.jme3:jme3-lwjgl:${v_jme}"
     //runtime "com.jme3:jme3-lwjgl-natives:${v_jme}" //workaround
     //runtime "com.jme3:jme3-jogl:${v_jme}"
@@ -66,7 +66,7 @@ sourceSets {
 }
 
 task copyDeps(type: Copy) {
-  from configurations.runtime
+  from (configurations.runtime + configurations.testCompile)
   into 'lib'
 }
 
