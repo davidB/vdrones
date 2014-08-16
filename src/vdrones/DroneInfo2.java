@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -147,6 +146,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 	final EntityFactory efactory;
 	final SimpleApplication jme;
 	final GeometryAndPhysic gp;
+	final Animator animator;
 	final AppStateCamera ascam;
 
 	public void bind(DroneInfo2 v) {
@@ -231,7 +231,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				//TODO start animation
 				AnimControl ac = Spatials.findAnimControl(drone.node);
 				ac.addListener(animListener);
-				Animator.play(drone.node, "generation");
+				animator.play(drone.node, "generation");
 				return true;
 			});
 			onExit = (n) -> {
@@ -257,19 +257,19 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 			break;
 		case crashing :
 			jme.enqueue(() -> {
-				Animator.play(drone.node, "crashing");
+				animator.play(drone.node, "crashing");
 				return true;
 			});
 			break;
 		case exiting :
 			jme.enqueue(() -> {
-				Animator.play(drone.node, "exiting");
+				animator.play(drone.node, "exiting");
 				return true;
 			});
 			break;
 		case disconnecting:
 			jme.enqueue(() -> {
-				Animator.play(drone.node, "disconnecting");
+				animator.play(drone.node, "disconnecting");
 				return true;
 			});
 			break;
