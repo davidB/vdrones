@@ -192,7 +192,7 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 		switch(v) {
 		case hidden :
 			jme.enqueue(() -> {
-				//efactory.unas(drone.node);
+				efactory.unas(target.node);
 				gp.remove(target.node);
 				return true;
 			});

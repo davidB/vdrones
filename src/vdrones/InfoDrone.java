@@ -22,6 +22,7 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
@@ -65,9 +66,11 @@ class InfoDrone implements com.jme3.export.Savable { //HACK FQN of Savable to av
 	final Observable<Float> shield;
 	final BehaviorSubject<Float> healthReq = BehaviorSubject.create(0f);
 	final Observable<Float> health;
-	final BehaviorSubject<DroneCollisionEvent> wallCollisions = BehaviorSubject.create();
+	final BehaviorSubject<DroneCollisionEvent> collisions = BehaviorSubject.create();
 	final BehaviorSubject<Float> energyRegen = BehaviorSubject.create(0f);
 	final Observable<Float> energy;
+	final BehaviorSubject<Integer> scoreReq = BehaviorSubject.create(0);
+	final Observable<Integer> score;
 	//BehaviorSubject<Vector3f> position = BehaviorSubject.create(new Vector3f());
 	//HACK delay to async state change (eg: post-pone update after all subscriber receive previous value)
 	Location spawnLoc;
@@ -84,8 +87,8 @@ class InfoDrone implements com.jme3.export.Savable { //HACK FQN of Savable to av
 		this.shield = Observable.combineLatest(this.energy, this.shieldReq, (o1, o2) -> (o1 > cfg.energyShieldSpeed) ? o2 : 0f).distinctUntilChanged();
 		Observable.combineLatest(this.energyRegen, this.forward, this.shield, (o0, o1, o2) -> (o0 - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
 		//TODO use a throttleFirst based on game time vs real time
-		this.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> this.healthReq.onNext(cfg.wallCollisionHealthSpeed * 0.25f));
 		this.health.filter(v -> v <= 0).subscribe((v) -> this.stateReq.onNext(InfoDrone.State.crashing));
+		this.score = this.scoreReq.scan(0, (acc, d) -> acc + d);
 	}
 
 	@Override
@@ -114,9 +117,10 @@ class CfgDrone {
 class DroneCollisionEvent {
 	final Vector3f position;
 	final float lifetime;
+	final Spatial other;
 
 	DroneCollisionEvent lifetime(float v) {
-		return new DroneCollisionEvent(position, v);
+		return new DroneCollisionEvent(position, v, other);
 	}
 }
 
@@ -255,11 +259,27 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 			break;
 		}
 		case driving :
+			subs.add("collisions.walls", drone.collisions
+				.filter(v0 -> v0.other.getControl(RigidBodyControl.class).getCollisionGroup() == CollisionGroups.WALL)
+				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
+				.subscribe(v2 -> drone.healthReq.onNext(drone.cfg.wallCollisionHealthSpeed * 0.25f))
+			);
+			subs.add("collisions.cubes", drone.collisions
+				.filter(v0 -> v0.other.getControl(RigidBodyControl.class).getCollisionGroup() == CollisionGroups.CUBE)
+				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
+				.subscribe(v2 ->{
+					drone.scoreReq.onNext(1);
+					InfoCube cube = InfoCube.from(v2.other);
+					cube.stateReq.onNext(InfoCube.State.hidden);
+				})
+			);
 			onExit = (n) -> {
 				log.info("Exit from {} to {}", v, n);
 				drone.energyRegen.onNext(0f);
 				drone.forwardReq.onNext(0f);
 				drone.turnReq.onNext(0f);
+				subs.unsubscribe("collisions.cubes");
+				subs.unsubscribe("collisions.walls");
 				jme.enqueue(() -> {
 					subs.unsubscribe("ControlDronePhy");
 					drone.node.removeControl(ControlDronePhy.class);

@@ -10,6 +10,7 @@ import rx_ext.ObserverPrint;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.InputManager;
 
 @Singleton
@@ -27,14 +28,17 @@ public class AppStateGameLogic extends AppState0 {
 	InfoDrone setup(Observable<Float> dt, InfoDrone drone) {
 		injector.getInstance(ObserverDroneState.class).bind(drone);
 		dt.subscribe(drone.dt);
-		drone.state.subscribe(new ObserverPrint<InfoDrone.State>("droneState"));
+		drone.state.subscribe(new ObserverPrint<>("droneState"));
+		drone.score.subscribe(new ObserverPrint<>("droneScore"));
+		drone.scoreReq.subscribe(new ObserverPrint<>("droneScoreReq"));
+		drone.collisions.map(v -> v.other.getControl(RigidBodyControl.class).getCollisionGroup()).subscribe(new ObserverPrint<>("droneCollisions"));
 		return drone;
 	}
 
 	InfoCube setup(Observable<Float> dt, InfoCube cube) {
 		injector.getInstance(ObserverCubeState.class).bind(cube);
 		dt.subscribe(cube.dt);
-		cube.state.subscribe(new ObserverPrint<InfoCube.State>("cubeState"));
+		cube.state.subscribe(new ObserverPrint<>("cubeState"));
 		return cube;
 	}
 

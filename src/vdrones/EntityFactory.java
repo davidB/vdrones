@@ -46,6 +46,7 @@ class CollisionGroups {
 	static final int NONE = 0;
 	static final int DRONE = 1;
 	static final int WALL = 2;
+	static final int CUBE = 3;
 }
 /**
  *
@@ -179,6 +180,7 @@ public class EntityFactory {
 		CollisionShape shape0 = new SphereCollisionShape(0.5f);
 		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
 		phy0.setGravity(Vector3f.ZERO);
+		phy0.setCollisionGroup(CollisionGroups.CUBE);
 		b.addControl(phy0);
 
 		//setCollisionGroupsRecursive(b, -1, CollisionGroups.DRONE);

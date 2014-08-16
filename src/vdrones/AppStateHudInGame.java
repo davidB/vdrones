@@ -49,6 +49,7 @@ public class AppStateHudInGame extends AppState0 {
 				subscription = Subscriptions.from(
 					t.energy.subscribe((v) -> hud.getController().setEnergy(v))
 					, t.health.subscribe((v) -> hud.getController().setHealth(v))
+					, t.score.subscribe((v) -> hud.getController().setScore(v))
 				);
 			}
 		});

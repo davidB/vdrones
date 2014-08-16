@@ -16,11 +16,11 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 		InfoDrone drone = findDrone(event.getNodeA());
 		float lt = event.getLifeTime() * tpf;
 		if (drone != null) {
-			drone.wallCollisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnA()), lt));
+			drone.collisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnA()), lt, event.getNodeB()));
 		} else {
 			drone = findDrone(event.getNodeB());
 			if (drone != null) {
-				drone.wallCollisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnB()), lt));
+				drone.collisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnB()), lt, event.getNodeA()));
 			}
 		}
 	}
