@@ -13,9 +13,9 @@ import rx_ext.ObserverPrint;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.input.InputManager;
 import com.jme3.light.Light;
+import com.jme3.math.Rectangle;
 import com.jme3.scene.Spatial;
 
 @Singleton
@@ -38,7 +38,7 @@ class AreaCfg {
 
 	final List<Light> lights = new ArrayList<>();
 	final List<Spatial> bg = new ArrayList<>();
-	final List<List<BoundingBox>> cubeZones = new ArrayList<>();
+	final List<List<Rectangle>> cubeZones = new ArrayList<>();
 	final List<Location> spawnPoints = new ArrayList<>();
 }
 

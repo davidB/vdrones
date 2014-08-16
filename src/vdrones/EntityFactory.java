@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
@@ -29,6 +28,8 @@ import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Rectangle;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -38,6 +39,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 
 class CollisionGroups {
@@ -101,9 +103,16 @@ public class EntityFactory {
 		return s;
 	}
 
-	private List<BoundingBox> extractZone(Spatial src) {
+	private List<Rectangle> extractZone(Spatial src) {
 		return ((Node)src).getChildren().stream().map(v -> {
-			return (BoundingBox)v.getWorldBound();
+			Quad quad = (Quad)((Geometry)v).getMesh();
+			float h = quad.getHeight();
+			float w = quad.getWidth();
+			Transform t = v.getWorldTransform();
+			Vector3f a = t.transformVector(new Vector3f(0.5f * w, 0.5f * h, 0.0f), null);
+			Vector3f b = t.transformVector(new Vector3f(0.0f    , 0.5f * h, 0.0f), null);
+			Vector3f c = t.transformVector(new Vector3f(0.5f * w, 0.0f    , 0.0f), null);
+			return new Rectangle(a,b,c); // bc is hypothesus
 		}).collect(Collectors.toList());
 	}
 

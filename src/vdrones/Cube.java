@@ -2,7 +2,6 @@ package vdrones;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import lombok.RequiredArgsConstructor;
@@ -21,9 +20,9 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.math.Rectangle;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -75,25 +74,20 @@ class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a
 	}
 }
 
-class CubeGenerator extends Subscriber<List<List<BoundingBox>>> {
+class CubeGenerator extends Subscriber<List<List<Rectangle>>> {
 	private final PublishSubject<Observable<Cube>> cubes0 = PublishSubject.create();
 	Observable<Observable<Cube>> cubes = cubes0;
 	private Subscription subscription;
-	private Random random = new Random();
 
-	private List<List<BoundingBox>> cubeZones;
+	private List<List<Rectangle>> cubeZones;
 
 	void generateNext(Cube c) {
 		generateIn(c.zone, c.subzone + 1 % cubeZones.get(c.zone).size());
 	}
 
 	void generateIn(int zone, int subzone) {
-		BoundingBox zoneR = cubeZones.get(zone).get(subzone);
-		Vector3f pos = new Vector3f();
-		zoneR.getCenter(pos);
-		pos.x += zoneR.getXExtent() * (2 * random.nextFloat() - 1);
-		pos.y += zoneR.getYExtent() * (2 * random.nextFloat() - 1);
-		pos.z += zoneR.getZExtent() * (2 * random.nextFloat() - 1);
+		Rectangle zoneR = cubeZones.get(zone).get(subzone);
+		Vector3f pos = zoneR.random();
 		//nextZone = (nextZone + 1) % cubeZones.get(zone).size();
 		Cube c = new Cube(pos, zone, subzone);
 		cubes0.onNext(BehaviorSubject.create(c));
@@ -119,7 +113,7 @@ class CubeGenerator extends Subscriber<List<List<BoundingBox>>> {
 	}
 
 	@Override
-	public void onNext(List<List<BoundingBox>> t) {
+	public void onNext(List<List<Rectangle>> t) {
 		stop();
 		cubeZones = t;
 		if (cubeZones.size() > 0) {
@@ -141,6 +135,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 	final EntityFactory efactory;
 	final SimpleApplication jme;
 	final GeometryAndPhysic gp;
+	final Animator animator;
 
 	public void bind(Cube v) {
 		if (target != null && target != v) {
@@ -213,7 +208,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 				gp.add(target.node);
 				AnimControl ac = Spatials.findAnimControl(target.node);
 				ac.addListener(animListener);
-				Animator.play(target.node, "generation");
+				animator.play(target.node, "generation");
 				return true;
 			});
 			break;
@@ -221,13 +216,13 @@ class ObserverCubeState implements Observer<Cube.State> {
 		case waiting :
 			jme.enqueue(() -> {
 				System.out.print("play waiting");
-				Animator.playLoop(target.node, "waiting");
+				animator.playLoop(target.node, "waiting");
 				return true;
 			});
 			break;
 		case exiting :
 			jme.enqueue(() -> {
-				Animator.play(target.node, "exiting");
+				animator.play(target.node, "exiting");
 				return true;
 			});
 			break;
