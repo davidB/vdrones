@@ -1,12 +1,13 @@
-Material Mat1 : Common/MatDefs/Light/Lighting.j3md {
-     MaterialParameters {
-        Diffuse : 0.527 0.566 0.800 1.0
-        Ambient : 1.0 1.0 1.0 1.0
-        Specular : 0.0 0.8 0.8 1.0
+Material toto02 : Common/MatDefs/Light/Lighting.j3md {
+    MaterialParameters {
+        Diffuse : 0.6 0.6 1.0 1.0
+        UseAlpha : false
+        VertexLighting : false
         UseMaterialColors : true
-        HardwareShadows : true
-     }
+        Ambient : 1.0 1.0 1.0 1.0
+        Specular : 0.8 0.8 1.0 1.0
+        Shininess : 0.1
+    }
     AdditionalRenderState {
-      FaceCull Back
     }
 }
