@@ -105,7 +105,7 @@ class GameModule extends AbstractModule {
 				stateManager.attach(new DebugKeysAppState());
 				//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
 				stateManager.attach(new BulletAppState());
-				//stateManager.attach(new AppStatePostProcessing());
+				stateManager.attach(new AppStatePostProcessing());
 				stateManager.attach(new AppStateLights());
 				stateManager.attach(new AppStateCamera());
 				stateManager.attach(new AppStateGameLogic());

@@ -1,5 +1,7 @@
 package vdrones;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.post.FilterPostProcessor;
@@ -12,17 +14,19 @@ import com.jme3.system.AppSettings;
 /**
  * @author davidB
  */
+@Slf4j
 public class AppStatePostProcessing extends AppState0 {
     private FilterPostProcessor fpp;
-    
+
     @Override
     protected void doInitialize() {
         AssetManager assets = injector.getInstance(AssetManager.class);
         AppSettings settings = injector.getInstance(Application.class).getContext().getSettings();
         fpp = new FilterPostProcessor(assets);
- 
+
         // See if sampling is enabled
         boolean aa = settings.getSamples() != 0;
+        log.info("antialias enabling : {}", aa);
         if( aa ) {
             fpp.setNumSamples(settings.getSamples());
         }
@@ -34,26 +38,25 @@ public class AppStatePostProcessing extends AppState0 {
         bloom.setExposurePower(55);
         bloom.setBloomIntensity(1.0f);
         fpp.addFilter(bloom);
-            
+
         // Setup FXAA only if regular AA is off
         //--------------------------------------
-        if( !aa ) {
-            FXAAFilter fxaa = new FXAAFilter();
-            fxaa.setEnabled(true);
-            fpp.addFilter(fxaa);
-        }
-        
-        // And finally DoF                      
+        FXAAFilter fxaa = new FXAAFilter();
+        fxaa.setEnabled(!aa);
+        fpp.addFilter(fxaa);
+
+        // And finally DoF
         //--------------------------------------
         DepthOfFieldFilter dof = new DepthOfFieldFilter();
-        dof.setFocusDistance(0);
-        dof.setFocusRange(384);
-        dof.setEnabled(true);            
-        //fpp.addFilter(dof);
+        dof.setEnabled(false);
+        dof.setFocusDistance(5);
+        dof.setFocusRange(192);
+        fpp.addFilter(dof);
     }
 
     @Override
     protected void doDispose() {
+    	fpp.cleanup();
         fpp = null;
     }
 
@@ -68,5 +71,5 @@ public class AppStatePostProcessing extends AppState0 {
         ViewPort viewport = injector.getInstance(Application.class).getViewPort();
         viewport.removeProcessor(fpp);
     }
-    
+
 }
