@@ -45,30 +45,17 @@ class AreaCfg {
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	Subscription subscription;
-	public static float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
 
 	DroneInfo2 setup(Observable<Float> dt, DroneInfo2 drone) {
-		DroneCfg cfg = drone.cfg;
 		injector.getInstance(ObserverDroneState.class).bind(drone);
-
-		BehaviorSubject<Float> energyVelocity = BehaviorSubject.create(0f);
-		Observable<Float> energydt = dt.flatMap((dt0) -> energyVelocity.firstOrDefault(0f).map((v) -> dt0 * v));
-		drone.energy = energydt.scan(cfg.energyStoreInit, (acc, d) -> Math.max(0, Math.min(cfg.energyStoreMax, acc + d)));
-		drone.forward = Observable.combineLatest(drone.energy, drone.forwardReq, (o1, o2) -> (o1 > cfg.energyForwardSpeed) ? o2 : 0f).distinctUntilChanged();
-		drone.turn = drone.turnReq.distinctUntilChanged();
-		drone.health = drone.healthReq.scan(cfg.healthMax, (acc, d) -> Math.max(0, Math.min(cfg.healthMax, acc + d))).distinctUntilChanged();
-		drone.shield = Observable.combineLatest(drone.energy, drone.shieldReq, (o1, o2) -> (o1 > cfg.energyShieldSpeed) ? o2 : 0f).distinctUntilChanged();
-		Observable.combineLatest(drone.energyRegen, drone.forward, drone.shield, (o0, o1, o2) -> (o0 - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
-		//TODO use a throttleFirst based on game time vs real time
-		drone.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> drone.healthReq.onNext(wallCollisionHealthSpeed * 0.25f));
-		drone.health.filter(v -> v <= 0).subscribe((v) -> drone.go(DroneInfo2.State.crashing));
-		energyVelocity.subscribe(new ObserverPrint<Float>("energyVelocity"));
+		dt.subscribe(drone.dt);
 		drone.state.subscribe(new ObserverPrint<DroneInfo2.State>("droneState"));
 		return drone;
 	}
 
 	Cube setup(Observable<Float> dt, Cube cube) {
 		injector.getInstance(ObserverCubeState.class).bind(cube);
+		dt.subscribe(cube.dt);
 		cube.state.subscribe(new ObserverPrint<Cube.State>("cubeState"));
 		return cube;
 	}

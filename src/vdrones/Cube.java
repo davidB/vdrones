@@ -52,18 +52,14 @@ class Cube implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a
 	final Node node;
 	final int zone;
 	final int subzone;
-	private final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
-	Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
+	final BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
+	final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
+	final Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
 
 	Cube(Vector3f position, int zone, int subzone){
 		this.zone = zone;
 		this.subzone = subzone;
 		this.node = makeNode(this, position);
-	}
-
-	void go(State v) {
-		//Schedulers.trampoline().createWorker().schedule(() -> stateReq.onNext(v));
-		stateReq.onNext(v);
 	}
 
 	@Override
@@ -150,10 +146,10 @@ class ObserverCubeState implements Observer<Cube.State> {
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generation":
-					target.go(Cube.State.waiting);
+					target.stateReq.onNext(Cube.State.waiting);
 					break;
 				case "exiting":
-					target.go(Cube.State.hidden);
+					target.stateReq.onNext(Cube.State.hidden);
 					break;
 				}
 			}
@@ -200,7 +196,7 @@ class ObserverCubeState implements Observer<Cube.State> {
 				gp.remove(target.node);
 				return true;
 			});
-			target.go(Cube.State.generating);
+			target.stateReq.onNext(Cube.State.generating);
 			break;
 		case generating : {
 			jme.enqueue(() -> {

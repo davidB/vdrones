@@ -29,7 +29,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-@RequiredArgsConstructor
 class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to avoid a compilation error via gradle
 	//- CLASS -----------------------------------------------------------------------------
 	public static enum State {
@@ -55,26 +54,38 @@ class DroneInfo2 implements com.jme3.export.Savable { //HACK FQN of Savable to a
 	//- INSTANCE --------------------------------------------------------------------------
 	final DroneCfg cfg;
 	final Node node = makeNode(this);
-	private final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
+	final BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
+	final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
+	final Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
 	final BehaviorSubject<Float> forwardReq = BehaviorSubject.create(0f);
+	final Observable<Float> forward;
 	final BehaviorSubject<Float> turnReq = BehaviorSubject.create(0f);
+	final Observable<Float> turn;
 	final BehaviorSubject<Float> shieldReq = BehaviorSubject.create(0f);
+	final Observable<Float> shield;
 	final BehaviorSubject<Float> healthReq = BehaviorSubject.create(0f);
+	final Observable<Float> health;
 	final BehaviorSubject<DroneCollisionEvent> wallCollisions = BehaviorSubject.create();
 	final BehaviorSubject<Float> energyRegen = BehaviorSubject.create(0f);
+	final Observable<Float> energy;
 	//BehaviorSubject<Vector3f> position = BehaviorSubject.create(new Vector3f());
 	//HACK delay to async state change (eg: post-pone update after all subscriber receive previous value)
-	Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
-	Observable<Float> health;
-	Observable<Float> energy;
-	Observable<Float> forward;
-	Observable<Float> turn;
-	Observable<Float> shield;
 	Location spawnLoc;
 
-	void go(State v) {
-		//Schedulers.trampoline().createWorker().schedule(() -> stateReq.onNext(v));
-		stateReq.onNext(v);
+	public DroneInfo2(DroneCfg cfg) {
+		this.cfg = cfg;
+
+		BehaviorSubject<Float> energyVelocity = BehaviorSubject.create(0f);
+		Observable<Float> energydt = this.dt.flatMap((dt0) -> energyVelocity.firstOrDefault(0f).map((v) -> dt0 * v));
+		this.energy = energydt.scan(cfg.energyStoreInit, (acc, d) -> Math.max(0, Math.min(cfg.energyStoreMax, acc + d)));
+		this.forward = Observable.combineLatest(this.energy, this.forwardReq, (o1, o2) -> (o1 > cfg.energyForwardSpeed) ? o2 : 0f).distinctUntilChanged();
+		this.turn = this.turnReq.distinctUntilChanged();
+		this.health = this.healthReq.scan(cfg.healthMax, (acc, d) -> Math.max(0, Math.min(cfg.healthMax, acc + d))).distinctUntilChanged();
+		this.shield = Observable.combineLatest(this.energy, this.shieldReq, (o1, o2) -> (o1 > cfg.energyShieldSpeed) ? o2 : 0f).distinctUntilChanged();
+		Observable.combineLatest(this.energyRegen, this.forward, this.shield, (o0, o1, o2) -> (o0 - Math.abs(o1 * cfg.energyForwardSpeed) /*- Math.abs(o2 * energyShieldSpeed)*/)).subscribe(energyVelocity);
+		//TODO use a throttleFirst based on game time vs real time
+		this.wallCollisions.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS).subscribe(v -> this.healthReq.onNext(cfg.wallCollisionHealthSpeed * 0.25f));
+		this.health.filter(v -> v <= 0).subscribe((v) -> this.stateReq.onNext(DroneInfo2.State.crashing));
 	}
 
 	@Override
@@ -95,6 +106,7 @@ class DroneCfg {
 	public float energyStoreInit = 50f;
 	public float energyStoreMax = 100f;
 	public float healthMax = 100f;
+	public float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
 }
 
 @RequiredArgsConstructor
@@ -162,13 +174,13 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generation":
-					drone.go(DroneInfo2.State.driving);
+					drone.stateReq.onNext(DroneInfo2.State.driving);
 					break;
 				case "crashing":
-					drone.go(DroneInfo2.State.hidden);
+					drone.stateReq.onNext(DroneInfo2.State.hidden);
 					break;
 				case "exiting":
-					drone.go(DroneInfo2.State.hidden);
+					drone.stateReq.onNext(DroneInfo2.State.hidden);
 					break;
 				}
 			}
@@ -215,7 +227,7 @@ class ObserverDroneState implements Observer<DroneInfo2.State> {
 				gp.remove(drone.node);
 				return true;
 			});
-			drone.go(DroneInfo2.State.generating);
+			drone.stateReq.onNext(DroneInfo2.State.generating);
 			break;
 		case generating : {
 			drone.energyRegen.onNext(drone.cfg.energyStoreMax /*energyRegenSpeed * 4*/);
