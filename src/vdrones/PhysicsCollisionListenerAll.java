@@ -13,15 +13,12 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 
 	@Override
 	public void collision(PhysicsCollisionEvent event) {
-		InfoDrone drone = findDrone(event.getNodeA());
+		InfoDrone drone = null;
 		float lt = event.getLifeTime() * tpf;
-		if (drone != null) {
+		if ((drone = findDrone(event.getNodeA())) != null) {
 			drone.collisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnA()), lt, event.getNodeB()));
-		} else {
-			drone = findDrone(event.getNodeB());
-			if (drone != null) {
-				drone.collisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnB()), lt, event.getNodeA()));
-			}
+		} else if ((drone = findDrone(event.getNodeB())) != null) {
+			drone.collisions.onNext(new DroneCollisionEvent(new Vector3f(event.getPositionWorldOnB()), lt, event.getNodeA()));
 		}
 	}
 
