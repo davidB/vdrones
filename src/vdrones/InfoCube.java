@@ -3,13 +3,13 @@ package vdrones;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
@@ -34,6 +34,7 @@ class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avo
 		, generating
 		, waiting
 		, exiting
+		, grabbed
 	}
 
 	public static final String UD = "CubeInfoUserData";
@@ -41,25 +42,25 @@ class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avo
 		return (InfoCube) s.getUserData(UD);
 	}
 
-	static Node makeNode(InfoCube v, Vector3f pos) {
+	static Node makeNode(InfoCube v) {
 		Node n = new Node("drone");
 		n.setUserData(UD, v);
-		n.setLocalTranslation(pos);
 		return n;
 	}
 
 	//- INSTANCE --------------------------------------------------------------------------
 	final Node node;
 	final int zone;
-	final int subzone;
+	final Function<InfoCube, InfoCube> translateNext;
+	int subzone = -1;
 	final BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	final BehaviorSubject<State> stateReq = BehaviorSubject.create(State.hidden);
 	final Observable<State> state = stateReq.distinctUntilChanged().delay(1,TimeUnit.MILLISECONDS);
 
-	InfoCube(Vector3f position, int zone, int subzone){
+	InfoCube(int zone, Function<InfoCube, InfoCube> translateNext){
 		this.zone = zone;
-		this.subzone = subzone;
-		this.node = makeNode(this, position);
+		this.translateNext = translateNext;
+		this.node = makeNode(this);
 	}
 
 	@Override
@@ -71,51 +72,37 @@ class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avo
 }
 
 class GenCube extends Subscriber<List<List<Rectangle>>> {
-	private final PublishSubject<Observable<InfoCube>> cubes0 = PublishSubject.create();
-	Observable<Observable<InfoCube>> cubes = cubes0;
-	private Subscription subscription;
+	private final PublishSubject<InfoCube> cubes0 = PublishSubject.create();
+	Observable<InfoCube> cubes = cubes0;
 
 	private List<List<Rectangle>> cubeZones;
 
-	void generateNext(InfoCube c) {
-		generateIn(c.zone, c.subzone + 1 % cubeZones.get(c.zone).size());
-	}
-
-	void generateIn(int zone, int subzone) {
-		Rectangle zoneR = cubeZones.get(zone).get(subzone);
-		Vector3f pos = zoneR.random();
-		//nextZone = (nextZone + 1) % cubeZones.get(zone).size();
-		InfoCube c = new InfoCube(pos, zone, subzone);
-		cubes0.onNext(BehaviorSubject.create(c));
-	}
-
-	void stop() {
-		if (subscription != null && !subscription.isUnsubscribed()) {
-			subscription.unsubscribe();
-		}
-		subscription = null;
+	InfoCube translateNext(InfoCube c) {
+		List<Rectangle> zones = cubeZones.get(c.zone);
+		c.subzone = (c.subzone + 1) % zones.size();
+		Rectangle r = zones.get(c.subzone);
+		Vector3f pos = zones.get(c.subzone).random();
+		System.out.println("pos r:" + pos + " .. " + c.subzone + " / " + zones.size() + " .. " + r.getA() + r.getB() + r.getC());
+		c.node.setLocalTranslation(pos);
+		return c;
 	}
 
 	@Override
 	public void onCompleted() {
 		cubes0.onCompleted();
-		stop();
 	}
 
 	@Override
 	public void onError(Throwable e) {
 		cubes0.onError(e);
-		stop();
 	}
 
 	@Override
 	public void onNext(List<List<Rectangle>> t) {
-		stop();
 		cubeZones = t;
 		if (cubeZones.size() > 0) {
-			subscription = cubes.flatMap(v -> v).last().subscribe(this::generateNext);
 			for(int i = cubeZones.size() - 1; i > -1; i--) {
-				generateIn(i, 0);
+				cubes0.onNext(new InfoCube(i, this::translateNext));
 			}
 		}
 	}
@@ -142,13 +129,16 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 		animListener = new AnimEventListener(){
 			@Override
 			public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-				log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
+				//log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generating":
 					target.stateReq.onNext(InfoCube.State.waiting);
 					break;
 				case "exiting":
+					target.stateReq.onNext(InfoCube.State.hidden);
+					break;
+				case "grabbed":
 					target.stateReq.onNext(InfoCube.State.hidden);
 					break;
 				}
@@ -192,14 +182,15 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 		switch(v) {
 		case hidden :
 			jme.enqueue(() -> {
-				efactory.unas(target.node);
 				gp.remove(target.node);
+				efactory.unas(target.node);
 				return true;
 			});
 			target.stateReq.onNext(InfoCube.State.generating);
 			break;
 		case generating : {
 			jme.enqueue(() -> {
+				target.translateNext.apply(target);
 				efactory.asCube(target.node);
 				gp.add(target.node);
 				AnimControl ac = Spatials.findAnimControl(target.node);
@@ -212,6 +203,12 @@ class ObserverCubeState implements Observer<InfoCube.State> {
 		case waiting :
 			jme.enqueue(() -> {
 				animator.playLoop(target.node, "waiting");
+				return true;
+			});
+			break;
+		case grabbed :
+			jme.enqueue(() -> {
+				animator.play(target.node, "grabbed");
 				return true;
 			});
 			break;

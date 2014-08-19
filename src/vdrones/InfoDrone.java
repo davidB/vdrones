@@ -22,7 +22,6 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.app.SimpleApplication;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
@@ -131,8 +130,8 @@ class Location {
 
 
 class GenDrone extends Subscriber<Location> {
-	private final PublishSubject<Observable<InfoDrone>> drones0 = PublishSubject.create();
-	Observable<Observable<InfoDrone>> drones = drones0;
+	private final PublishSubject<InfoDrone> drones0 = PublishSubject.create();
+	Observable<InfoDrone> drones = drones0;
 
 	@Override
 	public void onCompleted() {
@@ -148,7 +147,7 @@ class GenDrone extends Subscriber<Location> {
 	public void onNext(Location t) {
 		InfoDrone drone = new InfoDrone(new CfgDrone());
 		drone.spawnLoc = t;
-		drones0.onNext(BehaviorSubject.create(drone));
+		drones0.onNext(drone);
 	}
 }
 
@@ -174,7 +173,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 		animListener = new AnimEventListener(){
 			@Override
 			public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-				log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
+				//log.info("onAnimCycleDone : {} {}", animName, channel.getTime());
 				assert(channel.getTime() >= control.getAnimationLength(animName));
 				switch(animName) {
 				case "generating":
@@ -227,8 +226,8 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 		switch(v) {
 		case hidden :
 			jme.enqueue(() -> {
-				efactory.unas(drone.node);
 				gp.remove(drone.node);
+				efactory.unas(drone.node);
 				return true;
 			});
 			drone.stateReq.onNext(InfoDrone.State.generating);
@@ -260,17 +259,18 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 		}
 		case driving :
 			subs.add("collisions.walls", drone.collisions
-				.filter(v0 -> v0.other.getControl(RigidBodyControl.class).getCollisionGroup() == CollisionGroups.WALL)
+				.filter(v0 -> CollisionGroups.test(v0.other, CollisionGroups.WALL))
 				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
 				.subscribe(v2 -> drone.healthReq.onNext(drone.cfg.wallCollisionHealthSpeed * 0.25f))
 			);
 			subs.add("collisions.cubes", drone.collisions
-				.filter(v0 -> v0.other.getControl(RigidBodyControl.class).getCollisionGroup() == CollisionGroups.CUBE)
+				.filter(v0 -> CollisionGroups.test(v0.other, CollisionGroups.CUBE))
 				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
 				.subscribe(v2 ->{
+					System.out.println("inc scoree.... RUN");
 					drone.scoreReq.onNext(1);
 					InfoCube cube = InfoCube.from(v2.other);
-					cube.stateReq.onNext(InfoCube.State.hidden);
+					cube.stateReq.onNext(InfoCube.State.grabbed);
 				})
 			);
 			onExit = (n) -> {

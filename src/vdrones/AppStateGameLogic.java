@@ -82,8 +82,8 @@ public class AppStateGameLogic extends AppState0 {
 				channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
 				, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
 				, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
-				, droneGenerator.drones.flatMap(v -> v).map(v -> setup(dt, v)).subscribe(channels.drones)
-				, cubeGenerator.cubes.flatMap(v -> v).map(v -> setup(dt, v)).subscribe(channels.cubes)
+				, droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
+				, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
 				,pipeAll()
 				);
 

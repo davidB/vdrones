@@ -19,9 +19,11 @@ import com.google.inject.Inject;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
+import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
 import com.jme3.light.Light;
@@ -41,12 +43,35 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-
 class CollisionGroups {
 	static final int NONE = 0;
 	static final int DRONE = 1;
 	static final int WALL = 2;
 	static final int CUBE = 3;
+
+	public static void setRecursive(Spatial src, int collisionGroup, int collideWith) {
+		if (collisionGroup > 0) {
+			src.setUserData("CollisionGroup", collisionGroup);
+		}
+		RigidBodyControl phy = src.getControl(RigidBodyControl.class);
+		if (phy != null) {
+			if (collisionGroup > 0) phy.setCollisionGroup(collisionGroup);
+			if (collideWith > 0) phy.setCollideWithGroups(collideWith);
+		}
+		if (src instanceof Node) {
+			((Node)src).getChildren().stream().forEach(v -> setRecursive(v, collisionGroup, collideWith));
+		}
+	}
+
+	public static boolean test(Spatial src, Integer collisionGroup) {
+		return collisionGroup.equals(src.getUserData("CollisionGroup"));
+	}
+
+	public static int from(Spatial src) {
+		Integer v = (Integer) src.getUserData("CollisionGroup");
+		return (v == null)? NONE : v.intValue();
+	}
+
 }
 /**
  *
@@ -80,7 +105,7 @@ public class EntityFactory {
 		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
 		extract(level, "exits").forEach(v -> addInto(v, a.bg, "exits"));
 		extract(level, "cubes").map(this::extractZone).forEach(a.cubeZones::add);
-		a.bg.stream().forEach(v -> setCollisionGroupsRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
+		a.bg.stream().forEach(v -> CollisionGroups.setRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
 		return a;
 	}
 
@@ -105,14 +130,19 @@ public class EntityFactory {
 	}
 
 	private List<Rectangle> extractZone(Spatial src) {
+		System.out.println("src name " + src.getName() + " . " + ((Node)src).getQuantity());
 		return ((Node)src).getChildren().stream().map(v -> {
 			Quad quad = (Quad)((Geometry)v).getMesh();
-			float h = quad.getHeight();
-			float w = quad.getWidth();
+			// quad.getHeight() and quad.getWidth() are equals to 0
+			//float xe = quad.getHeight() * 0.5;
+			//float ye = quad.getWidth() * 0.5;
+			float xe = ((BoundingBox)quad.getBound()).getXExtent();
+			float ye = ((BoundingBox)quad.getBound()).getYExtent();
 			Transform t = v.getWorldTransform();
-			Vector3f a = t.transformVector(new Vector3f(0.5f * w, 0.5f * h, 0.0f), null);
-			Vector3f b = t.transformVector(new Vector3f(0.0f    , 0.5f * h, 0.0f), null);
-			Vector3f c = t.transformVector(new Vector3f(0.5f * w, 0.0f    , 0.0f), null);
+			Vector3f a = t.transformVector(new Vector3f(xe  , ye  , 0.0f), null);
+			Vector3f b = t.transformVector(new Vector3f(0.0f, ye  , 0.0f), null);
+			Vector3f c = t.transformVector(new Vector3f(xe  , 0.0f, 0.0f), null);
+			System.out.printf("Zone rect :a %s b %s c %s w %s h %s\n", a, b, c, xe, ye);
 			return new Rectangle(a,b,c); // bc is hypothesus
 		}).collect(Collectors.toList());
 	}
@@ -138,7 +168,7 @@ public class EntityFactory {
 		phy.setKinematic(true);
 		phy.setKinematicSpatial(true);
 		b.addControl(phy);
-		setCollisionGroupsRecursive(b, CollisionGroups.WALL, CollisionGroups.DRONE);
+		CollisionGroups.setRecursive(b, CollisionGroups.WALL, CollisionGroups.DRONE);
 		return b;
 	}
 
@@ -180,20 +210,21 @@ public class EntityFactory {
 		CollisionShape shape0 = new SphereCollisionShape(0.5f);
 		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
 		phy0.setGravity(Vector3f.ZERO);
-		phy0.setCollisionGroup(CollisionGroups.CUBE);
 		b.addControl(phy0);
 
-		//setCollisionGroupsRecursive(b, -1, CollisionGroups.DRONE);
+		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
 		Animation waitingAnim = new Animation("waiting", 2.0f);
 		waitingAnim.addTrack(new TrackRotateYX(2.0f));
 		Animation exitingAnim = new Animation("exiting", 0.5f);
+		Animation grabbedAnim = new Animation("grabbed", 2.0f);
 		AnimControl ac = new AnimControl();
 		b.addControl(ac);
 		ac.addAnim(generatingAnim);
 		ac.addAnim(waitingAnim);
 		ac.addAnim(exitingAnim);
+		ac.addAnim(grabbedAnim);
 		ac.clearChannels();
 		ac.createChannel();
 
@@ -261,9 +292,9 @@ public class EntityFactory {
 
 		//Spatials.setDebugSkeleton(b, assetManager, ColorRGBA.Green);
 		b.addControl(new ControlSpatialsToBones());
-		setCollisionGroupsRecursive(b, CollisionGroups.DRONE, -1);
+		CollisionGroups.setRecursive(b, CollisionGroups.DRONE, -1);
 
-		Animation generatingAnim = new Animation("generating", 4.0f);
+		Animation generatingAnim = new Animation("generating", 0.5f);
 		Animation crashingAnim = new Animation("crashing", 2.0f);
 		Animation exitingAnim = new Animation("exiting", 2.0f);
 		//generatingAnim.addTrack(new TrackNoOp(3.0f));
@@ -300,8 +331,8 @@ public class EntityFactory {
 	 * @param spatial
 	 */
 	static void removeAllPhysic(Spatial spatial) {
-		RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-		if (physicsNode != null) {
+		PhysicsControl physicsNode = null;
+		while ((physicsNode = spatial.getControl(PhysicsControl.class)) != null) {
 			if (physicsNode.getPhysicsSpace() != null) physicsNode.getPhysicsSpace().removeAll(spatial);
 			spatial.removeControl(physicsNode);
 		}
@@ -360,16 +391,7 @@ public class EntityFactory {
 		}
 	}
 
-	public void setCollisionGroupsRecursive(Spatial src, int collisionGroup, int collideWith) {
-		RigidBodyControl phy = src.getControl(RigidBodyControl.class);
-		if (phy != null) {
-			if (collisionGroup > 0) phy.setCollisionGroup(collisionGroup);
-			if (collideWith > 0) phy.setCollideWithGroups(collideWith);
-		}
-		if (src instanceof Node) {
-			((Node)src).getChildren().stream().forEach(v -> setCollisionGroupsRecursive(v, collisionGroup, collideWith));
-		}
-	}
+
 }
 
 @Slf4j
