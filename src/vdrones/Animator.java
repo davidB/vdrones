@@ -5,7 +5,11 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.LoopMode;
 import com.jme3.scene.Node;
-
+// Animator should be able to run animations on 3D, 2D/HUD/GUI, Sound
+// Animation's run can have some parameters/cfg (idea : split animation's run creation + registration and execution)
+// Animation could be chained (eg : xxx.then(...))
+// Animator should handle cinematic
+// Animation can spawn detached spatials,...
 @Singleton
 public class Animator {
 	public void play(Node n, String animName) {
