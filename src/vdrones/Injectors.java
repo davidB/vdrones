@@ -110,6 +110,7 @@ class GameModule extends AbstractModule {
 				stateManager.attach(new AppStateCamera());
 				stateManager.attach(new AppStateGameLogic());
 				stateManager.attach(new PhysicsCollisionListenerAll());
+				stateManager.attach(new AppStateDroneCube());
 				stateManager.attach(new AppStateHudInGame());
 			}
 		};

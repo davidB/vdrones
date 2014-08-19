@@ -109,6 +109,9 @@ class CfgDrone {
 	public float energyStoreMax = 100f;
 	public float healthMax = 100f;
 	public float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
+	public float attractorRadius = 6.5f;
+	public float attractorPower = 1.0f;
+	public float grabRadius = 2.0f;
 }
 
 @RequiredArgsConstructor
@@ -263,16 +266,16 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
 				.subscribe(v2 -> drone.healthReq.onNext(drone.cfg.wallCollisionHealthSpeed * 0.25f))
 			);
-			subs.add("collisions.cubes", drone.collisions
-				.filter(v0 -> CollisionGroups.test(v0.other, CollisionGroups.CUBE))
-				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
-				.subscribe(v2 ->{
-					System.out.println("inc scoree.... RUN");
-					drone.scoreReq.onNext(1);
-					InfoCube cube = InfoCube.from(v2.other);
-					cube.stateReq.onNext(InfoCube.State.grabbed);
-				})
-			);
+//			subs.add("collisions.cubes", drone.collisions
+//				.filter(v0 -> CollisionGroups.test(v0.other, CollisionGroups.CUBE))
+//				.throttleFirst(250, java.util.concurrent.TimeUnit.MILLISECONDS)
+//				.subscribe(v2 ->{
+//					System.out.println("inc scoree.... RUN");
+//					drone.scoreReq.onNext(1);
+//					InfoCube cube = InfoCube.from(v2.other);
+//					cube.stateReq.onNext(InfoCube.State.grabbed);
+//				})
+//			);
 			onExit = (n) -> {
 				log.info("Exit from {} to {}", v, n);
 				drone.energyRegen.onNext(0f);

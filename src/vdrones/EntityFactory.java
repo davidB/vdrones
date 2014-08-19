@@ -168,7 +168,7 @@ public class EntityFactory {
 		phy.setKinematic(true);
 		phy.setKinematicSpatial(true);
 		b.addControl(phy);
-		CollisionGroups.setRecursive(b, CollisionGroups.WALL, CollisionGroups.DRONE);
+		CollisionGroups.setRecursive(b, CollisionGroups.WALL, CollisionGroups.NONE);
 		return b;
 	}
 
@@ -212,7 +212,8 @@ public class EntityFactory {
 		phy0.setGravity(Vector3f.ZERO);
 		b.addControl(phy0);
 
-		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
+		//CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
+		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
 		Animation waitingAnim = new Animation("waiting", 2.0f);
@@ -292,7 +293,7 @@ public class EntityFactory {
 
 		//Spatials.setDebugSkeleton(b, assetManager, ColorRGBA.Green);
 		b.addControl(new ControlSpatialsToBones());
-		CollisionGroups.setRecursive(b, CollisionGroups.DRONE, -1);
+		CollisionGroups.setRecursive(b, CollisionGroups.DRONE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
 		Animation crashingAnim = new Animation("crashing", 2.0f);
