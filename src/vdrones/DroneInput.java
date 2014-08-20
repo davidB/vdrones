@@ -15,7 +15,6 @@ class DroneInput implements ActionListener {
     static final String RIGHT = "Right";
     static final String FORWARD = "Forward";
     static final String BACKWARD = "Backward";
-    static final String TOGGLE_CAMERA = "toggle_camera";
 
     ////////////////////////////////////////////////////////////////////////////
     // Object

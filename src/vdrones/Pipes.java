@@ -32,11 +32,10 @@ public class Pipes {
 	}
 
 	static Subscription pipe(Observable<InfoDrone> drone, InputManager inputManager) {
-		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_H));
-		inputManager.addMapping(DroneInput.RIGHT, new KeyTrigger(KeyInput.KEY_K));
-		inputManager.addMapping(DroneInput.FORWARD, new KeyTrigger(KeyInput.KEY_U));
-		inputManager.addMapping(DroneInput.BACKWARD, new KeyTrigger(KeyInput.KEY_J));
-		inputManager.addMapping(DroneInput.TOGGLE_CAMERA, new KeyTrigger(KeyInput.KEY_M));
+		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_A), new KeyTrigger(KeyInput.KEY_Q));
+		inputManager.addMapping(DroneInput.RIGHT, new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping(DroneInput.FORWARD, new KeyTrigger(KeyInput.KEY_W), new KeyTrigger(KeyInput.KEY_Z));
+		//inputManager.addMapping(DroneInput.TOGGLE_CAMERA, new KeyTrigger(KeyInput.KEY_M));
 		//inputManager.addMapping(RESET, new KeyTrigger(KeyInput.KEY_RETURN));
 
 		//FIXME use a temporary variable m to avoid type inference issue.
@@ -46,7 +45,7 @@ public class Pipes {
 		});
 		return m.subscribe((T2<DroneInput, InfoDrone.State> v) -> {
 			if (v._2 == InfoDrone.State.driving) {
-				inputManager.addListener(v._1, DroneInput.LEFT, DroneInput.RIGHT, DroneInput.FORWARD, DroneInput.BACKWARD, DroneInput.TOGGLE_CAMERA);
+				inputManager.addListener(v._1, DroneInput.LEFT, DroneInput.RIGHT, DroneInput.FORWARD, DroneInput.BACKWARD);
 			} else {
 				inputManager.removeListener(v._1);
 			}
