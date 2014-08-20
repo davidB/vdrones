@@ -210,6 +210,7 @@ public class EntityFactory {
 		CollisionShape shape0 = new SphereCollisionShape(0.5f);
 		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
 		phy0.setGravity(Vector3f.ZERO);
+		phy0.setAngularFactor(0);
 		b.addControl(phy0);
 
 		//CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
@@ -242,6 +243,8 @@ public class EntityFactory {
 		CollisionShape shape0 = new SphereCollisionShape(0.5f);
 		RigidBodyControl phy0 = new RigidBodyControl(shape0, 4.0f);
 		b.addControl(phy0);
+		//http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Code_Snippets#I_want_to_constrain_an_object_to_two_dimensional_movement.2C_skipping_one_of_the_cardinal_axes
+		//TODO modify jbullet https://github.com/MovingBlocks/TeraBullet/commit/9cd1cfdc2cfade3647f69c3152a3144827d8954a
 		phy0.setAngularFactor(0);
 
 		CollisionShape shape1 = new SphereCollisionShape(0.3f);

@@ -50,6 +50,8 @@ public class AppStateDroneCube extends AppState0 {
 		Vector3f force = new Vector3f();
 		for(InfoCube cube : cubes){
 			boolean grabbed = false;
+			RigidBodyControl body = cube.node.getControl(RigidBodyControl.class);
+			body.clearForces();
 			for(InfoDrone drone : drones){
 				drone.node.getWorldTranslation().subtract(cube.node.getWorldTranslation(), dc);
 				float dcLg = dc.length();
@@ -67,7 +69,10 @@ public class AppStateDroneCube extends AppState0 {
 				cubes.remove(cube);
 				cube.stateReq.onNext(InfoCube.State.grabbed);
 			}
-			if (forceA) cube.node.getControl(RigidBodyControl.class).applyForce(force, Vector3f.ZERO);
+			if (forceA){
+				force.y = 0;
+				body.applyForce(force, Vector3f.ZERO);
+			}
 		}
 	}
 }
