@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
@@ -103,7 +104,7 @@ public class EntityFactory {
 		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
 		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
 		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
-		extract(level, "exits").forEach(v -> addInto(v, a.bg, "exits"));
+		extract(level, "exits").map(v -> setY(v, -1.0f)).forEach(v -> addInto(v, a.exitPoints));
 		extract(level, "cubes").map(this::extractZone).forEach(a.cubeZones::add);
 		a.bg.stream().forEach(v -> CollisionGroups.setRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
 		return a;
@@ -172,10 +173,16 @@ public class EntityFactory {
 		return b;
 	}
 
-	public Spatial newSpawner(Location loc) {
-		Spatial b = assetManager.loadModel("Models/plateform8.j3o");
-		log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
-		//copyCtrlAndTransform(src, b);
+	public Spatial newSpawnPoint(Location loc) {
+		Spatial b = assetManager.loadModel("Models/spawnPoint.j3o");
+		//log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
+		b.setLocalRotation(loc.orientation);
+		b.setLocalTranslation(loc.position);
+		return b;
+	}
+
+	public Spatial newExitPoint(Location loc) {
+		Spatial b = assetManager.loadModel("Models/exitPoint.j3o");
 		b.setLocalRotation(loc.orientation);
 		b.setLocalTranslation(loc.position);
 		return b;
@@ -394,7 +401,6 @@ public class EntityFactory {
 			ctrl.cloneForSpatial(dst);
 		}
 	}
-
 
 }
 

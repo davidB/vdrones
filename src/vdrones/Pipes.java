@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import rx.Observable;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx_ext.SubscriberL2;
 
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
@@ -15,11 +14,13 @@ public class Pipes {
 
 	public static Subscription pipeA(Observable<CfgArea> l, GeometryAndPhysic gp, EntityFactory efactory) {
 		Observable<Spatial> bg = l.flatMap(v -> Observable.from(v.bg));
-		Observable<Spatial> spawners = l.flatMap(v-> Observable.from(v.spawnPoints)).map(v -> efactory.newSpawner(v));
+		Observable<Spatial> spawns = l.flatMap(v-> Observable.from(v.spawnPoints)).map(v -> efactory.newSpawnPoint(v));
+		Observable<Spatial> exits = l.flatMap(v-> Observable.from(v.exitPoints)).map(v -> efactory.newExitPoint(v));
 		//TODO manage remove of spatial
 		return Subscriptions.from(
 			bg.subscribe((v) -> gp.add(v))
-			, spawners.subscribe((v) -> gp.add(v))
+			, spawns.subscribe((v) -> gp.add(v))
+			, exits.subscribe((v) -> gp.add(v))
 		);
 	}
 

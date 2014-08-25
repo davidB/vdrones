@@ -18,6 +18,11 @@ public class AppStateDroneCube extends AppState0 {
 	private final List<InfoCube> cubes = new LinkedList<>();
 	private Subscription subs;
 	final Channels channels;
+	// tmp
+	private Vector3f segment = new Vector3f();
+	private boolean forceApply = false;
+	private Vector3f force = new Vector3f();
+
 
 	@Override
 	protected void doEnable(){
@@ -49,23 +54,22 @@ public class AppStateDroneCube extends AppState0 {
 
 	@Override
 	protected void doUpdate(float tpf) {
-		Vector3f dc = new Vector3f();
-		boolean forceA = false;
-		Vector3f force = new Vector3f();
+		forceApply = false;
+		force.set(0, 0, 0);
 		for(InfoCube cube : cubes){
 			boolean grabbed = false;
 			RigidBodyControl body = cube.node.getControl(RigidBodyControl.class);
 			body.clearForces();
 			for(InfoDrone drone : drones){
-				drone.node.getWorldTranslation().subtract(cube.node.getWorldTranslation(), dc);
-				float dcLg = dc.length();
-				if (dcLg <= drone.cfg.grabRadius) {
+				drone.node.getWorldTranslation().subtract(cube.node.getWorldTranslation(), segment);
+				float segmentLg = segment.length();
+				if (segmentLg <= drone.cfg.grabRadius) {
 					drone.scoreReq.onNext(1);
 					grabbed = true;
 					break;
-				} else if (dcLg <= drone.cfg.attractorRadius) {
-					force.addLocal(dc.multLocal(drone.cfg.attractorRadius/dcLg));
-					forceA = true;
+				} else if (segmentLg <= drone.cfg.attractorRadius) {
+					force.addLocal(segment.multLocal(drone.cfg.attractorRadius/segmentLg));
+					forceApply = true;
 				}
 			}
 			if (grabbed) {
@@ -73,7 +77,7 @@ public class AppStateDroneCube extends AppState0 {
 				cubes.remove(cube);
 				cube.stateReq.onNext(InfoCube.State.grabbed);
 			}
-			if (forceA){
+			if (forceApply){
 				force.y = 0;
 				body.applyForce(force, Vector3f.ZERO);
 			}

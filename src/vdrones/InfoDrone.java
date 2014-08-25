@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.Observer;
@@ -18,10 +19,12 @@ import rx_ext.SubscriptionsMap;
 import vdrones.InfoDrone.State;
 
 import javax.inject.Inject;
+
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
@@ -112,6 +115,7 @@ class CfgDrone {
 	public float attractorRadius = 6.5f;
 	public float attractorPower = 1.0f;
 	public float grabRadius = 2.0f;
+	public float exitRadius = 1.5f;
 }
 
 @RequiredArgsConstructor
@@ -298,6 +302,10 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 			break;
 		case exiting :
 			jme.enqueue(() -> {
+				// stop displacement
+				val phy0 = drone.node.getControl(RigidBodyControl.class);
+				phy0.setMass(0);
+				phy0.clearForces();
 				animator.play(drone.node, "exiting");
 				return true;
 			});

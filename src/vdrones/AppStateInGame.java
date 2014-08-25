@@ -19,6 +19,7 @@ public class AppStateInGame extends AppState0{
 	final AppStateDroneCube appStateDroneCube;
 	final AppStateHudInGame appStateHudInGame;
 	final AppStateGameLogic appStateGameLogic;
+	final AppStateDroneExit appStateDroneExit;
 
 	@Override
 	protected void doInitialize() {
@@ -35,6 +36,7 @@ public class AppStateInGame extends AppState0{
 		stateManager.attach(physicsCollisionListenerAll);
 		stateManager.attach(appStateDroneCube);
 		stateManager.attach(appStateHudInGame);
+		stateManager.attach(appStateDroneExit);
 	}
 
 	protected void doDispose() {
@@ -50,5 +52,6 @@ public class AppStateInGame extends AppState0{
 		stateManager.detach(physicsCollisionListenerAll);
 		stateManager.detach(appStateDroneCube);
 		stateManager.detach(appStateHudInGame);
+		stateManager.detach(appStateDroneExit);
 	}
 }
