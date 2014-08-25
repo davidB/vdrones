@@ -1,5 +1,8 @@
 package vdrones;
 
+import javax.inject.Inject;
+
+import lombok.RequiredArgsConstructor;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -9,22 +12,21 @@ import com.jme3x.jfx.GuiManager;
 
 import fxml.InGame;
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateHudInGame extends AppState0 {
-	private GuiManager guiManager;
+	final GuiManager guiManager;
+	final Channels channels;
 	private FXMLHud<InGame> hud;
 	private Subscription subscription;
 
 	@Override
 	public void doInitialize() {
-		guiManager = injector.getInstance(GuiManager.class);
-
 		hud = new FXMLHud<>("Interface/ingame.fxml");
 		hud.precache();
 		guiManager.attachHudAsync(hud);
 	}
 
 	protected void doEnable() {
-		Channels channels = injector.getInstance(Channels.class);
 		//Observable.switchOnNext(channels.droneInfo2s)
 		Subscription s1 = channels.drones.subscribe(new Subscriber<InfoDrone>(){
 			private Subscription subscription = null;

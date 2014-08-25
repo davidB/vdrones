@@ -3,9 +3,10 @@ package vdrones;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import rx.Observable;
 
-import com.google.inject.Singleton;
 import com.jme3.light.Light;
 import com.jme3.math.Rectangle;
 import com.jme3.scene.Spatial;

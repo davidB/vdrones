@@ -1,6 +1,10 @@
 package vdrones;
 
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import lombok.RequiredArgsConstructor;
+
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.LoopMode;
@@ -11,6 +15,7 @@ import com.jme3.scene.Node;
 // Animator should handle cinematic
 // Animation can spawn detached spatials,...
 @Singleton
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class Animator {
 	public void play(Node n, String animName) {
 		AnimControl ac = Spatials.findAnimControl(n);

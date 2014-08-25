@@ -1,5 +1,10 @@
 package vdrones;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import rx.Observable;
 import rx.Subscription;
@@ -7,13 +12,10 @@ import rx.subjects.BehaviorSubject;
 import rx.subscriptions.Subscriptions;
 import rx_ext.ObserverPrint;
 
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.input.InputManager;
 
 @Singleton
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class Channels{
 	final BehaviorSubject<InfoDrone> drones = BehaviorSubject.create();
 	final BehaviorSubject<InfoCube> cubes = BehaviorSubject.create();
@@ -21,12 +23,21 @@ class Channels{
 	final BehaviorSubject<CfgArea> areaCfgs = BehaviorSubject.create();
 }
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	Subscription subscription;
+	final Channels channels;
+	final GenDrone droneGenerator;
+	final GenCube cubeGenerator;
+	final EntityFactory entityFactory;
+	final Provider<ObserverDroneState> observerDroneStateProvider;
+	final Provider<ObserverCubeState> observerCubeStateProvider;
+	final GeometryAndPhysic geometryAndPhysic;
+
 
 	InfoDrone setup(Observable<Float> dt, InfoDrone drone) {
-		injector.getInstance(ObserverDroneState.class).bind(drone);
+		observerDroneStateProvider.get().bind(drone);
 		dt.subscribe(drone.dt);
 		drone.state.subscribe(new ObserverPrint<>("droneState"));
 		drone.score.subscribe(new ObserverPrint<>("droneScore"));
@@ -36,7 +47,7 @@ public class AppStateGameLogic extends AppState0 {
 	}
 
 	InfoCube setup(Observable<Float> dt, InfoCube cube) {
-		injector.getInstance(ObserverCubeState.class).bind(cube);
+		observerCubeStateProvider.get().bind(cube);
 		dt.subscribe(cube.dt);
 		cube.state.subscribe(new ObserverPrint<>("cubeState"));
 		return cube;
@@ -49,43 +60,32 @@ public class AppStateGameLogic extends AppState0 {
 		return area;
 	}
 
-	static public Subscription pipeAll(){
-		Injector injector = Injectors.find();
-		//LevelLoader ll = injector.getInstance(LevelLoader.class);
-		Channels channels = injector.getInstance(Channels.class);
-
+	Subscription pipeAll(){
 		return Subscriptions.from(
-				Pipes.pipeA(channels.areaCfgs, injector.getInstance(GeometryAndPhysic.class), injector.getInstance(EntityFactory.class))
-				, Pipes.pipe(channels.areaCfgs, injector.getInstance(AppStateManager.class).getState(AppStateLights.class))
-				, Pipes.pipe(channels.drones, injector.getInstance(InputManager.class))
-				//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
-				,channels.areaCfgs.subscribe(new ObserverPrint<CfgArea>("channels.areaCfgs"))
-				,channels.drones.subscribe(new ObserverPrint<InfoDrone>("channels.drones"))
-				,channels.cubes.subscribe(new ObserverPrint<InfoCube>("channels.cubes"))
-				);
+			Pipes.pipeA(channels.areaCfgs, geometryAndPhysic, entityFactory)
+			, Pipes.pipe(channels.areaCfgs, app.getStateManager().getState(AppStateLights.class))
+			, Pipes.pipe(channels.drones, app.getInputManager())
+			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
+			,channels.areaCfgs.subscribe(new ObserverPrint<CfgArea>("channels.areaCfgs"))
+			,channels.drones.subscribe(new ObserverPrint<InfoDrone>("channels.drones"))
+			,channels.cubes.subscribe(new ObserverPrint<InfoCube>("channels.cubes"))
+		);
 	}
 
-	static public void spawnLevel(String name) {
-		Injector injector = Injectors.find();
-		EntityFactory efactory = injector.getInstance(EntityFactory.class);
-		Channels channels = injector.getInstance(Channels.class);
-		channels.areaCfgs.onNext(efactory.newLevel("area00"));
+	void spawnLevel(String name) {
+		channels.areaCfgs.onNext(entityFactory.newLevel("area00"));
 	}
 
 	@Override
 	protected void doInitialize() {
-		Channels channels = injector.getInstance(Channels.class);
-		GenDrone droneGenerator = injector.getInstance(GenDrone.class);
-		GenCube cubeGenerator = injector.getInstance(GenCube.class);
-
 		subscription =  Subscriptions.from(
-				channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
-				, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
-				, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
-				, droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
-				, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
-				,pipeAll()
-				);
+			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
+			, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
+			, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
+			, droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
+			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
+			,pipeAll()
+		);
 
 		app.enqueue(() -> {
 			spawnLevel("area0");

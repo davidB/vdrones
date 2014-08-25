@@ -1,8 +1,9 @@
 package vdrones;
 
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetManager;
+import javax.inject.Inject;
+
+import lombok.RequiredArgsConstructor;
+
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.post.FilterPostProcessor;
@@ -16,25 +17,26 @@ import com.jme3.shadow.EdgeFilteringMode;
 /**
  * @author davidB
  */
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateLights extends AppState0 {
     private FilterPostProcessor fpp;
 	private Node rootNode;
 
     @Override
     protected void doInitialize() {
-        fpp = new FilterPostProcessor(injector.getInstance(AssetManager.class));
-        rootNode = injector.getInstance(SimpleApplication.class).getRootNode();
+        fpp = new FilterPostProcessor(app.getAssetManager());
+        rootNode = app.getRootNode();
     }
 
     @Override
     protected void doEnable() {
-        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
+        ViewPort viewport = app.getViewPort();
         viewport.addProcessor(fpp);
     }
 
     @Override
     protected void doDisable() {
-        ViewPort viewport = injector.getInstance(Application.class).getViewPort();
+        ViewPort viewport = app.getViewPort();
         viewport.removeProcessor(fpp);
     }
 
@@ -54,7 +56,7 @@ public class AppStateLights extends AppState0 {
 
         // Setup shadows
         //-------------------------------------
-        DirectionalLightShadowFilter shadows = new DirectionalLightShadowFilter(injector.getInstance(AssetManager.class), 4096, 4);
+        DirectionalLightShadowFilter shadows = new DirectionalLightShadowFilter(app.getAssetManager(), 4096, 4);
         shadows.setShadowIntensity(0.6f);
         shadows.setLambda(0.55f);
         shadows.setShadowIntensity(0.6f);

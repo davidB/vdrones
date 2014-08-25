@@ -3,20 +3,24 @@ package vdrones;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import lombok.RequiredArgsConstructor;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateDroneCube extends AppState0 {
 	private final List<InfoDrone> drones = new LinkedList<>();
 	private final List<InfoCube> cubes = new LinkedList<>();
 	private Subscription subs;
+	final Channels channels;
 
 	@Override
 	protected void doEnable(){
-		Channels channels = injector.getInstance(Channels.class);
 		subs = Subscriptions.from(
 			channels.drones.flatMap(v -> v.state.map(s -> new T2<InfoDrone, Boolean>(v, s == InfoDrone.State.driving)).distinctUntilChanged()).subscribe(v -> {
 				if (v._2) {

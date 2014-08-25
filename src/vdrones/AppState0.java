@@ -2,7 +2,6 @@ package vdrones;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.google.inject.Injector;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -14,13 +13,13 @@ import com.jme3.app.state.AppStateManager;
  */
 @Slf4j
 abstract public class AppState0 extends AbstractAppState {
-	protected Injector injector;
+	//protected ObjectGraph injector;
 	protected SimpleApplication app;
 
 	@Override
 	public final void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
-		injector = Injectors.find();
+		//injector = Injectors.find();
 		this.app = (SimpleApplication)app;
 		initialized = true;
 		doInitialize();

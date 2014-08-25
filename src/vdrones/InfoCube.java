@@ -15,7 +15,7 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx_ext.SubscriptionsMap;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
@@ -71,6 +71,7 @@ class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avo
 	}
 }
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class GenCube extends Subscriber<List<List<Rectangle>>> {
 	private final PublishSubject<InfoCube> cubes0 = PublishSubject.create();
 	Observable<InfoCube> cubes = cubes0;

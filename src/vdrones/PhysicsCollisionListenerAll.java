@@ -1,13 +1,18 @@
 package vdrones;
 
+import javax.inject.Inject;
+
+import lombok.RequiredArgsConstructor;
+
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCollisionListener {
-	Channels channels;
+	final Channels channels;
 
 	private float tpf;
 
@@ -33,24 +38,23 @@ public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCol
 
 	@Override
 	protected void doInitialize() {
-		channels = injector.getInstance(Channels.class);
-        BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
-        if (bulletAppState != null) {
-            bulletAppState.getPhysicsSpace().addCollisionListener(this);
-        }
-    }
+		BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
+		if (bulletAppState != null) {
+			bulletAppState.getPhysicsSpace().addCollisionListener(this);
+		}
+	}
 
-    @Override
+	@Override
 	protected void doUpdate(float tpf) {
-    	this.tpf = tpf;
-    }
+		this.tpf = tpf;
+	}
 
-    @Override
-    protected void doDispose() {
-    	BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
-    	if (bulletAppState != null) {
-    		bulletAppState.getPhysicsSpace().removeCollisionListener(this);
-    	}
-    }
+	@Override
+	protected void doDispose() {
+		BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
+		if (bulletAppState != null) {
+			bulletAppState.getPhysicsSpace().removeCollisionListener(this);
+		}
+	}
 
 }

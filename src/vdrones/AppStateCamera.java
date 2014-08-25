@@ -1,5 +1,9 @@
 package vdrones;
 
+import javax.inject.Inject;
+
+import lombok.RequiredArgsConstructor;
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
@@ -46,6 +50,7 @@ class CameraFollower{
     }
 }
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class AppStateCamera extends AppState0 {
 
     private Camera camera;

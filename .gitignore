@@ -16,3 +16,4 @@ lib
 /.project
 /.factorypath
 /.settings
+/.apt_generated

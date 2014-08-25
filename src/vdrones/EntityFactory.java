@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetManager;
@@ -408,7 +408,7 @@ class PlaceHolderReplacer {
 			Node r = (Node)root;
 			List<Spatial> children = new ArrayList<>(r.getChildren());
 			r.detachAllChildren();
-			children.stream().forEach((Spatial s) -> {
+			children.stream().forEach(s -> {
 				r.attachChild(replaceTree(s));
 			});
 		}

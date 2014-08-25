@@ -1,39 +1,31 @@
 package vdrones;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
+
 import com.jme3.app.Application;
-import com.jme3.app.DebugKeysAppState;
-import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.StatsAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.input.InputManager;
 import com.jme3.system.AppSettings;
 import com.jme3x.jfx.GuiManager;
 import com.jme3x.jfx.cursor.ICursorDisplayProvider;
 import com.jme3x.jfx.cursor.proton.ProtonCursorProvider;
-import com.simsilica.es.EntityData;
-import com.simsilica.es.base.DefaultEntityData;
 
-public class Injectors {
-	static final private Injector instance0 = Guice.createInjector(new JmeModule(), new JfxModule(), new GameModule());
+import dagger.Module;
+import dagger.Provides;
 
-	public static Injector find() {
-		return instance0;
-	}
-}
+//public class Injectors {
+//	//static final private Injector instance0 = Guice.createInjector(new JmeModule(), new JfxModule(), new GameModule());
+//	static final private ObjectGraph instance0 = ObjectGraph.create(new GameModule());
+//
+////	public static ObjectGraph find() {
+////		return instance0;
+////	}
+//}
 
-class JmeModule extends AbstractModule {
-	@Override
-	protected void configure() {
-	}
-
+@Module(library=true, complete=false)
+class JmeModule{
 	@Provides
 	public Application application(SimpleApplication app) {
 		return app;
@@ -55,11 +47,8 @@ class JmeModule extends AbstractModule {
 	}
 }
 
-class JfxModule extends AbstractModule {
-
-	@Override
-	protected void configure() {
-	}
+@Module(library=true, complete=false)
+class JfxModule {
 
 	@Provides @Singleton
 	public ICursorDisplayProvider cursorDisplayProvider(SimpleApplication app) {
@@ -74,47 +63,26 @@ class JfxModule extends AbstractModule {
 	}
 }
 
-class GameModule extends AbstractModule {
-
-	@Override
-	protected void configure() {
-		//bind(LevelLoader.class).asEagerSingleton();
+@Module(
+	injects = {
+		SimpleApplication.class,
+		AppStateInGame.class,
+	},
+	includes = {
+		JmeModule.class,
+		JfxModule.class
 	}
-
-	@Provides @Singleton
-	public EntityData entityData() {
-		return new DefaultEntityData();
-	}
-
-	@Provides @Singleton
-	public AppSettings appSettings() {
-		AppSettings settings = new AppSettings(true);
-		//settings.setResolution(640,480);
-		//	settings.setRenderer("JOGL");
-		//	settings.setRenderer(AppSettings.LWJGL_OPENGL3);
-		return settings;
-	}
-
-	@Provides @Singleton
-	public SimpleApplication simpleApplication(AppSettings settings) {
+)
+class GameModule {
+	@Singleton
+	@Provides
+	public SimpleApplication simpleApplication(AppSettings appSettings) {
 		SimpleApplication app = new SimpleApplication(){
 			@Override
 			public void simpleInitApp() {
-				stateManager.detach(stateManager.getState(FlyCamAppState.class));
-				stateManager.attach(new StatsAppState());
-				stateManager.attach(new DebugKeysAppState());
-				//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
-				stateManager.attach(new BulletAppState());
-				stateManager.attach(new AppStatePostProcessing());
-				stateManager.attach(new AppStateLights());
-				stateManager.attach(new AppStateCamera());
-				stateManager.attach(new AppStateGameLogic());
-				stateManager.attach(new PhysicsCollisionListenerAll());
-				stateManager.attach(new AppStateDroneCube());
-				stateManager.attach(new AppStateHudInGame());
 			}
 		};
-		app.setSettings(settings);
+		app.setSettings(appSettings());
 		app.setShowSettings(true);
 		app.setDisplayStatView(true);
 		app.setDisplayFps(true);
@@ -122,9 +90,19 @@ class GameModule extends AbstractModule {
 		return app;
 	}
 
+	@Singleton
 	@Provides
-	public AppStateCamera appStateCamera(AppStateManager mgr) {
-		return mgr.getState(AppStateCamera.class);
+	public AppSettings appSettings() {
+		AppSettings settings = new AppSettings(true);
+		//settings.setResolution(640,480);
+		//	settings.setRenderer("JOGL");
+		//	settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+		return settings;
 	}
+//
+//	@Provides
+//	public AppStateCamera appStateCamera(AppStateManager mgr) {
+//		return mgr.getState(AppStateCamera.class);
+//	}
 
 }

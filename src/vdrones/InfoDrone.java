@@ -17,7 +17,7 @@ import rx.subscriptions.Subscriptions;
 import rx_ext.SubscriptionsMap;
 import vdrones.InfoDrone.State;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
@@ -132,6 +132,7 @@ class Location {
 }
 
 
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class GenDrone extends Subscriber<Location> {
 	private final PublishSubject<InfoDrone> drones0 = PublishSubject.create();
 	Observable<InfoDrone> drones = drones0;
@@ -154,8 +155,8 @@ class GenDrone extends Subscriber<Location> {
 	}
 }
 
-@RequiredArgsConstructor(onConstructor=@__(@Inject))
 @Slf4j
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class ObserverDroneState implements Observer<InfoDrone.State> {
 	private Action1<State> onExit;
 	private InfoDrone drone;
@@ -165,7 +166,6 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 	final SimpleApplication jme;
 	final GeometryAndPhysic gp;
 	final Animator animator;
-	final AppStateCamera ascam;
 
 	public void bind(InfoDrone v) {
 		if (drone != null && drone != v) {
@@ -245,7 +245,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 				drone.node.addControl(new ControlDronePhy());
 				subs.add("ControlDronePhy", pipe(drone, drone.node.getControl(ControlDronePhy.class)));
 				gp.add(drone.node);
-				ascam.setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, drone.node));
+				jme.getStateManager().getState(AppStateCamera.class).setCameraFollower(new CameraFollower(CameraFollower.Mode.TPS, drone.node));
 				//TODO start animation
 				AnimControl ac = Spatials.findAnimControl(drone.node);
 				ac.addListener(animListener);
