@@ -17,3 +17,7 @@ lib
 /.factorypath
 /.settings
 /.apt_generated
+
+# netbeans
+**/private
+**/genfiles.properties

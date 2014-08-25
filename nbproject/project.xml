@@ -9,9 +9,9 @@
         </buildExtensions>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>vdrones</name>
+            <explicit-platform explicit-source-supported="true"/>
             <source-roots>
                 <root id="src.dir"/>
-                <root id="src.test.dir"/>
             </source-roots>
             <test-roots>
                 <root id="test.test2.dir"/>
