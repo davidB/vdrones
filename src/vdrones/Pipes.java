@@ -32,9 +32,10 @@ public class Pipes {
 	}
 
 	static Subscription pipe(Observable<InfoDrone> drone, InputManager inputManager) {
-		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_A), new KeyTrigger(KeyInput.KEY_Q));
-		inputManager.addMapping(DroneInput.RIGHT, new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping(DroneInput.FORWARD, new KeyTrigger(KeyInput.KEY_W), new KeyTrigger(KeyInput.KEY_Z));
+		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_LEFT), new KeyTrigger(KeyInput.KEY_A), new KeyTrigger(KeyInput.KEY_Q));
+		inputManager.addMapping(DroneInput.RIGHT, new KeyTrigger(KeyInput.KEY_RIGHT), new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping(DroneInput.FORWARD, new KeyTrigger(KeyInput.KEY_UP), new KeyTrigger(KeyInput.KEY_W), new KeyTrigger(KeyInput.KEY_Z));
+		inputManager.addMapping(DroneInput.BACKWARD, new KeyTrigger(KeyInput.KEY_DOWN), new KeyTrigger(KeyInput.KEY_S));
 		//inputManager.addMapping(DroneInput.TOGGLE_CAMERA, new KeyTrigger(KeyInput.KEY_M));
 		//inputManager.addMapping(RESET, new KeyTrigger(KeyInput.KEY_RETURN));
 
