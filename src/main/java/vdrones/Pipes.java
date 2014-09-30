@@ -43,7 +43,7 @@ public class Pipes {
 		//FIXME use a temporary variable m to avoid type inference issue.
 		Observable<T2<DroneInput, InfoDrone.State>> m = drone.flatMap((v) -> {
 			DroneInput ctrl = new DroneInput(v);
-			return v.state.map(v0 -> new T2<DroneInput, InfoDrone.State>(ctrl, v0));
+			return (Observable<T2<DroneInput, InfoDrone.State>>) v.state.map(v0 -> new T2<DroneInput, InfoDrone.State>(ctrl, v0));
 		});
 		return m.subscribe((T2<DroneInput, InfoDrone.State> v) -> {
 			if (v._2 == InfoDrone.State.driving) {

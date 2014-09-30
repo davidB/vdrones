@@ -34,6 +34,7 @@ public class ObservableMap<K, V> extends AbstractMap<K, V> {
 
 	@Override
 	public V remove(Object k) {
+		@SuppressWarnings("unchecked")
 		K key = (K) k;
 		V value = entries.remove(key);
 		if (value != null) {
@@ -63,6 +64,7 @@ public class ObservableMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	//TODO fix
+	@SuppressWarnings("unchecked")
 	public Observable<Event> as() {
 		return Observable.create((Observable.OnSubscribe<Event>)(aSubscriber -> {
 		  try {

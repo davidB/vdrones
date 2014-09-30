@@ -1,8 +1,19 @@
+buildscript {
+	repositories {
+		jcenter()
+		mavenLocal()
+	}
+	dependencies {
+		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.2.2"
+	}
+}
+
+apply plugin: 'net.alchim31.getdown'
 apply plugin: 'java'
-apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 // NetBeans will automatically add "run" and "debug" tasks relying on the
@@ -12,63 +23,66 @@ sourceCompatibility = '1.8'
 // Note however, that you may define your own "run" and "debug" task if you
 // prefer. In this case NetBeans will not add these tasks but you may rely on
 // your own implementation.
-if (!hasProperty('mainClass')) {
-    ext.mainClass = 'vdrones.Main'
+ext.mainClass = 'vdrones.Main'
+if (hasProperty('mainClass')) {
+	ext.mainClass = mainClass
 }
+version = '0.22.0'
+group = 'net.alchim31.vdrones'
 
 repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://oss.sonatype.org/content/groups/public"}
+	mavenCentral()
+	maven { url "http://updates.jmonkeyengine.org/maven/"}
+	maven { url "http://dl.bintray.com/davidb/jme3stuff" }
+	mavenLocal()
 }
 
-//def v_jme = '3.1.0-snapshot-github' //'3.0.10-pre-alpha-svn'//'3.0.0.20140325-SNAPSHOT' //'3.0+2014-04-25'
+
+//def v_jme = '3.0.10'
 def v_jme = '3.1.0-snapshot-github'
 def v_slf4j = '1.7.7'
 
 dependencies {
-    //provided 'org.projectlombok:lombok:1.14.2'
-    compile 'org.projectlombok:lombok:1.14.2'
-    compile "com.jme3:jme3-core:${v_jme}"
-    compile "com.jme3:jme3-effects:${v_jme}"
-    compile "com.jme3:jme3-jbullet:${v_jme}"
-    compile "org.slf4j:slf4j-api:${v_slf4j}"
-    compile "com.jme3x:jfx:1.20140626160040.f4c31d0"
-    //compile 'com.google.inject:guice:4.0-beta4'
-    compile 'com.squareup.dagger:dagger:1.2.2'
-    compile 'com.squareup.dagger:dagger-compiler:1.2.2'
-    compile 'net.alchim31.jmex:jmbullet:0.1.0'
-    //compile 'com.simsilica:zay-es:0.0.0+r1203'
-    runtime "com.jme3:jme3-lwjgl:${v_jme}"
-    //runtime "com.jme3:jme3-lwjgl-natives:${v_jme}" //workaround
-    //runtime "com.jme3:jme3-jogl:${v_jme}"
-    //runtime 'org.jogamp.gluegen:gluegen-rt:2.1.5-01:natives-linux-amd64@jar'
-    runtime "com.jme3:jme3-desktop:${v_jme}"
-    runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
-    compile 'com.netflix.rxjava:rxjava-core:0.19.2'
-    testCompile 'junit:junit:4.11'
+	//provided 'org.projectlombok:lombok:1.14.2'
+	compile 'org.projectlombok:lombok:1.14.2'
+	compile "com.jme3:jme3-core:${v_jme}"
+	compile "com.jme3:jme3-effects:${v_jme}"
+	compile "com.jme3:jme3-jbullet:${v_jme}"
+	compile "org.slf4j:slf4j-api:${v_slf4j}"
+	compile "com.jme3x:jfx:1.20140928141716.3a27fb5"
+	compile 'com.squareup.dagger:dagger:1.2.2'
+	compile 'com.squareup.dagger:dagger-compiler:1.2.2'
+	compile 'net.alchim31.jmex:jmbullet:0.1.0'
+	compile 'com.netflix.rxjava:rxjava-core:0.19.2'
+	runtime "com.jme3:jme3-lwjgl:${v_jme}"
+	runtime "com.jme3:jme3-desktop:${v_jme}"
+	runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
+	testCompile 'junit:junit:4.11'
+	testCompile 'org.mockito:mockito-core:1.8.5'
+	getdown 'com.threerings:getdown:1.4-SNAPSHOT'
 }
 
 
 sourceSets {
-    main {
-        java {
-            srcDirs = ["$projectDir/src"]
-        }
-        resources {
-            srcDirs = ["assets"]
-            exclude "**/*.blend*"
-        }
-    }
-    test {
-        java {
-            srcDirs = ["$projectDir/test"]
-        }
-    }
+	main {
+		resources {
+			srcDirs = ["$projectDir/src/main/resources", "$projectDir/src/main/assets", "$projectDir/assets"]
+			exclude "**/*.blend*"
+		}
+	}
 }
 
 task copyDeps(type: Copy) {
-  from (configurations.runtime + configurations.testCompile)
-  into 'lib'
+	from (configurations.runtime + configurations.testCompile)
+	into 'lib'
 }
 
+
+import bundles.Platform
+getdown {
+	urlbase = "http://alchim31.net/download/${project.name}"
+	mainClassName = 'vdrones.Main'
+	jvmArgs = ["-ea"]
+	//platforms = [Platform.LINUX_I586, Platform.LINUX_X64, Platform.WINDOWS_I586] //Platform.values()
+	tmplGetdownTxt = tmplGetdownTxt + "\nallow_offline = true"
+}

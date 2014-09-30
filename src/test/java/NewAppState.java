@@ -6,6 +6,8 @@
 
 
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -17,8 +19,6 @@ import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import lombok.extern.java.Log;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -28,14 +28,14 @@ public class NewAppState extends AbstractAppState {
     Node rootNode;
 
     SceneGraphVisitor visitor = new SceneGraphVisitorDemo();
-    
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         rootNode = ((SimpleApplication) app).getRootNode();
         rootNode.depthFirstTraversal(visitor);
     }
-    
+
     @Override
     public void setEnabled(boolean v) {
         if (v) {
@@ -43,11 +43,11 @@ public class NewAppState extends AbstractAppState {
         }
         super.setEnabled(v);
     }
-    
+
     @Override
     public void update(float tpf) {
     }
-    
+
     @Override
     public void cleanup() {
         super.cleanup();

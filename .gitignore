@@ -21,3 +21,4 @@ lib
 # netbeans
 **/private
 **/genfiles.properties
+/.nb-gradle/profiles/jme.profile

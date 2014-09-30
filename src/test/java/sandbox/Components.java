@@ -12,13 +12,14 @@ import java.util.TreeMap;
  * @param <Id> the type of Entity (eg Long, String)
  * @TODO sample and documentation
  */
+@SuppressWarnings("unchecked")
 class Components<Id> {
-	public final ObservableMap<Class<?>, ObservableMap<Id, ?>> data =  new ObservableMap(new TreeMap<Class<?>, ObservableMap<Id, ?>>());
+	public final ObservableMap<Class<?>, ObservableMap<Id, ?>> data =  new ObservableMap<>(new TreeMap<Class<?>, ObservableMap<Id, ?>>());
 
 	public <T> ObservableMap<Id, T> find(Class<T> clazz) {
 		ObservableMap<Id, T> b = (ObservableMap<Id, T>) data.get(clazz);
 		if (b == null) {
-			b = new ObservableMap(new TreeMap<Id, T>());
+			b = new ObservableMap<>(new TreeMap<Id, T>());
 			data.put(clazz, b);
 		}
 		return b;

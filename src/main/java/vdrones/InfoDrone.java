@@ -3,9 +3,10 @@ package vdrones;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.Observer;
@@ -17,8 +18,6 @@ import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 import rx_ext.SubscriptionsMap;
 import vdrones.InfoDrone.State;
-
-import javax.inject.Inject;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
@@ -303,7 +302,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 		case exiting :
 			jme.enqueue(() -> {
 				// stop displacement
-				val phy0 = drone.node.getControl(RigidBodyControl.class);
+				RigidBodyControl phy0 = drone.node.getControl(RigidBodyControl.class);
 				phy0.setMass(0);
 				phy0.clearForces();
 				animator.play(drone.node, "exiting");

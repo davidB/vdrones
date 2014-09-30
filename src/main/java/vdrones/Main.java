@@ -1,7 +1,5 @@
 package vdrones;
 
-import lombok.val;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.math.ColorRGBA;
@@ -44,7 +42,7 @@ public class Main {
 
 	static public void setDebug(SimpleApplication app, boolean v) {
 		app.enqueue(() -> {
-			val s = app.getStateManager().getState(BulletAppState.class);
+			BulletAppState s = app.getStateManager().getState(BulletAppState.class);
 			if (s != null) s.setDebugEnabled(v);
 			app.getInputManager().setCursorVisible(v);
 			app.getViewPort().setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
