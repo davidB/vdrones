@@ -4,7 +4,7 @@ buildscript {
 		mavenLocal()
 	}
 	dependencies {
-		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.2.2"
+		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.3.2"
 	}
 }
 
@@ -38,18 +38,19 @@ repositories {
 }
 
 
-//def v_jme = '3.0.10'
-def v_jme = '3.1.0-snapshot-github'
+def v_jme = '3.0.10'
+//def v_jme = '3.1.0-snapshot-github'
 def v_slf4j = '1.7.7'
 
 dependencies {
 	//provided 'org.projectlombok:lombok:1.14.2'
+	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
 	compile 'org.projectlombok:lombok:1.14.2'
 	compile "com.jme3:jme3-core:${v_jme}"
 	compile "com.jme3:jme3-effects:${v_jme}"
 	compile "com.jme3:jme3-jbullet:${v_jme}"
 	compile "org.slf4j:slf4j-api:${v_slf4j}"
-	compile "com.jme3x:jfx:1.20140928141716.3a27fb5"
+	compile "com.jme3x:jfx:1.+"
 	compile 'com.squareup.dagger:dagger:1.2.2'
 	compile 'com.squareup.dagger:dagger-compiler:1.2.2'
 	compile 'net.alchim31.jmex:jmbullet:0.1.0'
@@ -59,7 +60,6 @@ dependencies {
 	runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
 	testCompile 'junit:junit:4.11'
 	testCompile 'org.mockito:mockito-core:1.8.5'
-	getdown 'com.threerings:getdown:1.4-SNAPSHOT'
 }
 
 
