@@ -63,6 +63,11 @@ class JfxModule {
 	}
 }
 
+/**
+ * Modules definition use by Main (player/live version)
+ *
+ * @author David Bernard
+ */
 @Module(
 	injects = {
 		SimpleApplication.class,
@@ -84,8 +89,8 @@ class GameModule {
 		};
 		app.setSettings(appSettings());
 		app.setShowSettings(true);
-		app.setDisplayStatView(true);
-		app.setDisplayFps(true);
+		app.setDisplayStatView(false);
+		app.setDisplayFps(false);
 		app.start();
 		return app;
 	}
@@ -93,7 +98,8 @@ class GameModule {
 	@Singleton
 	@Provides
 	public AppSettings appSettings() {
-		AppSettings settings = new AppSettings(true);
+		AppSettings settings = new AppSettings(false);
+		settings.setTitle("VDrones");
 		//settings.setResolution(640,480);
 		//	settings.setRenderer("JOGL");
 		//	settings.setRenderer(AppSettings.LWJGL_OPENGL3);
@@ -104,5 +110,52 @@ class GameModule {
 //	public AppStateCamera appStateCamera(AppStateManager mgr) {
 //		return mgr.getState(AppStateCamera.class);
 //	}
+
+}
+
+/**
+ * Module definition use by Main (dev0 version)
+ *
+ * @author David Bernard
+ */
+@Module(
+	injects = {
+		SimpleApplication.class,
+		AppStateInGame.class,
+	},
+	includes = {
+		JmeModule.class,
+		JfxModule.class
+	}
+)
+class Game0Module {
+	@Singleton
+	@Provides
+	public SimpleApplication simpleApplication(AppSettings appSettings) {
+		SimpleApplication app = new SimpleApplication(){
+			@Override
+			public void simpleInitApp() {
+			}
+		};
+		app.setSettings(appSettings());
+		app.setShowSettings(false);
+		app.setDisplayStatView(true);
+		app.setDisplayFps(true);
+		app.start();
+		return app;
+	}
+
+	@Singleton
+	@Provides
+	public AppSettings appSettings() {
+		AppSettings settings = new AppSettings(true);
+		settings.setResolution(1280, 720);
+		settings.setVSync(false);
+		settings.setFullscreen(false);
+		settings.setDepthBits(24);
+		//settings.setCustomRenderer(LwjglDisplayCustom.class);
+		settings.setTitle("VDrones Dev");
+		return settings;
+	}
 
 }
