@@ -1,8 +1,6 @@
 package vdrones;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.math.ColorRGBA;
 
 import dagger.ObjectGraph;
 
@@ -24,20 +22,20 @@ public class Main0 extends Main{
 
 		app.enqueue(()-> {
 			app.getStateManager().attach(injector.get(AppStateInGame.class));
+			setDebug(app, true, injector);
 			return true;
 		});
 		setAspectRatio(app, 16, 9);
-		setDebug(app, true);
 	}
 
 
-	static public void setDebug(SimpleApplication app, boolean v) {
+	static public void setDebug(SimpleApplication app, boolean v, ObjectGraph injector) {
 		app.enqueue(() -> {
-			BulletAppState s = app.getStateManager().getState(BulletAppState.class);
-			if (s != null) s.setDebugEnabled(v);
-			app.getInputManager().setCursorVisible(v);
-			app.getViewPort().setBackgroundColor(v? ColorRGBA.Pink : ColorRGBA.White);
-			//Display.setResizable(v);
+			if (v) {
+				app.getStateManager().attach(injector.get(AppStateDebug.class));
+			} else {
+				app.getStateManager().detach(app.getStateManager().getState(AppStateDebug.class));
+			}
 			return true;
 		});
 	}

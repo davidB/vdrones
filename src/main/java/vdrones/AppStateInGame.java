@@ -4,9 +4,7 @@ import javax.inject.Inject;
 
 import lombok.RequiredArgsConstructor;
 
-import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
-import com.jme3.app.StatsAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.BulletAppState;
 
@@ -20,17 +18,17 @@ public class AppStateInGame extends AppState0{
 	final AppStateHudInGame appStateHudInGame;
 	final AppStateGameLogic appStateGameLogic;
 	final AppStateDroneExit appStateDroneExit;
+	final AppStateDeferredRendering appStateDeferredRendering;
 
 	@Override
 	protected void doInitialize() {
 		AppStateManager stateManager = app.getStateManager();
 		stateManager.detach(stateManager.getState(FlyCamAppState.class));
-		stateManager.attach(new StatsAppState());
-		stateManager.attach(new DebugKeysAppState());
 		//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
 		stateManager.attach(new BulletAppState());
+		stateManager.attach(appStateDeferredRendering);
 		stateManager.attach(appStatePostProcessing);
-		stateManager.attach(appStateLights);
+		//stateManager.attach(appStateLights);
 		stateManager.attach(appStateCamera);
 		stateManager.attach(appStateGameLogic);
 		stateManager.attach(physicsCollisionListenerAll);
@@ -41,12 +39,11 @@ public class AppStateInGame extends AppState0{
 
 	protected void doDispose() {
 		AppStateManager stateManager = app.getStateManager();
-		stateManager.detach(stateManager.getState(StatsAppState.class));
-		stateManager.detach(stateManager.getState(DebugKeysAppState.class));
 		//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
 		stateManager.detach(stateManager.getState(BulletAppState.class));
+		stateManager.detach(appStateDeferredRendering);
 		stateManager.detach(appStatePostProcessing);
-		stateManager.detach(appStateLights);
+		//stateManager.detach(appStateLights);
 		stateManager.detach(appStateCamera);
 		stateManager.detach(appStateGameLogic);
 		stateManager.detach(physicsCollisionListenerAll);

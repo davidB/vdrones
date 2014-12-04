@@ -24,13 +24,13 @@ public class Pipes {
 		);
 	}
 
-	public static Subscription pipe(Observable<CfgArea> l, AppStateLights lights) {
-		// TODO manage remove of light
-		return Subscriptions.from(
-				l.flatMap(v -> Observable.from(v.lights)).subscribe((v) -> lights.addLight(v))
-			//, l.removeLight.subscribe((v) -> lights.removeLight(v))
-		);
-	}
+//	public static Subscription pipe(Observable<CfgArea> l, AppStateLights lights) {
+//		// TODO manage remove of light
+//		return Subscriptions.from(
+//				l.flatMap(v -> Observable.from(v.lights)).subscribe((v) -> lights.addLight(v))
+//			//, l.removeLight.subscribe((v) -> lights.removeLight(v))
+//		);
+//	}
 
 	static Subscription pipe(Observable<InfoDrone> drone, InputManager inputManager) {
 		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_LEFT), new KeyTrigger(KeyInput.KEY_A), new KeyTrigger(KeyInput.KEY_Q));

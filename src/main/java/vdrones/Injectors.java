@@ -2,11 +2,16 @@ package vdrones;
 
 import javax.inject.Singleton;
 
+import jme3_ext_deferred.MatIdManager;
+import jme3_ext_deferred.MaterialConverter;
+import jme3_ext_deferred.SceneProcessor4Deferred;
+
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.InputManager;
+import com.jme3.renderer.lwjgl.LwjglDisplayCustom;
 import com.jme3.system.AppSettings;
 import com.jme3x.jfx.GuiManager;
 import com.jme3x.jfx.cursor.ICursorDisplayProvider;
@@ -63,6 +68,28 @@ class JfxModule {
 	}
 }
 
+@Module(library=true, complete=false)
+class DeferredModule {
+
+	@Singleton
+	@Provides
+	public MatIdManager matIdManager() {
+		return new MatIdManager();
+	}
+
+	@Singleton
+	@Provides
+	public SceneProcessor4Deferred sceneProcessor4Deferred(AssetManager a, MatIdManager m) {
+		return new SceneProcessor4Deferred(a, m);
+	}
+
+	@Singleton
+	@Provides
+	public MaterialConverter mc(AssetManager a, MatIdManager m) {
+		return new MaterialConverter(a,m);
+	}
+}
+
 /**
  * Modules definition use by Main (player/live version)
  *
@@ -75,7 +102,8 @@ class JfxModule {
 	},
 	includes = {
 		JmeModule.class,
-		JfxModule.class
+		JfxModule.class,
+		DeferredModule.class
 	}
 )
 class GameModule {
@@ -100,9 +128,11 @@ class GameModule {
 	public AppSettings appSettings() {
 		AppSettings settings = new AppSettings(false);
 		settings.setTitle("VDrones");
-		//settings.setResolution(640,480);
-		//	settings.setRenderer("JOGL");
-		//	settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+		settings.setResolution(1280, 720);
+		settings.setVSync(true);
+		settings.setFullscreen(false);
+		settings.setDepthBits(24);
+		settings.setCustomRenderer(LwjglDisplayCustom.class);
 		return settings;
 	}
 //
@@ -125,7 +155,8 @@ class GameModule {
 	},
 	includes = {
 		JmeModule.class,
-		JfxModule.class
+		JfxModule.class,
+		DeferredModule.class
 	}
 )
 class Game0Module {
@@ -139,8 +170,8 @@ class Game0Module {
 		};
 		app.setSettings(appSettings());
 		app.setShowSettings(false);
-		app.setDisplayStatView(true);
-		app.setDisplayFps(true);
+		app.setDisplayStatView(false);
+		app.setDisplayFps(false);
 		app.start();
 		return app;
 	}
@@ -153,7 +184,7 @@ class Game0Module {
 		settings.setVSync(false);
 		settings.setFullscreen(false);
 		settings.setDepthBits(24);
-		//settings.setCustomRenderer(LwjglDisplayCustom.class);
+		settings.setCustomRenderer(LwjglDisplayCustom.class);
 		settings.setTitle("VDrones Dev");
 		return settings;
 	}

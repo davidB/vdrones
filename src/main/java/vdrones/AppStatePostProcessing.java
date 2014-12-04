@@ -27,13 +27,6 @@ public class AppStatePostProcessing extends AppState0 {
 		AppSettings settings = app.getContext().getSettings();
 		fpp = new FilterPostProcessor(assets);
 
-		// See if sampling is enabled
-		boolean aa = settings.getSamples() != 0;
-		log.info("antialias enabling : {}", aa);
-		if( aa ) {
-			fpp.setNumSamples(settings.getSamples());
-		}
-
 		// Setup Bloom
 		//--------------------------------------
 		BloomFilter bloom = new BloomFilter();
@@ -44,6 +37,12 @@ public class AppStatePostProcessing extends AppState0 {
 
 		// Setup FXAA only if regular AA is off
 		//--------------------------------------
+		// See if sampling is enabled
+		boolean aa = settings.getSamples() != 0;
+		log.info("antialias enabling : {}", aa);
+		if( aa ) {
+			fpp.setNumSamples(settings.getSamples());
+		}
 		FXAAFilter fxaa = new FXAAFilter();
 		fxaa.setEnabled(!aa);
 		fpp.addFilter(fxaa);
@@ -65,6 +64,7 @@ public class AppStatePostProcessing extends AppState0 {
 
 	@Override
 	protected void doEnable() {
+		System.out.println("POSTPROCESSING");
 		ViewPort viewport = app.getViewPort();
 		viewport.addProcessor(fpp);
 	}

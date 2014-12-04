@@ -55,7 +55,7 @@ public class AppStateDroneExit extends AppState0 {
 			for(InfoDrone drone : drones){
 				drone.node.getWorldTranslation().subtract(loc.position, segment);
 				segment.y = 0; // flat into plan XZ
-				log.info("dist {}", segment.length());
+				//log.info("dist {}", segment.length());
 				if (segment.length() <= drone.cfg.exitRadius) {
 					drones.remove(drone);
 					drone.stateReq.onNext(InfoDrone.State.exiting);

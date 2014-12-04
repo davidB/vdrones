@@ -63,7 +63,7 @@ public class AppStateGameLogic extends AppState0 {
 	Subscription pipeAll(){
 		return Subscriptions.from(
 			Pipes.pipeA(channels.areaCfgs, geometryAndPhysic, entityFactory)
-			, Pipes.pipe(channels.areaCfgs, app.getStateManager().getState(AppStateLights.class))
+			//, Pipes.pipe(channels.areaCfgs, app.getStateManager().getState(AppStateLights.class))
 			, Pipes.pipe(channels.drones, app.getInputManager())
 			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
 			,channels.areaCfgs.subscribe(new ObserverPrint<CfgArea>("channels.areaCfgs"))

@@ -21,7 +21,7 @@ class CfgArea {
 	String name;
 	float timeout;
 
-	final List<Light> lights = new ArrayList<>();
+	//final List<Light> lights = new ArrayList<>();
 	final List<Spatial> bg = new ArrayList<>();
 	final List<List<Rectangle>> cubeZones = new ArrayList<>();
 	final List<Location> spawnPoints = new ArrayList<>();

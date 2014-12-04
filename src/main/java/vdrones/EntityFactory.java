@@ -13,9 +13,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+
+import jme3_ext_deferred.Helpers4Lights;
+import jme3_ext_deferred.Helpers4Lights.ShadowSourceMode;
+import jme3_ext_deferred.MaterialConverter;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
@@ -27,13 +32,19 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Rectangle;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -79,15 +90,18 @@ class CollisionGroups {
  * @author dwayne
  */
 @Slf4j
+@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class EntityFactory {
 	public static final String LevelName = "scene0";
 	public static final String UD_joints = "joints";
 
-	@Inject
-	public AssetManager assetManager;
+	public final AssetManager assetManager;
+	public final MaterialConverter mc;
 
 	public CfgArea newLevel(String name) {
-		return newLevel(assetManager.loadModel("Scenes/"+ name + ".j3o"));
+		Spatial b = assetManager.loadModel("Scenes/"+ name + ".j3o");
+		b.breadthFirstTraversal(mc);
+		return newLevel(b);
 	}
 
 	public CfgArea newLevel(Spatial src) {
@@ -99,7 +113,8 @@ public class EntityFactory {
 		CfgArea a = new CfgArea();
 		a.name = level.getName();
 		for (Light l : level.getLocalLightList()) {
-			a.lights.add(l);
+			//a.lights.add(l);
+			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
 		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
 		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
@@ -159,6 +174,7 @@ public class EntityFactory {
 		Spatial b = new Geometry(src.getName(), shape);
 		log.info("check mwall : {}", Tools.checkIndexesOfPosition(b));
 		b.setMaterial(assetManager.loadMaterial("Materials/mwall.j3m"));
+		b.breadthFirstTraversal(mc);
 		copyCtrlAndTransform(src, b);
 		Vector3f halfExtents = new Vector3f(shape.getXExtent(), shape.getYExtent(), shape.getZExtent())
 		//.multLocal(0.5f)
@@ -175,6 +191,8 @@ public class EntityFactory {
 
 	public Spatial newSpawnPoint(Location loc) {
 		Spatial b = assetManager.loadModel("Models/spawnPoint.j3o");
+		b.breadthFirstTraversal(mc);
+		b.setShadowMode(ShadowMode.CastAndReceive);
 		//log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
 		b.setLocalRotation(loc.orientation);
 		b.setLocalTranslation(loc.position);
@@ -183,6 +201,8 @@ public class EntityFactory {
 
 	public Spatial newExitPoint(Location loc) {
 		Spatial b = assetManager.loadModel("Models/exitPoint.j3o");
+		b.breadthFirstTraversal(mc);
+		b.setShadowMode(ShadowMode.CastAndReceive);
 		b.setLocalRotation(loc.orientation);
 		b.setLocalTranslation(loc.position);
 		return b;
@@ -212,6 +232,8 @@ public class EntityFactory {
 		Box mesh = new Box(0.5f, 0.5f, 0.5f);
 		Geometry geom = new Geometry("cube", mesh);
 		geom.setMaterial(assetManager.loadMaterial("Materials/cube.j3m"));
+		geom.breadthFirstTraversal(mc);
+		geom.setShadowMode(ShadowMode.CastAndReceive);
 		b.attachChild(geom);
 
 		CollisionShape shape0 = new SphereCollisionShape(0.5f);
@@ -242,6 +264,8 @@ public class EntityFactory {
 
 	public Node asDrone(Node b) {
 		Spatial m = assetManager.loadModel("Models/drone.j3o");
+		m.breadthFirstTraversal(mc);
+		m.setShadowMode(ShadowMode.CastAndReceive);
 		m.setName("model");
 		//Geometry geom = Spatials.findGeom(m, "Cube.0011");
 		b.attachChild(m);
