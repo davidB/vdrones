@@ -1,7 +1,7 @@
 buildscript {
 	repositories {
-		jcenter()
 		mavenLocal()
+		jcenter()
 	}
 	dependencies {
 		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.3.2"
@@ -31,10 +31,10 @@ version = '0.22.0'
 group = 'net.alchim31.vdrones'
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 	maven { url "http://updates.jmonkeyengine.org/maven/"}
 	maven { url "http://dl.bintray.com/davidb/jme3stuff" }
-	mavenLocal()
 }
 
 
