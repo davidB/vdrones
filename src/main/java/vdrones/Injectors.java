@@ -152,6 +152,7 @@ class GameModule {
 	injects = {
 		SimpleApplication.class,
 		AppStateInGame.class,
+		AppStateDebug.class
 	},
 	includes = {
 		JmeModule.class,
