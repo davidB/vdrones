@@ -1,6 +1,6 @@
-Material My Material : Common/MatDefs/Misc/ShowNormals.j3md {
-     MaterialParameters {
-     }
-    AdditionalRenderState {
+Material My Material : MatDefs/cube.j3md {
+    MaterialParameters {
+        ColorM : 0.5 0.5 0.4 1.0
+        ColorA : 0.5 0.5 0.6 0.0
     }
 }

@@ -1,23 +1,9 @@
-Material MyMaterial : Common/MatDefs/Light/Lighting.j3md {
+Material MyMaterial : MatDefs/deferred/gbuffer.j3md {
     MaterialParameters {
-        Minnaert : true
         Specular : 1.0 0.58345336 0.8598014 1.0
-        Diffuse : 0.5158146 0.37532908 0.64000005 1.0
-        UseMaterialColors : true
-        ParallaxHeight : 0.05
-        Ambient : 1.0 0.58345336 0.8598014 1.0
-        Shininess : 20.0
-        WardIso : false
+        Color : 0.5158146 0.37532908 0.64000005 1.0
     }
     AdditionalRenderState {
-      FaceCull Back
-      Wireframe Off
-      DepthWrite On
-      PolyOffset 0.0 0.0
-      AlphaTestFalloff 0.0
-      Blend Off
-      PointSprite Off
-      ColorWrite On
-      DepthTest On
+      PolyOffset -1.0 0.1
     }
 }

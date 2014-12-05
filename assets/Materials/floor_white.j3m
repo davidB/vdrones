@@ -1,26 +1,6 @@
-Material floor_white : Common/MatDefs/Light/Lighting.j3md {
+Material floor_white : MatDefs/deferred/gbuffer.j3md {
     MaterialParameters {
-        Minnaert : false
         Specular : 0.95 0.95 0.95 1.0
-        Diffuse : 1.0 1.0 1.0 1.0
-        UseMaterialColors : true
-        ParallaxHeight : 0.05
-        Ambient : 1.0 1.0 1.0 1.0
-        Shininess : 0.0
-        WardIso : false
-        UseVertexColor : false
-        VTangent : false
-        ShadowIntensity : 1.0
-    }
-    AdditionalRenderState {
-      FaceCull Off
-      Wireframe Off
-      DepthWrite On
-      PolyOffset 0.0 0.0
-      AlphaTestFalloff 0.0
-      Blend Off
-      PointSprite Off
-      ColorWrite On
-      DepthTest On
+        Color : 1.0 1.0 1.0 1.0
     }
 }
