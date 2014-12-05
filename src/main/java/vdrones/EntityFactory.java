@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import javax.inject.Inject;
 
 import jme3_ext_deferred.Helpers4Lights;
-import jme3_ext_deferred.Helpers4Lights.ShadowSourceMode;
 import jme3_ext_deferred.MaterialConverter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
@@ -32,14 +30,9 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.SixDofSpringJoint;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Rectangle;
 import com.jme3.math.Transform;
@@ -54,7 +47,6 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
-import com.jme3.scene.shape.Sphere;
 class CollisionGroups {
 	static final int NONE = 0;
 	static final int DRONE = 1;
@@ -108,12 +100,13 @@ public class EntityFactory {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(src));
 		PlaceHolderReplacer replacer = new PlaceHolderReplacer();
 		replacer.factory = this;
+		replacer.assetManager = assetManager;
 		Spatial level = replacer.replaceTree(src.deepClone());
+		level.breadthFirstTraversal(mc);
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
 		a.name = level.getName();
 		for (Light l : level.getLocalLightList()) {
-			//a.lights.add(l);
 			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
 		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
@@ -428,9 +421,9 @@ public class EntityFactory {
 
 }
 
-@Slf4j
 class PlaceHolderReplacer {
 	EntityFactory factory;
+	AssetManager assetManager;
 
 	public Spatial replaceTree(Spatial root) {
 		Spatial rootbis = replace(root);
@@ -448,36 +441,22 @@ class PlaceHolderReplacer {
 	public Spatial replace(Spatial spatial) {
 		Spatial b = spatial;
 		if (spatial instanceof Geometry) {
-			Mesh mesh = ((Geometry) spatial).getMesh();
-			b = (mesh instanceof Box)? replace(spatial, (Box) mesh)
-					: (mesh instanceof Sphere)? replace(spatial, (Sphere) mesh)
-							: spatial
-							;
+			String kind = spatial.getName().split("\\.")[0];
+			switch(kind) {
+			case "wall" :
+				spatial.setMaterial(assetManager.loadMaterial("Materials/wall.j3m"));
+				spatial.setShadowMode(ShadowMode.Receive);
+				b = spatial;
+				break;
+			case "floor" :
+				spatial.setMaterial(assetManager.loadMaterial("Materials/floor_white.j3m"));
+				spatial.setShadowMode(ShadowMode.Receive);
+				b = spatial;
+				break;
+			}
 		}
 		return b;
 	}
-
-	public Spatial replace(Spatial spatial, Box shape) {
-		log.debug("{} as box x({}), y({}), z({})", spatial.getName(), shape.getXExtent(), shape.getYExtent(), shape.getZExtent());
-		Spatial b;
-		switch(spatial.getName()) {
-		case "mwall" :
-			b = factory.newMWall(spatial, shape);
-			break;
-			//            case "spawner" :
-			//                b = factory.newSpawner(spatial);
-			//                break;
-		default:
-			b = spatial;
-		}
-		return b;
-	}
-
-	public Spatial replace(Spatial src, Sphere shape) {
-		log.warn("NOT Implemented as sphere : {}({},{},{})",src.getName(), shape.getZSamples(), shape.getRadialSamples(), shape.getRadius());
-		return src;
-	}
-
 }
 
 class Tools {
