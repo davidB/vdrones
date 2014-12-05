@@ -30,7 +30,7 @@ public class AppStatePostProcessing extends AppState0 {
 		// Setup Bloom
 		//--------------------------------------
 		BloomFilter bloom = new BloomFilter();
-		bloom.setEnabled(true);
+		bloom.setEnabled(false);
 		bloom.setExposurePower(55);
 		bloom.setBloomIntensity(1.0f);
 		fpp.addFilter(bloom);
