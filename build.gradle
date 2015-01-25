@@ -14,7 +14,7 @@ apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/
 apply plugin: 'application'
 
 version = '0.23.0'
-group = 'net.alchim31.vdrones'
+group = 'net.alchim31.games'
 mainClassName = 'vdrones.Main'
 applicationDefaultJvmArgs = ['-ea']
 
@@ -24,6 +24,7 @@ def v_slf4j = '1.7.7'
 
 dependencies {
 	provided 'org.projectlombok:lombok:1.14.2'
+	compile 'net.alchim31.jme3:jme3_ext:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
 	compile "com.jme3:jme3-core:${v_jme}"
@@ -45,8 +46,11 @@ dependencies {
 		exclude module: "jinput"
 	}
 	runtime 'net.java.jinput:jinput:2.0.6'
-	//runtime "com.jme3:jme3-jogg:${v_jme}"
-	runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
+	runtime "com.jme3:jme3-jogg:${v_jme}"
+	//runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
+	runtime "org.slf4j:jul-to-slf4j:${v_slf4j}"
+	runtime 'ch.qos.logback:logback-classic:1.1.2'
+	runtime 'net.alchim31.jme3:jme3_ext:0.2.0:textures'
 	testCompile 'junit:junit:4.11'
 	testCompile 'org.mockito:mockito-core:1.8.5'
 }

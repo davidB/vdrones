@@ -2,6 +2,7 @@ package vdrones;
 
 import javax.inject.Inject;
 
+import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
 
 import com.jme3.app.SimpleApplication;
@@ -50,6 +51,7 @@ class CameraFollower{
     }
 }
 
+//TODO Convert into a Control to plug on a CameraNode
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 class AppStateCamera extends AppState0 {
 
@@ -76,13 +78,15 @@ class AppStateCamera extends AppState0 {
 
     @Override
     public void doUpdate(float tpf) {
-        Spatial target = follower.target;
-        float step = Math.min(1.0f, tpf * 4.0f);
-        offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation(), true);
-        camera.setLocation(approachMulti(v0, camera.getLocation(), step));
-        // TODO approachMulti on v0
-        offsetPosition(v0, follower.lookAtOffset, target.getWorldTranslation(), target.getWorldRotation(), false);
-        camera.lookAt(v0, follower.up);
+    	if (follower != null) {
+	        Spatial target = follower.target;
+	        float step = Math.min(1.0f, tpf * 4.0f);
+	        offsetPosition(v0, follower.positionOffset, target.getWorldTranslation(), target.getWorldRotation(), true);
+	        camera.setLocation(approachMulti(v0, camera.getLocation(), step));
+	        // TODO approachMulti on v0
+	        offsetPosition(v0, follower.lookAtOffset, target.getWorldTranslation(), target.getWorldRotation(), false);
+	        camera.lookAt(v0, follower.up);
+    	}
     }
 
     private float approachMulti(float target, float current, float step) {

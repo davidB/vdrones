@@ -2,6 +2,7 @@ package vdrones;
 
 import javax.inject.Inject;
 
+import jme3_ext.AppState0;
 import jme3_ext_deferred.SceneProcessor4Deferred;
 import lombok.RequiredArgsConstructor;
 import rx_ext.Observable4AddRemove;

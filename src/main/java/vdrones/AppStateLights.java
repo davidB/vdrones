@@ -2,6 +2,7 @@ package vdrones;
 
 import javax.inject.Inject;
 
+import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
 
 import com.jme3.light.DirectionalLight;

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import javax.inject.Inject;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
@@ -15,7 +17,6 @@ import rx.subjects.BehaviorSubject;
 import rx.subjects.PublishSubject;
 import rx_ext.SubscriptionsMap;
 
-import javax.inject.Inject;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;

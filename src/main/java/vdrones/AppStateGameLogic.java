@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import rx.Observable;

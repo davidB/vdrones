@@ -2,6 +2,7 @@ package vdrones;
 
 import javax.inject.Inject;
 
+import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
 import rx.Subscriber;
 import rx.Subscription;
@@ -87,7 +88,10 @@ public class AppStateHudInGame extends AppState0 {
 
 	@Override
 	protected void doDisable() {
-		subscription.unsubscribe();
+		if (subscription != null) {
+			subscription.unsubscribe();
+			subscription = null;
+		}
 	}
 
 	@Override

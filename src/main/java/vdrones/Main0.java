@@ -1,10 +1,12 @@
 package vdrones;
 
+import jme3_ext.SetupHelpers;
+
 import com.jme3.app.SimpleApplication;
 
 import dagger.ObjectGraph;
 
-public class Main0 extends Main{
+public class Main0 extends Main1{
 	private static boolean assertionsEnabled;
 	private static boolean enabled() {
 		Main0.assertionsEnabled = true;
@@ -19,18 +21,18 @@ public class Main0 extends Main{
 		}
 		ObjectGraph injector = ObjectGraph.create(new Game0Module());
 		SimpleApplication app = injector.get(SimpleApplication.class);
-
+		//SetupHelpers.disableDefaults(app);
 		app.enqueue(()-> {
-			Main.clearSimpleApplication(app);
 			app.getStateManager().attach(injector.get(AppStateInGame.class));
 			setDebug(app, true, injector);
 			return true;
 		});
-		setAspectRatio(app, 16, 9);
+		//setAspectRatio(app, 16, 9);
 	}
 
 
 	static public void setDebug(SimpleApplication app, boolean v, ObjectGraph injector) {
+		SetupHelpers.setDebug(app, v);
 		app.enqueue(() -> {
 			if (v) {
 				app.getStateManager().attach(injector.get(AppStateDebug.class));

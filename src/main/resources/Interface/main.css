@@ -1,0 +1,73 @@
+/* ref: http://docs.oracle.com/javafx/2/api/javafx/scene/doc-files/cssref.html */
+
+.root{
+	-fx-font-size: 1em;
+	/*-fx-font-family: "Courier New";*/
+	-fx-font-family: "scifly";
+	/*
+	-fx-base: rgb(132, 145, 47);
+	-fx-background-color: rgb(225, 228, 203);
+	*/
+	/*
+	-fx-base: rgb(50, 50, 50);
+	-fx-background: rgb(50, 50, 50);
+	-fx-control-inner-background:  rgb(50, 50, 50);
+	*/
+	-fx-base: rgb(250, 250, 250);
+	-fx-background: rgb(250, 250, 250);
+	-fx-control-inner-background:  rgb(250, 250, 250);
+}
+
+.button{
+	-fx-focus-traversable: true;
+	-fx-text-fill: rgb(55, 55, 73);
+	-fx-border-color: rgba(55, 55, 73, 0);
+	-fx-border-radius: 0;
+	-fx-padding: 3;
+}
+.title {
+	/*-fx-font-family: bobotoh;*/
+	-fx-font-family: "SciFly";
+	-fx-font-size: 8em;
+	-fx-text-fill: rgb(180, 180, 180);
+	-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+	/*
+	-fx-stroke: black;
+	-fx-stroke-width: 10;
+	*/
+	-fx-font-smoothing-type: lcd;
+	/*-fx-text-fill: linear-gradient(from 0% 0% to 100% 100%, red 0%, black 100%)*/
+}
+
+#hudWelcome .menu{
+	-fx-translate-x: -60;
+	-fx-translate-y: -60;
+	-fx-scale-x: 2.0;
+	-fx-scale-y: 2.0;
+}
+
+#hudWelcome .menu .button {
+	-fx-text-fill: rgb(55, 55, 73);
+	-fx-focus-color: transparent;
+	-fx-border-color: transparent;
+	-fx-background-color: transparent;
+	-fx-border-radius: 0;
+	-fx-padding: 3;
+	-fx-scale-x: 0.9;
+	-fx-scale-y: 0.9;
+}
+
+#hudWelcome .menu .button:hover {
+	-fx-scale-x: 1.1;
+	-fx-scale-y: 1.1;
+}
+#hudWelcome {
+	-fx-background-image: url("../Textures/logo_1280x720.png");
+	-fx-background-size: contain;
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center center;
+}
+
+#hudInGame * {
+	-fx-background-color: transparent;
+}
