@@ -1,6 +1,10 @@
-build
-target
-lib
+/build
+/target
+/lib
+/assets
+/log
+*.j3odata
+*.off
 *.class
 *.so
 *.dll
