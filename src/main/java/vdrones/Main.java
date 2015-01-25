@@ -1,6 +1,10 @@
 package vdrones;
 
+import com.jme3.app.DebugKeysAppState;
+import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.app.StatsAppState;
+import com.jme3.app.state.AppStateManager;
 import com.jme3.renderer.Camera;
 
 import dagger.ObjectGraph;
@@ -12,6 +16,7 @@ public class Main {
 		SimpleApplication app = injector.get(SimpleApplication.class);
 
 		app.enqueue(()-> {
+			clearSimpleApplication(app);
 			app.getStateManager().attach(injector.get(AppStateInGame.class));
 			return true;
 		});
@@ -45,10 +50,18 @@ public class Main {
 		});
 	}
 
-	static void cp(Camera src, Camera dest) {
+	public static void cp(Camera src, Camera dest) {
 		if (src != dest) {
 			dest.setViewPort(src.getViewPortLeft(), src.getViewPortRight(), src.getViewPortBottom(), src.getViewPortTop());
 			dest.setFrustum(src.getFrustumNear(), src.getFrustumFar(), src.getFrustumLeft(), src.getFrustumRight(), src.getFrustumTop(), src.getFrustumBottom());
 		}
 	}
+
+	public static void clearSimpleApplication(SimpleApplication app) {
+		AppStateManager stateManager = app.getStateManager();
+		stateManager.detach(stateManager.getState(FlyCamAppState.class));
+		stateManager.detach(stateManager.getState(StatsAppState.class));
+		stateManager.detach(stateManager.getState(DebugKeysAppState.class));
+	}
+
 }

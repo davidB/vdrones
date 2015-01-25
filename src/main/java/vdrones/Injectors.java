@@ -173,6 +173,7 @@ class Game0Module {
 		app.setShowSettings(false);
 		app.setDisplayStatView(false);
 		app.setDisplayFps(false);
+		app.setPauseOnLostFocus(false);
 		app.start();
 		return app;
 	}
@@ -189,5 +190,4 @@ class Game0Module {
 		settings.setTitle("VDrones Dev");
 		return settings;
 	}
-
 }

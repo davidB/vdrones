@@ -4,85 +4,53 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.3.2"
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
+		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
 	}
 }
 
-apply plugin: 'net.alchim31.getdown'
-apply plugin: 'java'
-apply plugin: 'eclipse'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/jme-head.gradle'
+apply plugin: 'application'
 
-// NetBeans will automatically add "run" and "debug" tasks relying on the
-// "mainClass" property. You may however define the property prior executing
-// tasks by passing a "-PmainClass=<QUALIFIED_CLASS_NAME>" argument.
-//
-// Note however, that you may define your own "run" and "debug" task if you
-// prefer. In this case NetBeans will not add these tasks but you may rely on
-// your own implementation.
-ext.mainClass = 'vdrones.Main'
-if (hasProperty('mainClass')) {
-	ext.mainClass = mainClass
-}
-version = '0.22.0'
+version = '0.23.0'
 group = 'net.alchim31.vdrones'
-
-repositories {
-	mavenLocal()
-	mavenCentral()
-	maven { url "http://updates.jmonkeyengine.org/maven/"}
-	maven { url "http://dl.bintray.com/davidb/jme3stuff" }
-}
-
+mainClassName = 'vdrones.Main'
+applicationDefaultJvmArgs = ['-ea']
 
 def v_jme = '3.0.10'
 //def v_jme = '3.1.0-snapshot-github'
 def v_slf4j = '1.7.7'
 
 dependencies {
-	//provided 'org.projectlombok:lombok:1.14.2'
+	provided 'org.projectlombok:lombok:1.14.2'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
-	compile 'org.projectlombok:lombok:1.14.2'
+	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
 	compile "com.jme3:jme3-core:${v_jme}"
 	compile "com.jme3:jme3-effects:${v_jme}"
-	compile "com.jme3:jme3-jbullet:${v_jme}"
+	compile ("com.jme3:jme3-jbullet:${v_jme}"){
+		exclude module: "jbullet"
+		exclude module: "jme3-terrain"
+	}
+	compile ('net.alchim31.jme3:jmbullet:0.3.0'){
+		exclude module: "jbullet"
+	}
 	compile "org.slf4j:slf4j-api:${v_slf4j}"
 	compile "com.jme3x:jfx:1.+"
-	compile 'com.squareup.dagger:dagger:1.2.2'
-	compile 'com.squareup.dagger:dagger-compiler:1.2.2'
-	compile 'net.alchim31.jmex:jmbullet:0.1.0'
+	compile 'com.squareup.dagger:dagger:1.2.+'
+	provided 'com.squareup.dagger:dagger-compiler:1.2.+'
 	compile 'com.netflix.rxjava:rxjava-core:0.19.2'
-	runtime "com.jme3:jme3-lwjgl:${v_jme}"
-	runtime "com.jme3:jme3-desktop:${v_jme}"
+	compile "com.jme3:jme3-lwjgl:${v_jme}"
+	runtime("com.jme3:jme3-desktop:${v_jme}"){
+		exclude module: "jinput"
+	}
+	runtime 'net.java.jinput:jinput:2.0.6'
+	//runtime "com.jme3:jme3-jogg:${v_jme}"
 	runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
 	testCompile 'junit:junit:4.11'
 	testCompile 'org.mockito:mockito-core:1.8.5'
 }
 
-
-sourceSets {
-	main {
-		resources {
-			srcDirs = ["$projectDir/src/main/resources", "$projectDir/src/main/assets", "$projectDir/assets"]
-			exclude "**/*.blend*"
-		}
-	}
-}
-
-task copyDeps(type: Copy) {
-	from (configurations.runtime + configurations.testCompile)
-	into 'lib'
-}
-
-
-import bundles.Platform
-getdown {
-	urlbase = "http://alchim31.net/download/${project.name}"
-	mainClassName = 'vdrones.Main'
-	jvmArgs = ["-ea"]
-	//platforms = [Platform.LINUX_I586, Platform.LINUX_X64, Platform.WINDOWS_I586] //Platform.values()
-	tmplGetdownTxt = tmplGetdownTxt + "\nallow_offline = true"
-}
+apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/hello.gradle'
+apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/copyDeps.gradle'
+apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/getdown.gradle'

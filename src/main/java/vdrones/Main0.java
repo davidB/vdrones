@@ -21,6 +21,7 @@ public class Main0 extends Main{
 		SimpleApplication app = injector.get(SimpleApplication.class);
 
 		app.enqueue(()-> {
+			Main.clearSimpleApplication(app);
 			app.getStateManager().attach(injector.get(AppStateInGame.class));
 			setDebug(app, true, injector);
 			return true;
@@ -39,5 +40,4 @@ public class Main0 extends Main{
 			return true;
 		});
 	}
-
 }
