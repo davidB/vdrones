@@ -144,7 +144,7 @@ class GameSharedModule{
 
 	@Singleton
 	@Provides
-	public PageManager pageManager(SimpleApplication app, PageWelcome pageWelcome, PageSettings pageSettings) {
+	public PageManager pageManager(SimpleApplication app, PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage) {
 		AppState[] pages = new AppState[Pages.values().length];
 		/*
          pages[Page.About.ordinal()] = new PageAbout(screen);
@@ -158,6 +158,7 @@ class GameSharedModule{
 		pages[Pages.Welcome.ordinal()] = pageWelcome;
 		//pages[Pages.InGame.ordinal()] = pageInGame;
 		pages[Pages.Settings.ordinal()] = pageSettings;
+		pages[Pages.Garage.ordinal()] = pageGarage;
 		PageManager pageManager = new PageManager(app.getStateManager(), pages);
 		return pageManager;
 	}

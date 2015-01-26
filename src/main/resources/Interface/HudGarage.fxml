@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+   <children>
+      <VBox id="accelerator" layoutX="416.0" layoutY="85.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label id="propulsion_forward" styleClass="label" text="%propulsion_forward" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <VBox layoutX="36.0" layoutY="102.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label id="rotation_speed" styleClass="label" text="%rotation_speed" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <VBox id="jumper" disable="true" layoutX="72.0" layoutY="238.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label styleClass="label" text="%jumper" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <VBox id="propulsion_side" disable="true" layoutX="14.0" layoutY="185.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label styleClass="label" text="%propulsion_side" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <VBox id="boost_forward" disable="true" layoutX="479.0" layoutY="137.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label styleClass="label" text="%boost_forward" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <VBox id="propulsion_backward" layoutX="451.0" layoutY="220.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
+         <children>
+            <Label styleClass="label" text="%propulsion_backward" />
+            <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+         </children>
+      </VBox>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="258.0" layoutY="14.0" styleClass="subtitle" text="%garage" />
+      <Button fx:id="back" layoutX="1.0" layoutY="334.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="640.0" text="back" />
+      <HBox layoutX="160.0" layoutY="285.0" spacing="10.0">
+         <children>
+            <VBox id="shield_red" disable="true" prefHeight="35.0" prefWidth="100.0" styleClass="indicator_garage">
+               <children>
+                  <Label styleClass="label" text="%shield_red" />
+                  <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+               </children>
+            </VBox>
+            <VBox id="shield_green" disable="true" prefHeight="35.0" prefWidth="100.0" styleClass="indicator_garage">
+               <children>
+                  <Label styleClass="label" text="%shield_green" />
+                  <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+               </children>
+            </VBox>
+            <VBox id="shield_blue" disable="true" prefHeight="35.0" prefWidth="100.0" styleClass="indicator_garage">
+               <children>
+                  <Label styleClass="label" text="%shield_blue" />
+                  <ProgressBar prefWidth="100.0" progress="0.0" styleClass="gauge" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

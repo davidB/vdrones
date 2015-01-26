@@ -4,6 +4,7 @@ enum Pages {
 
 	Welcome,
 	//        LevelSelection,
+	Garage,
 	InGame,
 	//        Loading,
 	//        Result,

@@ -36,6 +36,7 @@ public class PageSettings extends AppState0{
 	@Override
 	public void doInitialize() {
 		hud = hudTools.newHud("Interface/HudSettings.fxml", hudSettings);
+		hudTools.scaleToFit(hud, app.getGuiViewPort());
 	}
 
 	@Override

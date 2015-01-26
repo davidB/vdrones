@@ -50,7 +50,7 @@ public class Main {
 	static void initPages(PageManager pageManager, SimpleApplication app, boolean debug) {
 		app.enqueue(() -> {
 			pageManager.goTo(Pages.Welcome.ordinal());
-			//pageManager.goTo(Page.Settings.ordinal());
+			//pageManager.goTo(Pages.Garage.ordinal());
 			return true;
 		});
 	}

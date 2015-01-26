@@ -305,7 +305,8 @@ public class HudSettings implements Initializable {
 
 					protected ImageView newImageView(URL v) {
 						ImageView imageView = new ImageView(v.toExternalForm());
-						imageView.setFitWidth(64);
+						//HACK
+						imageView.setFitWidth(32);
 						imageView.setPreserveRatio(true);
 						return imageView;
 					}
