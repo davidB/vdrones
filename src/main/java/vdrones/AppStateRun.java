@@ -10,13 +10,12 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.BulletAppState;
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
-public class AppStateInGame extends AppState0{
+public class AppStateRun extends AppState0{
 	final AppStateCamera appStateCamera;
 	final AppStateLights appStateLights;
 	final AppStatePostProcessing appStatePostProcessing;
 	final PhysicsCollisionListenerAll physicsCollisionListenerAll;
 	final AppStateDroneCube appStateDroneCube;
-	final AppStateHudInGame appStateHudInGame;
 	final AppStateGameLogic appStateGameLogic;
 	final AppStateDroneExit appStateDroneExit;
 	final AppStateDeferredRendering appStateDeferredRendering;
@@ -34,7 +33,6 @@ public class AppStateInGame extends AppState0{
 		stateManager.attach(appStateGameLogic);
 		stateManager.attach(physicsCollisionListenerAll);
 		stateManager.attach(appStateDroneCube);
-		stateManager.attach(appStateHudInGame);
 		stateManager.attach(appStateDroneExit);
 	}
 
@@ -49,7 +47,6 @@ public class AppStateInGame extends AppState0{
 		stateManager.detach(appStateGameLogic);
 		stateManager.detach(physicsCollisionListenerAll);
 		stateManager.detach(appStateDroneCube);
-		stateManager.detach(appStateHudInGame);
 		stateManager.detach(appStateDroneExit);
 	}
 }

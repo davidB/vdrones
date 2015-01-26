@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane id="health" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Rectangle fx:id="health" arcHeight="8.0" arcWidth="8.0" height="360.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="640.0">
+         <fill>
+            <RadialGradient centerX="0.5056179775280899" centerY="0.5" focusDistance="-1.1102230246251565E-16" radius="1.0">
+               <stops>
+                  <Stop color="#de170400" />
+                  <Stop color="#de170400" offset="0.37407407407407417" />
+                  <Stop color="#ff050547" offset="0.5074074074074076" />
+                  <Stop color="#ff0505" offset="1.0" />
+               </stops>
+            </RadialGradient>
+         </fill>
+      </Rectangle>
+      <Label id="clock" fx:id="clock" alignment="CENTER_RIGHT" prefHeight="51.0" prefWidth="76.0" text="000" textAlignment="RIGHT" textFill="#e80303" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <font>
+            <Font name="SciFly-Sans" size="43.0" />
+         </font>
+      </Label>
+      <ProgressBar id="energy" fx:id="energy" layoutY="166.0" prefHeight="10.0" prefWidth="154.0" progress="0.0" snapToPixel="false" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="67.0" AnchorPane.rightAnchor="67.0" />
+      <Label id="score" fx:id="score" alignment="CENTER_RIGHT" prefHeight="15.0" prefWidth="43.0" text="0" textAlignment="RIGHT" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+   </children>
+   <effect>
+      <Bloom threshold="0.15" />
+   </effect>
+</AnchorPane>

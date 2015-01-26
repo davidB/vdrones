@@ -4,8 +4,6 @@ package vdrones;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javax.imageio.ImageIO;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;

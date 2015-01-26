@@ -23,7 +23,7 @@ public class Main0 extends Main1{
 		SimpleApplication app = injector.get(SimpleApplication.class);
 		//SetupHelpers.disableDefaults(app);
 		app.enqueue(()-> {
-			app.getStateManager().attach(injector.get(AppStateInGame.class));
+			app.getStateManager().attach(injector.get(AppStateRun.class));
 			setDebug(app, true, injector);
 			return true;
 		});

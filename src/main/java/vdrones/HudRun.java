@@ -1,16 +1,13 @@
-package fxml;
-
-import com.jme3x.jfx.FxPlatformExecutor;
+package vdrones;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
-public class InGame {
-	@FXML
-	private StackPane	root;
+import com.jme3x.jfx.FxPlatformExecutor;
+
+public class HudRun {
 
 	@FXML
 	private Label clock;
@@ -36,8 +33,6 @@ public class InGame {
 		setEnergy(50);
 		setHealthMax(100);
 		setHealth(10);
-		health.widthProperty().bind(root.widthProperty());
-		health.heightProperty().bind(root.heightProperty());
 	}
 
 	public void setHealthMax(float v) {

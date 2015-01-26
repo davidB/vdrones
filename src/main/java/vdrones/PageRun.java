@@ -3,31 +3,34 @@ package vdrones;
 import javax.inject.Inject;
 
 import jme3_ext.AppState0;
+import jme3_ext.Hud;
+import jme3_ext.HudTools;
 import lombok.RequiredArgsConstructor;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
-import com.jme3x.jfx.FXMLHud;
-import com.jme3x.jfx.GuiManager;
-
-import fxml.InGame;
-
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
-public class AppStateHudInGame extends AppState0 {
-	final GuiManager guiManager;
+public class PageRun extends AppState0 {
+	private final HudTools hudTools;
 	final Channels channels;
-	private FXMLHud<InGame> hud;
+	final AppStateRun asRun;
+
+	private boolean prevCursorVisible;
+	private Hud<HudRun> hud;
 	private Subscription subscription;
 
 	@Override
 	public void doInitialize() {
-		hud = new FXMLHud<>("Interface/ingame.fxml");
-		hud.precache();
-		guiManager.attachHudAsync(hud);
+		hud = hudTools.newHud("Interface/HudRun.fxml", new HudRun());
+		hudTools.scaleToFit(hud, app.getGuiViewPort());
 	}
 
 	protected void doEnable() {
+		prevCursorVisible = app.getInputManager().isCursorVisible();
+		app.getInputManager().setCursorVisible(false);
+		hudTools.show(hud);
+
 		//Observable.switchOnNext(channels.droneInfo2s)
 		Subscription s1 = channels.drones.subscribe(new Subscriber<InfoDrone>(){
 			private Subscription subscription = null;
@@ -47,12 +50,12 @@ public class AppStateHudInGame extends AppState0 {
 			@Override
 			public void onNext(InfoDrone t) {
 				terminate();
-				hud.getController().setEnergyMax(t.cfg.energyStoreMax);
-				hud.getController().setHealthMax(t.cfg.healthMax);
+				hud.controller.setEnergyMax(t.cfg.energyStoreMax);
+				hud.controller.setHealthMax(t.cfg.healthMax);
 				subscription = Subscriptions.from(
-					t.energy.subscribe((v) -> hud.getController().setEnergy(v))
-					, t.health.subscribe((v) -> hud.getController().setHealth(v))
-					, t.score.subscribe((v) -> hud.getController().setScore(v))
+					t.energy.subscribe((v) -> hud.controller.setEnergy(v))
+					, t.health.subscribe((v) -> hud.controller.setHealth(v))
+					, t.score.subscribe((v) -> hud.controller.setScore(v))
 				);
 			}
 		});
@@ -79,23 +82,23 @@ public class AppStateHudInGame extends AppState0 {
 				subscription = area.clock
 					.map(v -> v.intValue())
 					.distinctUntilChanged()
-					.subscribe((v) -> hud.getController().setClock(v))
+					.subscribe((v) -> hud.controller.setClock(v))
 					;
 			}
 		});
 		subscription = Subscriptions.from(s1, s2);
+		app.getStateManager().attach(asRun);
 	}
 
 	@Override
 	protected void doDisable() {
+		hudTools.hide(hud);
+		app.getInputManager().setCursorVisible(prevCursorVisible);
+		app.getStateManager().detach(asRun);
+
 		if (subscription != null) {
 			subscription.unsubscribe();
 			subscription = null;
 		}
-	}
-
-	@Override
-	public void doDispose() {
-		guiManager.detachHudAsync(hud);
 	}
 }

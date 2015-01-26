@@ -45,7 +45,7 @@ class PageWelcome extends AppState0 {
 			HudWelcome p = hud.controller;
 			p.play.onActionProperty().set((v) -> {
 				app.enqueue(()-> {
-					pm.get().goTo(Pages.InGame.ordinal());
+					pm.get().goTo(Pages.Run.ordinal());
 					return true;
 				});
 			});

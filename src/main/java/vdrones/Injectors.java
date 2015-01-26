@@ -144,19 +144,10 @@ class GameSharedModule{
 
 	@Singleton
 	@Provides
-	public PageManager pageManager(SimpleApplication app, PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage) {
+	public PageManager pageManager(SimpleApplication app, PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage, PageRun pageRun) {
 		AppState[] pages = new AppState[Pages.values().length];
-		/*
-         pages[Page.About.ordinal()] = new PageAbout(screen);
-         pages[Page.InGame.ordinal()] = new PageInGame(screen);
-         pages[Page.LevelSelection.ordinal()] = new PageLevelSelection(screen);
-         pages[Page.Loading.ordinal()] = new PageLoading(screen);
-         pages[Page.Result.ordinal()] = new PageResult(screen);
-         pages[Page.Scores.ordinal()] = new PageScores(screen);
-         pages[Page.Settings.ordinal()] = new PageSettings(screen);
-		 */
 		pages[Pages.Welcome.ordinal()] = pageWelcome;
-		//pages[Pages.InGame.ordinal()] = pageInGame;
+		pages[Pages.Run.ordinal()] = pageRun;
 		pages[Pages.Settings.ordinal()] = pageSettings;
 		pages[Pages.Garage.ordinal()] = pageGarage;
 		PageManager pageManager = new PageManager(app.getStateManager(), pages);
@@ -226,7 +217,7 @@ class GameSharedModule{
 	injects = {
 		Main.class,
 		SimpleApplication.class,
-		AppStateInGame.class,
+		AppStateRun.class,
 	},
 	includes = {
 		GameSharedModule.class,
@@ -267,7 +258,7 @@ class GameModule {
 @Module(
 	injects = {
 		SimpleApplication.class,
-		AppStateInGame.class,
+		AppStateRun.class,
 		AppStateDebug.class
 	},
 	includes = {
