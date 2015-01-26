@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <VBox id="accelerator" layoutX="416.0" layoutY="85.0" prefHeight="35.0" prefWidth="200.0" styleClass="indicator_garage">
          <children>
@@ -70,5 +69,6 @@
             </VBox>
          </children>
       </HBox>
+      <ComboBox fx:id="profileSelector" disable="true" layoutX="480.0" layoutY="14.0" prefWidth="150.0" promptText="%profiles" />
    </children>
 </AnchorPane>

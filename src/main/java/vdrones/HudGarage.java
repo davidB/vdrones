@@ -7,12 +7,16 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.effect.Glow;
 import javafx.scene.layout.Region;
 
 public class HudGarage implements Initializable{
 	@FXML
 	public Region root;
+
+	@FXML
+	public ComboBox<String> profileSelector;
 
 	@FXML
 	public Button back;
