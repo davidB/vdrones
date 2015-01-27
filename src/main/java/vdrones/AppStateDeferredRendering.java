@@ -19,4 +19,7 @@ public class AppStateDeferredRendering extends AppState0 {
 		app.getViewPort().addProcessor(processor);
 	}
 
+	protected void doDisable() {
+		app.getViewPort().removeProcessor(processor);
+	}
 }
