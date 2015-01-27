@@ -24,6 +24,7 @@ class PageGarage extends AppState0 {
 	private final Provider<PageManager> pm; // use Provider as Hack to break the dependency cycle PageManager -> Page -> PageManager
 	private final InputMapper inputMapper;
 	private final Commands commands;
+	private final AppStateGarage appGarage;
 
 	private boolean prevCursorVisible;
 	private Hud<HudGarage> hud;
@@ -57,10 +58,12 @@ class PageGarage extends AppState0 {
 				//if (!v) hud.controller.quit.fire();
 			})
 		);
+		app.getStateManager().attach(appGarage);
 	}
 
 	@Override
 	protected void doDisable() {
+		app.getStateManager().detach(appGarage);
 		hudTools.hide(hud);
 		app.getInputManager().setCursorVisible(prevCursorVisible);
 		app.getInputManager().removeRawInputListener(inputMapper.rawInputListener);
