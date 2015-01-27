@@ -46,9 +46,9 @@ public class PageSettings extends AppState0{
 		app.getInputManager().addRawInputListener(inputMapper.rawInputListener);
 		hudTools.show(hud);
 		try {
-			audioMusicTest = new AudioNode(app.getAssetManager(), "Sounds/BlackVortex.ogg", true);
+			audioMusicTest = new AudioNode(app.getAssetManager(), "Musics/Hypnothis.ogg", true);
 			audioMusicTest.setLooping(false);
-			audioMusicTest.setPositional(true);
+			audioMusicTest.setPositional(false);
 			audioMgr.musics.add(audioMusicTest);
 			app.getRootNode().attachChild(audioMusicTest);
 		} catch (Exception exc){
@@ -56,7 +56,7 @@ public class PageSettings extends AppState0{
 		}
 
 		try {
-			audioSoundTest = new AudioNode(app.getAssetManager(), "Sounds/Gun.wav", false); // buffered
+			audioSoundTest = new AudioNode(app.getAssetManager(), "Sounds/boost.wav", false); // buffered
 			audioSoundTest.setLooping(false);
 			audioMusicTest.setPositional(false);
 			app.getRootNode().attachChild(audioSoundTest);
@@ -70,19 +70,19 @@ public class PageSettings extends AppState0{
 
 			p.audioMusicTest.onActionProperty().set((e) -> {
 				app.enqueue(()-> {
-					audioMusicTest.play();
+					if (audioMusicTest != null) audioMusicTest.play();
 					return true;
 				});
 			});
-			p.audioMusicTest.setDisable(false);
+			p.audioMusicTest.setDisable(audioMusicTest == null);
 
 			p.audioSoundTest.onActionProperty().set((e) -> {
 				app.enqueue(()-> {
-					audioSoundTest.playInstance();
+					if (audioSoundTest != null) audioSoundTest.playInstance();
 					return true;
 				});
 			});
-			p.audioSoundTest.setDisable(false);
+			p.audioSoundTest.setDisable(audioSoundTest == null);
 
 			p.back.onActionProperty().set((e) -> {
 				app.enqueue(()-> {
@@ -109,9 +109,11 @@ public class PageSettings extends AppState0{
 			inputSub = null;
 		}
 		if (audioSoundTest != null) {
+			audioSoundTest.pause();
 			app.getRootNode().detachChild(audioSoundTest);
 		}
 		if (audioMusicTest != null) {
+			audioMusicTest.pause();
 			app.getRootNode().detachChild(audioMusicTest);
 			audioMgr.musics.remove(audioMusicTest);
 		}

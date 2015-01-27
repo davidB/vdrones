@@ -5,6 +5,7 @@ import javafx.scene.text.Font;
 
 import javax.inject.Inject;
 
+import jme3_ext.AudioManager;
 import jme3_ext.PageManager;
 import jme3_ext.SetupHelpers;
 
@@ -36,13 +37,14 @@ public class Main {
 
 	//HACK to receive service without need to explicitly list them and to initialize them
 	@Inject
-	Main(SimpleApplication app, GuiManager guiManager, PageManager pageManager) {
+	Main(SimpleApplication app, GuiManager guiManager, PageManager pageManager, AudioManager audioMgr) {
 		//		setAspectRatio(app, 16, 9);
 		SetupHelpers.disableDefaults(app);
 		SetupHelpers.setDebug(app, false);
 		SetupHelpers.logJoystickInfo(app.getInputManager());
 		initGui(guiManager);
 		initPages(pageManager, app, false);
+		audioMgr.loadFromAppSettings();
 	}
 
 

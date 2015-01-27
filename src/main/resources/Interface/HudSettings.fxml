@@ -7,10 +7,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <BorderPane id="hudSettings" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0">
+      <BorderPane id="hudSettings" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0">
          <center>
             <TabPane prefHeight="200.0" prefWidth="320.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
               <tabs>
@@ -114,18 +113,10 @@
             </TabPane>
          </center>
          <top>
-            <HBox BorderPane.alignment="CENTER">
-               <children>
-                  <Label id="title" fx:id="title" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="subtitle" text="%settings" HBox.hgrow="ALWAYS" />
-               </children>
-            </HBox>
+            <Label fx:id="title" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="subtitle" text="%settings" HBox.hgrow="ALWAYS" />
          </top>
          <bottom>
-            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
-               <children>
-                  <Button fx:id="back" mnemonicParsing="false" prefHeight="25.0" prefWidth="640.0" text="back" />
-               </children>
-            </HBox>
+            <Button fx:id="back" mnemonicParsing="false" prefHeight="25.0" prefWidth="1280.0" text="back" />
          </bottom>
       </BorderPane>
    </children>
