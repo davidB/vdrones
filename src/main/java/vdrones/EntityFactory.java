@@ -47,6 +47,7 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
+import com.jme3.util.SkyFactory;
 class CollisionGroups {
 	static final int NONE = 0;
 	static final int DRONE = 1;
@@ -109,6 +110,10 @@ public class EntityFactory {
 		for (Light l : level.getLocalLightList()) {
 			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
+		Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", true);
+		sky.rotateUpTo(Vector3f.UNIT_Z);
+		addInto(sky, a.bg, "sky");
+
 		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
 		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
 		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
