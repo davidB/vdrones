@@ -2,6 +2,8 @@ package vdrones;
 
 import javax.inject.Inject;
 
+import com.jme3x.jfx.FxPlatformExecutor;
+
 import jme3_ext.AppState0;
 import jme3_ext.Hud;
 import jme3_ext.HudTools;
@@ -88,6 +90,7 @@ public class PageRun extends AppState0 {
 		});
 		subscription = Subscriptions.from(s1, s2);
 		app.getStateManager().attach(asRun);
+		hack_letFocusOn3d();
 	}
 
 	@Override
@@ -100,5 +103,26 @@ public class PageRun extends AppState0 {
 			subscription.unsubscribe();
 			subscription = null;
 		}
+	}
+
+	void hack_letFocusOn3d() {
+		FxPlatformExecutor.runOnFxApplication(() -> {
+			//HACK TO force focus (keyboard) on play area
+			//hud.region.focusedProperty().addListener((v) -> System.out.println("focus change : " + v));
+			//hud.region.requestFocus();
+			//Scene scene = hud.region.getScene();
+			//scene.getWindow().requestFocus();
+			//Event.fireEvent(scene.getWindow(), new MouseEvent(MouseEvent.MOUSE_CLICKED, 10, 10, (int)scene.getWindow().getX() + 10, (int)scene.getWindow().getY() + 10, MouseButton.PRIMARY, 1, true, true, true, true, true, true, true, true, true, true, null));
+			try {
+				java.awt.Robot r = new java.awt.Robot();
+//				r.mouseMove((int)scene.getWindow().getX() + 10, (int)scene.getWindow().getY() + 10);
+				r.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		});
 	}
 }
