@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package vdrones;
 
 import java.nio.Buffer;
@@ -244,10 +238,12 @@ public class EntityFactory {
 		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
+		generatingAnim.addTrack(new TrackScale(0.5f, false));
 		Animation waitingAnim = new Animation("waiting", 2.0f);
 		waitingAnim.addTrack(new TrackRotateYX(2.0f));
 		Animation exitingAnim = new Animation("exiting", 0.5f);
-		Animation grabbedAnim = new Animation("grabbed", 2.0f);
+		Animation grabbedAnim = new Animation("grabbed", 0.3f);
+		grabbedAnim.addTrack(new TrackScale(0.3f, true));
 		AnimControl ac = new AnimControl();
 		b.addControl(ac);
 		ac.addAnim(generatingAnim);

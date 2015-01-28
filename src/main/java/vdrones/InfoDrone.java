@@ -111,9 +111,9 @@ class CfgDrone {
 	public float energyStoreMax = 100f;
 	public float healthMax = 100f;
 	public float wallCollisionHealthSpeed = -100.0f / 5.0f; //-100 points in 5 seconds,
-	public float attractorRadius = 6.5f;
+	public float attractorRadius = 3.5f;//6.5f;
 	public float attractorPower = 1.0f;
-	public float grabRadius = 2.0f;
+	public float grabRadius = 3.0f;
 	public float exitRadius = 1.5f;
 }
 
