@@ -14,6 +14,7 @@
 	</appender>
 
 	<logger name="jme3_ext.AppState0" level="warn" />
+	<logger name="vdrones" level="debug" />
 
 	<root level="info">
 		<appender-ref ref="STDOUT" />

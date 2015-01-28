@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="hudLevelSelection" fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0">
+         <top>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="1280.0" styleClass="subtitle" text="%areas" BorderPane.alignment="CENTER" />
+         </top>
+         <bottom>
+            <Button fx:id="back" mnemonicParsing="false" prefHeight="25.0" prefWidth="1280.0" text="back" BorderPane.alignment="CENTER" />
+         </bottom>
+         <center>
+            <ScrollPane prefHeight="587.0" prefWidth="1200.0" BorderPane.alignment="CENTER">
+              <content>
+                  <FlowPane id="panes" fx:id="panes" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="1280.0">
+                     <padding>
+                        <Insets top="10.0" />
+                     </padding>
+                  </FlowPane>
+              </content>
+            </ScrollPane>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

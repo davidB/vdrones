@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.BehaviorSubject;
@@ -24,6 +25,7 @@ class Channels{
 	final BehaviorSubject<CfgArea> areaCfgs = BehaviorSubject.create();
 }
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
@@ -38,6 +40,8 @@ public class AppStateGameLogic extends AppState0 {
 
 
 	InfoDrone setup(Observable<Float> dt, InfoDrone drone) {
+		System.out.println("setup InfoDrone");
+		log.info("setup InfoDrone");
 		observerDroneStateProvider.get().bind(drone);
 		dt.subscribe(drone.dt);
 		drone.state.subscribe(new ObserverPrint<>("droneState"));
@@ -57,7 +61,7 @@ public class AppStateGameLogic extends AppState0 {
 	InfoArea newAreaInfo(CfgArea cfg, Observable<Float> dt) {
 		val area = new InfoArea();
 		area.cfg = cfg;
-		area.clock = dt.scan(0f, (acc, dt0) -> acc + dt0);
+		area.clock = dt.scan(cfg.area.time, (acc, dt0) -> acc - dt0);
 		return area;
 	}
 
@@ -73,25 +77,21 @@ public class AppStateGameLogic extends AppState0 {
 		);
 	}
 
-	void spawnLevel(String name) {
-		channels.areaCfgs.onNext(entityFactory.newLevel("area00"));
-	}
+//	void spawnLevel(Area area) {
+//		channels.areaCfgs.onNext(entityFactory.newLevel(area));
+//	}
 
 	@Override
 	protected void doInitialize() {
+		log.debug("doInitialize");
 		subscription =  Subscriptions.from(
-			channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
+			droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
+			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
+			, channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
 			, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
 			, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
-			, droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
-			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
 			,pipeAll()
 		);
-
-		app.enqueue(() -> {
-			spawnLevel("area0");
-			return true;
-		});
 	}
 
 	@Override
@@ -100,7 +100,10 @@ public class AppStateGameLogic extends AppState0 {
 	}
 
 	protected void doDispose() {
-		subscription.unsubscribe();
+		if (subscription != null) {
+			subscription.unsubscribe();
+			subscription = null;
+		}
 	}
 }
 

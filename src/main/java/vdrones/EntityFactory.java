@@ -85,13 +85,17 @@ public class EntityFactory {
 	public final AssetManager assetManager;
 	public final MaterialConverter mc;
 
-	public CfgArea newLevel(String name) {
-		Spatial b = assetManager.loadModel("Scenes/"+ name + ".j3o");
+
+
+	public CfgArea newLevel(Area area) {
+		Spatial b = assetManager.loadModel("Scenes/"+ area.name() + ".j3o");
 		b.breadthFirstTraversal(mc);
-		return newLevel(b);
+		CfgArea c = newLevel(b);
+		c.area = area;
+		return c;
 	}
 
-	public CfgArea newLevel(Spatial src) {
+	private CfgArea newLevel(Spatial src) {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(src));
 		PlaceHolderReplacer replacer = new PlaceHolderReplacer();
 		replacer.factory = this;
@@ -100,7 +104,6 @@ public class EntityFactory {
 		level.breadthFirstTraversal(mc);
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
-		a.name = level.getName();
 		for (Light l : level.getLocalLightList()) {
 			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
 		}

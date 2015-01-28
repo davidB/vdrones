@@ -79,6 +79,12 @@
 	-fx-scale-y: 1.0;
 }
 
+#hudLevelSelection #panes {
+	-fx-padding: 15px;
+	-fx-alignment: center;
+	-fx-hgap: 6px;
+	-fx-vgap: 6px;
+}
 /*******************************************************************************
 * *
 * ProgressBar *

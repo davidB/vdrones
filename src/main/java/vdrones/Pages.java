@@ -3,8 +3,8 @@ package vdrones;
 enum Pages {
 
 	Welcome,
-	//        LevelSelection,
 	Garage,
+	LevelSelection,
 	Run,
 	//        Loading,
 	//        Result,
