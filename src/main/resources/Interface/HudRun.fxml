@@ -8,9 +8,9 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="health" fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Rectangle fx:id="health" arcHeight="8.0" arcWidth="8.0" height="720.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="1280.0">
+      <Rectangle id="health" fx:id="health" arcHeight="8.0" arcWidth="8.0" height="720.0" opacity="0.24" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="1280.0">
          <fill>
             <RadialGradient centerX="0.5056179775280899" centerY="0.5" focusDistance="-1.1102230246251565E-16" radius="1.0">
                <stops>
@@ -22,12 +22,12 @@
             </RadialGradient>
          </fill>
       </Rectangle>
-      <Label id="clock" fx:id="clock" alignment="CENTER_RIGHT" layoutX="14.0" layoutY="11.0" prefHeight="51.0" prefWidth="76.0" text="000" textAlignment="RIGHT" textFill="#e80303">
+      <Label id="clock" fx:id="clock" alignment="CENTER_RIGHT" layoutX="14.0" layoutY="11.0" prefHeight="51.0" prefWidth="101.0" text="0000" textFill="#e80303">
          <font>
             <Font name="SciFly-Sans" size="43.0" />
          </font>
       </Label>
-      <ProgressBar id="energy" fx:id="energy" layoutX="477.0" layoutY="555.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="8.0" prefWidth="326.0" progress="0.0" snapToPixel="false" />
+      <ProgressBar id="energy" fx:id="energy" layoutX="477.0" layoutY="568.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="8.0" prefWidth="326.0" progress="0.0" snapToPixel="false" />
       <Label id="score" fx:id="score" alignment="CENTER_RIGHT" layoutX="1217.0" layoutY="27.0" prefHeight="15.0" prefWidth="43.0" text="0" textAlignment="RIGHT">
          <font>
             <Font size="16.0" />
