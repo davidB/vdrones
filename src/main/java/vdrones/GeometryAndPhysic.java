@@ -24,7 +24,7 @@ public class GeometryAndPhysic {
 	final SimpleApplication app;
 
 	@Inject
-	GeometryAndPhysic(SimpleApplication app0) {
+	public GeometryAndPhysic(SimpleApplication app0) {
 		app = app0;
 		BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
 		if (bulletAppState != null) {
@@ -82,7 +82,7 @@ public class GeometryAndPhysic {
 		}
 	}
 
-	void remove(Spatial e) {
+	public void remove(Spatial e) {
 		removePhy(e);
 		e.removeFromParent();
 		removeLight(e);

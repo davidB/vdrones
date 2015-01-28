@@ -13,7 +13,7 @@ import com.jme3.scene.Geometry;
 public class AppStateDeferredRendering extends AppState0 {
 	final SceneProcessor4Deferred processor;
 
-	Observable4AddRemove<Geometry> olights(){return  processor.lights.ar;}
+	public Observable4AddRemove<Geometry> olights(){return  processor.lights.ar;}
 
 	protected void doEnable() {
 		app.getViewPort().addProcessor(processor);
