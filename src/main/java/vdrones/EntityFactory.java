@@ -174,9 +174,14 @@ public class EntityFactory {
 			float xe = bb.getXExtent();
 			float ye = bb.getYExtent();
 			Transform t = v.getWorldTransform();
-			Vector3f a = t.transformVector(new Vector3f(xe  , ye  , 0.0f), null);
-			Vector3f b = t.transformVector(new Vector3f(0.0f, ye  , 0.0f), null);
-			Vector3f c = t.transformVector(new Vector3f(xe  , 0.0f, 0.0f), null);
+			Vector3f min = bb.getMin(new Vector3f());
+			Vector3f max = bb.getMax(new Vector3f());
+			Vector3f a = new Vector3f(min.x, 0, min.z);
+			Vector3f b = new Vector3f(min.x, 0, max.z);
+			Vector3f c = new Vector3f(max.x, 0, max.z);
+//			Vector3f a = t.transformVector(new Vector3f(xe  , ye  , 0.0f), null);
+//			Vector3f b = t.transformVector(new Vector3f(0.0f, ye  , 0.0f), null);
+//			Vector3f c = t.transformVector(new Vector3f(xe  , 0.0f, 0.0f), null);
 //			System.out.printf("Zone rect :a %s b %s c %s w %s h %s\n", a, b, c, xe, ye);
 			return new Rectangle(a,b,c); // bc is hypothesus
 		}).collect(Collectors.toList());
@@ -259,14 +264,14 @@ public class EntityFactory {
 		geom.setShadowMode(ShadowMode.CastAndReceive);
 		b.attachChild(geom);
 
-		CollisionShape shape0 = new SphereCollisionShape(0.5f);
-		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
-		phy0.setGravity(Vector3f.ZERO);
-		phy0.setAngularFactor(0);
-		b.addControl(phy0);
-
-		//CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
-		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.WALL);
+//		CollisionShape shape0 = new SphereCollisionShape(0.5f);
+//		RigidBodyControl phy0 = new RigidBodyControl(shape0, 0.1f);
+//		phy0.setGravity(Vector3f.ZERO);
+//		phy0.setAngularFactor(0);
+//		b.addControl(phy0);
+//
+//		//CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.DRONE);
+//		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
 		generatingAnim.addTrack(new TrackScale(0.5f, Ease::identity));

@@ -60,7 +60,7 @@ public class AppStateDroneCube extends AppState0 {
 		for(InfoCube cube : cubes){
 			boolean grabbed = false;
 			RigidBodyControl body = cube.node.getControl(RigidBodyControl.class);
-			body.clearForces();
+			if (body != null) body.clearForces();
 			for(InfoDrone drone : drones){
 				drone.node.getWorldTranslation().subtract(cube.node.getWorldTranslation(), segment);
 				float segmentLg = segment.length();
@@ -78,7 +78,7 @@ public class AppStateDroneCube extends AppState0 {
 				cubes.remove(cube);
 				cube.stateReq.onNext(InfoCube.State.grabbed);
 			}
-			if (forceApply){
+			if (forceApply && body != null){
 				force.y = 0;
 				body.applyForce(force, Vector3f.ZERO);
 			}
