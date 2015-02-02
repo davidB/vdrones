@@ -40,7 +40,6 @@ public class AppStateGameLogic extends AppState0 {
 
 
 	InfoDrone setup(Observable<Float> dt, InfoDrone drone) {
-		System.out.println("setup InfoDrone");
 		log.info("setup InfoDrone");
 		observerDroneStateProvider.get().bind(drone);
 		dt.subscribe(drone.dt);
@@ -90,6 +89,7 @@ public class AppStateGameLogic extends AppState0 {
 	@Override
 	protected void doInitialize() {
 		log.debug("doInitialize");
+		geometryAndPhysic.removeAll();
 		subscription = pipeAll();
 	}
 
@@ -103,6 +103,7 @@ public class AppStateGameLogic extends AppState0 {
 			subscription.unsubscribe();
 			subscription = null;
 		}
+		geometryAndPhysic.removeAll();
 	}
 }
 

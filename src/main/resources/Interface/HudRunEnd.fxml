@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="hudRunResult" prefHeight="225.0" prefWidth="331.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+               <children>
+                  <Label id="time" fx:id="time" text="%time" />
+                  <Label id="timeCount" fx:id="timeCount" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="0" textAlignment="CENTER" />
+                  <Button id="retry" fx:id="retry" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%retry" textAlignment="CENTER" />
+                  <Button id="levels" fx:id="levels" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%levels" textAlignment="CENTER" />
+                  <Button id="home" fx:id="home" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%home" textAlignment="CENTER" />
+               </children>
+            </VBox>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

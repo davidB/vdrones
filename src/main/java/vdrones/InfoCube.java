@@ -83,7 +83,7 @@ class GenCube extends Subscriber<List<List<Rectangle>>> {
 		List<Rectangle> zones = cubeZones.get(c.zone);
 		c.subzone = (c.subzone + 1) % zones.size();
 		Rectangle r = zones.get(c.subzone);
-		Vector3f pos = zones.get(c.subzone).random();
+		Vector3f pos = r.random();
 		//System.out.println("pos r:" + pos + " .. " + c.subzone + " / " + zones.size() + " .. " + r.getA() + r.getB() + r.getC());
 		c.node.setLocalTranslation(pos);
 		return c;

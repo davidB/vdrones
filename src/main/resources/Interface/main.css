@@ -85,6 +85,16 @@
 	-fx-hgap: 6px;
 	-fx-vgap: 6px;
 }
+
+#hudRunEnd {
+	-fx-background-color: rgba(1.0, 1.0, 1.0, 0.6);
+}
+#hudRunEnd #time {
+	-fx-font-size: 3em;
+}
+#hudRunEnd #timeCount {
+	-fx-font-size: 10em;
+}
 /*******************************************************************************
 * *
 * ProgressBar *

@@ -1,6 +1,7 @@
 package vdrones;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import com.jme3x.jfx.FxPlatformExecutor;
 
@@ -16,7 +17,8 @@ import rx.subscriptions.Subscriptions;
 public class PageRun extends AppState0 {
 	private final HudTools hudTools;
 	final Channels channels;
-	final AppStateRun asRun;
+	final Provider<AppStateRun> asRunP;
+	final PageRunEnd pageRunEnd;
 
 	private boolean prevCursorVisible;
 	private Hud<HudRun> hud;
@@ -26,12 +28,14 @@ public class PageRun extends AppState0 {
 	public void doInitialize() {
 		hud = hudTools.newHud("Interface/HudRun.fxml", new HudRun());
 		hudTools.scaleToFit(hud, app.getGuiViewPort());
+		reset();
 	}
 
 	protected void doEnable() {
 		prevCursorVisible = app.getInputManager().isCursorVisible();
 		app.getInputManager().setCursorVisible(false);
 		hudTools.show(hud);
+		app.getStateManager().detach(pageRunEnd);
 
 		//Observable.switchOnNext(channels.droneInfo2s)
 		Subscription s1 = channels.drones.subscribe(new Subscriber<InfoDrone>(){
@@ -88,21 +92,25 @@ public class PageRun extends AppState0 {
 					;
 			}
 		});
-		subscription = Subscriptions.from(s1, s2);
-		app.getStateManager().attach(asRun);
+		Subscription s3 = channels.drones.flatMap(d -> d.state).filter(v -> v == InfoDrone.State.disconnecting).subscribe((e) -> end(true));
+		Subscription s4 = channels.areaInfo2s.flatMap(d -> d.clock).filter(v -> v <= 0).subscribe((e) -> end(false));
+		subscription = Subscriptions.from(s1, s2, s3, s4);
+		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
+		app.getStateManager().attach(asRunP.get());
 		hack_letFocusOn3d();
 	}
 
 	@Override
 	protected void doDisable() {
-		hudTools.hide(hud);
-		app.getInputManager().setCursorVisible(prevCursorVisible);
-		app.getStateManager().detach(asRun);
-
 		if (subscription != null) {
 			subscription.unsubscribe();
 			subscription = null;
 		}
+
+		hudTools.hide(hud);
+		app.getInputManager().setCursorVisible(prevCursorVisible);
+		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
+		app.getStateManager().detach(pageRunEnd);
 	}
 
 	void hack_letFocusOn3d() {
@@ -124,5 +132,17 @@ public class PageRun extends AppState0 {
 			}
 
 		});
+	}
+
+	void end(boolean success) {
+		System.out.println("end :" + success);
+		app.getStateManager().getState(AppStateRun.class).setEnabled(false);
+		pageRunEnd.success = success;
+		app.getStateManager().attach(pageRunEnd);
+	}
+
+	public void reset() {
+		setEnabled(false);
+		setEnabled(true);
 	}
 }

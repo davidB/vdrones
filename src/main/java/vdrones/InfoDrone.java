@@ -189,7 +189,7 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 					drone.stateReq.onNext(InfoDrone.State.hidden);
 					break;
 				case "exiting":
-					drone.stateReq.onNext(InfoDrone.State.hidden);
+					drone.stateReq.onNext(InfoDrone.State.disconnecting);
 					break;
 				}
 			}
@@ -310,10 +310,6 @@ class ObserverDroneState implements Observer<InfoDrone.State> {
 			});
 			break;
 		case disconnecting:
-			jme.enqueue(() -> {
-				animator.play(drone.node, "disconnecting");
-				return true;
-			});
 			break;
 		}
 	}

@@ -5,6 +5,7 @@
 package vdrones;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import jme3_ext_deferred.Helpers4Lights;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,11 @@ import com.jme3.scene.Spatial;
 
 @Slf4j
 //@RequiredArgsConstructor(onConstructor=@__(@Inject))
+@Singleton
 public class GeometryAndPhysic {
 
 	final SimpleApplication app;
+	final Node subRoot = new Node("subRoot");
 
 	@Inject
 	public GeometryAndPhysic(SimpleApplication app0) {
@@ -40,6 +43,7 @@ public class GeometryAndPhysic {
 			bulletAppState.getPhysicsSpace().setAccuracy(0.01f);
 			//bulletAppState.getPhysicsSpace().setBroadphaseType(PhysicsSpace.BroadphaseType.DBVT);
 		}
+		app.getRootNode().attachChild(subRoot);
 	}
 
 	public void add(Spatial e) {
@@ -49,14 +53,13 @@ public class GeometryAndPhysic {
 	}
 
 	private void addGeo(Spatial e) {
-		Node rootNode = app.getRootNode();
-		Node dest = rootNode;
+		Node dest = subRoot;
 		String destName = e.getUserData("dest");
 		if (destName != null) {
-			dest = (Node) rootNode.getChild(destName);
+			dest = (Node) subRoot.getChild(destName);
 			if (dest == null) {
 				dest = new Node(destName);
-				rootNode.attachChild(dest);
+				subRoot.attachChild(dest);
 			}
 		}
 		if (e.getParent() != dest) {
@@ -66,8 +69,10 @@ public class GeometryAndPhysic {
 
 	private void addPhy(Spatial e) {
 		BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
-		PhysicsSpace space = bulletAppState.getPhysicsSpace();
-		space.addAll(e);
+		if (bulletAppState != null) {
+			PhysicsSpace space = bulletAppState.getPhysicsSpace();
+			space.addAll(e);
+		}
 	}
 
 	private void addLight(Spatial e) {
@@ -90,8 +95,10 @@ public class GeometryAndPhysic {
 
 	private void removePhy(Spatial e) {
 		BulletAppState bulletAppState = app.getStateManager().getState(BulletAppState.class);
-		PhysicsSpace space = bulletAppState.getPhysicsSpace();
-		space.removeAll(e);
+		if (bulletAppState != null) {
+			PhysicsSpace space = bulletAppState.getPhysicsSpace();
+			space.removeAll(e);
+		}
 	}
 
 	private void removeLight(Spatial e) {
@@ -103,6 +110,12 @@ public class GeometryAndPhysic {
 					r.olights().remove.onNext(g);
 				}
 			}
+		}
+	}
+
+	public void removeAll() {
+		for(Spatial s: subRoot.getChildren()) {
+			remove(s);
 		}
 	}
 }

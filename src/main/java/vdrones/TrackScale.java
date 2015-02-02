@@ -1,6 +1,7 @@
 package vdrones;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 import lombok.RequiredArgsConstructor;
 
@@ -9,12 +10,13 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.Track;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.math.FastMath;
 import com.jme3.util.TempVars;
 
 @RequiredArgsConstructor
 public class TrackScale implements Track {
 	final float length;
-	final boolean toZero;
+	final Function<Float, Float> ease;
 
 	@Override
 	public void write(JmeExporter ex) throws IOException {
@@ -30,8 +32,8 @@ public class TrackScale implements Track {
 
 	@Override
 	public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
-		float ratio = Math.min(1.0f, Math.max(0.0f, time / length));
-		ratio = toZero ? (1.0f - ratio): ratio;
+		float ratio = FastMath.clamp(time/length, 0.0f, 1.0f);
+		ratio = ease.apply(ratio);
 		control.getSpatial().setLocalScale(ratio);
 	}
 
@@ -42,7 +44,7 @@ public class TrackScale implements Track {
 
 	@Override
 	public Track clone() {
-		return new TrackScale(length, toZero);
+		return new TrackScale(length, ease);
 	}
 
 }
