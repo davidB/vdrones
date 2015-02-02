@@ -60,7 +60,7 @@ public class AppStateGameLogic extends AppState0 {
 	InfoArea newAreaInfo(CfgArea cfg, Observable<Float> dt) {
 		val area = new InfoArea();
 		area.cfg = cfg;
-		area.clock = dt.scan(cfg.area.time, (acc, dt0) -> acc - dt0);
+		area.clock = dt.scan(cfg.area.time, (acc, dt0) -> Math.max(0, acc - dt0)).distinctUntilChanged();
 		return area;
 	}
 
