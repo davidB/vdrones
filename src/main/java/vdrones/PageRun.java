@@ -8,6 +8,7 @@ import com.jme3x.jfx.FxPlatformExecutor;
 import jme3_ext.AppState0;
 import jme3_ext.Hud;
 import jme3_ext.HudTools;
+import jme3_ext.PageManager;
 import lombok.RequiredArgsConstructor;
 import rx.Subscriber;
 import rx.Subscription;
@@ -19,6 +20,8 @@ public class PageRun extends AppState0 {
 	final Channels channels;
 	final Provider<AppStateRun> asRunP;
 	final PageRunEnd pageRunEnd;
+	private final Commands commands;
+	private final Provider<PageManager> pm; // use Provider as Hack to break the dependency cycle PageManager -> Page -> PageManager
 
 	private boolean prevCursorVisible;
 	private Hud<HudRun> hud;
@@ -33,7 +36,7 @@ public class PageRun extends AppState0 {
 
 	protected void doEnable() {
 		prevCursorVisible = app.getInputManager().isCursorVisible();
-		app.getInputManager().setCursorVisible(false);
+		app.getInputManager().setCursorVisible(true);
 		hudTools.show(hud);
 		app.getStateManager().detach(pageRunEnd);
 
@@ -62,6 +65,7 @@ public class PageRun extends AppState0 {
 					t.energy.subscribe((v) -> hud.controller.setEnergy(v))
 					, t.health.subscribe((v) -> hud.controller.setHealth(v))
 					, t.score.subscribe((v) -> hud.controller.setScore(v))
+					, t.score.subscribe((v) -> {pageRunEnd.score = v;})
 				);
 			}
 		});
@@ -92,9 +96,14 @@ public class PageRun extends AppState0 {
 					;
 			}
 		});
+		Subscription s5 = Subscriptions.from(
+				commands.exit.value.subscribe((v) -> {
+					if (!v) pm.get().goTo(Pages.Welcome.ordinal());
+				})
+			);
 		Subscription s3 = channels.drones.flatMap(d -> d.state).filter(v -> v == InfoDrone.State.disconnecting).subscribe((e) -> end(true));
 		Subscription s4 = channels.areaInfo2s.flatMap(d -> d.clock).filter(v -> v <= 0).subscribe((e) -> end(false));
-		subscription = Subscriptions.from(s1, s2, s3, s4);
+		subscription = Subscriptions.from(s1, s2, s3, s4,s5);
 		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
 		app.getStateManager().attach(asRunP.get());
 		hack_letFocusOn3d();
@@ -144,5 +153,6 @@ public class PageRun extends AppState0 {
 	public void reset() {
 		setEnabled(false);
 		setEnabled(true);
+		hack_letFocusOn3d();
 	}
 }

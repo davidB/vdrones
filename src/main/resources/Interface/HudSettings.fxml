@@ -95,7 +95,7 @@
                         </ScrollPane>
                      </content>
                 </Tab>
-                  <Tab text="controls">
+                  <Tab disable="true" text="controls">
                      <content>
                         <BorderPane prefHeight="200.0" prefWidth="200.0">
                            <center>

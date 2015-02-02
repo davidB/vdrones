@@ -58,4 +58,24 @@ dependencies {
 
 apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/hello.gradle'
 apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/copyDeps.gradle'
-apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/getdown.gradle'
+//apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/getdown.gradle'
+
+buildscript {
+	repositories {
+		mavenLocal()
+		jcenter()
+	}
+	dependencies {
+		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
+	}
+}
+apply plugin: 'net.alchim31.getdown'
+
+getdown {
+	urlbase = "http://alchim31.net/download/${project.name}_demo"
+	checklatest = false
+	mainClassName = project.mainClassName
+	jvmArgs = project.applicationDefaultJvmArgs
+	tmplGetdownTxt = tmplGetdownTxt + "\nallow_offline = true"
+}
+

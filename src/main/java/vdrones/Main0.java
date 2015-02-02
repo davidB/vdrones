@@ -42,7 +42,7 @@ public class Main0 extends Main1{
 		Main.initPages(pageManager, app, false);
 		audioMgr.loadFromAppSettings();
 		app.enqueue(()-> {
-			channels.areaCfgs.onNext(entityFactory.newLevel(Area.A01));
+			channels.areaCfgs.onNext(entityFactory.newLevel(Area.B01));
 			pageManager.goTo(Pages.Run.ordinal());
 			setDebug(app, true, appDebug);
 			return true;

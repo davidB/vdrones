@@ -35,6 +35,7 @@ class PageRunEnd extends AppState0 {
 	private AudioNode audioGameOver;
 	private AudioNode audioTryAgain;
 	public boolean success = true;
+	int score = 0;
 
 
 	@Override
@@ -68,6 +69,8 @@ class PageRunEnd extends AppState0 {
 		FxPlatformExecutor.runOnFxApplication(() -> {
 			HudRunEnd p = hud.controller;
 			if (success) {
+				p.time.setText(""+score);
+				p.timeCount.setText("");
 				p.time.setVisible(true);
 				//p.timeCount.setText(String.format("%d",app.getStateManager().getState(PageRun.class).score()));
 				app.enqueue(()->{
@@ -76,7 +79,7 @@ class PageRunEnd extends AppState0 {
 				});
 			} else {
 				p.time.setVisible(false);
-				p.timeCount.setText("Game Over !!");
+				p.timeCount.setText("Time Out !!");
 				app.enqueue(()->{
 					if (audioGameOver != null) audioGameOver.play();
 					return true;
