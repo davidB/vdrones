@@ -10,6 +10,7 @@ import jme3_ext.PageManager;
 import jme3_ext.SetupHelpers;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
 import com.jme3x.jfx.FxPlatformExecutor;
 import com.jme3x.jfx.GuiManager;
 
@@ -44,7 +45,7 @@ public class Main {
 		SetupHelpers.logJoystickInfo(app.getInputManager());
 		initGui(guiManager);
 		initPages(pageManager, app, false);
-		audioMgr.loadFromAppSettings();
+		initAudio(app, audioMgr);
 	}
 
 
@@ -65,6 +66,21 @@ public class Main {
 			String css = Main.class.getResource("/Interface/main.css").toExternalForm();
 			scene.getStylesheets().clear();
 			scene.getStylesheets().add(css);
+		});
+	}
+
+	static void initAudio(SimpleApplication app, AudioManager audioMgr) {
+		app.enqueue(() -> {
+			audioMgr.loadFromAppSettings();
+
+			AudioNode audioBg = new AudioNode(app.getAssetManager(), "Musics/Hypnothis.ogg", false);
+			audioBg.setName("audioBg");
+			audioBg.setLooping(true);
+			audioBg.setPositional(false);
+			audioMgr.musics.add(audioBg);
+			app.getRootNode().attachChild(audioBg);
+			audioBg.play();
+			return true;
 		});
 	}
 

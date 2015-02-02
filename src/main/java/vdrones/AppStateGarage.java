@@ -75,8 +75,8 @@ public class AppStateGarage extends AppState0{
 	Node makeScene() {
 		Node scene = new Node("garage");
 		scene.attachChild(SkyFactory.createSky(app.getAssetManager(), "Textures/sky0.jpg", true));
-		audioBg = makeAudioBg();
-		scene.attachChild(audioBg);
+//		audioBg = makeAudioBg();
+//		scene.attachChild(audioBg);
 		scene.attachChild(makeDrone());
 		return scene;
 	}
