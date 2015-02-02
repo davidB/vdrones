@@ -79,10 +79,15 @@ public class GeometryAndPhysic {
 		if (e instanceof Geometry){
 			Geometry g = (Geometry)e;
 			if (Helpers4Lights.isLight(g)) {
+				System.out.println("found lights:" + g);
 				AppStateDeferredRendering r = app.getStateManager().getState(AppStateDeferredRendering.class);
 				if (r != null) {
 					r.olights().add.onNext(g);
 				}
+			}
+		} else if (e instanceof Node) {
+			for(Spatial c: ((Node)e).getChildren()) {
+				addLight(c);
 			}
 		}
 	}
@@ -109,6 +114,10 @@ public class GeometryAndPhysic {
 				if (r != null) {
 					r.olights().remove.onNext(g);
 				}
+			}
+		} else if (e instanceof Node) {
+			for(Spatial c: ((Node)e).getChildren()) {
+				removeLight(c);
 			}
 		}
 	}

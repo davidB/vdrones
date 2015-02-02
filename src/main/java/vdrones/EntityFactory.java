@@ -115,7 +115,8 @@ public class EntityFactory {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
 		for (Light l : level.getLocalLightList()) {
-			level.attachChild(Helpers4Lights.toGeometry(l, true, assetManager));
+			//System.out.println("Lights : " + l);
+			//level.attachChild(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
 		level.getLocalLightList().clear();
 		Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", true);
