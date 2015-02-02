@@ -115,7 +115,6 @@ public class EntityFactory {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
 		for (Light l : level.getLocalLightList()) {
-			System.out.printf("Local Lights of level: %s",l);
 			level.attachChild(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
 		level.getLocalLightList().clear();
@@ -159,7 +158,6 @@ public class EntityFactory {
 
 	//TODO add support for non AABB zone
 	private List<Rectangle> extractZone(Spatial src) {
-		System.out.println("src name " + src.getName() + " . " + ((Node)src).getQuantity());
 		List<Rectangle> rects = ((Node)src).getChildren().stream().sorted(new Comparator<Spatial>(){
 			@Override
 			public int compare(Spatial o1, Spatial o2) {

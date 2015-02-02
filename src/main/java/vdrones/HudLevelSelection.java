@@ -33,7 +33,6 @@ public class HudLevelSelection implements Initializable{
 			Bounds b1 = p.getLayoutBounds();
 			double percent = event.getX() / (b1.getMaxX() - b1.getMinX());
 			percent = Math.max(0, Math.min(1.0, percent));
-			//System.out.printf("percent : %s, %s, %s, %s\n", percent, event.getX(), event.getSceneX(), b1.getMinX());
 			p.setProgress(percent);
 		}
 	};

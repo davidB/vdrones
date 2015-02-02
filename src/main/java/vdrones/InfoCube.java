@@ -44,7 +44,7 @@ class InfoCube implements com.jme3.export.Savable { //HACK FQN of Savable to avo
 	}
 
 	static Node makeNode(InfoCube v) {
-		Node n = new Node("drone");
+		Node n = new Node("cubez." + v.zone);
 		n.setUserData(UD, v);
 		return n;
 	}
@@ -84,7 +84,7 @@ class GenCube extends Subscriber<List<List<Rectangle>>> {
 		c.subzone = (c.subzone + 1) % zones.size();
 		Rectangle r = zones.get(c.subzone);
 		Vector3f pos = zones.get(c.subzone).random();
-		System.out.println("pos r:" + pos + " .. " + c.subzone + " / " + zones.size() + " .. " + r.getA() + r.getB() + r.getC());
+		//System.out.println("pos r:" + pos + " .. " + c.subzone + " / " + zones.size() + " .. " + r.getA() + r.getB() + r.getC());
 		c.node.setLocalTranslation(pos);
 		return c;
 	}

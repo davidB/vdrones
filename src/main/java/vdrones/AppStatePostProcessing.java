@@ -65,7 +65,6 @@ public class AppStatePostProcessing extends AppState0 {
 
 	@Override
 	protected void doEnable() {
-		System.out.println("POSTPROCESSING");
 		ViewPort viewport = app.getViewPort();
 		viewport.addProcessor(fpp);
 	}
