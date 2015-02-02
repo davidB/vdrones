@@ -2,7 +2,6 @@ package vdrones;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 
 import jme3_ext.AppState0;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +15,17 @@ import rx_ext.ObserverPrint;
 
 import com.jme3.bullet.control.RigidBodyControl;
 
-@Singleton
-@RequiredArgsConstructor(onConstructor=@__(@Inject))
 class Channels{
 	final BehaviorSubject<InfoDrone> drones = BehaviorSubject.create();
 	final BehaviorSubject<InfoCube> cubes = BehaviorSubject.create();
 	final BehaviorSubject<InfoArea> areaInfo2s = BehaviorSubject.create();
 	final BehaviorSubject<CfgArea> areaCfgs = BehaviorSubject.create();
+	public void completed() {
+		drones.onCompleted();
+		cubes.onCompleted();
+		areaInfo2s.onCompleted();
+		areaCfgs.onCompleted();
+	}
 }
 
 @Slf4j
@@ -30,7 +33,6 @@ class Channels{
 public class AppStateGameLogic extends AppState0 {
 	BehaviorSubject<Float> dt = BehaviorSubject.create(0f);
 	Subscription subscription;
-	final Channels channels;
 	final GenDrone droneGenerator;
 	final GenCube cubeGenerator;
 	final EntityFactory entityFactory;
@@ -65,6 +67,7 @@ public class AppStateGameLogic extends AppState0 {
 	}
 
 	Subscription pipeAll(){
+		Channels channels = app.getStateManager().getState(AppStateRun.class).channels;
 		return Subscriptions.from(
 			droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
 			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)

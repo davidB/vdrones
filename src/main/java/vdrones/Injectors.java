@@ -18,7 +18,6 @@ import jme3_ext.PageManager;
 import jme3_ext_deferred.MatIdManager;
 import jme3_ext_deferred.MaterialConverter;
 import jme3_ext_deferred.SceneProcessor4Deferred;
-import jme3_ext_pgex.PgexLoader;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
@@ -30,38 +29,6 @@ import com.jme3x.jfx.FxPlatformExecutor;
 
 import dagger.Module;
 import dagger.Provides;
-
-//public class Injectors {
-//	//static final private Injector instance0 = Guice.createInjector(new JmeModule(), new JfxModule(), new GameModule());
-//	static final private ObjectGraph instance0 = ObjectGraph.create(new GameModule());
-//
-////	public static ObjectGraph find() {
-////		return instance0;
-////	}
-//}
-
-//@Module(library=true, complete=false)
-//class JmeModule{
-//	@Provides
-//	public Application application(SimpleApplication app) {
-//		return app;
-//	}
-//
-//	@Provides
-//	public AssetManager assetManager(SimpleApplication app) {
-//		return app.getAssetManager();
-//	}
-//
-//	@Provides
-//	public AppStateManager stateManager(SimpleApplication app) {
-//		return app.getStateManager();
-//	}
-//
-//	@Provides
-//	public InputManager inputManager(SimpleApplication app) {
-//		return app.getInputManager();
-//	}
-//}
 
 @Module(library=true, complete=false)
 class DeferredModule {
@@ -147,12 +114,13 @@ class GameSharedModule{
 	@Provides
 	public PageManager pageManager(SimpleApplication app,
 			PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage,
-			PageLevelSelection pageLevelSelection, PageRun pageRun
+			PageLevelSelection pageLevelSelection, PageRun pageRun, PageRunEnd pageRunEnd
 			) {
 		AppState[] pages = new AppState[Pages.values().length];
 		pages[Pages.Welcome.ordinal()] = pageWelcome;
 		pages[Pages.LevelSelection.ordinal()] = pageLevelSelection;
 		pages[Pages.Run.ordinal()] = pageRun;
+		pages[Pages.RunEnd.ordinal()] = pageRunEnd;
 		pages[Pages.Settings.ordinal()] = pageSettings;
 		pages[Pages.Garage.ordinal()] = pageGarage;
 		PageManager pageManager = new PageManager(app.getStateManager(), pages);
@@ -245,12 +213,6 @@ class GameModule {
 		settings.setCustomRenderer(LwjglDisplayCustom.class);
 		return settings;
 	}
-//
-//	@Provides
-//	public AppStateCamera appStateCamera(AppStateManager mgr) {
-//		return mgr.getState(AppStateCamera.class);
-//	}
-
 }
 
 /**

@@ -18,7 +18,6 @@ public class AppStateDroneCube extends AppState0 {
 	private final List<InfoDrone> drones = new LinkedList<>();
 	private final List<InfoCube> cubes = new LinkedList<>();
 	private Subscription subs;
-	final Channels channels;
 	// tmp
 	private Vector3f segment = new Vector3f();
 	private boolean forceApply = false;
@@ -27,6 +26,7 @@ public class AppStateDroneCube extends AppState0 {
 
 	@Override
 	protected void doEnable(){
+		Channels channels = app.getStateManager().getState(AppStateRun.class).channels;
 		subs = Subscriptions.from(
 			channels.drones.flatMap(v -> v.state.map(s -> new T2<InfoDrone, Boolean>(v, s == InfoDrone.State.driving)).distinctUntilChanged()).subscribe(v -> {
 				if (v._2) {

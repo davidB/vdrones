@@ -91,9 +91,11 @@
 }
 #hudRunEnd #time {
 	-fx-font-size: 3em;
+	-fx-text-fill: rgb(199, 199, 242);
 }
 #hudRunEnd #timeCount {
 	-fx-font-size: 10em;
+	-fx-text-fill: rgb(242, 199, 199);
 }
 /*******************************************************************************
 * *

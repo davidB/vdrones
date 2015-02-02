@@ -13,8 +13,6 @@ import com.jme3.scene.Spatial;
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class PhysicsCollisionListenerAll extends AppState0 implements PhysicsCollisionListener {
-	final Channels channels;
-
 	private float tpf;
 
 	@Override

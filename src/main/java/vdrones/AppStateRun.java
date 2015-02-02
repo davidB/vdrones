@@ -11,6 +11,8 @@ import com.jme3.bullet.BulletAppState;
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateRun extends AppState0{
+	final PageLevelSelection pls;
+	final EntityFactory entityFactory;
 	final AppStateCamera appStateCamera;
 	final AppStateLights appStateLights;
 	final AppStatePostProcessing appStatePostProcessing;
@@ -19,9 +21,11 @@ public class AppStateRun extends AppState0{
 	final AppStateGameLogic appStateGameLogic;
 	final AppStateDroneExit appStateDroneExit;
 	final AppStateDeferredRendering appStateDeferredRendering;
+	public final Channels channels = new Channels();
 
 	@Override
 	protected void doInitialize() {
+		channels.areaCfgs.onNext(entityFactory.newLevel(pls.areaSelected));
 		AppStateManager stateManager = app.getStateManager();
 		stateManager.detach(stateManager.getState(FlyCamAppState.class));
 		//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
@@ -37,6 +41,7 @@ public class AppStateRun extends AppState0{
 	}
 
 	protected void doDispose() {
+		channels.completed();
 		AppStateManager stateManager = app.getStateManager();
 		//stateManager.attach(new ScreenshotAppState("", System.currentTimeMillis()));
 		stateManager.detach(stateManager.getState(BulletAppState.class));

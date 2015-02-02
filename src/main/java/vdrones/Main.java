@@ -28,10 +28,10 @@ public class Main {
 		//-Djava.util.logging.config.file=logging.properties
 		SetupHelpers.installSLF4JBridge();
 
-		assert Main.enabled();
-		if (!Main.assertionsEnabled) {
-			throw new RuntimeException("Assertions must be enabled (vm args -ea");
-		}
+//		assert Main.enabled();
+//		if (!Main.assertionsEnabled) {
+//			throw new RuntimeException("Assertions must be enabled (vm args -ea");
+//		}
 		ObjectGraph injector = ObjectGraph.create(new GameModule());
 		injector.get(Main.class); // Main constructor used to initialize service
 	}

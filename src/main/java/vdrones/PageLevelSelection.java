@@ -2,6 +2,7 @@ package vdrones;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import jme3_ext.AppState0;
 import jme3_ext.Hud;
@@ -18,18 +19,19 @@ import com.jme3x.jfx.FxPlatformExecutor;
  *
  * @author David Bernard
  */
+@Singleton
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 class PageLevelSelection extends AppState0 {
 	private final HudTools hudTools;
 	private final Provider<PageManager> pm; // use Provider as Hack to break the dependency cycle PageManager -> Page -> PageManager
 	private final InputMapper inputMapper;
 	private final Commands commands;
-	private final Channels channels;
-	private final EntityFactory entityFactory;
 
 	private boolean prevCursorVisible;
 	private Hud<HudLevelSelection> hud;
 	private Subscription inputSub;
+
+	public Area areaSelected;
 
 	@Override
 	public void doInitialize() {
@@ -49,8 +51,8 @@ class PageLevelSelection extends AppState0 {
 		FxPlatformExecutor.runOnFxApplication(() -> {
 			HudLevelSelection p = hud.controller;
 			p.areaSelected.addListener((pr, ov, nv) -> {
+				areaSelected = nv;
 				app.enqueue(()-> {
-					channels.areaCfgs.onNext(entityFactory.newLevel(nv));
 					pm.get().goTo(Pages.Run.ordinal());
 					return true;
 				});

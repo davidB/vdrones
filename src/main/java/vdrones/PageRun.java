@@ -10,6 +10,7 @@ import jme3_ext.Hud;
 import jme3_ext.HudTools;
 import jme3_ext.PageManager;
 import lombok.RequiredArgsConstructor;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
@@ -17,7 +18,6 @@ import rx.subscriptions.Subscriptions;
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class PageRun extends AppState0 {
 	private final HudTools hudTools;
-	final Channels channels;
 	final Provider<AppStateRun> asRunP;
 	final PageRunEnd pageRunEnd;
 	private final Commands commands;
@@ -38,8 +38,10 @@ public class PageRun extends AppState0 {
 		prevCursorVisible = app.getInputManager().isCursorVisible();
 		app.getInputManager().setCursorVisible(true);
 		hudTools.show(hud);
-		app.getStateManager().detach(pageRunEnd);
-
+		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
+		AppStateRun asRun = asRunP.get();
+		app.getStateManager().attach(asRun);
+		Channels channels = asRun.channels;
 		//Observable.switchOnNext(channels.droneInfo2s)
 		Subscription s1 = channels.drones.subscribe(new Subscriber<InfoDrone>(){
 			private Subscription subscription = null;
@@ -101,11 +103,11 @@ public class PageRun extends AppState0 {
 					if (!v) pm.get().goTo(Pages.Welcome.ordinal());
 				})
 			);
-		Subscription s3 = channels.drones.flatMap(d -> d.state).filter(v -> v == InfoDrone.State.disconnecting).subscribe((e) -> end(true));
-		Subscription s4 = channels.areaInfo2s.flatMap(d -> d.clock).filter(v -> v <= 0).subscribe((e) -> end(false));
-		subscription = Subscriptions.from(s1, s2, s3, s4,s5);
-		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
-		app.getStateManager().attach(asRunP.get());
+		Observable<Boolean> success = channels.drones.flatMap(d -> d.state).filter(v -> v == InfoDrone.State.disconnecting).map(v -> true);
+		Observable<Boolean> failure = channels.areaInfo2s.flatMap(d -> d.clock).filter(v -> v <= 0).map(v -> false);
+		Subscription end = Observable.merge(success, failure).first().subscribe(v -> end(v));
+		subscription = Subscriptions.from(s1, s2, end,s5);
+
 		hack_letFocusOn3d();
 	}
 
@@ -119,7 +121,6 @@ public class PageRun extends AppState0 {
 		hudTools.hide(hud);
 		app.getInputManager().setCursorVisible(prevCursorVisible);
 		app.getStateManager().detach(app.getStateManager().getState(AppStateRun.class));
-		app.getStateManager().detach(pageRunEnd);
 	}
 
 	void hack_letFocusOn3d() {
@@ -145,9 +146,12 @@ public class PageRun extends AppState0 {
 
 	void end(boolean success) {
 		System.out.println("end :" + success);
-		app.getStateManager().getState(AppStateRun.class).setEnabled(false);
 		pageRunEnd.success = success;
-		app.getStateManager().attach(pageRunEnd);
+		app.enqueue(() -> {
+			pm.get().goTo(Pages.RunEnd.ordinal());
+			reset();
+			return true;
+		});
 	}
 
 	public void reset() {

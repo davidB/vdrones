@@ -6,6 +6,7 @@ enum Pages {
 	Garage,
 	LevelSelection,
 	Run,
+	RunEnd,
 	//        Loading,
 	//        Result,
 	Settings,

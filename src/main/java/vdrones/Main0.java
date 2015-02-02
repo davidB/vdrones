@@ -33,7 +33,7 @@ public class Main0 extends Main1{
 
 	//HACK to receive service without need to explicitly list them and to initialize them
 	@Inject
-	Main0(SimpleApplication app, GuiManager guiManager, PageManager pageManager, AudioManager audioMgr, AppStateDebug appDebug, Channels channels, EntityFactory entityFactory) {
+	Main0(SimpleApplication app, GuiManager guiManager, PageManager pageManager, AudioManager audioMgr, AppStateDebug appDebug, EntityFactory entityFactory, PageLevelSelection pls) {
 		//		setAspectRatio(app, 16, 9);
 		SetupHelpers.disableDefaults(app);
 		SetupHelpers.setDebug(app, false);
@@ -42,7 +42,7 @@ public class Main0 extends Main1{
 		Main.initPages(pageManager, app, false);
 		audioMgr.loadFromAppSettings();
 		app.enqueue(()-> {
-			channels.areaCfgs.onNext(entityFactory.newLevel(Area.B01));
+			pls.areaSelected = Area.B01;
 			pageManager.goTo(Pages.Run.ordinal());
 			setDebug(app, true, appDebug);
 			return true;
