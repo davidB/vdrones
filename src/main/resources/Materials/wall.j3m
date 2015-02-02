@@ -4,6 +4,6 @@ Material wall : MatDefs/deferred/gbuffer.j3md {
     }
     AdditionalRenderState {
       FaceCull Off
-      Wireframe On
+      Wireframe Off
     }
 }

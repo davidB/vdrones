@@ -3,6 +3,7 @@ package vdrones;
 import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,6 +12,8 @@ import javax.inject.Inject;
 
 import jme3_ext_deferred.Helpers4Lights;
 import jme3_ext_deferred.MaterialConverter;
+import jme3_ext_pgex.PgexLoader;
+import jme3_ext_spatial_explorer.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +23,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -77,18 +81,24 @@ class CollisionGroups {
  * @author dwayne
  */
 @Slf4j
-@RequiredArgsConstructor(onConstructor=@__(@Inject))
+//@RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class EntityFactory {
-	public static final String LevelName = "scene0";
+	public static final String LevelName = "backgrounds";
 	public static final String UD_joints = "joints";
 
 	public final AssetManager assetManager;
 	public final MaterialConverter mc;
 
-
+	@Inject
+	public EntityFactory(AssetManager assetManager, MaterialConverter mc) {
+		this.assetManager = assetManager;
+		this.mc = mc;
+		assetManager.registerLoader(PgexLoader.class, "pgex");
+	}
 
 	public CfgArea newLevel(Area area) {
-		Spatial b = assetManager.loadModel("Scenes/"+ area.name() + ".j3o");
+		Spatial b = assetManager.loadModel("Scenes/"+ area.name() + ".pgex");
+		Tools.dump(b);
 		b.breadthFirstTraversal(mc);
 		CfgArea c = newLevel(b);
 		c.area = area;
@@ -100,67 +110,87 @@ public class EntityFactory {
 		PlaceHolderReplacer replacer = new PlaceHolderReplacer();
 		replacer.factory = this;
 		replacer.assetManager = assetManager;
-		Spatial level = replacer.replaceTree(src.deepClone());
+		Node level = (Node)replacer.replaceTree(src.deepClone());
 		level.breadthFirstTraversal(mc);
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
 		for (Light l : level.getLocalLightList()) {
-			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
+			System.out.printf("Local Lights of level: %s",l);
+			level.attachChild(Helpers4Lights.toGeometry(l, true, assetManager));
 		}
+		level.getLocalLightList().clear();
 		Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", true);
 		sky.rotateUpTo(Vector3f.UNIT_Z);
-		addInto(sky, a.bg, "sky");
-
-		extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
-		extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
-		extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
-		extract(level, "exits").map(v -> setY(v, -1.0f)).forEach(v -> addInto(v, a.exitPoints));
+		sky.setName("sky");
+		//addInto(sky, a.bg, "sky");"spawners"
+		level.attachChild(sky);
+		//extract(level, "backgrounds").forEach(v -> addInto(v, a.bg, "backgrounds"));
+		//extract(level, "spawners").map(v -> setY(v, -0.2f)).forEach(v -> addInto(v, a.spawnPoints));
+		extract(level, "spawners").forEach(v -> addInto(v, a.spawnPoints));
+		//extract(level, "traps").forEach(v -> addInto(v, a.bg, "traps"));
+		//extract(level, "exits").map(v -> setY(v, -1.0f)).forEach(v -> addInto(v, a.exitPoints));
+		extract(level, "exits").forEach(v -> addInto(v, a.exitPoints));
 		extract(level, "cubes").map(this::extractZone).forEach(a.cubeZones::add);
-		a.bg.stream().forEach(v -> CollisionGroups.setRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
+		//a.bg.stream().forEach(v -> CollisionGroups.setRecursive(v, CollisionGroups.WALL, CollisionGroups.DRONE));
+		a.scene.add(level);
 		return a;
 	}
 
 	private Stream<Spatial> extract(Spatial src, String groupName) {
 		Node group = (Node) ((Node)src).getChild(groupName);
 		if (group == null) log.warn("group not found : {}", groupName);
+		else if (group.getQuantity() == 0) log.warn("empty group : {}", groupName);
 		return (group != null) ? group.getChildren().stream() : Stream.empty();
 	}
 
-	private void addInto(Spatial s, Collection<Spatial> dest, String groupName) {
-		s.setLocalTransform(s.getWorldTransform());
-		s.setUserData("dest", EntityFactory.LevelName);
-		s.setUserData("groupName", groupName);
-		dest.add(s);
-	}
+//	private void addInto(Spatial s, Collection<Spatial> dest, String groupName) {
+//		s.setLocalTransform(s.getWorldTransform());
+//		s.setUserData("dest", EntityFactory.LevelName);
+//		s.setUserData("groupName", groupName);
+//		dest.add(s);
+//	}
 
-	private Spatial setY(Spatial s, float y) {
-		Vector3f pos = s.getLocalTranslation();
-		pos.y = y;
-		s.setLocalTranslation(pos);
-		return s;
-	}
+//	private Spatial setY(Spatial s, float y) {
+//		Vector3f pos = s.getLocalTranslation();
+//		pos.y = y;
+//		s.setLocalTranslation(pos);
+//		return s;
+//	}
 
+	//TODO add support for non AABB zone
 	private List<Rectangle> extractZone(Spatial src) {
 		System.out.println("src name " + src.getName() + " . " + ((Node)src).getQuantity());
-		return ((Node)src).getChildren().stream().map(v -> {
-			Quad quad = (Quad)((Geometry)v).getMesh();
-			// quad.getHeight() and quad.getWidth() are equals to 0
-			//float xe = quad.getHeight() * 0.5;
-			//float ye = quad.getWidth() * 0.5;
-			float xe = ((BoundingBox)quad.getBound()).getXExtent();
-			float ye = ((BoundingBox)quad.getBound()).getYExtent();
+		List<Rectangle> rects = ((Node)src).getChildren().stream().sorted(new Comparator<Spatial>(){
+			@Override
+			public int compare(Spatial o1, Spatial o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		}).map(v -> {
+//			//Quad quad = (Quad)((Geometry)v).getMesh();
+//			// quad.getHeight() and quad.getWidth() are equals to 0
+//			//float xe = quad.getHeight() * 0.5;
+//			//float ye = quad.getWidth() * 0.5;
+//			float xe = ((BoundingBox)quad.getBound()).getXExtent();
+//			float ye = ((BoundingBox)quad.getBound()).getYExtent();
+			BoundingBox bb = (BoundingBox)v.getWorldBound();
+			float xe = bb.getXExtent();
+			float ye = bb.getYExtent();
 			Transform t = v.getWorldTransform();
 			Vector3f a = t.transformVector(new Vector3f(xe  , ye  , 0.0f), null);
 			Vector3f b = t.transformVector(new Vector3f(0.0f, ye  , 0.0f), null);
 			Vector3f c = t.transformVector(new Vector3f(xe  , 0.0f, 0.0f), null);
-			System.out.printf("Zone rect :a %s b %s c %s w %s h %s\n", a, b, c, xe, ye);
+//			System.out.printf("Zone rect :a %s b %s c %s w %s h %s\n", a, b, c, xe, ye);
 			return new Rectangle(a,b,c); // bc is hypothesus
 		}).collect(Collectors.toList());
+		//src.removeFromParent();
+		return rects;
 	}
 
 	private void addInto(Spatial s, Collection<Location> dest) {
 		Location loc = new Location();
-		loc.position.set(s.getWorldTranslation());
+		Vector3f v3 = s.getWorldTranslation().clone();
+		//v3.y = v3.y + 2;
+		loc.position.set(v3);
 		loc.orientation.set(s.getWorldRotation());
 		dest.add(loc);
 	}
@@ -184,15 +214,15 @@ public class EntityFactory {
 		return b;
 	}
 
-	public Spatial newSpawnPoint(Location loc) {
-		Spatial b = assetManager.loadModel("Models/spawnPoint.j3o");
-		b.breadthFirstTraversal(mc);
-		b.setShadowMode(ShadowMode.CastAndReceive);
-		//log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
-		b.setLocalRotation(loc.orientation);
-		b.setLocalTranslation(loc.position);
-		return b;
-	}
+//	public Spatial newSpawnPoint(Location loc) {
+//		Spatial b = assetManager.loadModel("Models/spawnPoint.j3o");
+//		b.breadthFirstTraversal(mc);
+//		b.setShadowMode(ShadowMode.CastAndReceive);
+//		//log.info("check spawner : {}", Tools.checkIndexesOfPosition(b));
+//		b.setLocalRotation(loc.orientation);
+//		b.setLocalTranslation(loc.position);
+//		return b;
+//	}
 
 	public Spatial newExitPoint(Location loc) {
 		Spatial b = assetManager.loadModel("Models/exitPoint.j3o");
@@ -241,12 +271,12 @@ public class EntityFactory {
 		CollisionGroups.setRecursive(b, CollisionGroups.CUBE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
-		generatingAnim.addTrack(new TrackScale(0.5f, false));
+		generatingAnim.addTrack(new TrackScale(0.5f, Ease::identity));
 		Animation waitingAnim = new Animation("waiting", 2.0f);
 		waitingAnim.addTrack(new TrackRotateYX(2.0f));
 		Animation exitingAnim = new Animation("exiting", 0.5f);
 		Animation grabbedAnim = new Animation("grabbed", 0.3f);
-		grabbedAnim.addTrack(new TrackScale(0.3f, true));
+		grabbedAnim.addTrack(new TrackScale(0.3f, Ease.compose(Ease::outElastic, Ease::inverse)));
 		AnimControl ac = new AnimControl();
 		b.addControl(ac);
 		ac.addAnim(generatingAnim);
@@ -277,58 +307,64 @@ public class EntityFactory {
 
 		CollisionShape shape1 = new SphereCollisionShape(0.3f);
 
-		Node rn = new Node("rear.R");
-		b.attachChild(rn);
-		rn.setLocalTranslation(-1f, 0, 1f);
-		RigidBodyControl rp = new RigidBodyControl(shape1, 0.5f);
-		rn.addControl(rp);
-		rp.setAngularFactor(0);
+//		Node rn = new Node("rear.R");
+//		b.attachChild(rn);
+//		//rn.setLocalTranslation(1f, 0, 1f);
+//
+//		Node ln = new Node("rear.L");
+//		b.attachChild(ln);
+//		//ln.setLocalTranslation(-1f, 0, 1f);
+//
+//		Node fn = new Node("front");
+//		b.attachChild(fn);
+//		//fn.setLocalTranslation(0, 0, -2.0f);
+//
+//		Node tn = new Node("top");
+//		b.attachChild(tn);
+//		//tn.setLocalTranslation(0.0f, 0.6f, 0);
+//
+//		b.addControl(new ControlSpatialsToBones());
+//
+//		RigidBodyControl rp = new RigidBodyControl(shape1, 0.5f);
+//		rn.addControl(rp);
+//		rp.setAngularFactor(0);
+//
+//		RigidBodyControl lp = new RigidBodyControl(shape1, 0.5f);
+//		ln.addControl(lp);
+//		lp.setAngularFactor(0);
+//
+//		RigidBodyControl fp = new RigidBodyControl(shape1, 1.0f);
+//		//fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
+//		fn.addControl(fp);
+//		fp.setAngularFactor(0);
+//
+//		RigidBodyControl tp = new RigidBodyControl(shape1, 0.5f);
+//		tp.destroy();
+//		//fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
+//		tn.addControl(tp);
+//		tp.setAngularFactor(0);
+//
+//		join(phy0, rp);
+//		join(phy0, lp);
+//		join(phy0, fp);
+//		join(phy0, tp);
+//
+//		join(tp, rp);
+//		join(tp, lp);
+//		join(tp, fp);
+//
+//		join(fp, lp);
+//		join(fp, rp);
+//
+//		join(rp, lp);
 
-		Node ln = new Node("rear.L");
-		b.attachChild(ln);
-		ln.setLocalTranslation(-1f, 0, -1f);
-		RigidBodyControl lp = new RigidBodyControl(shape1, 0.5f);
-		ln.addControl(lp);
-		lp.setAngularFactor(0);
-
-		Node fn = new Node("front");
-		b.attachChild(fn);
-		fn.setLocalTranslation(2.0f, 0, 0);
-		RigidBodyControl fp = new RigidBodyControl(shape1, 1.0f);
-		//fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
-		fn.addControl(fp);
-		fp.setAngularFactor(0);
-
-		Node tn = new Node("top");
-		b.attachChild(tn);
-		tn.setLocalTranslation(0.0f, 0.6f, 0);
-		RigidBodyControl tp = new RigidBodyControl(shape1, 0.5f);
-		tp.destroy();
-		//fp.setPhysicsLocation(new Vector3f(2f, 0, 0));
-		tn.addControl(tp);
-		tp.setAngularFactor(0);
-
-		join(phy0, rp);
-		join(phy0, lp);
-		join(phy0, fp);
-		join(phy0, tp);
-
-		join(tp, rp);
-		join(tp, lp);
-		join(tp, fp);
-
-		join(fp, lp);
-		join(fp, rp);
-
-		join(rp, lp);
-
-		//Spatials.setDebugSkeleton(b, assetManager, ColorRGBA.Green);
-		b.addControl(new ControlSpatialsToBones());
 		CollisionGroups.setRecursive(b, CollisionGroups.DRONE, CollisionGroups.WALL);
 
 		Animation generatingAnim = new Animation("generating", 0.5f);
+		generatingAnim.addTrack(new TrackScale(0.5f, Ease::inBounce));
 		Animation crashingAnim = new Animation("crashing", 2.0f);
-		Animation exitingAnim = new Animation("exiting", 2.0f);
+		Animation exitingAnim = new Animation("exiting", 0.5f);
+		exitingAnim.addTrack(new TrackScale(0.5f, Ease.compose(Ease::inBounce, Ease::inverse)));
 		//generatingAnim.addTrack(new TrackNoOp(3.0f));
 		//AnimControl ac = Spatials.findAnimControl(b);
 		AnimControl ac = new AnimControl();
@@ -445,11 +481,14 @@ class PlaceHolderReplacer {
 	public Spatial replace(Spatial spatial) {
 		Spatial b = spatial;
 		if (spatial instanceof Geometry) {
+			Geometry g = (Geometry)spatial;
 			String kind = spatial.getName().split("\\.")[0];
 			switch(kind) {
 			case "wall" :
 				spatial.setMaterial(assetManager.loadMaterial("Materials/wall.j3m"));
 				spatial.setShadowMode(ShadowMode.Receive);
+				g.addControl(new RigidBodyControl(new MeshCollisionShape(g.getMesh()), 0.0f));
+				CollisionGroups.setRecursive(b, CollisionGroups.WALL, CollisionGroups.NONE);
 				b = spatial;
 				break;
 			case "floor" :
@@ -457,6 +496,9 @@ class PlaceHolderReplacer {
 				spatial.setShadowMode(ShadowMode.Receive);
 				b = spatial;
 				break;
+			default:
+				spatial.setShadowMode(ShadowMode.CastAndReceive);
+				b = spatial;
 			}
 		}
 		return b;
@@ -490,5 +532,13 @@ class Tools {
 			b = b && i < ps.getNumElements() && i > -1;
 		}
 		return b;
+	}
+
+	public static void dump(Spatial s) {
+		if (s instanceof Node) {
+			Helper.dump((Node)s, "");
+		} else {
+			System.out.print(s);
+		}
 	}
 }

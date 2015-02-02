@@ -18,6 +18,7 @@ import jme3_ext.PageManager;
 import jme3_ext_deferred.MatIdManager;
 import jme3_ext_deferred.MaterialConverter;
 import jme3_ext_deferred.SceneProcessor4Deferred;
+import jme3_ext_pgex.PgexLoader;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;

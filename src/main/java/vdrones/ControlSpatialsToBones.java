@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -33,6 +34,7 @@ public class ControlSpatialsToBones extends AbstractControl {
 		bindings.stream().forEach((e) -> {
 			v0.set(e.spatial.getLocalTranslation()).subtractLocal(e.p0);
 			e.bone.setUserTransforms(v0, e.spatial.getLocalRotation(), e.spatial.getLocalScale());
+			//e.bone.setUserTransforms(v0, Quaternion.IDENTITY, Vector3f.UNIT_XYZ);
 		});
 	}
 
@@ -47,7 +49,7 @@ public class ControlSpatialsToBones extends AbstractControl {
 	public void setSpatial(Spatial spatial) {
 		super.setSpatial(spatial);
 		bindings.clear();
-		if (spatial != null && (skel = Spatials.findSkeleton(spatial)) != null) {
+		if (bindings.isEmpty() && spatial != null && (skel = Spatials.findSkeleton(spatial)) != null) {
 			for(int i = skel.getBoneCount() - 1; i > -1; i--) {
 				Bone b = skel.getBone(i);
 				Spatial child = ((Node)spatial).getChild(b.getName());
@@ -55,14 +57,17 @@ public class ControlSpatialsToBones extends AbstractControl {
 					BoneAndSpatial e = new BoneAndSpatial();
 					e.bone = b;
 					e.spatial = child;
+					//e.p0.set(b.getWorldBindPosition().z, b.getWorldBindPosition().x, b.getWorldBindPosition().y);
+					e.p0.set(b.getWorldBindPosition().y, b.getWorldBindPosition().x, -b.getWorldBindPosition().z);
+					child.setLocalTranslation(e.p0.clone());
+					//System.out.printf("%s : %s : %s\n", b.getName(), b.getWorldBindPosition(), child.getLocalTranslation());
 					e.bone.setUserControl(true);
-					e.p0.set(child.getLocalTranslation());
+					b.getLocalPosition().set(e.p0);
 					bindings.add(e);
 				}
 			}
 			skel.setBindingPose();
 		}
-
 	}
 
 	@Override

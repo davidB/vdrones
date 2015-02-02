@@ -67,7 +67,13 @@ public class AppStateGameLogic extends AppState0 {
 
 	Subscription pipeAll(){
 		return Subscriptions.from(
-			Pipes.pipeA(channels.areaCfgs, geometryAndPhysic, entityFactory)
+			droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
+			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
+			, channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
+			, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
+			, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
+			, channels.areaCfgs.flatMap(v -> Observable.from(v.scene)).subscribe((v) -> geometryAndPhysic.add(v))
+			//, Pipes.pipeA(channels.areaCfgs, geometryAndPhysic, entityFactory)
 			//, Pipes.pipe(channels.areaCfgs, app.getStateManager().getState(AppStateLights.class))
 			, Pipes.pipe(channels.drones, app.getInputManager())
 			//, channels.droneInfo2s.subscribe(v -> spawnDrone(v))
@@ -84,14 +90,7 @@ public class AppStateGameLogic extends AppState0 {
 	@Override
 	protected void doInitialize() {
 		log.debug("doInitialize");
-		subscription =  Subscriptions.from(
-			droneGenerator.drones.map(v -> setup(dt, v)).subscribe(channels.drones)
-			, cubeGenerator.cubes.map(v -> setup(dt, v)).subscribe(channels.cubes)
-			, channels.areaCfgs.map(v -> newAreaInfo(v, dt)).subscribe(channels.areaInfo2s)
-			, channels.areaCfgs.map(v -> v.spawnPoints.get(0)).subscribe(droneGenerator)
-			, channels.areaCfgs.map(v -> v.cubeZones).subscribe(cubeGenerator)
-			,pipeAll()
-		);
+		subscription = pipeAll();
 	}
 
 	@Override

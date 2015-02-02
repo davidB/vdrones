@@ -22,8 +22,8 @@ class CameraFollower{
     }
 
     final Mode mode;
-    final Vector3f lookAtOffset = new Vector3f(10.0f, .0f, .0f);
-    final Vector3f positionOffset = new Vector3f(-10.0f, 4.0f, 0.0f);
+    final Vector3f lookAtOffset = new Vector3f();
+    final Vector3f positionOffset = new Vector3f();
     final Vector3f up = Vector3f.UNIT_Y.clone();
     final Spatial target;
 
@@ -37,8 +37,8 @@ class CameraFollower{
                 up.set(0.0f, 0.0f, 1.0f);
                 break;
             case TPS:
-                lookAtOffset.set(10.0f, .0f, .0f);
-                positionOffset.set(-10.0f, 4.0f, 0.0f);
+                lookAtOffset.set(0.0f, .0f, 10.0f);
+                positionOffset.set(0.0f, 4.0f, -10.0f);
                 up.set(0.0f, 1.0f, 0.0f);
                 break;
             case FPS:

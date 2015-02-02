@@ -3,26 +3,12 @@ package vdrones;
 import lombok.RequiredArgsConstructor;
 import rx.Observable;
 import rx.Subscription;
-import rx.subscriptions.Subscriptions;
 
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.scene.Spatial;
 
 public class Pipes {
-
-	public static Subscription pipeA(Observable<CfgArea> l, GeometryAndPhysic gp, EntityFactory efactory) {
-		Observable<Spatial> bg = l.flatMap(v -> Observable.from(v.bg));
-		Observable<Spatial> spawns = l.flatMap(v-> Observable.from(v.spawnPoints)).map(v -> efactory.newSpawnPoint(v));
-		Observable<Spatial> exits = l.flatMap(v-> Observable.from(v.exitPoints)).map(v -> efactory.newExitPoint(v));
-		//TODO manage remove of spatial
-		return Subscriptions.from(
-			bg.subscribe((v) -> gp.add(v))
-			, spawns.subscribe((v) -> gp.add(v))
-			, exits.subscribe((v) -> gp.add(v))
-		);
-	}
 
 	static Subscription pipe(Observable<InfoDrone> drone, InputManager inputManager) {
 		inputManager.addMapping(DroneInput.LEFT, new KeyTrigger(KeyInput.KEY_LEFT), new KeyTrigger(KeyInput.KEY_A), new KeyTrigger(KeyInput.KEY_Q));
