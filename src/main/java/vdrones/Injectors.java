@@ -133,8 +133,10 @@ class GameSharedModule{
 		return Locale.getDefault();
 	}
 
+	//TODO use http://hub.jmonkeyengine.org/t/i18n-from-csv-calc/31492/2
 	@Provides
 	public ResourceBundle resources(Locale locale) {
+		//I18NUtility.getBundle(new File("./translationstest.csv"), Locale.GERMANY);
 		return ResourceBundle.getBundle("Interface.labels", locale);
 	}
 
