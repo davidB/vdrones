@@ -6,6 +6,7 @@ buildscript {
 	dependencies {
 		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
 		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
+		classpath "org.xtend:xtend-gradle-plugin:0.3.4"
 	}
 }
 
@@ -24,6 +25,7 @@ def v_slf4j = '1.7.7'
 
 dependencies {
 	provided 'org.projectlombok:lombok:1.14.2'
+	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.7.+'
 	compile 'net.alchim31.jme3:jme3_ext:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
