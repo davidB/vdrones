@@ -1,0 +1,45 @@
+package vdrones_data;
+//option optimize_for = SPEED;
+
+message VDroneInfo {
+  required string vdroner_name = 2;
+  repeated Item items = 3;
+  repeated RunReport runs = 4;
+  repeated Profile profiles = 5;
+  required string profile_active = 6;
+}
+
+message RunReport {
+  required int64 at = 1;
+  required string area_name = 2;
+  required bool	exiting = 3;
+  required int32 cube_count = 4;
+  required int32 crash_count = 5;
+  required int32 duration = 6;
+}
+
+message Item {
+  required int64 at = 1;
+  required string name = 2;
+  required int32 qty = 3;
+  required int32 price = 4;
+  oneof from {
+    string shop = 10;
+    string gift_from = 11;
+    string area_name = 12;
+  }
+}
+
+message Profile {
+  required string name = 1;
+  required int64 last_modification = 2;
+  optional float propulsion_forward = 3 [default = 1.0];
+  optional float rotation_speed = 4 [default = 1.0];
+  optional float propulsion_side = 5 [default = 0.0];
+  optional float propulsion_backward = 6 [default = 0.0];
+  optional float jumper = 7 [default = 0.0];
+  optional float boost_forward = 8 [default = 0.0];
+  optional float shield_blue = 9 [default = 0.0];
+  optional float shield_red = 10 [default = 0.0];
+  optional float shield_green = 11 [default = 0.0];
+}

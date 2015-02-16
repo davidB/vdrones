@@ -7,14 +7,16 @@ buildscript {
 		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
 		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
 		classpath "org.xtend:xtend-gradle-plugin:0.3.4"
+		classpath 'io.protostuff:protostuff-compiler:1.3.1'
 	}
 }
 
 
 apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/jme-head.gradle'
 apply plugin: 'application'
+apply plugin: "org.xtend.xtend"
 
-version = '0.23.0'
+version = '0.24.0'
 group = 'net.alchim31.games'
 mainClassName = 'vdrones.Main'
 applicationDefaultJvmArgs = ['-ea']
@@ -25,6 +27,7 @@ def v_slf4j = '1.7.7'
 
 dependencies {
 	provided 'org.projectlombok:lombok:1.14.2'
+	compile 'io.protostuff:protostuff-core:1.3.1'
 	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.7.+'
 	compile 'net.alchim31.jme3:jme3_ext:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
@@ -58,6 +61,15 @@ dependencies {
 	testCompile 'org.mockito:mockito-core:1.8.5'
 }
 
+
+sourceSets.main.java.srcDirs += "${project.buildDir}/generated/java"
+task protostuff << {
+	//io.protostuff.compiler.CompilerMain.compile(["protostuff.properties"])
+	io.protostuff.compiler.CompilerMain.main("protostuff.properties")
+}
+compileJava.dependsOn(protostuff)
+compileXtend.dependsOn(protostuff)
+
 apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/hello.gradle'
 apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/copyDeps.gradle'
 //apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/getdown.gradle'
@@ -80,4 +92,3 @@ getdown {
 	jvmArgs = project.applicationDefaultJvmArgs
 	tmplGetdownTxt = tmplGetdownTxt + "\nallow_offline = true"
 }
-
