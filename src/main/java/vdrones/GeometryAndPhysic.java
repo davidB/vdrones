@@ -6,7 +6,6 @@ package vdrones;
 
 import javax.inject.Inject;
 
-import jme3_ext_deferred.Helpers4Lights;
 import lombok.extern.slf4j.Slf4j;
 
 import com.jme3.app.SimpleApplication;
@@ -71,15 +70,16 @@ public class GeometryAndPhysic {
 	}
 
 	private void addLight(Spatial e) {
-		if (e instanceof Geometry){
-			Geometry g = (Geometry)e;
-			if (Helpers4Lights.isLight(g)) {
-				AppStateDeferredRendering r = app.getStateManager().getState(AppStateDeferredRendering.class);
-				if (r != null) {
-					r.olights().add.onNext(g);
-				}
-			}
-		}
+//TODO remove deferred		
+//		if (e instanceof Geometry){
+//			Geometry g = (Geometry)e;
+//			if (Helpers4Lights.isLight(g)) {
+//				AppStateDeferredRendering r = app.getStateManager().getState(AppStateDeferredRendering.class);
+//				if (r != null) {
+//					r.olights().add.onNext(g);
+//				}
+//			}
+//		}
 	}
 
 	void remove(Spatial e) {
@@ -95,14 +95,15 @@ public class GeometryAndPhysic {
 	}
 
 	private void removeLight(Spatial e) {
-		if (e instanceof Geometry){
-			Geometry g = (Geometry)e;
-			if (Helpers4Lights.isLight(g)) {
-				AppStateDeferredRendering r = app.getStateManager().getState(AppStateDeferredRendering.class);
-				if (r != null) {
-					r.olights().remove.onNext(g);
-				}
-			}
-		}
+//TODO remove deferred		
+//		if (e instanceof Geometry){
+//			Geometry g = (Geometry)e;
+//			if (Helpers4Lights.isLight(g)) {
+//				AppStateDeferredRendering r = app.getStateManager().getState(AppStateDeferredRendering.class);
+//				if (r != null) {
+//					r.olights().remove.onNext(g);
+//				}
+//			}
+//		}
 	}
 }

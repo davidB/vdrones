@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import jme3_ext_deferred.Helpers4Lights;
 import jme3_ext_deferred.MaterialConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,9 +106,10 @@ public class EntityFactory {
 		log.info("check level : {}", Tools.checkIndexesOfPosition(level));
 		CfgArea a = new CfgArea();
 		a.name = level.getName();
-		for (Light l : level.getLocalLightList()) {
-			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
-		}
+//TODO remove deferred		
+//		for (Light l : level.getLocalLightList()) {
+//			a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
+//		}
 		Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", true);
 		sky.rotateUpTo(Vector3f.UNIT_Z);
 		addInto(sky, a.bg, "sky");
