@@ -55,4 +55,9 @@ public class TrackRotateYX implements Track {
 		return new TrackRotateYX(length);
 	}
 
+	@Override
+	public float[] getKeyFrameTimes() {
+		return new float[]{0, length};
+	}
+
 }
