@@ -3,7 +3,6 @@ package vdrones;
 import javax.inject.Inject;
 
 import jme3_ext.AppState0;
-import jme3_ext.PageManager;
 import jme3_ext_deferred.AppState4ViewDeferredTexture;
 import jme3_ext_spatial_explorer.AppStateSpatialExplorer;
 import jme3_ext_spatial_explorer.Helper;
@@ -11,6 +10,8 @@ import jme3_ext_spatial_explorer.SpatialExplorer;
 import lombok.RequiredArgsConstructor;
 
 import org.controlsfx.control.action.Action;
+
+import rx.subjects.PublishSubject;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
@@ -22,7 +23,7 @@ import com.jme3.input.controls.KeyTrigger;
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class AppStateDebug extends AppState0 {
 
-	@Inject PageManager pageManager;
+	final PublishSubject<Pages> pm;
 
 	@Override
 	protected void doEnable() {
@@ -40,7 +41,7 @@ public class AppStateDebug extends AppState0 {
 		app.enqueue(() -> {
 			AppStateSpatialExplorer se = app.getStateManager().getState(AppStateSpatialExplorer.class);
 			registerBarAction_ShowDeferredTexture(se.spatialExplorer, app);
-			registerShortcut_GotoPage(pageManager, app);
+			registerShortcut_GotoPage(pm, app);
 			return null;
 		});
 	}
@@ -69,13 +70,13 @@ public class AppStateDebug extends AppState0 {
 		}));
 	}
 
-	public static void registerShortcut_GotoPage(PageManager pageManager, SimpleApplication app) {
+	public static void registerShortcut_GotoPage(PublishSubject<Pages> pm, SimpleApplication app) {
 		final String prefixGoto = "GOTOPAGE_";
 		ActionListener a = new ActionListener() {
 			public void onAction(String name, boolean isPressed, float tpf) {
 				if (isPressed && name.startsWith(prefixGoto)) {
 					int page = Integer.parseInt(name.substring(prefixGoto.length()));
-					pageManager.goTo(page);
+					pm.onNext(Pages.values()[page]);
 				};
 			}
 		};

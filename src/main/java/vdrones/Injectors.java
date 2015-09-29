@@ -8,8 +8,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
+import rx.subjects.PublishSubject;
 import jme3_ext.AppSettingsLoader;
 import jme3_ext.InputMapper;
 import jme3_ext.InputMapperHelpers;
@@ -23,7 +25,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.KeyInput;
-import com.jme3.renderer.lwjgl.LwjglDisplayCustom;
 import com.jme3.system.AppSettings;
 import com.jme3x.jfx.FxPlatformExecutor;
 
@@ -62,9 +63,9 @@ import dagger.Provides;
 //	}
 //}
 
-@Module(library=true, complete=false)
+@Module()
 class DeferredModule {
-
+	
 	@Singleton
 	@Provides
 	public MatIdManager matIdManager() {
@@ -84,8 +85,6 @@ class DeferredModule {
 	}
 }
 @Module(
-		library=true,
-		complete=false,
 		includes = {
 			JmeModule.class,
 			DeferredModule.class,
@@ -141,16 +140,34 @@ class GameSharedModule{
 		}
 		return app;
 	}
-
+//	@Singleton
+//	@Provides
+//	public PageManager pageManager(SimpleApplication app) {
+//		AppState[] pages = new AppState[Pages.values().length];
+//		//pages[Pages.Welcome.ordinal()] = pageWelcome;
+//		//pages[Pages.Run.ordinal()] = pageRun;
+//		//pages[Pages.Settings.ordinal()] = pageSettings;
+//		//pages[Pages.Garage.ordinal()] = pageGarage;
+//		PageManager pageManager = new PageManager(app.getStateManager(), pages);
+//		return pageManager;
+//	}
 	@Singleton
 	@Provides
-	public PageManager pageManager(SimpleApplication app, PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage, PageRun pageRun) {
-		AppState[] pages = new AppState[Pages.values().length];
-		pages[Pages.Welcome.ordinal()] = pageWelcome;
-		pages[Pages.Run.ordinal()] = pageRun;
-		pages[Pages.Settings.ordinal()] = pageSettings;
-		pages[Pages.Garage.ordinal()] = pageGarage;
-		PageManager pageManager = new PageManager(app.getStateManager(), pages);
+	//@Named("pageRequests")
+	public PublishSubject<Pages> pageRequests() {
+		return PublishSubject.create();
+	}
+
+	
+	@Singleton
+	@Provides
+	public PageManager<Pages> pageManager(SimpleApplication app, PublishSubject<Pages> pageRequests, PageWelcome pageWelcome, PageSettings pageSettings, PageGarage pageGarage, PageRun pageRun) {
+		PageManager<Pages> pageManager = new PageManager<>(app.getStateManager());
+		pageManager.pages.put(Pages.Welcome, pageWelcome);
+		pageManager.pages.put(Pages.Run, pageRun);
+		pageManager.pages.put(Pages.Settings, pageSettings);
+		pageManager.pages.put(Pages.Garage, pageGarage);
+		pageRequests.subscribe((p) -> pageManager.goTo(p));
 		return pageManager;
 	}
 
@@ -214,11 +231,6 @@ class GameSharedModule{
  * @author David Bernard
  */
 @Module(
-	injects = {
-		Main.class,
-		SimpleApplication.class,
-		AppStateRun.class,
-	},
 	includes = {
 		GameSharedModule.class,
 	}
@@ -239,7 +251,8 @@ class GameModule {
 		settings.setVSync(true);
 		settings.setFullscreen(false);
 		settings.setDepthBits(24);
-		settings.setCustomRenderer(LwjglDisplayCustom.class);
+		settings.setGammaCorrection(true);
+		settings.setRenderer(AppSettings.LWJGL_OPENGL3); // settings.setCustomRenderer(LwjglDisplayCustom.class);
 		return settings;
 	}
 //
@@ -256,11 +269,6 @@ class GameModule {
  * @author David Bernard
  */
 @Module(
-	injects = {
-		SimpleApplication.class,
-		AppStateRun.class,
-		AppStateDebug.class
-	},
 	includes = {
 		GameSharedModule.class,
 	}
@@ -274,7 +282,8 @@ class Game0Module {
 		settings.setVSync(false);
 		settings.setFullscreen(false);
 		settings.setDepthBits(24);
-		settings.setCustomRenderer(LwjglDisplayCustom.class);
+		settings.setGammaCorrection(true);
+		settings.setRenderer(AppSettings.LWJGL_OPENGL3); // settings.setCustomRenderer(LwjglDisplayCustom.class);
 		settings.setTitle("VDrones Dev");
 		return settings;
 	}

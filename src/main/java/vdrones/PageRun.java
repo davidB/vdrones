@@ -23,7 +23,7 @@ public class PageRun extends AppState0 {
 	@Override
 	public void doInitialize() {
 		hud = hudTools.newHud("Interface/HudRun.fxml", new HudRun());
-		hudTools.scaleToFit(hud, app.getGuiViewPort());
+		//hudTools.scaleToFit(hud, app.getGuiViewPort());
 	}
 
 	protected void doEnable() {

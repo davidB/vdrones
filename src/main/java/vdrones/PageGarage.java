@@ -1,15 +1,14 @@
-package vdrones;
+	package vdrones;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import jme3_ext.AppState0;
 import jme3_ext.Hud;
 import jme3_ext.HudTools;
 import jme3_ext.InputMapper;
-import jme3_ext.PageManager;
 import lombok.RequiredArgsConstructor;
 import rx.Subscription;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
 import com.jme3x.jfx.FxPlatformExecutor;
@@ -21,7 +20,7 @@ import com.jme3x.jfx.FxPlatformExecutor;
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 class PageGarage extends AppState0 {
 	private final HudTools hudTools;
-	private final Provider<PageManager> pm; // use Provider as Hack to break the dependency cycle PageManager -> Page -> PageManager
+	private final PublishSubject<Pages> pm;
 	private final InputMapper inputMapper;
 	private final Commands commands;
 	private final AppStateGarage appGarage;
@@ -33,7 +32,7 @@ class PageGarage extends AppState0 {
 	@Override
 	public void doInitialize() {
 		hud = hudTools.newHud("Interface/HudGarage.fxml", new HudGarage());
-		hudTools.scaleToFit(hud, app.getGuiViewPort());
+		//hudTools.scaleToFit(hud, app.getGuiViewPort());
 	}
 	@Override
 	protected void doEnable() {
@@ -47,7 +46,7 @@ class PageGarage extends AppState0 {
 			HudGarage p = hud.controller;
 			p.back.onActionProperty().set((e) -> {
 				app.enqueue(()-> {
-					pm.get().goTo(Pages.Welcome.ordinal());
+					pm.onNext(Pages.Welcome);
 					return true;
 				});
 			});

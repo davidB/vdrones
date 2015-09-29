@@ -1,7 +1,6 @@
 package vdrones;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import jme3_ext.AppState0;
 import jme3_ext.AudioManager;
@@ -12,6 +11,7 @@ import jme3_ext.PageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import rx.Subscription;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
 import com.jme3.audio.AudioNode;
@@ -21,7 +21,7 @@ import com.jme3x.jfx.FxPlatformExecutor;
 @Slf4j
 public class PageSettings extends AppState0{
 	private final HudTools hudTools;
-	private final Provider<PageManager> pm; // use Provider as Hack to break the dependency cycle PageManager -> Page -> PageManager
+	private final PublishSubject<Pages> pm;
 	private final AudioManager audioMgr;
 	private final HudSettings hudSettings;
 	private final InputMapper inputMapper;
@@ -36,7 +36,7 @@ public class PageSettings extends AppState0{
 	@Override
 	public void doInitialize() {
 		hud = hudTools.newHud("Interface/HudSettings.fxml", hudSettings);
-		hudTools.scaleToFit(hud, app.getGuiViewPort());
+		//hudTools.scaleToFit(hud, app.getGuiViewPort());
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class PageSettings extends AppState0{
 
 			p.back.onActionProperty().set((e) -> {
 				app.enqueue(()-> {
-					pm.get().goTo(Pages.Welcome.ordinal());
+					pm.onNext(Pages.Welcome);
 					return true;
 				});
 			});
