@@ -8,10 +8,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
-import rx.subjects.PublishSubject;
 import jme3_ext.AppSettingsLoader;
 import jme3_ext.InputMapper;
 import jme3_ext.InputMapperHelpers;
@@ -20,9 +18,12 @@ import jme3_ext.PageManager;
 import jme3_ext_deferred.MatIdManager;
 import jme3_ext_deferred.MaterialConverter;
 import jme3_ext_deferred.SceneProcessor4Deferred;
+import rx.subjects.PublishSubject;
+import vdrones.garage.PageGarage;
+import vdrones.settings.Commands;
+import vdrones.settings.PageSettings;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.KeyInput;
 import com.jme3.system.AppSettings;

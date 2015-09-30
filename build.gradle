@@ -6,12 +6,15 @@ buildscript {
 	dependencies {
 		classpath "com.netflix.nebula:gradle-extra-configurations-plugin:3.0.2"
 		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
+		classpath "org.xtend:xtend-gradle-plugin:0.4.8"
+		
 	}
 }
 
 
 //apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/jme-head.gradle'
 apply plugin: 'java'
+apply plugin: 'org.xtend.xtend'
 //apply from: 'lombok.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -56,6 +59,8 @@ def slf4j_version = '1.7.7'
 
 dependencies {
 	compile 'org.projectlombok:lombok:1.+', optional
+	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.8.+'
+	
 	compile 'net.alchim31.jme3:jme3_ext:0.3.0'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
