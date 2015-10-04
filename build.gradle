@@ -59,7 +59,6 @@ def jme_group = 'com.github.jMonkeyEngine.jmonkeyengine'
 def slf4j_version = '1.7.7'
 
 dependencies {
-	compile 'org.projectlombok:lombok:1.+', optional
 	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.8.+'
 	
 	compile 'net.alchim31.jme3:jme3_ext:0.3.0'
