@@ -14,6 +14,8 @@
 *.blend1
 *.blend2
 
+xtend-gen
+
 # eclipse
 /bin/
 /.classpath

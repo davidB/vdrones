@@ -68,7 +68,7 @@ package class CollisionGroups {
 
     def static int from(Spatial src) {
         var Integer v = src.getUserData("CollisionGroup") as Integer
-        return if((v === null)) NONE else v.intValue()
+        return if (v === null) NONE else v.intValue()
     }
 
 }

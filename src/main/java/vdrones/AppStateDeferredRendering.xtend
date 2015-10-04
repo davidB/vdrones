@@ -6,7 +6,7 @@ import jme3_ext_deferred.SceneProcessor4Deferred
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 class AppStateDeferredRendering extends AppState0 {
-    val SceneProcessor4Deferred processor
+    public val SceneProcessor4Deferred processor
 
     // TODO remove deferred		
     // Observable4AddRemove<Geometry> olights(){return  processor.lights.ar;}
