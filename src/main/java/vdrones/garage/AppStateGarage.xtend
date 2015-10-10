@@ -22,6 +22,7 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import vdrones.AppStateDeferredRendering
 import vdrones.AppStatePostProcessing
 import vdrones.EntityFactory
+import com.jme3.util.SkyFactory.EnvMapType
 
 class AppStateGarage extends AppState0 {
     final package AppStatePostProcessing appPostProcessing
@@ -74,7 +75,8 @@ class AppStateGarage extends AppState0 {
 
     def package Node makeScene() {
         var Node scene = new Node("garage")
-        scene.attachChild(SkyFactory.createSky(app.getAssetManager(), "Textures/sky0.jpg", true))
+        var sky = SkyFactory.createSky(app.assetManager, "Textures/sky1.jpg", EnvMapType.SphereMap)
+        scene.attachChild(sky)
         audioBg = makeAudioBg()
         scene.attachChild(audioBg)
         scene.attachChild(makeDrone())

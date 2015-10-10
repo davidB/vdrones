@@ -40,6 +40,7 @@ import javax.inject.Inject
 import jme3_ext_deferred.MaterialConverter
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.slf4j.LoggerFactory
+import com.jme3.util.SkyFactory.EnvMapType
 
 package class CollisionGroups {
     static final package int NONE = 0
@@ -101,7 +102,7 @@ class EntityFactory {
         // for (Light l : level.getLocalLightList()) {
         // a.bg.add(Helpers4Lights.toGeometry(l, true, assetManager));
         // }
-        var sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", true)
+        var sky = SkyFactory.createSky(assetManager, "Textures/sky1.jpg", EnvMapType.SphereMap)
         sky.rotateUpTo(Vector3f.UNIT_Z)
         addInto(sky, a.bg, "sky")
         extract(level, "backgrounds").forEach[v|addInto(v, a.bg, "backgrounds")]
