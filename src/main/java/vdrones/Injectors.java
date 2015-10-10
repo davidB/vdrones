@@ -18,6 +18,7 @@ import jme3_ext.PageManager;
 import jme3_ext_deferred.MatIdManager;
 import jme3_ext_deferred.MaterialConverter;
 import jme3_ext_deferred.SceneProcessor4Deferred;
+import jme3_ext_spatial_explorer.Helper;
 import rx.subjects.PublishSubject;
 import vdrones.garage.PageGarage;
 import vdrones.settings.Commands;
@@ -28,6 +29,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.input.KeyInput;
 import com.jme3.system.AppSettings;
 import com.jme3x.jfx.FxPlatformExecutor;
+import com.sun.javafx.application.PlatformImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -118,6 +120,8 @@ class GameSharedModule{
 		SimpleApplication app = new SimpleApplication(){
 			@Override
 			public void simpleInitApp() {
+				PlatformImpl.startup(() -> {
+				});
 				initializedSignal.countDown();
 			}
 

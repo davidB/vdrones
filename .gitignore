@@ -28,3 +28,4 @@ xtend-gen
 **/private
 **/genfiles.properties
 /.nb-gradle/profiles/jme.profile
+/.build/
