@@ -10,7 +10,7 @@ class VDroneInfoTest {
 		val vi = sut.get()
 		sut.save()
 		Assert.assertEquals(vi, sut.get())
-		Assert.assertEquals(VDroneInfoExt.ProfileMaxName, vi.profileActive)
+		Assert.assertEquals(VDroneInfoExt.Profile0Name, vi.profileActive)
 		Assert.assertEquals(1, vi.profilesList.size)
 		Assert.assertEquals(0, vi.itemsList.size)
 		Assert.assertEquals(0, vi.runsList.size)

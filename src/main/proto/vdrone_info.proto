@@ -33,8 +33,8 @@ message Item {
 message Profile {
   required string name = 1;
   required int64 last_modification = 2;
-  optional float propulsion_forward = 3 [default = 1.0];
-  optional float rotation_speed = 4 [default = 1.0];
+  optional float propulsion_forward = 3 [default = 0.0];
+  optional float rotation_speed = 4 [default = 0.0];
   optional float propulsion_side = 5 [default = 0.0];
   optional float propulsion_backward = 6 [default = 0.0];
   optional float jumper = 7 [default = 0.0];
@@ -42,4 +42,14 @@ message Profile {
   optional float shield_blue = 9 [default = 0.0];
   optional float shield_red = 10 [default = 0.0];
   optional float shield_green = 11 [default = 0.0];
+  optional float energy_provider = 12 [default = 0.0];
+  optional float energy_store = 13 [default = 0.0];
+  optional float attractor_radius = 14 [default = 0.0];
+  optional float attractor_power = 15 [default = 0.0];
+  optional float linear_damping = 16 [default = 0.0];
+  optional float energy_propulsion = 17 [default = 0.0];
+  optional float energy_shield = 18 [default = 0.0];
+  optional float health_max = 19 [default = 0.0];
+  optional float grab_radius = 20 [default = 0.0];
+  optional float exit_radius = 21 [default = 0.0];
 }
