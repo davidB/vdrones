@@ -4,57 +4,106 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
-		classpath "net.alchim31.gradle:gradle-getdown-plugin:0.4.1"
-		classpath "org.xtend:xtend-gradle-plugin:0.3.4"
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+		classpath 'net.alchim31.gradle:gradle-getdown-plugin:0.4.1'
+		classpath 'org.xtend:xtend-gradle-plugin:0.4.12'
+		classpath 'com.cinnober.gradle:semver-git:2.2.0'
 		classpath 'io.protostuff:protostuff-compiler:1.3.1'
 	}
 }
 
 
-apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/jme-head.gradle'
-apply plugin: 'application'
-apply plugin: "org.xtend.xtend"
+//apply from: 'https://gist.githubusercontent.com/davidB/4c520c9dc1b3fddcf0ec/raw/jme-head.gradle'
+apply plugin: 'java'
+apply plugin: 'org.xtend.xtend'
+//apply from: 'lombok.gradle'
+ext.nextVersion = "patch"
+ext.snapshotSuffix = "<count>.g<sha>"
+apply plugin: 'com.cinnober.gradle.semver-git'
 
-version = '0.24.0'
-group = 'net.alchim31.games'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+	mavenLocal()
+	jcenter()
+	maven { url "http://updates.jmonkeyengine.org/maven/"}
+	maven { url "http://dl.bintray.com/jmonkeyengine/contrib" }
+	maven { url "https://jitpack.io" }
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDirs = ["$projectDir/src/main/resources", "$projectDir/src/main/assets", "$projectDir/assets"]
+			exclude "**/*.blend*"
+		}
+	}
+}
+
+
+apply plugin: 'application'
+apply plugin: 'eclipse'
+apply plugin: 'nebula.optional-base'
+apply plugin: 'nebula.provided-base'
+
+//version = '0.24.0'
+group = 'com.github.davidb'
 mainClassName = 'vdrones.Main'
 applicationDefaultJvmArgs = ['-ea']
 
-def v_jme = '3.0.10'
-//def v_jme = '3.1.0-snapshot-github'
-def v_slf4j = '1.7.7'
+//def jme_version = '3.1.0-snapshot-github'
+//def jme_version = '3.1.0-HEAD-SNAPSHOT'
+//def jme_group = 'com.jme3'
+//def jme_version = 'v3.1-alpha1'
+def jme_version = '953a301d5e'
+def jme_group = 'com.github.jMonkeyEngine.jmonkeyengine'
+
+def slf4j_version = '1.7.7'
 
 dependencies {
-	provided 'org.projectlombok:lombok:1.14.2'
 	compile 'io.protostuff:protostuff-core:1.3.1'
-	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.7.+'
-	compile 'net.alchim31.jme3:jme3_ext:0.+'
+	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.8.+'
+
+	compile 'com.github.davidb:jme3_ext:0.0.1-SNAPSHOT'
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
-	compile 'net.alchim31.jme3:jme3_ext_remote_editor:0+'
-	compile "com.jme3:jme3-core:${v_jme}"
-	compile "com.jme3:jme3-effects:${v_jme}"
-	compile ("com.jme3:jme3-jbullet:${v_jme}"){
+
+	compile "${jme_group}:jme3-core:${jme_version}"
+	compile "${jme_group}:jme3-effects:${jme_version}"
+//	compile "${jme_group}:jme3-bullet:${jme_version}"
+	compile ("${jme_group}:jme3-jbullet:${jme_version}"){
 		exclude module: "jbullet"
 		exclude module: "jme3-terrain"
 	}
 	compile ('net.alchim31.jme3:jmbullet:0.3.0'){
 		exclude module: "jbullet"
 	}
-	compile "org.slf4j:slf4j-api:${v_slf4j}"
-	compile "com.jme3x:jfx:1.+"
-	compile 'com.squareup.dagger:dagger:1.2.+'
-	provided 'com.squareup.dagger:dagger-compiler:1.2.+'
-	compile 'com.netflix.rxjava:rxjava-core:0.19.2'
-	compile "com.jme3:jme3-lwjgl:${v_jme}"
-	runtime("com.jme3:jme3-desktop:${v_jme}"){
+	compile "${jme_group}:jme3-lwjgl:${jme_version}"
+	runtime("${jme_group}:jme3-desktop:${jme_version}"){
 		exclude module: "jinput"
 	}
 	runtime 'net.java.jinput:jinput:2.0.6'
-	runtime "com.jme3:jme3-jogg:${v_jme}"
-	//runtime "org.slf4j:slf4j-jdk14:${v_slf4j}"
-	runtime "org.slf4j:jul-to-slf4j:${v_slf4j}"
+	runtime "${jme_group}:jme3-jogg:${jme_version}"
+
+	compile "org.slf4j:slf4j-api:${slf4j_version}"
+	compile "com.jme3x:jfx:1.+"
+
+	//compile 'com.google.inject:guice:4.0'
+	//compile 'com.google.inject.extensions:guice-dagger-adapter:4.0'
+
+	//compile 'com.squareup.dagger:dagger:1.2.+'
+	//provided 'com.squareup.dagger:dagger-compiler:1.2.+'
+
+	compile 'com.google.dagger:dagger:2.0.1'
+	compile 'com.google.dagger:dagger-compiler:2.0.1', optional
+
+	//compile 'com.netflix.rxjava:rxjava-core:0.19.2'
+	compile 'io.reactivex:rxjava:1.0.14'
+
+	//runtime "org.slf4j:slf4j-jdk14:${slf4j_version}"
+	runtime "org.slf4j:jul-to-slf4j:${slf4j_version}"
 	runtime 'ch.qos.logback:logback-classic:1.1.2'
 	runtime 'net.alchim31.jme3:jme3_ext:0.2.0:textures'
 	testCompile 'junit:junit:4.11'
