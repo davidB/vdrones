@@ -6,6 +6,7 @@ import com.jme3.bullet.BulletAppState
 import javax.inject.Inject
 import jme3_ext.AppState0
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import vdrones_levelselection.PageLevelSelection
 
 class AppStateRun extends AppState0 {
     final PageLevelSelection pls

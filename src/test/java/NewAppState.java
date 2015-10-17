@@ -4,9 +4,8 @@
  * and open the template in the editor.
  */
 
-
-
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -57,9 +56,10 @@ public class NewAppState extends AbstractAppState {
     }
 }
 
-@Slf4j
 class SceneGraphVisitorDemo implements SceneGraphVisitor {
 
+	final Logger log = LoggerFactory.getLogger(this.getClass());
+	
     @Override
     public void visit(Spatial spatial) {
         if (spatial instanceof Geometry) {
@@ -70,7 +70,7 @@ class SceneGraphVisitorDemo implements SceneGraphVisitor {
     }
 
     public void visit(Spatial spatial, Box shape) {
-        log.info("%{} as box x({}), y({}), z({})", spatial.getName(), shape.getXExtent(), shape.getYExtent(), shape.getZExtent());
+        log.info("{} as box x({}), y({}), z({})", spatial.getName(), shape.getXExtent(), shape.getYExtent(), shape.getZExtent());
     }
 
     public void visit(Spatial spatial, Sphere shape) {

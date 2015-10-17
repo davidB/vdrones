@@ -32,7 +32,7 @@ class PageRunEnd extends AppState0 {
 	AudioNode audioGameOver
 	AudioNode audioTryAgain
 	public boolean success = true
-	package int score = 0
+	public int score = 0
 
 	override void doInitialize() {
 		hud = hudTools.newHud("Interface/HudRunEnd.fxml", new HudRunEnd()) // try {
