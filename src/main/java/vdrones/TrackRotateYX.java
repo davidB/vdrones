@@ -55,4 +55,10 @@ public class TrackRotateYX implements Track {
 		return new TrackRotateYX(length);
 	}
 
+	@Override
+	public float[] getKeyFrameTimes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

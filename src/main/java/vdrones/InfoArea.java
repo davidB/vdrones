@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import lombok.RequiredArgsConstructor;
 import rx.Observable;
 
 import com.jme3.math.Rectangle;
@@ -27,7 +26,6 @@ class CfgArea {
 	final List<Location> exitPoints = new ArrayList<>();
 }
 
-@RequiredArgsConstructor
 enum Area {
 	//A00(true, null, 360),
 	//A01(true, null, 360),
@@ -40,8 +38,10 @@ enum Area {
 	final boolean enable;
 	final String music;
 	final float time;
-//	Area(String music, float time) {
-//		this.music = music;
-//		this.time = time;
-//	}
+	
+	Area(boolean enable, String music, float time) {
+		this.enable = enable;
+		this.music = music;
+		this.time = time;
+	}
 }

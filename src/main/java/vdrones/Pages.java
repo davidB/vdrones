@@ -1,6 +1,6 @@
 /// License [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
 package vdrones;
-enum Pages {
+public enum Pages {
 
 	Welcome,
 	Garage,

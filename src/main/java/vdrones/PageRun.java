@@ -9,11 +9,12 @@ import jme3_ext.AppState0;
 import jme3_ext.Hud;
 import jme3_ext.HudTools;
 import jme3_ext.PageManager;
-import lombok.RequiredArgsConstructor;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
+import vdrones_runend.PageRunEnd;
+import vdrones_settings.Commands;
 
 @RequiredArgsConstructor(onConstructor=@__(@Inject))
 public class PageRun extends AppState0 {
