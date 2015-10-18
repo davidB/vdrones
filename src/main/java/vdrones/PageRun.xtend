@@ -87,7 +87,7 @@ class PageRun extends AppState0 {
 
 			override void onNext(InfoArea area) {
 				terminate()
-				subscription = area.clock.map(null).distinctUntilChanged().subscribe[v| hud.controller.clock = v]
+				subscription = area.clock.map[it.intValue()].distinctUntilChanged().subscribe[v| hud.controller.clock = v]
 			}
 		})
 		var Subscription s5 = Subscriptions::from(commands.exit.value.subscribe[v|

@@ -13,10 +13,12 @@ import rx.subscriptions.Subscriptions
 import vdrones.Area
 import vdrones.Pages
 import vdrones_settings.Commands
+import javax.inject.Singleton
 
 /** 
  * @author David Bernard
  */
+@Singleton
 class PageLevelSelection extends AppState0 {
 	final HudTools hudTools
 	val PublishSubject<Pages> pm
