@@ -43,6 +43,7 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.slf4j.LoggerFactory
 import com.jme3.util.SkyFactory.EnvMapType
 import jme3_ext_spatial_explorer.Helper
+import jme3_ext_xbuf.XbufLoader
 
 package class CollisionGroups {
 	static final package int NONE = 0
@@ -87,7 +88,7 @@ class EntityFactory {
 	public final MaterialConverter mc
 
 	def CfgArea newLevel(Area area) {
-		val b = assetManager.loadModel('''Scenes/«area.name()».xbuf''')
+		val b = assetManager.loadModel('''Scenes/«area?.name()».xbuf''')
 		Tools.dump(b)
 		b.breadthFirstTraversal(mc)
 		val c = newLevel(b)
@@ -449,7 +450,7 @@ class EntityFactory {
 	new(AssetManager assetManager, MaterialConverter mc) {
 		this.assetManager = assetManager
 		this.mc = mc
-//TODO        assetManager.registerLoader(XbufLoader.class, "xbuf")
+		assetManager.registerLoader(XbufLoader, "xbuf");
 	}
 }
 
