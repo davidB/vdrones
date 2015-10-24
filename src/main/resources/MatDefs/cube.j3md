@@ -8,6 +8,7 @@ MaterialDef cube {
 		Color ColorA
 	}
 	Technique {
+		NoRender
 	}
 	Technique GBuf {
 

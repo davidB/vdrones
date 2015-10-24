@@ -55,10 +55,12 @@ applicationDefaultJvmArgs = ['-ea']
 
 //def jme_version = '3.1.0-snapshot-github'
 //def jme_version = '3.1.0-HEAD-SNAPSHOT'
-//def jme_group = 'com.jme3'
+def jme_version = '3.1.0-SNAPSHOT'
+def jme_group = 'com.jme3'
 //def jme_version = 'v3.1-alpha1'
-def jme_version = '953a301d5e'
-def jme_group = 'com.github.jMonkeyEngine.jmonkeyengine'
+//def jme_version = '3.0.10'
+//def jme_version = '953a301d5e'
+//def jme_group = 'com.github.jMonkeyEngine.jmonkeyengine'
 //def jme3_xbuf_version = '0.7.2'
 //def jme3_xbuf_version = '2e704b5b85f4f'
 def jme3_xbuf_version = '0.7.3-1.g2e704b5'
@@ -70,7 +72,7 @@ dependencies {
 	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.8.+'
 
 	compile 'com.github.davidb:jme3_ext:0.0.1-SNAPSHOT'
-	compile 'net.alchim31.jme3:jme3_ext_deferred:0.+'
+	compile 'net.alchim31.jme3:jme3_ext_deferred:0.2.0'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
 	compile "org.xbuf.jme3_xbuf:jme3_xbuf_loader:${jme3_xbuf_version}"
 	
