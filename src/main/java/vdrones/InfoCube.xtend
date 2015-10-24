@@ -7,7 +7,8 @@ import com.jme3.app.SimpleApplication
 import com.jme3.export.JmeExporter
 import com.jme3.export.JmeImporter
 import com.jme3.export.Savable
-import com.jme3.math.Rectangle
+import com.jme3.math.FastMath
+import com.jme3.math.Transform
 import com.jme3.math.Vector3f
 import com.jme3.scene.Node
 import com.jme3.scene.Spatial
@@ -72,18 +73,17 @@ class InfoCube implements Savable {
 
 }
 
-class GenCube extends Subscriber<List<List<Rectangle>>> {
+class GenCube extends Subscriber<List<List<Transform>>> {
     final PublishSubject<InfoCube> cubes0 = PublishSubject.create()
     package Observable<InfoCube> cubes = cubes0
-    var List<List<Rectangle>> cubeZones
+    var List<List<Transform>> cubeZones
 
     val translateNext = [InfoCube c|
-        var List<Rectangle> zones = cubeZones.get(c.zone)
+        val zones = cubeZones.get(c.zone)
         c.subzone = (c.subzone + 1) % zones.size()
-        var Rectangle r = zones.get(c.subzone)
-        var Vector3f pos = r.random()
-	pos.y = 1.0f
-        System.out.println('''pos r:«pos» .. «c.subzone» / «zones.size()» .. «r.getA()»«r.getB()»«r.getC()»''')
+        val r = zones.get(c.subzone)
+        val pos = r.transformVector(new Vector3f(FastMath.nextRandomFloat(), 1.0f, FastMath.nextRandomFloat()), new Vector3f());  
+        System.out.println('''pos r:«pos» .. «c.subzone» / «zones.size()» .. «pos»''')
         c.node.setLocalTranslation(pos)
         return c
     ]
@@ -96,7 +96,7 @@ class GenCube extends Subscriber<List<List<Rectangle>>> {
         cubes0.onError(e)
     }
 
-    override void onNext(List<List<Rectangle>> t) {
+    override void onNext(List<List<Transform>> t) {
         cubeZones = t
         if (cubeZones.size() > 0) {
             for (var int i = cubeZones.size() - 1; i > -1; i--) {

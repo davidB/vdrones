@@ -8,7 +8,6 @@ package vdrones
 import com.jme3.animation.AnimControl
 import com.jme3.animation.Animation
 import com.jme3.asset.AssetManager
-import com.jme3.bounding.BoundingBox
 import com.jme3.bullet.collision.shapes.BoxCollisionShape
 import com.jme3.bullet.collision.shapes.CollisionShape
 import com.jme3.bullet.collision.shapes.MeshCollisionShape
@@ -19,7 +18,7 @@ import com.jme3.bullet.joints.SixDofSpringJoint
 import com.jme3.material.Material
 import com.jme3.math.ColorRGBA
 import com.jme3.math.Matrix3f
-import com.jme3.math.Rectangle
+import com.jme3.math.Transform
 import com.jme3.math.Vector3f
 import com.jme3.renderer.queue.RenderQueue.ShadowMode
 import com.jme3.scene.Geometry
@@ -30,8 +29,8 @@ import com.jme3.scene.VertexBuffer
 import com.jme3.scene.control.Control
 import com.jme3.scene.mesh.IndexBuffer
 import com.jme3.scene.shape.Box
-import com.jme3.scene.shape.Quad
 import com.jme3.util.SkyFactory
+import com.jme3.util.SkyFactory.EnvMapType
 import java.nio.Buffer
 import java.util.ArrayList
 import java.util.Collection
@@ -39,11 +38,10 @@ import java.util.List
 import java.util.stream.Stream
 import javax.inject.Inject
 import jme3_ext_deferred.MaterialConverter
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
-import org.slf4j.LoggerFactory
-import com.jme3.util.SkyFactory.EnvMapType
 import jme3_ext_spatial_explorer.Helper
 import jme3_ext_xbuf.XbufLoader
+import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.slf4j.LoggerFactory
 
 package class CollisionGroups {
 	static final package int NONE = 0
@@ -150,22 +148,9 @@ class EntityFactory {
 	// TODO use empty Spatial, scale (to have the bounding box
 	// TODO sort by name
 	// TODO add support for non AABB zone 
-	def private List<Rectangle> extractZone(Spatial src) {
+	def private List<Transform> extractZone(Spatial src) {
 		System.out.println('''src name «src.getName()» . «(src as Node).getQuantity()»''')
-		return (src as Node).getChildren().map [ v |
-			val quad = (v as Geometry).getMesh() as Quad
-			// quad.getHeight() and quad.getWidth() are equals to 0
-			// float xe = quad.getHeight() * 0.5;
-			// float ye = quad.getWidth() * 0.5;
-			val xe = (quad.getBound() as BoundingBox).getXExtent()
-			val ye = (quad.getBound() as BoundingBox).getYExtent()
-			val t = v.getWorldTransform()
-			val a = t.transformVector(new Vector3f(xe, ye, 0.0f), null)
-			val b = t.transformVector(new Vector3f(0.0f, ye, 0.0f), null)
-			val c = t.transformVector(new Vector3f(xe, 0.0f, 0.0f), null)
-			System.out.printf("Zone rect :a %s b %s c %s w %s h %s\n", a, b, c, xe, ye)
-			new Rectangle(a, b, c) // bc is hypothesus
-		].toList()
+		return (src as Node).getChildren().map [ it.getWorldTransform].toList()
 	}
 
 	/*
