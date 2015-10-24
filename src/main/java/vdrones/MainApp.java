@@ -1,18 +1,17 @@
 package vdrones;
 
-import javafx.scene.Scene;
-import javafx.scene.text.Font;
-
 import javax.inject.Inject;
-
-import jme3_ext.AudioManager;
-import jme3_ext.PageManager;
-import jme3_ext.SetupHelpers;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3x.jfx.FxPlatformExecutor;
 import com.jme3x.jfx.GuiManager;
+
+import javafx.scene.Scene;
+import javafx.scene.text.Font;
+import jme3_ext.AudioManager;
+import jme3_ext.PageManager;
+import jme3_ext.SetupHelpers;
 
 public class MainApp {
 	//HACK to receive service without need to explicitly list them and to initialize them
