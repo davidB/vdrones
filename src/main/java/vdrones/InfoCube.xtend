@@ -82,7 +82,8 @@ class GenCube extends Subscriber<List<List<Transform>>> {
         val zones = cubeZones.get(c.zone)
         c.subzone = (c.subzone + 1) % zones.size()
         val r = zones.get(c.subzone)
-        val pos = r.transformVector(new Vector3f(FastMath.nextRandomFloat(), 1.0f, FastMath.nextRandomFloat()), new Vector3f());  
+        val pos = r.transformVector(new Vector3f(FastMath.nextRandomFloat(), 1.0f, FastMath.nextRandomFloat()), new Vector3f());
+        pos.y = 1.0f //FIXME remove hardcoded value  
         System.out.println('''pos r:«pos» .. «c.subzone» / «zones.size()» .. «pos»''')
         c.node.setLocalTranslation(pos)
         return c
