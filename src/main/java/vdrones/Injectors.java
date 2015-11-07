@@ -67,7 +67,7 @@ import vdrones_settings.PageSettings;
 
 @Module()
 class DeferredModule {
-	
+
 	@Singleton
 	@Provides
 	public MatIdManager matIdManager() {
@@ -162,7 +162,7 @@ class GameSharedModule{
 		return PublishSubject.create();
 	}
 
-	
+
 	@Singleton
 	@Provides
 	public PageManager<Pages> pageManager(SimpleApplication app, PublishSubject<Pages> pageRequests,
@@ -267,7 +267,10 @@ class GameModule {
 		settings.setFullscreen(false);
 		settings.setDepthBits(24);
 		settings.setGammaCorrection(true);
-		settings.setRenderer(AppSettings.LWJGL_OPENGL3); // settings.setCustomRenderer(LwjglDisplayCustom.class);
+		//settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+		settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
+		settings.setAudioRenderer(AppSettings.JOAL);
+		// settings.setCustomRenderer(LwjglDisplayCustom.class);
 		return settings;
 	}
 //

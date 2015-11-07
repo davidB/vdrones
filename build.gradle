@@ -53,8 +53,6 @@ group = 'com.github.davidb'
 mainClassName = 'vdrones.Main'
 applicationDefaultJvmArgs = ['-ea']
 
-//def jme_version = '3.1.0-snapshot-github'
-//def jme_version = '3.1.0-HEAD-SNAPSHOT'
 def jme_version = '3.1.0-SNAPSHOT'
 def jme_group = 'com.jme3'
 //def jme_version = 'v3.1-alpha1'
@@ -75,7 +73,7 @@ dependencies {
 	compile 'net.alchim31.jme3:jme3_ext_deferred:0.2.0'
 	compile 'net.alchim31.jme3:jme3_ext_spatial_explorer:0+'
 	compile "org.xbuf.jme3_xbuf:jme3_xbuf_loader:${jme3_xbuf_version}"
-	
+
 	compile "${jme_group}:jme3-core:${jme_version}"
 	compile "${jme_group}:jme3-effects:${jme_version}"
 //	compile "${jme_group}:jme3-bullet:${jme_version}"
@@ -87,6 +85,7 @@ dependencies {
 		exclude module: "jbullet"
 	}
 	compile "${jme_group}:jme3-lwjgl:${jme_version}"
+	compile "${jme_group}:jme3-jogl:${jme_version}"
 	runtime("${jme_group}:jme3-desktop:${jme_version}"){
 		exclude module: "jinput"
 	}
