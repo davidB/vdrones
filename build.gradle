@@ -60,8 +60,8 @@ def jme_group = 'com.jme3'
 //def jme_version = '953a301d5e'
 //def jme_group = 'com.github.jMonkeyEngine.jmonkeyengine'
 //def jme3_xbuf_version = '0.7.2'
-//def jme3_xbuf_version = '2e704b5b85f4f'
-def jme3_xbuf_version = '0.7.3-1.g2e704b5'
+def jme3_xbuf_version = 'c3fd0f1928'
+//def jme3_xbuf_version = '0.7.3-1.g2e704b5'
 
 def slf4j_version = '1.7.12'
 
